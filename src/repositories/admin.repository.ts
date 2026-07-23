@@ -1,5 +1,10 @@
 import { query } from "../config/database";
 
+export async function findPrinterById(id: number) {
+  const result = await query("SELECT * FROM printers WHERE id = $1", [id]);
+  return result.rows[0] ?? null;
+}
+
 export async function listPrinters() {
   const result = await query("SELECT * FROM printers ORDER BY created_at DESC");
   return result.rows;
@@ -47,17 +52,34 @@ export async function createPrinter(params: {
   return result.rows[0];
 }
 
-export async function updatePrinter(params: {
-  id: number;
-  name?: string;
-  printerType?: string;
-  connectionType?: string;
-  ipAddress?: string;
-  agentKey?: string;
-  organizationId?: number;
-  location?: string;
-  status?: string;
-}) {
+export async function updatePrinter(
+  id: number | {
+    id: number;
+    name?: string;
+    printerType?: string;
+    connectionType?: string;
+    ipAddress?: string;
+    agentKey?: string;
+    organizationId?: number;
+    location?: string;
+    status?: string;
+  },
+  updates?: {
+    status?: string;
+    black_toner_level?: number | null;
+    last_checked_at?: Date;
+  }
+) {
+  const targetId = typeof id === "number" ? id : id.id;
+  const status = updates?.status ?? (typeof id === "object" ? id.status : null);
+  const name = typeof id === "object" ? id.name : null;
+  const printerType = typeof id === "object" ? id.printerType : null;
+  const connectionType = typeof id === "object" ? id.connectionType : null;
+  const ipAddress = typeof id === "object" ? id.ipAddress : null;
+  const agentKey = typeof id === "object" ? id.agentKey : null;
+  const organizationId = typeof id === "object" ? id.organizationId : null;
+  const location = typeof id === "object" ? id.location : null;
+
   const sql = `
     UPDATE printers
     SET name = COALESCE($2, name),
@@ -74,15 +96,15 @@ export async function updatePrinter(params: {
   `;
 
   const result = await query(sql, [
-    params.id,
-    params.name ?? null,
-    params.printerType ?? null,
-    params.connectionType ?? null,
-    params.ipAddress ?? null,
-    params.agentKey ?? null,
-    params.organizationId ?? null,
-    params.location ?? null,
-    params.status ?? null
+    targetId,
+    name ?? null,
+    printerType ?? null,
+    connectionType ?? null,
+    ipAddress ?? null,
+    agentKey ?? null,
+    organizationId ?? null,
+    location ?? null,
+    status ?? null
   ]);
 
   return result.rows[0] ?? null;

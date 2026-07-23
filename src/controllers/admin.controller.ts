@@ -19,7 +19,13 @@ export async function createPrinter(req: Request, res: Response) {
 }
 
 export async function updatePrinter(req: Request, res: Response) {
-  return ok(res, await service.updatePrinter(req.params.id, req.body, req.user!));
+  const printerId = Array.isArray(req.params.id) ? Number(req.params.id[0]) : Number(req.params.id);
+  return ok(res, await service.updatePrinter(printerId, req.body, req.user!));
+}
+
+export async function syncPrinterSnmp(req: Request, res: Response) {
+  const printerId = Array.isArray(req.params.id) ? Number(req.params.id[0]) : Number(req.params.id);
+  return ok(res, await service.syncPrinterSnmp(printerId, req.user!));
 }
 
 export async function listPolicies(_req: Request, res: Response) {

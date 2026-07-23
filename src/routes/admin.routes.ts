@@ -6,6 +6,7 @@ import {
   listPolicies,
   listPrinters,
   listTemplates,
+  syncPrinterSnmp,
   updatePolicy,
   updatePrinter,
   updateTemplate
@@ -18,6 +19,7 @@ const router = Router();
 router.get("/printers", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listPrinters));
 router.post("/printers", requireRole(["ADMIN"]), asyncHandler(createPrinter));
 router.patch("/printers/:id", requireRole(["ADMIN"]), asyncHandler(updatePrinter));
+router.post("/printers/:id/snmp-sync", requireRole(["ADMIN", "MANAGER"]), asyncHandler(syncPrinterSnmp));
 
 router.get("/approval-policies", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listPolicies));
 router.post("/approval-policies", requireRole(["ADMIN"]), asyncHandler(createPolicy));

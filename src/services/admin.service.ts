@@ -2,6 +2,7 @@ import {
   createPolicy,
   createPrinter,
   createTemplate,
+  findPrinterById,
   listPolicies,
   listPrinters,
   listTemplates,
@@ -10,8 +11,9 @@ import {
   updateTemplate
 } from "../repositories/admin.repository";
 import { createAuditLog } from "../repositories/audit.repository";
-import { ForbiddenError, NotFoundError } from "../errors/app-error";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/app-error";
 import { findOrganizationById } from "../repositories/organization.repository";
+import { fetchSnmpPrinterStatus } from "./snmp.service";
 
 interface ActorContext {
   id: number;
@@ -232,5 +234,38 @@ export class AdminService {
         targetOrganizationId
       });
     }
+  }
+
+  public async syncPrinterSnmp(id: number, actor: ActorContext) {
+    const printer: any = await findPrinterById(id);
+    if (!printer) {
+      throw new NotFoundError("Printer not found", { id });
+    }
+
+    await this.validateOrganizationScope(printer.organization_id || printer.organizationId, actor);
+
+    const ipAddress = printer.ip_address || printer.ipAddress;
+    if (!ipAddress) {
+      throw new BadRequestError("Printer IP address is missing", { id });
+    }
+
+    const snmpResult = await fetchSnmpPrinterStatus(ipAddress);
+
+    const updatedPrinter = await updatePrinter(id, {
+      status: snmpResult.connectivityStatus
+    });
+
+    await createAuditLog({
+      actorId: actor.id,
+      actionType: "SYNC_SNMP",
+      targetType: "PRINTER",
+      targetId: id,
+      detailJson: { status: snmpResult.connectivityStatus, tonerLevel: snmpResult.blackTonerLevel }
+    });
+
+    return {
+      printer: updatedPrinter,
+      snmpResult
+    };
   }
 }
