@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ApprovalService } from "../services/approval.service";
 import { fail, ok } from "../utils/api-response";
+import { getParamString } from "../utils/params";
 
 const service = new ApprovalService();
 
@@ -12,7 +13,7 @@ export async function approveRequest(req: Request, res: Response) {
   return ok(
     res,
     await service.approve(
-      req.params.printRequestId,
+      getParamString(req.params.printRequestId),
       req.user!.id,
       req.user!.roleCode,
       req.body.comment
@@ -28,7 +29,7 @@ export async function rejectRequest(req: Request, res: Response) {
   return ok(
     res,
     await service.reject(
-      req.params.printRequestId,
+      getParamString(req.params.printRequestId),
       req.user!.id,
       req.user!.roleCode,
       req.body.reason

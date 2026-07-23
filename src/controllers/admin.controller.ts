@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AdminService } from "../services/admin.service";
 import { fail, ok } from "../utils/api-response";
+import { getParamString } from "../utils/params";
 
 const service = new AdminService();
 
@@ -19,12 +20,12 @@ export async function createPrinter(req: Request, res: Response) {
 }
 
 export async function updatePrinter(req: Request, res: Response) {
-  const printerId = Array.isArray(req.params.id) ? Number(req.params.id[0]) : Number(req.params.id);
+  const printerId = getParamString(req.params.id);
   return ok(res, await service.updatePrinter(printerId, req.body, req.user!));
 }
 
 export async function syncPrinterSnmp(req: Request, res: Response) {
-  const printerId = Array.isArray(req.params.id) ? Number(req.params.id[0]) : Number(req.params.id);
+  const printerId = Number(getParamString(req.params.id));
   return ok(res, await service.syncPrinterSnmp(printerId, req.user!));
 }
 
@@ -43,7 +44,7 @@ export async function createPolicy(req: Request, res: Response) {
 }
 
 export async function updatePolicy(req: Request, res: Response) {
-  return ok(res, await service.updatePolicy(req.params.id, req.body, req.user!));
+  return ok(res, await service.updatePolicy(getParamString(req.params.id), req.body, req.user!));
 }
 
 export async function listTemplates(_req: Request, res: Response) {
@@ -61,5 +62,5 @@ export async function createTemplate(req: Request, res: Response) {
 }
 
 export async function updateTemplate(req: Request, res: Response) {
-  return ok(res, await service.updateTemplate(req.params.id, req.body, req.user!));
+  return ok(res, await service.updateTemplate(getParamString(req.params.id), req.body, req.user!));
 }

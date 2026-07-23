@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrintRequestService } from "../services/print-request.service";
 import { fail, ok } from "../utils/api-response";
+import { getParamString } from "../utils/params";
 
 const service = new PrintRequestService();
 
@@ -9,7 +10,7 @@ export async function listPrintRequests(_req: Request, res: Response) {
 }
 
 export async function getPrintRequest(req: Request, res: Response) {
-  return ok(res, await service.getById(req.params.id));
+  return ok(res, await service.getById(getParamString(req.params.id)));
 }
 
 export async function createPrintRequest(req: Request, res: Response) {
@@ -29,5 +30,5 @@ export async function reprintRequest(req: Request, res: Response) {
     return fail(res, "copies and reprintReason are required", 400);
   }
 
-  return ok(res, await service.reprint(req.params.id, req.body, req.user!), 201);
+  return ok(res, await service.reprint(getParamString(req.params.id), req.body, req.user!), 201);
 }

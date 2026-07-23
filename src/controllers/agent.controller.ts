@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AgentService } from "../services/agent.service";
 import { fail, ok } from "../utils/api-response";
+import { getParamString } from "../utils/params";
 
 const service = new AgentService();
 
@@ -21,5 +22,5 @@ export async function updateAgentJobStatus(req: Request, res: Response) {
     return fail(res, "jobStatus is required", 400);
   }
 
-  return ok(res, await service.updateStatus(req.params.jobId, jobStatus, failureReason));
+  return ok(res, await service.updateStatus(getParamString(req.params.jobId), jobStatus, failureReason));
 }

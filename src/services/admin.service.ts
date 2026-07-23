@@ -41,7 +41,11 @@ export class AdminService {
   }, actor: ActorContext) {
     await this.validateOrganizationScope(payload.organizationId, actor);
 
-    const printer = await createPrinter(payload);
+    const printer: any = await createPrinter({
+      ...payload,
+      organizationId: actor.organizationId
+    });
+
     await createAuditLog({
       actorId: actor.id,
       actionType: "CREATE_PRINTER",
@@ -68,7 +72,7 @@ export class AdminService {
   ) {
     await this.validateOrganizationScope(payload.organizationId, actor);
 
-    const printer = await updatePrinter({
+    const printer: any = await updatePrinter({
       id: Number(id),
       ...payload
     });
@@ -106,7 +110,7 @@ export class AdminService {
   }, actor: ActorContext) {
     await this.validateOrganizationScope(payload.organizationId, actor);
 
-    const policy = await createPolicy(payload);
+    const policy: any = await createPolicy(payload);
     await createAuditLog({
       actorId: actor.id,
       actionType: "CREATE_POLICY",
@@ -128,7 +132,7 @@ export class AdminService {
     },
     actor: ActorContext
   ) {
-    const policy = await updatePolicy({
+    const policy: any = await updatePolicy({
       id: Number(id),
       ...payload
     });
@@ -166,7 +170,7 @@ export class AdminService {
     },
     actor: ActorContext
   ) {
-    const template = await createTemplate({
+    const template: any = await createTemplate({
       ...payload,
       createdBy: actor.id
     });
@@ -193,7 +197,7 @@ export class AdminService {
     },
     actor: ActorContext
   ) {
-    const template = await updateTemplate({
+    const template: any = await updateTemplate({
       id: Number(id),
       ...payload
     });

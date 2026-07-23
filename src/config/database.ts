@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from "pg";
+import { Pool, PoolClient, QueryResult, QueryResultRow } from "pg";
 import { env } from "./env";
 
 const ssl = env.dbSsl ? { rejectUnauthorized: false } : undefined;
@@ -12,7 +12,7 @@ export const pool = new Pool({
   ssl
 });
 
-export async function query<T = unknown>(text: string, params: unknown[] = []): Promise<QueryResult<T>> {
+export async function query<T extends QueryResultRow = any>(text: string, params: unknown[] = []): Promise<QueryResult<T>> {
   return pool.query<T>(text, params);
 }
 

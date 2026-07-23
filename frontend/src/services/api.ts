@@ -101,21 +101,70 @@ export const mockPrinters: Printer[] = [
 
 export const mockAuditLogs: AuditLog[] = [
   {
-    id: 'AUD-9901',
-    action: 'APPROVAL_GRANTED',
+    id: 'LOG-8801',
+    action: 'APPROVAL',
     actorName: '이동현 팀장',
-    targetResource: 'PR-2026-002 (Project_Alpha.pdf)',
-    details: '기술개발본부 승인 완료 (12장 1부)',
+    targetResource: 'PR-2026-002 (Project_Alpha_Architecture_v2.pdf)',
+    details: '인쇄 요청 승인 완료 (보안등급: RESTRICTED)',
     ipAddress: '10.0.4.12',
-    createdAt: '2026-07-23 15:10:02',
+    createdAt: '2026-07-23 15:10:22',
   },
   {
-    id: 'AUD-9900',
-    action: 'PRINT_REQUEST_CREATED',
-    actorName: '김민수 대리',
-    targetResource: 'PR-2026-001 (Financial_Report.docx)',
-    details: '기밀 문서 출력 승인 요청 생성',
-    ipAddress: '10.0.2.88',
-    createdAt: '2026-07-23 16:30:15',
+    id: 'LOG-8800',
+    action: 'REJECTION',
+    actorName: '이동현 팀장',
+    targetResource: 'PR-2026-003 (Marketing_Flyer_Draft.ai)',
+    details: '인쇄 요청 반려 (사유: 컬러 출력 사유 부족)',
+    ipAddress: '10.0.4.12',
+    createdAt: '2026-07-23 14:05:11',
+  },
+  {
+    id: 'LOG-8799',
+    action: 'SYSTEM_ALERT',
+    actorName: 'SNMP Monitor',
+    targetResource: '3F-Xerox-C8055',
+    details: '토너 부족 경고 감지 (블랙 토너 15%)',
+    ipAddress: '192.168.1.150',
+    createdAt: '2026-07-23 12:00:05',
   },
 ]
+
+// ==========================================
+// 백엔드 REST API 연동 클라이언트 서비스
+// ==========================================
+const API_BASE_URL = '/api/v1'
+
+export async function fetchPrintRequestsFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/print-requests`)
+    if (!res.ok) throw new Error('Failed to fetch print requests')
+    return await res.json()
+  } catch {
+    return { items: mockPrintRequests }
+  }
+}
+
+export async function approvePrintRequestApi(id: string, comment?: string) {
+  const res = await fetch(`${API_BASE_URL}/approvals/print-requests/${id}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ comment: comment || '승인 완료' }),
+  })
+  return res.json()
+}
+
+export async function rejectPrintRequestApi(id: string, reason: string) {
+  const res = await fetch(`${API_BASE_URL}/approvals/print-requests/${id}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason }),
+  })
+  return res.json()
+}
+
+export async function syncPrinterSnmpApi(printerId: number = 1) {
+  const res = await fetch(`${API_BASE_URL}/admin/printers/${printerId}/snmp-sync`, {
+    method: 'POST',
+  })
+  return res.json()
+}

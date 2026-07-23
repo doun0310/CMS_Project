@@ -12,7 +12,7 @@ export class AgentService {
     const jobs = await listQueuedJobsByAgent(agentKey, printerIds);
 
     return {
-      jobs: jobs.map((job) => ({
+      jobs: jobs.map((job: any) => ({
         jobId: job.id,
         printRequestId: job.print_request_id,
         documentType: job.document_type,
