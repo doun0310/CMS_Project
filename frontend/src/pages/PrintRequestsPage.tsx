@@ -1,10 +1,12 @@
 import React from 'react'
 import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CreatePrintRequestModal } from '../components/CreatePrintRequestModal'
+import { CheckCircle, XCircle, Plus } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
   const [requests, setRequests] = React.useState(mockPrintRequests)
   const [message, setMessage] = React.useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
 
   const handleApprove = async (id: string) => {
     try {
@@ -30,13 +32,32 @@ export const PrintRequestsPage: React.FC = () => {
     }
   }
 
+  const handleCreateSuccess = (newReq: any) => {
+    setRequests((prev) => [newReq, ...prev])
+    setMessage(`신규 인쇄 승인 요청(${newReq.id})이 백엔드로 제출되었습니다.`)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700 }}>인쇄 승인 결재함</h2>
-        <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 임직원의 인쇄 요청 결재 및 재인쇄 통제 관리</p>
-        {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>인쇄 승인 결재함</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 임직원의 인쇄 요청 결재 및 재인쇄 통제 관리</p>
+          {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          style={{ padding: '10px 16px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+        >
+          <Plus size={16} /> 신규 인쇄 신청
+        </button>
       </div>
+
+      <CreatePrintRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
 
       <div className="glass-card">
         <table className="data-table">
