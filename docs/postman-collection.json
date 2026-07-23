@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "CMS Printer Application API",
+    "_postman_id": "cms-printer-application-collection",
+    "description": "Initial Postman collection for CMS Printer Application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1"
+    },
+    {
+      "key": "printRequestId",
+      "value": "1"
+    },
+    {
+      "key": "jobId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Print Requests",
+      "item": [
+        {
+          "name": "POST /print-requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-role-code", "value": "STAFF" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"ORDER\",\n  \"sourceDocumentId\": \"ORD-20260723-1001\",\n  \"templateId\": 1,\n  \"printerId\": 1,\n  \"copies\": 1,\n  \"isSensitive\": false,\n  \"isUrgent\": false,\n  \"requestReason\": \"출고 문서 출력\"\n}"
+            },
+            "url": "{{baseUrl}}/print-requests"
+          }
+        },
+        {
+          "name": "GET /print-requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-role-code", "value": "STAFF" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "url": "{{baseUrl}}/print-requests"
+          }
+        },
+        {
+          "name": "POST /print-requests/:id/reprint",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-role-code", "value": "STAFF" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"copies\": 1,\n  \"reprintReason\": \"용지 훼손\"\n}"
+            },
+            "url": "{{baseUrl}}/print-requests/{{printRequestId}}/reprint"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approvals",
+      "item": [
+        {
+          "name": "GET /approvals/pending",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-id", "value": "2" },
+              { "key": "x-role-code", "value": "SUPERVISOR" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "url": "{{baseUrl}}/approvals/pending"
+          }
+        },
+        {
+          "name": "POST /approvals/:id/approve",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "2" },
+              { "key": "x-role-code", "value": "SUPERVISOR" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"출력 승인\"\n}"
+            },
+            "url": "{{baseUrl}}/approvals/{{printRequestId}}/approve"
+          }
+        },
+        {
+          "name": "POST /approvals/:id/reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "2" },
+              { "key": "x-role-code", "value": "SUPERVISOR" },
+              { "key": "x-organization-id", "value": "3" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"사유 확인 필요\"\n}"
+            },
+            "url": "{{baseUrl}}/approvals/{{printRequestId}}/reject"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Print Jobs",
+      "item": [
+        {
+          "name": "POST /print-jobs/:id/dispatch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "url": "{{baseUrl}}/print-jobs/{{printRequestId}}/dispatch"
+          }
+        },
+        {
+          "name": "GET /print-jobs/:jobId",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "url": "{{baseUrl}}/print-jobs/{{jobId}}"
+          }
+        },
+        {
+          "name": "POST /print-jobs/:jobId/retry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"용지 보충 후 재시도\"\n}"
+            },
+            "url": "{{baseUrl}}/print-jobs/{{jobId}}/retry"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent",
+      "item": [
+        {
+          "name": "POST /agent/jobs/poll",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agentKey\": \"agent-logistics-01\",\n  \"printerIds\": [1]\n}"
+            },
+            "url": "{{baseUrl}}/agent/jobs/poll"
+          }
+        },
+        {
+          "name": "POST /agent/jobs/:jobId/status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobStatus\": \"SUCCESS\",\n  \"failureReason\": null\n}"
+            },
+            "url": "{{baseUrl}}/agent/jobs/{{jobId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET /printers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "url": "{{baseUrl}}/printers"
+          }
+        },
+        {
+          "name": "POST /approval-policies",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"LABEL\",\n  \"minCopies\": 50,\n  \"requiresReprintApproval\": true,\n  \"requiresManagerApproval\": true,\n  \"requiresSensitiveApproval\": false,\n  \"organizationId\": 3,\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": "{{baseUrl}}/approval-policies"
+          }
+        },
+        {
+          "name": "POST /templates",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "4" },
+              { "key": "x-role-code", "value": "ADMIN" },
+              { "key": "x-organization-id", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"ORDER_DOC\",\n  \"name\": \"출고지시서 v2\",\n  \"documentType\": \"ORDER\",\n  \"templateVersion\": 2,\n  \"filePath\": \"/templates/order-v2\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": "{{baseUrl}}/templates"
+          }
+        }
+      ]
+    }
+  ]
+}

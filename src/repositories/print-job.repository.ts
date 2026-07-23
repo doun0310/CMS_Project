@@ -1,0 +1,121 @@
+import { query } from "../config/database";
+
+export interface PrintJobRow {
+  id: number;
+  print_request_id: number;
+  printer_id: number;
+  agent_key: string | null;
+  job_status: string;
+  retry_count: number;
+  started_at: string | null;
+  finished_at: string | null;
+  failure_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function createPrintJob(params: {
+  printRequestId: number;
+  printerId: number;
+  agentKey?: string | null;
+}) {
+  const sql = `
+    INSERT INTO print_jobs (
+      print_request_id,
+      printer_id,
+      agent_key,
+      job_status
+    )
+    VALUES ($1, $2, $3, 'QUEUED')
+    RETURNING *
+  `;
+
+  const result = await query<PrintJobRow>(sql, [
+    params.printRequestId,
+    params.printerId,
+    params.agentKey ?? null
+  ]);
+
+  return result.rows[0];
+}
+
+export async function findPrintJobById(jobId: number) {
+  const sql = `
+    SELECT *
+    FROM print_jobs
+    WHERE id = $1
+  `;
+
+  const result = await query<PrintJobRow>(sql, [jobId]);
+  return result.rows[0] ?? null;
+}
+
+export async function listQueuedJobsByAgent(agentKey: string, printerIds: number[]) {
+  const sql = `
+    SELECT
+      j.*,
+      p.document_type,
+      p.source_document_id,
+      p.copies,
+      t.file_path AS template_path
+    FROM print_jobs j
+    INNER JOIN print_requests p ON p.id = j.print_request_id
+    INNER JOIN document_templates t ON t.id = p.template_id
+    WHERE j.job_status = 'QUEUED'
+      AND (j.agent_key = $1 OR j.agent_key IS NULL)
+      AND j.printer_id = ANY($2::bigint[])
+    ORDER BY j.created_at ASC
+    LIMIT 20
+  `;
+
+  const result = await query(sql, [agentKey, printerIds]);
+  return result.rows;
+}
+
+export async function updatePrintJobStatus(params: {
+  jobId: number;
+  jobStatus: string;
+  failureReason?: string | null;
+}) {
+  const sql = `
+    UPDATE print_jobs
+    SET job_status = $2,
+        failure_reason = $3,
+        started_at = CASE
+          WHEN $2 = 'PRINTING' AND started_at IS NULL THEN NOW()
+          ELSE started_at
+        END,
+        finished_at = CASE
+          WHEN $2 IN ('SUCCESS', 'FAILED') THEN NOW()
+          ELSE finished_at
+        END,
+        updated_at = NOW()
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const result = await query<PrintJobRow>(sql, [
+    params.jobId,
+    params.jobStatus,
+    params.failureReason ?? null
+  ]);
+
+  return result.rows[0] ?? null;
+}
+
+export async function retryPrintJobById(jobId: number, reason?: string) {
+  const sql = `
+    UPDATE print_jobs
+    SET job_status = 'QUEUED',
+        retry_count = retry_count + 1,
+        failure_reason = $2,
+        started_at = NULL,
+        finished_at = NULL,
+        updated_at = NOW()
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const result = await query<PrintJobRow>(sql, [jobId, reason ?? null]);
+  return result.rows[0] ?? null;
+}
