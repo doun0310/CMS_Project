@@ -3,6 +3,7 @@ import {
   createPrinter,
   createTemplate,
   findPrinterById,
+  getDashboardKpis,
   listPolicies,
   listPrinters,
   listTemplates,
@@ -22,6 +23,10 @@ interface ActorContext {
 }
 
 export class AdminService {
+  async getDashboardKpis() {
+    return await getDashboardKpis();
+  }
+
   async listPrinters() {
     return {
       items: await listPrinters()

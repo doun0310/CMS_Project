@@ -5,6 +5,10 @@ import { getParamString } from "../utils/params";
 
 const service = new AdminService();
 
+export async function getDashboardKpis(_req: Request, res: Response) {
+  return ok(res, await service.getDashboardKpis());
+}
+
 export async function listPrinters(_req: Request, res: Response) {
   return ok(res, await service.listPrinters());
 }

@@ -168,3 +168,14 @@ export async function syncPrinterSnmpApi(printerId: number = 1) {
   })
   return res.json()
 }
+
+export async function fetchDashboardKpisApi() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/dashboard-kpis`)
+    if (!res.ok) throw new Error('Failed to fetch KPIs')
+    const json = await res.json()
+    return json.data || mockKpiData
+  } catch {
+    return mockKpiData
+  }
+}

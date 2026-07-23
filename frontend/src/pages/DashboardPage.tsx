@@ -1,8 +1,16 @@
 import React from 'react'
-import { mockKpiData, mockPrintRequests, mockPrinters } from '../services/api'
+import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi } from '../services/api'
 import { FileText, Clock, PrinterCheck, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export const DashboardPage: React.FC = () => {
+  const [kpiData, setKpiData] = React.useState(mockKpiData)
+
+  React.useEffect(() => {
+    fetchDashboardKpisApi().then((data) => {
+      if (data) setKpiData(data)
+    })
+  }, [])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
@@ -18,7 +26,7 @@ export const DashboardPage: React.FC = () => {
             <FileText size={18} color="#38bdf8" />
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#f8fafc' }}>
-            {mockKpiData.totalRequests.toLocaleString()} <span style={{ fontSize: '14px', color: '#10b981' }}>건</span>
+            {kpiData.totalRequests.toLocaleString()} <span style={{ fontSize: '14px', color: '#10b981' }}>건</span>
           </div>
         </div>
 
@@ -28,7 +36,7 @@ export const DashboardPage: React.FC = () => {
             <Clock size={18} color="#f59e0b" />
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#fbbf24' }}>
-            {mockKpiData.pendingApprovals} <span style={{ fontSize: '14px', color: '#94a3b8' }}>건</span>
+            {kpiData.pendingApprovals} <span style={{ fontSize: '14px', color: '#94a3b8' }}>건</span>
           </div>
         </div>
 
@@ -38,7 +46,7 @@ export const DashboardPage: React.FC = () => {
             <PrinterCheck size={18} color="#10b981" />
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#34d399' }}>
-            {mockKpiData.activePrinters} / {mockKpiData.totalPrinters} <span style={{ fontSize: '14px', color: '#94a3b8' }}>대</span>
+            {kpiData.activePrinters} / {kpiData.totalPrinters} <span style={{ fontSize: '14px', color: '#94a3b8' }}>대</span>
           </div>
         </div>
 
@@ -48,7 +56,7 @@ export const DashboardPage: React.FC = () => {
             <TrendingDown size={18} color="#34d399" />
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#38bdf8' }}>
-            {mockKpiData.paperSavingsPercent}%
+            {kpiData.paperSavingsPercent}%
           </div>
         </div>
       </div>

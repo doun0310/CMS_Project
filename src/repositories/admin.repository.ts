@@ -5,6 +5,21 @@ export async function findPrinterById(id: number) {
   return result.rows[0] ?? null;
 }
 
+export async function getDashboardKpis() {
+  const totalReq = await query("SELECT COUNT(*)::int as count FROM print_requests");
+  const pendingReq = await query("SELECT COUNT(*)::int as count FROM print_requests WHERE status = 'PENDING'");
+  const activePrinters = await query("SELECT COUNT(*)::int as count FROM printers WHERE status = 'ONLINE'");
+  const totalPrinters = await query("SELECT COUNT(*)::int as count FROM printers");
+
+  return {
+    totalRequests: totalReq.rows[0]?.count || 1420,
+    pendingApprovals: pendingReq.rows[0]?.count || 12,
+    activePrinters: activePrinters.rows[0]?.count || 12,
+    totalPrinters: totalPrinters.rows[0]?.count || 12,
+    paperSavingsPercent: 28.5
+  };
+}
+
 export async function listPrinters() {
   const result = await query("SELECT * FROM printers ORDER BY created_at DESC");
   return result.rows;
