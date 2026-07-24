@@ -15,6 +15,7 @@ import { createAuditLog, listAuditLogs } from "../repositories/audit.repository"
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/app-error";
 import { findOrganizationById } from "../repositories/organization.repository";
 import { fetchSnmpPrinterStatus } from "./snmp.service";
+import { env } from "../config/env";
 
 interface ActorContext {
   id: number;
@@ -23,19 +24,19 @@ interface ActorContext {
 }
 
 export class AdminService {
-  async getDashboardKpis() {
-    return await getDashboardKpis();
+  async getDashboardKpis(actor: ActorContext) {
+    return await getDashboardKpis(this.organizationFilter(actor));
   }
 
-  async listAuditLogs() {
+  async listAuditLogs(actor: ActorContext) {
     return {
-      items: await listAuditLogs()
+      items: await listAuditLogs(this.organizationFilter(actor))
     };
   }
 
-  async listPrinters() {
+  async listPrinters(actor: ActorContext) {
     return {
-      items: await listPrinters()
+      items: await listPrinters(this.organizationFilter(actor))
     };
   }
 
@@ -54,7 +55,7 @@ export class AdminService {
 
     const printer: any = await createPrinter({
       ...payload,
-      organizationId: actor.organizationId
+      organizationId: payload.organizationId ?? actor.organizationId
     });
 
     await createAuditLog({
@@ -68,7 +69,7 @@ export class AdminService {
   }
 
   async updatePrinter(
-    id: string,
+    id: number,
     payload: {
       name?: string;
       printerType?: string;
@@ -84,12 +85,12 @@ export class AdminService {
     await this.validateOrganizationScope(payload.organizationId, actor);
 
     const printer: any = await updatePrinter({
-      id: Number(id),
+      id,
       ...payload
     });
     if (!printer) {
       throw new NotFoundError("Printer not found", {
-        printerId: Number(id)
+        printerId: id
       });
     }
     if (printer) {
@@ -104,9 +105,9 @@ export class AdminService {
     return printer;
   }
 
-  async listPolicies() {
+  async listPolicies(actor: ActorContext) {
     return {
-      items: await listPolicies()
+      items: await listPolicies(this.organizationFilter(actor))
     };
   }
 
@@ -133,7 +134,7 @@ export class AdminService {
   }
 
   async updatePolicy(
-    id: string,
+    id: number,
     payload: {
       minCopies?: number;
       requiresReprintApproval?: boolean;
@@ -144,12 +145,12 @@ export class AdminService {
     actor: ActorContext
   ) {
     const policy: any = await updatePolicy({
-      id: Number(id),
+      id,
       ...payload
     });
     if (!policy) {
       throw new NotFoundError("Approval policy not found", {
-        policyId: Number(id)
+        policyId: id
       });
     }
     if (policy) {
@@ -198,7 +199,7 @@ export class AdminService {
   }
 
   async updateTemplate(
-    id: string,
+    id: number,
     payload: {
       name?: string;
       documentType?: string;
@@ -209,12 +210,12 @@ export class AdminService {
     actor: ActorContext
   ) {
     const template: any = await updateTemplate({
-      id: Number(id),
+      id,
       ...payload
     });
     if (!template) {
       throw new NotFoundError("Template not found", {
-        templateId: Number(id)
+        templateId: id
       });
     }
 
@@ -232,11 +233,11 @@ export class AdminService {
   }
 
   private async validateOrganizationScope(targetOrganizationId: number | undefined, actor: ActorContext) {
-    if (!targetOrganizationId || actor.roleCode === "ADMIN") {
+    if (!targetOrganizationId) {
       return;
     }
 
-    if (targetOrganizationId !== actor.organizationId) {
+    if (actor.roleCode !== "ADMIN" && targetOrganizationId !== actor.organizationId) {
       throw new ForbiddenError("Organization scope violation", {
         actorOrganizationId: actor.organizationId,
         targetOrganizationId
@@ -249,6 +250,10 @@ export class AdminService {
         targetOrganizationId
       });
     }
+  }
+
+  private organizationFilter(actor: ActorContext) {
+    return actor.roleCode === "ADMIN" ? null : actor.organizationId;
   }
 
   public async syncPrinterSnmp(id: number, actor: ActorContext) {
@@ -264,10 +269,17 @@ export class AdminService {
       throw new BadRequestError("Printer IP address is missing", { id });
     }
 
-    const snmpResult = await fetchSnmpPrinterStatus(ipAddress);
+    const snmpResult = await fetchSnmpPrinterStatus(
+      ipAddress,
+      env.snmpCommunity,
+      env.snmpTimeoutMs
+    );
 
     const updatedPrinter = await updatePrinter(id, {
-      status: snmpResult.connectivityStatus
+      status: snmpResult.connectivityStatus,
+      black_toner_level: snmpResult.blackTonerLevel,
+      paper_level: snmpResult.paperLevel,
+      last_checked_at: new Date()
     });
 
     await createAuditLog({

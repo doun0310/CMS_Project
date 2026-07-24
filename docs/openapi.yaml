@@ -323,8 +323,11 @@ components:
     AgentStatusRequest:
       type: object
       required:
+        - agentKey
         - jobStatus
       properties:
+        agentKey:
+          type: string
         jobStatus:
           type: string
           enum: [PRINTING, SUCCESS, FAILED]

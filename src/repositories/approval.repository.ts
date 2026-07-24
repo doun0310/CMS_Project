@@ -63,18 +63,34 @@ export async function listPendingApprovalsForRole(roleCode: string, organization
   return result.rows;
 }
 
-export async function findPendingApprovalStep(printRequestId: number, roleCode: string) {
+export async function findPendingApprovalStep(
+  client: PoolClient,
+  printRequestId: number,
+  roleCode: string,
+  organizationId: number,
+  allowAnyOrganization: boolean,
+  allowAnyRole: boolean
+) {
   const sql = `
-    SELECT *
-    FROM approval_steps
-    WHERE print_request_id = $1
-      AND approver_role_code = $2
-      AND decision = 'PENDING'
-    ORDER BY step_no ASC
+    SELECT a.*
+    FROM approval_steps a
+    INNER JOIN print_requests p ON p.id = a.print_request_id
+    WHERE a.print_request_id = $1
+      AND ($5 OR a.approver_role_code = $2)
+      AND a.decision = 'PENDING'
+      AND ($4 OR p.requester_organization_id = $3)
+    ORDER BY a.step_no ASC
     LIMIT 1
+    FOR UPDATE OF a
   `;
 
-  const result = await query<ApprovalStepRow>(sql, [printRequestId, roleCode]);
+  const result = await client.query<ApprovalStepRow>(sql, [
+    printRequestId,
+    roleCode,
+    organizationId,
+    allowAnyOrganization,
+    allowAnyRole
+  ]);
   return result.rows[0] ?? null;
 }
 

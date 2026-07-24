@@ -5,23 +5,59 @@ export async function findPrinterById(id: number) {
   return result.rows[0] ?? null;
 }
 
-export async function getDashboardKpis() {
-  const totalReq = await query("SELECT COUNT(*)::int as count FROM print_requests");
-  const pendingReq = await query("SELECT COUNT(*)::int as count FROM print_requests WHERE status = 'PENDING'");
-  const activePrinters = await query("SELECT COUNT(*)::int as count FROM printers WHERE status = 'ONLINE'");
-  const totalPrinters = await query("SELECT COUNT(*)::int as count FROM printers");
+export async function getDashboardKpis(organizationId: number | null) {
+  const result = await query<{
+    total_requests: number;
+    pending_approvals: number;
+    active_printers: number;
+    total_printers: number;
+  }>(`
+    SELECT
+      (
+        SELECT COUNT(*)::int
+        FROM print_requests
+        WHERE ($1::bigint IS NULL OR requester_organization_id = $1)
+      ) AS total_requests,
+      (
+        SELECT COUNT(*)::int
+        FROM print_requests
+        WHERE status = 'PENDING_APPROVAL'
+          AND ($1::bigint IS NULL OR requester_organization_id = $1)
+      ) AS pending_approvals,
+      (
+        SELECT COUNT(*)::int
+        FROM printers
+        WHERE status IN ('ACTIVE', 'ONLINE', 'PRINTING', 'LOW_TONER')
+          AND ($1::bigint IS NULL OR organization_id = $1)
+      ) AS active_printers,
+      (
+        SELECT COUNT(*)::int
+        FROM printers
+        WHERE ($1::bigint IS NULL OR organization_id = $1)
+      ) AS total_printers
+  `, [organizationId]);
+  const row = result.rows[0];
 
   return {
-    totalRequests: totalReq.rows[0]?.count || 1420,
-    pendingApprovals: pendingReq.rows[0]?.count || 12,
-    activePrinters: activePrinters.rows[0]?.count || 12,
-    totalPrinters: totalPrinters.rows[0]?.count || 12,
+    totalRequests: row?.total_requests ?? 0,
+    pendingApprovals: row?.pending_approvals ?? 0,
+    activePrinters: row?.active_printers ?? 0,
+    totalPrinters: row?.total_printers ?? 0,
     paperSavingsPercent: 28.5
   };
 }
 
-export async function listPrinters() {
-  const result = await query("SELECT * FROM printers ORDER BY created_at DESC");
+export async function listPrinters(organizationId: number | null) {
+  const result = await query(`
+    SELECT
+      p.*,
+      COUNT(j.id) FILTER (WHERE j.job_status IN ('QUEUED', 'PRINTING'))::int AS active_job_count
+    FROM printers p
+    LEFT JOIN print_jobs j ON j.printer_id = p.id
+    WHERE ($1::bigint IS NULL OR p.organization_id = $1)
+    GROUP BY p.id
+    ORDER BY p.created_at DESC
+  `, [organizationId]);
   return result.rows;
 }
 
@@ -82,11 +118,15 @@ export async function updatePrinter(
   updates?: {
     status?: string;
     black_toner_level?: number | null;
+    paper_level?: number | null;
     last_checked_at?: Date;
   }
 ) {
   const targetId = typeof id === "number" ? id : id.id;
   const status = updates?.status ?? (typeof id === "object" ? id.status : null);
+  const blackTonerLevel = updates?.black_toner_level ?? null;
+  const paperLevel = updates?.paper_level ?? null;
+  const lastCheckedAt = updates?.last_checked_at ?? null;
   const name = typeof id === "object" ? id.name : null;
   const printerType = typeof id === "object" ? id.printerType : null;
   const connectionType = typeof id === "object" ? id.connectionType : null;
@@ -105,6 +145,9 @@ export async function updatePrinter(
         organization_id = COALESCE($7, organization_id),
         location = COALESCE($8, location),
         status = COALESCE($9, status),
+        black_toner_level = COALESCE($10, black_toner_level),
+        paper_level = COALESCE($11, paper_level),
+        last_checked_at = COALESCE($12, last_checked_at),
         updated_at = NOW()
     WHERE id = $1
     RETURNING *
@@ -119,14 +162,25 @@ export async function updatePrinter(
     agentKey ?? null,
     organizationId ?? null,
     location ?? null,
-    status ?? null
+    status ?? null,
+    blackTonerLevel,
+    paperLevel,
+    lastCheckedAt
   ]);
 
   return result.rows[0] ?? null;
 }
 
-export async function listPolicies() {
-  const result = await query("SELECT * FROM approval_policies ORDER BY created_at DESC");
+export async function listPolicies(organizationId: number | null) {
+  const result = await query(
+    `
+      SELECT *
+      FROM approval_policies
+      WHERE ($1::bigint IS NULL OR organization_id = $1)
+      ORDER BY created_at DESC
+    `,
+    [organizationId]
+  );
   return result.rows;
 }
 

@@ -24,7 +24,7 @@ export const CreatePrinterModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
 
     setSubmitting(true)
     try {
-      await fetch('/api/v1/admin/printers', {
+      const res = await fetch('/api/v1/printers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,9 +36,13 @@ export const CreatePrinterModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
           location,
         }),
       })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(body?.message || '프린터 등록에 실패했습니다.')
+      }
 
       const newPrt = {
-        id: `PRT-${Date.now()}`,
+        id: String(body?.data?.id || code),
         name,
         modelName: `${name} (${printerType})`,
         ipAddress,
@@ -50,8 +54,8 @@ export const CreatePrinterModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
 
       onSuccess(newPrt)
       onClose()
-    } catch {
-      onClose()
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '프린터 등록에 실패했습니다.')
     } finally {
       setSubmitting(false)
     }

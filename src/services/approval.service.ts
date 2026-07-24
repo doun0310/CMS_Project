@@ -18,17 +18,29 @@ export class ApprovalService {
     };
   }
 
-  async approve(printRequestId: string, approverId: number, roleCode: string, comment?: string) {
-    const step = await findPendingApprovalStep(Number(printRequestId), roleCode);
-
-    if (!step) {
-      throw new NotFoundError("Pending approval step not found", {
-        printRequestId: Number(printRequestId),
-        roleCode
-      });
-    }
-
+  async approve(
+    printRequestId: number,
+    approverId: number,
+    roleCode: string,
+    organizationId: number,
+    comment?: string
+  ) {
     return withTransaction(async (client) => {
+      const step = await findPendingApprovalStep(
+        client,
+        printRequestId,
+        roleCode,
+        organizationId,
+        roleCode === "ADMIN",
+        roleCode === "ADMIN"
+      );
+      if (!step) {
+        throw new NotFoundError("Pending approval step not found", {
+          printRequestId,
+          roleCode
+        });
+      }
+
       await approveStep(client, {
         stepId: step.id,
         approverId,
@@ -36,16 +48,16 @@ export class ApprovalService {
       });
 
       await updatePrintRequestStatus({
-        id: Number(printRequestId),
+        id: printRequestId,
         status: "APPROVED",
         approvedAt: true
-      });
+      }, client);
 
       await createAuditLogTx(client, {
         actorId: approverId,
         actionType: "APPROVE",
         targetType: "PRINT_REQUEST",
-        targetId: Number(printRequestId),
+        targetId: printRequestId,
         detailJson: {
           roleCode,
           comment: comment ?? null
@@ -53,7 +65,7 @@ export class ApprovalService {
       });
 
       return {
-        printRequestId: Number(printRequestId),
+        printRequestId,
         status: "APPROVED",
         nextAction: "QUEUE_PRINT",
         comment: comment || null
@@ -61,17 +73,29 @@ export class ApprovalService {
     });
   }
 
-  async reject(printRequestId: string, approverId: number, roleCode: string, reason: string) {
-    const step = await findPendingApprovalStep(Number(printRequestId), roleCode);
-
-    if (!step) {
-      throw new NotFoundError("Pending approval step not found", {
-        printRequestId: Number(printRequestId),
-        roleCode
-      });
-    }
-
+  async reject(
+    printRequestId: number,
+    approverId: number,
+    roleCode: string,
+    organizationId: number,
+    reason: string
+  ) {
     return withTransaction(async (client) => {
+      const step = await findPendingApprovalStep(
+        client,
+        printRequestId,
+        roleCode,
+        organizationId,
+        roleCode === "ADMIN",
+        roleCode === "ADMIN"
+      );
+      if (!step) {
+        throw new NotFoundError("Pending approval step not found", {
+          printRequestId,
+          roleCode
+        });
+      }
+
       await rejectStep(client, {
         stepId: step.id,
         approverId,
@@ -79,16 +103,16 @@ export class ApprovalService {
       });
 
       await updatePrintRequestStatus({
-        id: Number(printRequestId),
+        id: printRequestId,
         status: "REJECTED",
         rejectedAt: true
-      });
+      }, client);
 
       await createAuditLogTx(client, {
         actorId: approverId,
         actionType: "REJECT",
         targetType: "PRINT_REQUEST",
-        targetId: Number(printRequestId),
+        targetId: printRequestId,
         detailJson: {
           roleCode,
           reason
@@ -96,7 +120,7 @@ export class ApprovalService {
       });
 
       return {
-        printRequestId: Number(printRequestId),
+        printRequestId,
         status: "REJECTED",
         reason
       };

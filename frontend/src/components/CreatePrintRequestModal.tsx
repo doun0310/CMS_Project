@@ -36,9 +36,13 @@ export const CreatePrintRequestModal: React.FC<Props> = ({ isOpen, onClose, onSu
           securityLevel,
         }),
       })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(body?.message || '인쇄 요청 등록에 실패했습니다.')
+      }
 
       const newReq = {
-        id: `PR-2026-${Math.floor(100 + Math.random() * 900)}`,
+        id: String(body?.data?.id || body?.data?.requestNo),
         documentName,
         pageCount: Number(pageCount),
         copyCount: Number(copyCount),
@@ -51,8 +55,8 @@ export const CreatePrintRequestModal: React.FC<Props> = ({ isOpen, onClose, onSu
 
       onSuccess(newReq)
       onClose()
-    } catch {
-      onClose()
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '인쇄 요청 등록에 실패했습니다.')
     } finally {
       setSubmitting(false)
     }

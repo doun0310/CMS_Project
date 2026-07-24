@@ -14,8 +14,8 @@ VALUES
 
 INSERT INTO printers (code, name, printer_type, connection_type, ip_address, agent_key, organization_id, location, status)
 VALUES
-    ('PRT-LOG-01', '물류 라벨 프린터 1', 'LABEL', 'NETWORK', '192.168.0.31', 'agent-logistics-01', 3, '물류창고 A구역', 'ACTIVE'),
-    ('PRT-OFF-01', '관리팀 A4 프린터 1', 'A4', 'NETWORK', '192.168.0.41', 'agent-admin-01', 4, '관리팀 사무실', 'ACTIVE');
+    ('PRT-LOG-01', '물류 라벨 프린터 1', 'LABEL', 'NETWORK', '192.168.0.31', 'agent-logistics-01', 3, '물류창고 A구역', 'ONLINE'),
+    ('PRT-OFF-01', '관리팀 A4 프린터 1', 'A4', 'NETWORK', '192.168.0.41', 'agent-admin-01', 4, '관리팀 사무실', 'ONLINE');
 
 INSERT INTO printer_organization_maps (printer_id, organization_id)
 VALUES

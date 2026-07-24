@@ -42,15 +42,15 @@ export const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
+    <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="page-header">
         <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_title')}</h2>
         <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_sub')}</p>
-        {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
+        {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
       </div>
 
       {/* KPI Cards Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+      <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
             <span>총 인쇄 요청 수</span>
@@ -96,9 +96,9 @@ export const DashboardPage: React.FC = () => {
       <EsgAnalyticsSection />
 
       {/* Main Grid Content */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
         {/* Left: Print Approval Queue */}
-        <div className="glass-card">
+        <div className="glass-card table-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 600, whiteSpace: 'nowrap' }}>최근 인쇄 결재 대기 큐</h3>
             <span style={{ fontSize: '12px', color: '#38bdf8', cursor: 'pointer', whiteSpace: 'nowrap' }}>전체 보기 &rarr;</span>
@@ -119,11 +119,11 @@ export const DashboardPage: React.FC = () => {
                 <tr key={req.id}>
                   <td>
                     <div style={{ fontWeight: 600, wordBreak: 'keep-all' }}>{req.documentName}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.pageCount}페이지 × {req.copyCount}부</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>{req.pageCount}페이지 × {req.copyCount}부</div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <div>{req.requesterName}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{req.requesterDepartment}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>{req.requesterDepartment}</div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: '12px', fontWeight: 600, color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
@@ -152,7 +152,7 @@ export const DashboardPage: React.FC = () => {
                         </button>
                       </div>
                     ) : (
-                      <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>완료됨</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>완료됨</span>
                     )}
                   </td>
                 </tr>

@@ -1,5 +1,5 @@
 import { withTransaction } from "../config/database";
-import { NotFoundError } from "../errors/app-error";
+import { ForbiddenError, NotFoundError } from "../errors/app-error";
 import { createApprovalStep } from "../repositories/approval.repository";
 import { createAuditLogTx } from "../repositories/audit.repository";
 import {
@@ -20,15 +20,19 @@ export class PrintRequestService {
     };
   }
 
-  async getById(id: string) {
-    const request = await findPrintRequestById(Number(id));
+  async getById(
+    id: number,
+    currentUser: { organizationId: number; roleCode: string }
+  ) {
+    const request = await findPrintRequestById(id);
 
     if (!request) {
       throw new NotFoundError("Print request not found", {
-        printRequestId: Number(id)
+        printRequestId: id
       });
     }
 
+    this.assertOrganizationAccess(request.requester_organization_id, currentUser);
     return request;
   }
 
@@ -93,17 +97,19 @@ export class PrintRequestService {
   }
 
   async reprint(
-    id: string,
+    id: number,
     payload: ReprintPayload,
-    currentUser: { id: number; organizationId: number }
+    currentUser: { id: number; organizationId: number; roleCode: string }
   ) {
-    const originalRequest = await findPrintRequestById(Number(id));
+    const originalRequest = await findPrintRequestById(id);
 
     if (!originalRequest) {
       throw new NotFoundError("Original print request not found", {
-        printRequestId: Number(id)
+        printRequestId: id
       });
     }
+
+    this.assertOrganizationAccess(originalRequest.requester_organization_id, currentUser);
 
     return withTransaction(async (client) => {
       const request = await insertPrintRequest(client, {
@@ -152,5 +158,20 @@ export class PrintRequestService {
         ]
       };
     });
+  }
+
+  private assertOrganizationAccess(
+    targetOrganizationId: number,
+    currentUser: { organizationId: number; roleCode: string }
+  ) {
+    if (
+      currentUser.roleCode !== "ADMIN" &&
+      currentUser.organizationId !== targetOrganizationId
+    ) {
+      throw new ForbiddenError("Organization scope violation", {
+        actorOrganizationId: currentUser.organizationId,
+        targetOrganizationId
+      });
+    }
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { mockPrinters } from '../services/api'
+import { fetchPrintersFromBackend, mockPrinters, syncPrinterSnmpApi } from '../services/api'
 import { CreatePrinterModal } from '../components/CreatePrinterModal'
 import { PrinterMapModal } from '../components/PrinterMapModal'
 import { PingDiagnosticModal } from '../components/PingDiagnosticModal'
@@ -20,18 +20,16 @@ export const PrintersPage: React.FC = () => {
   const [isSlaModalOpen, setIsSlaModalOpen] = useState(false)
   const [autoPolling, setAutoPolling] = useState(false)
 
+  useEffect(() => {
+    fetchPrintersFromBackend().then(setPrinters)
+  }, [])
+
   const handleSnmpSyncAll = async () => {
     setLoading(true)
     setSyncStatus('네트워크 프린터 SNMP 상태 수집 중...')
     try {
-      const response = await fetch('/api/v1/admin/printers/1/snmp-sync', {
-        method: 'POST',
-      })
-      if (response.ok) {
-        setSyncStatus('⚡ SNMP 실시간 동기화가 성공적으로 완료되었습니다!')
-      } else {
-        setSyncStatus('네트워크 통신 대기 중 (SNMP 프로토콜 모듈 동작 완료)')
-      }
+      await syncPrinterSnmpApi(1)
+      setSyncStatus('⚡ SNMP 실시간 동기화가 성공적으로 완료되었습니다!')
     } catch {
       setSyncStatus('네트워크 통신 대기 중 (SNMP 프로토콜 모듈 동작 완료)')
     } finally {
@@ -64,13 +62,13 @@ export const PrintersPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Top Title & Primary Action Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_title')}</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_sub')}</p>
-          {syncStatus && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{syncStatus}</p>}
+          {syncStatus && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{syncStatus}</p>}
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -159,7 +157,7 @@ export const PrintersPage: React.FC = () => {
       />
 
       {/* Printer Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+      <div className="printer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
         {printers.map((prt) => (
           <div key={prt.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>

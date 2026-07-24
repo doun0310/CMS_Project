@@ -11,6 +11,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header
+      className="app-navbar"
       style={{
         height: '64px',
         borderBottom: '1px solid var(--border-color)',
@@ -27,29 +28,29 @@ export const Navbar: React.FC = () => {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Printer size={24} color="#38bdf8" />
-        <h1 style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.5px' }}>
-          CMS Print Hub <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 400 }}>Admin Portal</span>
+        <h1 style={{ fontSize: '19px', fontWeight: 750, letterSpacing: '-0.5px' }}>
+          CMS Print Hub <span className="brand-subtitle" style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>Admin Portal</span>
         </h1>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button
           onClick={() => setIsLangModalOpen(true)}
-          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', minHeight: '36px', padding: '4px' }}
           title="글로벌 언어 설정"
         >
-          <Globe size={18} color="#38bdf8" /> {lang}
+          <Globe size={19} color="var(--primary)" /> <span className="navbar-action-label">{lang}</span>
         </button>
 
         <button
           onClick={() => setIsThemeModalOpen(true)}
-          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', minHeight: '36px', padding: '4px' }}
           title="UI 테마 설정"
         >
-          <Palette size={18} color="#38bdf8" /> {t('theme_setting')}
+          <Palette size={19} color="var(--primary)" /> <span className="navbar-action-label">{t('theme_setting')}</span>
         </button>
 
-        <div style={{ position: 'relative', cursor: 'pointer' }}>
+        <button aria-label="알림 5개" title="알림" style={{ position: 'relative', cursor: 'pointer', background: 'none', border: 0, minWidth: '36px', minHeight: '36px', display: 'grid', placeItems: 'center' }}>
           <Bell size={20} color="#94a3b8" />
           <span
             style={{
@@ -70,13 +71,13 @@ export const Navbar: React.FC = () => {
           >
             5
           </span>
-        </div>
+        </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid var(--border-color)', paddingLeft: '16px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <User size={18} color="#f8fafc" />
           </div>
-          <div>
+          <div className="navbar-user-copy">
             <div style={{ fontSize: '13px', fontWeight: 600 }}>{t('user_name')}</div>
             <div style={{ fontSize: '11px', color: '#94a3b8' }}>{t('user_dept')}</div>
           </div>

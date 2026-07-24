@@ -1,7 +1,7 @@
 import { createAuditLog } from "../repositories/audit.repository";
 import { BadRequestError, NotFoundError } from "../errors/app-error";
 import {
-  findPrintJobById,
+  findPrintJobForAgent,
   listQueuedJobsByAgent,
   updatePrintJobStatus
 } from "../repositories/print-job.repository";
@@ -25,30 +25,35 @@ export class AgentService {
     };
   }
 
-  async updateStatus(jobId: string, jobStatus: string, failureReason?: string | null) {
+  async updateStatus(
+    jobId: number,
+    agentKey: string,
+    jobStatus: string,
+    failureReason?: string | null
+  ) {
     if (!["PRINTING", "SUCCESS", "FAILED"].includes(jobStatus)) {
       throw new BadRequestError("Invalid job status", {
         jobStatus
       });
     }
 
-    const existingJob = await findPrintJobById(Number(jobId));
+    const existingJob = await findPrintJobForAgent(jobId, agentKey);
 
     if (!existingJob) {
-      throw new NotFoundError("Print job not found", {
-        jobId: Number(jobId)
+      throw new NotFoundError("Print job not found for this agent", {
+        jobId
       });
     }
 
     const updatedJob = await updatePrintJobStatus({
-      jobId: Number(jobId),
+      jobId,
       jobStatus,
       failureReason
     });
 
     if (!updatedJob) {
       throw new NotFoundError("Unable to update print job status", {
-        jobId: Number(jobId)
+        jobId
       });
     }
 

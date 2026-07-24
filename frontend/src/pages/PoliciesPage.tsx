@@ -52,14 +52,14 @@ export const PoliciesPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>{t('policies_title')}</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('policies_sub')}</p>
-          {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px' }}>{message}</p>}
+          {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px' }}>{message}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="page-actions" style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={() => setIsMultiStageModalOpen(true)}
             style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
@@ -99,7 +99,7 @@ export const PoliciesPage: React.FC = () => {
         onSuccess={handleWatermarkSuccess}
       />
 
-      <div className="glass-card">
+      <div className="glass-card table-card">
         <table className="data-table">
           <thead>
             <tr>
@@ -126,7 +126,7 @@ export const PoliciesPage: React.FC = () => {
                       <CheckCircle size={14} /> 필수
                     </span>
                   ) : (
-                    <span style={{ color: '#64748b', fontSize: '12px' }}>미적용</span>
+                    <span style={{ color: 'var(--text-subtle)', fontSize: '12px' }}>미적용</span>
                   )}
                 </td>
                 <td>
@@ -135,7 +135,7 @@ export const PoliciesPage: React.FC = () => {
                       <AlertTriangle size={14} /> 승인 필요
                     </span>
                   ) : (
-                    <span style={{ color: '#64748b', fontSize: '12px' }}>자율</span>
+                    <span style={{ color: 'var(--text-subtle)', fontSize: '12px' }}>자율</span>
                   )}
                 </td>
                 <td>
@@ -144,7 +144,7 @@ export const PoliciesPage: React.FC = () => {
                       <ShieldCheck size={14} /> 통제
                     </span>
                   ) : (
-                    <span style={{ color: '#64748b', fontSize: '12px' }}>해당없음</span>
+                    <span style={{ color: 'var(--text-subtle)', fontSize: '12px' }}>해당없음</span>
                   )}
                 </td>
                 <td>

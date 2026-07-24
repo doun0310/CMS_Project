@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
 import { AdminService } from "../services/admin.service";
 import { fail, ok } from "../utils/api-response";
-import { getParamString } from "../utils/params";
+import { getPositiveIntParam } from "../utils/params";
 
 const service = new AdminService();
 
-export async function getDashboardKpis(_req: Request, res: Response) {
-  return ok(res, await service.getDashboardKpis());
+export async function getDashboardKpis(req: Request, res: Response) {
+  return ok(res, await service.getDashboardKpis(req.user!));
 }
 
-export async function listAuditLogs(_req: Request, res: Response) {
-  return ok(res, await service.listAuditLogs());
+export async function listAuditLogs(req: Request, res: Response) {
+  return ok(res, await service.listAuditLogs(req.user!));
 }
 
-export async function listPrinters(_req: Request, res: Response) {
-  return ok(res, await service.listPrinters());
+export async function listPrinters(req: Request, res: Response) {
+  return ok(res, await service.listPrinters(req.user!));
 }
 
 export async function createPrinter(req: Request, res: Response) {
@@ -28,17 +28,17 @@ export async function createPrinter(req: Request, res: Response) {
 }
 
 export async function updatePrinter(req: Request, res: Response) {
-  const printerId = getParamString(req.params.id);
+  const printerId = getPositiveIntParam(req.params.id);
   return ok(res, await service.updatePrinter(printerId, req.body, req.user!));
 }
 
 export async function syncPrinterSnmp(req: Request, res: Response) {
-  const printerId = Number(getParamString(req.params.id));
+  const printerId = getPositiveIntParam(req.params.id);
   return ok(res, await service.syncPrinterSnmp(printerId, req.user!));
 }
 
-export async function listPolicies(_req: Request, res: Response) {
-  return ok(res, await service.listPolicies());
+export async function listPolicies(req: Request, res: Response) {
+  return ok(res, await service.listPolicies(req.user!));
 }
 
 export async function createPolicy(req: Request, res: Response) {
@@ -52,7 +52,7 @@ export async function createPolicy(req: Request, res: Response) {
 }
 
 export async function updatePolicy(req: Request, res: Response) {
-  return ok(res, await service.updatePolicy(getParamString(req.params.id), req.body, req.user!));
+  return ok(res, await service.updatePolicy(getPositiveIntParam(req.params.id), req.body, req.user!));
 }
 
 export async function listTemplates(_req: Request, res: Response) {
@@ -70,5 +70,5 @@ export async function createTemplate(req: Request, res: Response) {
 }
 
 export async function updateTemplate(req: Request, res: Response) {
-  return ok(res, await service.updateTemplate(getParamString(req.params.id), req.body, req.user!));
+  return ok(res, await service.updateTemplate(getPositiveIntParam(req.params.id), req.body, req.user!));
 }

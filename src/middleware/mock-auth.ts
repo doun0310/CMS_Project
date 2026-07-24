@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { env } from "../config/env";
 
 const DEFAULT_USER = {
   id: 1,
@@ -7,6 +8,10 @@ const DEFAULT_USER = {
 };
 
 export function mockAuth(req: Request, _res: Response, next: NextFunction) {
+  if (!env.enableMockAuth) {
+    return next();
+  }
+
   const id = Number(req.header("x-user-id")) || DEFAULT_USER.id;
   const roleCode = req.header("x-role-code") || DEFAULT_USER.roleCode;
   const organizationId = Number(req.header("x-organization-id")) || DEFAULT_USER.organizationId;

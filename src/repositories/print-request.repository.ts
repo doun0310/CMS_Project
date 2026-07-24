@@ -50,13 +50,25 @@ export async function findPrintRequestById(id: number) {
   return result.rows[0] ?? null;
 }
 
+export async function findPrintRequestByIdForUpdate(client: PoolClient, id: number) {
+  const sql = `
+    SELECT *
+    FROM print_requests
+    WHERE id = $1
+    FOR UPDATE
+  `;
+
+  const result = await client.query<PrintRequestRow>(sql, [id]);
+  return result.rows[0] ?? null;
+}
+
 export async function updatePrintRequestStatus(params: {
   id: number;
   status: string;
   approvedAt?: boolean;
   rejectedAt?: boolean;
   printedAt?: boolean;
-}) {
+}, client?: PoolClient) {
   const sql = `
     UPDATE print_requests
     SET status = $2,
@@ -68,13 +80,16 @@ export async function updatePrintRequestStatus(params: {
     RETURNING *
   `;
 
-  const result = await query<PrintRequestRow>(sql, [
+  const values = [
     params.id,
     params.status,
     params.approvedAt ?? false,
     params.rejectedAt ?? false,
     params.printedAt ?? false
-  ]);
+  ];
+  const result = client
+    ? await client.query<PrintRequestRow>(sql, values)
+    : await query<PrintRequestRow>(sql, values);
 
   return result.rows[0] ?? null;
 }

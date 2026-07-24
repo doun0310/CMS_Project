@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react'
-import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
+import React, { useState, useCallback, useEffect } from 'react'
+import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi, fetchPrintRequestsFromBackend } from '../services/api'
 import { CreatePrintRequestModal } from '../components/CreatePrintRequestModal'
 import { PinReleaseModal } from '../components/PinReleaseModal'
 import { PiiInspectorModal } from '../components/PiiInspectorModal'
@@ -22,9 +22,17 @@ export const PrintRequestsPage: React.FC = () => {
   const [compareTargetDoc, setCompareTargetDoc] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
-  const syncCallback = useCallback(() => {
-    // 실시간 비동기 결재함 데이터 동기화
+  const refreshRequests = useCallback(() => {
+    fetchPrintRequestsFromBackend().then(setRequests)
   }, [])
+
+  useEffect(() => {
+    refreshRequests()
+  }, [refreshRequests])
+
+  const syncCallback = useCallback(() => {
+    refreshRequests()
+  }, [refreshRequests])
 
   useRealtimeSync(syncCallback, 10000)
 
@@ -96,14 +104,14 @@ export const PrintRequestsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>인쇄 승인 결재함</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 임직원의 인쇄 요청 결재 및 재인쇄 통제 관리</p>
-          {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
+          {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="page-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           {selectedIds.length > 0 && (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '4px 10px', borderRadius: '8px', border: '1px solid #334155' }}>
               <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>{selectedIds.length}건 선택됨</span>
@@ -173,7 +181,7 @@ export const PrintRequestsPage: React.FC = () => {
         />
       )}
 
-      <div className="glass-card" style={{ width: '100%', overflow: 'hidden' }}>
+      <div className="glass-card table-card" style={{ width: '100%' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table className="data-table" style={{ minWidth: '950px' }}>
             <thead>
@@ -228,11 +236,11 @@ export const PrintRequestsPage: React.FC = () => {
                         </button>
                       )}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.pageCount} Pages × {req.copyCount} Copies</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>{req.pageCount} Pages × {req.copyCount} Copies</div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <div>{req.requesterName}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{req.requesterDepartment}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>{req.requesterDepartment}</div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: '12px', fontWeight: 600, color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
@@ -263,7 +271,7 @@ export const PrintRequestsPage: React.FC = () => {
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
                         {req.status === 'APPROVED' && (
                           <>
                             <button

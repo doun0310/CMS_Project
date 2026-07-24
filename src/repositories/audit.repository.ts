@@ -64,7 +64,7 @@ export async function createAuditLogTx(
   return result.rows[0];
 }
 
-export async function listAuditLogs() {
+export async function listAuditLogs(organizationId: number | null) {
   const sql = `
     SELECT 
       a.id,
@@ -76,9 +76,10 @@ export async function listAuditLogs() {
       a.created_at
     FROM audit_logs a
     LEFT JOIN users u ON a.actor_id = u.id
+    WHERE ($1::bigint IS NULL OR u.organization_id = $1)
     ORDER BY a.created_at DESC
     LIMIT 100
   `;
-  const result = await query(sql);
+  const result = await query(sql, [organizationId]);
   return result.rows;
 }

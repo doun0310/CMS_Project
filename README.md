@@ -1,6 +1,7 @@
 # CMS Printer Application
 
-사내 CMS와 연동되는 승인 기반 프린터 애플리케이션 초기 구성입니다.
+사내 CMS와 연동되는 승인 기반 프린터 애플리케이션입니다. Express API,
+PostgreSQL/Supabase 데이터베이스, React 관리자 화면으로 구성됩니다.
 
 ## 목표
 
@@ -51,11 +52,16 @@
 
 ## 시작 순서
 
-1. PostgreSQL 데이터베이스 생성
+1. PostgreSQL 또는 Supabase 프로젝트 생성
 2. `db/schema.sql` 실행
 3. `db/seed.sql` 실행
 4. `.env.example`를 참고해 `.env` 작성
-5. 의존성 설치 후 개발 서버 실행
+5. 백엔드와 프론트엔드 의존성 설치
+6. 개발 서버 실행
+
+`db/seed.sql`이 현재 스키마에 대응하는 공식 시드입니다.
+`seed_*_dataset.sql` 파일은 이전 데이터 모델 기반의 참고용 레거시 픽스처이므로
+현재 스키마에 직접 실행하지 마세요.
 
 ## 개발 명령어
 
@@ -63,24 +69,38 @@
 npm install
 npm run dev
 npm test
+
+cd frontend
+npm install
+npm run dev
 ```
 
 ## 현재 포함 범위
 
-- DDL 초안
-- 기본 프로젝트 구조
-- API 골격 라우트
-- PostgreSQL 연결 골격
-- 실제 SQL 기반 핵심 서비스 일부
+- Supabase/PostgreSQL DDL과 서버 연결 풀
+- 역할 및 조직 범위 기반 API 접근 제어
+- 승인, 반려, 재인쇄, 출력 작업 상태 관리
 - 템플릿 관리 CRUD
-- 감사 로그 및 조직 범위 검증 일부
-- Swagger UI 연동 골격
-- Jest/Supertest 테스트 골격
+- 감사 로그 및 조직 범위 검증
+- Swagger UI
+- Jest/Supertest 회귀 테스트
+- React/Vite 관리자 화면
+
+## 보안 주의사항
+
+- 개발 환경은 기본적으로 `x-user-id`, `x-role-code`,
+  `x-organization-id` 헤더 기반 모의 인증을 사용합니다.
+- 운영 환경에서는 `ENABLE_MOCK_AUTH=false`로 두고 실제 SSO/JWT 인증
+  미들웨어를 연결해야 합니다.
+- 서버는 `pg`로 DB에 직접 연결합니다. Supabase Data API의 브라우저 역할은
+  기본 DDL에서 테이블 권한이 제거되고 RLS로 차단됩니다.
+- `.env.local`이 과거 커밋에 포함되어 있으므로 실제 비밀값을 사용했다면
+  해당 자격 증명을 교체하고 Git 기록 정리 여부를 검토하세요.
 
 ## 다음 권장 작업
 
-1. 실제 DB 연결 계층 추가
-2. 승인 라우팅 비즈니스 로직 고도화
-3. Print Agent 통신 방식 확정
-4. 프론트엔드 관리자 화면 설계
-5. 테스트 코드 추가
+1. 운영용 SSO/JWT 인증 연결
+2. 레거시 데모 픽스처를 현재 스키마로 변환
+3. Print Agent 키 해시 저장 및 키 순환 정책 추가
+4. 승인/출력 작업 DB 통합 테스트 환경 추가
+5. 프론트엔드 컴포넌트 테스트 추가

@@ -1,3 +1,4 @@
+import { PoolClient } from "pg";
 import { query } from "../config/database";
 
 export interface PrintJobRow {
@@ -18,7 +19,7 @@ export async function createPrintJob(params: {
   printRequestId: number;
   printerId: number;
   agentKey?: string | null;
-}) {
+}, client?: PoolClient) {
   const sql = `
     INSERT INTO print_jobs (
       print_request_id,
@@ -30,11 +31,14 @@ export async function createPrintJob(params: {
     RETURNING *
   `;
 
-  const result = await query<PrintJobRow>(sql, [
+  const values = [
     params.printRequestId,
     params.printerId,
     params.agentKey ?? null
-  ]);
+  ];
+  const result = client
+    ? await client.query<PrintJobRow>(sql, values)
+    : await query<PrintJobRow>(sql, values);
 
   return result.rows[0];
 }
@@ -50,6 +54,20 @@ export async function findPrintJobById(jobId: number) {
   return result.rows[0] ?? null;
 }
 
+export async function findPrintJobForAgent(jobId: number, agentKey: string) {
+  const sql = `
+    SELECT j.*
+    FROM print_jobs j
+    INNER JOIN printers pr ON pr.id = j.printer_id
+    WHERE j.id = $1
+      AND pr.agent_key = $2
+      AND (j.agent_key = $2 OR j.agent_key IS NULL)
+  `;
+
+  const result = await query<PrintJobRow>(sql, [jobId, agentKey]);
+  return result.rows[0] ?? null;
+}
+
 export async function listQueuedJobsByAgent(agentKey: string, printerIds: number[]) {
   const sql = `
     SELECT
@@ -61,8 +79,10 @@ export async function listQueuedJobsByAgent(agentKey: string, printerIds: number
     FROM print_jobs j
     INNER JOIN print_requests p ON p.id = j.print_request_id
     INNER JOIN document_templates t ON t.id = p.template_id
+    INNER JOIN printers pr ON pr.id = j.printer_id
     WHERE j.job_status = 'QUEUED'
       AND (j.agent_key = $1 OR j.agent_key IS NULL)
+      AND pr.agent_key = $1
       AND j.printer_id = ANY($2::bigint[])
     ORDER BY j.created_at ASC
     LIMIT 20

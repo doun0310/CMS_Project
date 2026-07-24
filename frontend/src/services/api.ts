@@ -135,9 +135,74 @@ export const mockAuditLogs: AuditLog[] = [
 const API_BASE_URL = '/api/v1'
 
 function extractNumericId(id: string | number): number {
-  if (typeof id === 'number') return id
-  const num = parseInt(id.replace(/\D/g, ''), 10)
-  return isNaN(num) ? 1 : num
+  const value = typeof id === 'number' ? id : Number(id)
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error('This action requires a request loaded from the backend.')
+  }
+  return value
+}
+
+async function parseResponse<T>(res: Response): Promise<T> {
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(body?.message || `Request failed with status ${res.status}`)
+  }
+  return body
+}
+
+function normalizeApprovalStatus(status: string): PrintRequest['status'] {
+  if (status === 'APPROVED' || status === 'PRINT_SUCCESS') return 'APPROVED'
+  if (status === 'REJECTED' || status === 'CANCELLED' || status === 'PRINT_FAILED') return 'REJECTED'
+  return 'PENDING'
+}
+
+function normalizePrintRequest(row: Record<string, unknown>): PrintRequest {
+  return {
+    id: String(row.id),
+    documentName: String(row.document_name || row.source_document_id || row.document_type || '문서'),
+    pageCount: Number(row.pages || 0),
+    copyCount: Number(row.copies || 1),
+    securityLevel: row.is_sensitive ? 'CONFIDENTIAL' : 'PUBLIC',
+    status: normalizeApprovalStatus(String(row.status || 'PENDING_APPROVAL')),
+    requesterName: String(row.requester_name || `사용자 #${row.requester_id || '-'}`),
+    requesterDepartment: String(row.requester_department || `조직 #${row.requester_organization_id || '-'}`),
+    createdAt: String(row.created_at || row.requested_at || ''),
+  }
+}
+
+function normalizePrinter(row: Record<string, unknown>): Printer {
+  const backendStatus = String(row.status || 'OFFLINE')
+  const status: Printer['status'] =
+    backendStatus === 'ACTIVE' ? 'ONLINE'
+      : backendStatus === 'INACTIVE' || backendStatus === 'MAINTENANCE' ? 'OFFLINE'
+        : (['ONLINE', 'PRINTING', 'LOW_TONER', 'ERROR', 'OFFLINE'].includes(backendStatus)
+            ? backendStatus as Printer['status']
+            : 'OFFLINE')
+
+  return {
+    id: String(row.id),
+    name: String(row.name || row.code || '프린터'),
+    modelName: String(row.printer_type || ''),
+    ipAddress: String(row.ip_address || '-'),
+    location: String(row.location || '-'),
+    status,
+    blackTonerLevel: Number(row.black_toner_level ?? 0),
+    paperLevel: Number(row.paper_level ?? 0),
+    activeJobCount: Number(row.active_job_count ?? 0),
+    lastCheckedAt: String(row.last_checked_at || row.updated_at || ''),
+  }
+}
+
+function normalizeAuditLog(row: Record<string, unknown>): AuditLog {
+  return {
+    id: String(row.id),
+    action: String(row.action || row.action_type || ''),
+    actorName: String(row.actor_name || 'System'),
+    targetResource: String(row.target_resource || ''),
+    details: typeof row.details === 'string' ? row.details : JSON.stringify(row.details || {}),
+    ipAddress: String(row.ip_address || '-'),
+    createdAt: String(row.created_at || ''),
+  }
 }
 
 export async function fetchPrintRequestsFromBackend() {
@@ -145,7 +210,8 @@ export async function fetchPrintRequestsFromBackend() {
     const res = await fetch(`${API_BASE_URL}/print-requests`)
     if (!res.ok) throw new Error('Failed to fetch print requests')
     const json = await res.json()
-    return json.data?.items || json.items || mockPrintRequests
+    const items = json.data?.items || json.items
+    return Array.isArray(items) ? items.map(normalizePrintRequest) : mockPrintRequests
   } catch {
     return mockPrintRequests
   }
@@ -158,7 +224,7 @@ export async function approvePrintRequestApi(id: string, comment?: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ comment: comment || '승인 완료' }),
   })
-  return res.json()
+  return parseResponse(res)
 }
 
 export async function rejectPrintRequestApi(id: string, reason: string) {
@@ -168,14 +234,14 @@ export async function rejectPrintRequestApi(id: string, reason: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ reason }),
   })
-  return res.json()
+  return parseResponse(res)
 }
 
 export async function syncPrinterSnmpApi(printerId: number = 1) {
   const res = await fetch(`${API_BASE_URL}/printers/${printerId}/snmp-sync`, {
     method: 'POST',
   })
-  return res.json()
+  return parseResponse(res)
 }
 
 export async function fetchPrintersFromBackend() {
@@ -183,7 +249,8 @@ export async function fetchPrintersFromBackend() {
     const res = await fetch(`${API_BASE_URL}/printers`)
     if (!res.ok) throw new Error('Failed to fetch printers')
     const json = await res.json()
-    return json.data?.items || json.items || mockPrinters
+    const items = json.data?.items || json.items
+    return Array.isArray(items) ? items.map(normalizePrinter) : mockPrinters
   } catch {
     return mockPrinters
   }
@@ -216,7 +283,8 @@ export async function fetchAuditLogsFromBackend() {
     const res = await fetch(`${API_BASE_URL}/audit-logs`)
     if (!res.ok) throw new Error('Failed to fetch audit logs')
     const json = await res.json()
-    return json.data?.items || mockAuditLogs
+    const items = json.data?.items
+    return Array.isArray(items) ? items.map(normalizeAuditLog) : mockAuditLogs
   } catch {
     return mockAuditLogs
   }

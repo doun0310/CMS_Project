@@ -35,13 +35,13 @@ export const AuditLogsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>{t('audit_title')}</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('audit_sub')}</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="page-actions" style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={handlePrintReport}
             className="btn btn-md btn-primary"
@@ -79,7 +79,7 @@ export const AuditLogsPage: React.FC = () => {
         />
       </div>
 
-      <div className="glass-card">
+      <div className="glass-card table-card">
         <table className="data-table">
           <thead>
             <tr>
@@ -102,7 +102,7 @@ export const AuditLogsPage: React.FC = () => {
                 <td>{log.actorName}</td>
                 <td style={{ color: '#cbd5e1' }}>{log.targetResource}</td>
                 <td style={{ color: '#94a3b8' }}>{log.details}</td>
-                <td style={{ fontSize: '12px', color: '#64748b' }}>{log.ipAddress}</td>
+                <td style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>{log.ipAddress}</td>
                 <td style={{ fontSize: '12px', color: '#94a3b8' }}>{log.createdAt}</td>
               </tr>
             ))}

@@ -49,15 +49,51 @@ CREATE TABLE printers (
     agent_key VARCHAR(100),
     organization_id BIGINT REFERENCES organizations(id),
     location VARCHAR(200),
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    status VARCHAR(20) NOT NULL DEFAULT 'OFFLINE',
+    black_toner_level INTEGER,
+    paper_level INTEGER,
+    last_checked_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT chk_printers_type
-        CHECK (printer_type IN ('A4', 'LABEL', 'BARCODE', 'RECEIPT')),
+        CHECK (
+            printer_type IN (
+                'A4',
+                'LABEL',
+                'BARCODE',
+                'RECEIPT',
+                'COLOR_LASER',
+                'MONO_LASER',
+                'COLOR_INKJET'
+            )
+        ),
     CONSTRAINT chk_printers_connection
-        CHECK (connection_type IN ('NETWORK', 'USB', 'SERVER_QUEUE')),
+        CHECK (
+            connection_type IN (
+                'NETWORK',
+                'USB',
+                'SERVER_QUEUE',
+                'NETWORK_SNMP',
+                'AGENT_DIRECT'
+            )
+        ),
     CONSTRAINT chk_printers_status
-        CHECK (status IN ('ACTIVE', 'INACTIVE', 'MAINTENANCE'))
+        CHECK (
+            status IN (
+                'ACTIVE',
+                'INACTIVE',
+                'MAINTENANCE',
+                'ONLINE',
+                'OFFLINE',
+                'LOW_TONER',
+                'ERROR',
+                'PRINTING'
+            )
+        ),
+    CONSTRAINT chk_printers_black_toner_level
+        CHECK (black_toner_level IS NULL OR black_toner_level BETWEEN 0 AND 100),
+    CONSTRAINT chk_printers_paper_level
+        CHECK (paper_level IS NULL OR paper_level BETWEEN 0 AND 100)
 );
 
 CREATE TABLE document_templates (
@@ -195,11 +231,13 @@ CREATE TABLE audit_logs (
 
 CREATE INDEX idx_users_organization_id ON users (organization_id);
 CREATE INDEX idx_users_role_id ON users (role_id);
+CREATE INDEX idx_organizations_parent_id ON organizations (parent_id);
 
 CREATE INDEX idx_printers_organization_id ON printers (organization_id);
 CREATE INDEX idx_printers_agent_key ON printers (agent_key);
 
 CREATE INDEX idx_document_templates_document_type ON document_templates (document_type);
+CREATE INDEX idx_document_templates_created_by ON document_templates (created_by);
 CREATE INDEX idx_approval_policies_document_type ON approval_policies (document_type);
 CREATE INDEX idx_approval_policies_organization_id ON approval_policies (organization_id);
 
@@ -218,10 +256,44 @@ CREATE INDEX idx_approval_steps_decision ON approval_steps (decision);
 CREATE INDEX idx_print_jobs_request_id ON print_jobs (print_request_id);
 CREATE INDEX idx_print_jobs_printer_id ON print_jobs (printer_id);
 CREATE INDEX idx_print_jobs_status ON print_jobs (job_status);
+CREATE INDEX idx_print_jobs_queued_created_at
+    ON print_jobs (created_at)
+    WHERE job_status = 'QUEUED';
+
+CREATE INDEX idx_printer_organization_maps_organization_id
+    ON printer_organization_maps (organization_id);
 
 CREATE INDEX idx_audit_logs_actor_id ON audit_logs (actor_id);
 CREATE INDEX idx_audit_logs_target ON audit_logs (target_type, target_id);
 CREATE INDEX idx_audit_logs_created_at ON audit_logs (created_at);
+
+-- Supabase exposes the public schema through the Data API by default.
+-- This application uses the server-side pg connection, so browser roles receive
+-- no direct table access. Add explicit policies later if Data API access is introduced.
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE printers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE approval_policies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE print_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE approval_steps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE print_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE printer_organization_maps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+        REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon;
+        REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        REVOKE ALL ON ALL TABLES IN SCHEMA public FROM authenticated;
+        REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM authenticated;
+    END IF;
+END
+$$;
 
 INSERT INTO roles (code, name, description)
 VALUES

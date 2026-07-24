@@ -258,6 +258,7 @@ Request Body:
 
 ```json
 {
+  "agentKey": "agent-logistics-01",
   "jobStatus": "SUCCESS",
   "failureReason": null
 }
