@@ -973,3 +973,13 @@ div[style*="position: fixed"] > .glass-card {
     border-bottom: 1px solid #ccc !important;
   }
 }
+
+/* Mobile & Tablet Responsive Media Query */
+@media (max-width: 768px) {
+  .app-sidebar {
+    display: none !important;
+  }
+  .mobile-header-bar {
+    display: block !important;
+  }
+}

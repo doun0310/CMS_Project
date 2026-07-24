@@ -9,6 +9,7 @@ import { PoliciesPage } from './pages/PoliciesPage'
 import { QuotaPage } from './pages/QuotaPage'
 import { TemplatesPage } from './pages/TemplatesPage'
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 export const App: React.FC = () => {
   const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false)
@@ -24,23 +25,25 @@ export const App: React.FC = () => {
   }, [])
 
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/requests" element={<PrintRequestsPage />} />
-          <Route path="/printers" element={<PrintersPage />} />
-          <Route path="/policies" element={<PoliciesPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/quota" element={<QuotaPage />} />
-          <Route path="/audit-logs" element={<AuditLogsPage />} />
-          <Route path="/settings" element={<PoliciesPage />} />
-        </Routes>
-      </Layout>
-      <KeyboardShortcutsModal
-        isOpen={isShortcutModalOpen}
-        onClose={() => setIsShortcutModalOpen(false)}
-      />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/requests" element={<PrintRequestsPage />} />
+            <Route path="/printers" element={<PrintersPage />} />
+            <Route path="/policies" element={<PoliciesPage />} />
+            <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/quota" element={<QuotaPage />} />
+            <Route path="/audit-logs" element={<AuditLogsPage />} />
+            <Route path="/settings" element={<PoliciesPage />} />
+          </Routes>
+        </Layout>
+        <KeyboardShortcutsModal
+          isOpen={isShortcutModalOpen}
+          onClose={() => setIsShortcutModalOpen(false)}
+        />
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

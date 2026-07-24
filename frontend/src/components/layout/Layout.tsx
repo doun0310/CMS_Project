@@ -1,6 +1,7 @@
 import React from 'react'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
+import { MobileHeader } from './MobileHeader'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -9,6 +10,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <MobileHeader />
       <Navbar />
       <div className="app-body" style={{ display: 'flex', flex: 1 }}>
         <Sidebar />
