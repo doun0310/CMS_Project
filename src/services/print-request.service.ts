@@ -1,10 +1,13 @@
+import { randomUUID } from "crypto";
 import { withTransaction } from "../config/database";
-import { ForbiddenError, NotFoundError } from "../errors/app-error";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/app-error";
 import { createApprovalStep } from "../repositories/approval.repository";
 import { createAuditLogTx } from "../repositories/audit.repository";
 import {
   findPrintRequestById,
+  findAssignablePrinterById,
   insertPrintRequest,
+  isActiveTemplate,
   listPrintRequestsByOrganization
 } from "../repositories/print-request.repository";
 import { findPolicyForDocumentType } from "../repositories/policy.repository";
@@ -40,6 +43,12 @@ export class PrintRequestService {
     payload: PrintRequestPayload,
     currentUser: { id: number; organizationId: number }
   ) {
+    await this.assertRequestResources(
+      payload.templateId,
+      payload.printerId,
+      currentUser.organizationId
+    );
+
     const policy = await findPolicyForDocumentType(payload.documentType, currentUser.organizationId);
     const requireManagerApproval =
       payload.isSensitive === true ||
@@ -48,7 +57,7 @@ export class PrintRequestService {
       policy?.requires_sensitive_approval === true;
 
     return withTransaction(async (client) => {
-      const requestNo = `PR-${Date.now()}`;
+      const requestNo = this.createRequestNo();
       const request = await insertPrintRequest(client, {
         requestNo,
         documentType: payload.documentType,
@@ -110,10 +119,15 @@ export class PrintRequestService {
     }
 
     this.assertOrganizationAccess(originalRequest.requester_organization_id, currentUser);
+    await this.assertRequestResources(
+      originalRequest.template_id,
+      payload.printerId ?? originalRequest.printer_id ?? undefined,
+      currentUser.organizationId
+    );
 
     return withTransaction(async (client) => {
       const request = await insertPrintRequest(client, {
-        requestNo: `PR-${Date.now()}-R`,
+        requestNo: this.createRequestNo("R"),
         documentType: originalRequest.document_type,
         sourceDocumentId: originalRequest.source_document_id,
         requesterId: currentUser.id,
@@ -173,5 +187,52 @@ export class PrintRequestService {
         targetOrganizationId
       });
     }
+  }
+
+  private async assertRequestResources(
+    templateId: number,
+    printerId: number | undefined,
+    organizationId: number
+  ) {
+    if (!(await isActiveTemplate(templateId))) {
+      throw new BadRequestError("Template is missing or inactive", {
+        templateId
+      });
+    }
+
+    if (!printerId) {
+      return;
+    }
+
+    const printer = await findAssignablePrinterById(printerId);
+    if (!printer) {
+      throw new BadRequestError("Printer does not exist", {
+        printerId
+      });
+    }
+
+    if (
+      printer.organization_id !== null &&
+      printer.organization_id !== organizationId
+    ) {
+      throw new ForbiddenError("Printer belongs to another organization", {
+        printerId,
+        actorOrganizationId: organizationId,
+        printerOrganizationId: printer.organization_id
+      });
+    }
+
+    if (["INACTIVE", "MAINTENANCE"].includes(printer.status)) {
+      throw new BadRequestError("Printer is not available for assignment", {
+        printerId,
+        printerStatus: printer.status
+      });
+    }
+  }
+
+  private createRequestNo(suffix?: string) {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const entropy = randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
+    return ["PR", timestamp, entropy, suffix].filter(Boolean).join("-");
   }
 }

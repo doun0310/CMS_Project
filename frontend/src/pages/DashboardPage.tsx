@@ -1,5 +1,5 @@
 import React from 'react'
-import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
+import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi, fetchPrintRequestsFromBackend, fetchPrintersFromBackend, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
 import { EsgAnalyticsSection } from '../components/EsgAnalyticsSection'
 import { SecurityReportChartSection } from '../components/SecurityReportChartSection'
 import { useTranslation } from '../hooks/useTranslation'
@@ -10,7 +10,9 @@ export const DashboardPage: React.FC = () => {
   const { t } = useTranslation()
   const [kpiData, setKpiData] = React.useState(mockKpiData)
   const [requests, setRequests] = React.useState(mockPrintRequests)
+  const [printers, setPrinters] = React.useState(mockPrinters)
   const [message, setMessage] = React.useState<string | null>(null)
+  const [dataNotice, setDataNotice] = React.useState<string | null>(null)
   const kpiCards = [
     {
       label: '총 인쇄 요청 수',
@@ -43,9 +45,20 @@ export const DashboardPage: React.FC = () => {
   ]
 
   React.useEffect(() => {
-    fetchDashboardKpisApi().then((data) => {
-      if (data) setKpiData(data)
-    })
+    Promise.all([
+      fetchDashboardKpisApi(),
+      fetchPrintRequestsFromBackend(),
+      fetchPrintersFromBackend(),
+    ])
+      .then(([kpis, printRequests, printerItems]) => {
+        setKpiData(kpis)
+        setRequests(printRequests)
+        setPrinters(printerItems)
+        setDataNotice(null)
+      })
+      .catch(() => {
+        setDataNotice('백엔드 연결을 확인할 수 없어 예시 데이터를 표시하고 있습니다.')
+      })
   }, [])
 
   const handleApprove = async (id: string) => {
@@ -55,8 +68,8 @@ export const DashboardPage: React.FC = () => {
         prev.map((r) => (r.id === id ? { ...r, status: 'APPROVED', approverName: '이동현 팀장' } : r))
       )
       setMessage(`[${id}] 요청이 승인되었습니다.`)
-    } catch {
-      setMessage(`[${id}] 승인 처리 완료`)
+    } catch (error) {
+      setMessage(error instanceof Error ? `승인 실패: ${error.message}` : `[${id}] 승인 처리에 실패했습니다.`)
     }
   }
 
@@ -67,8 +80,8 @@ export const DashboardPage: React.FC = () => {
         prev.map((r) => (r.id === id ? { ...r, status: 'REJECTED', approverName: '이동현 팀장' } : r))
       )
       setMessage(`[${id}] 요청이 반려되었습니다.`)
-    } catch {
-      setMessage(`[${id}] 반려 처리 완료`)
+    } catch (error) {
+      setMessage(error instanceof Error ? `반려 실패: ${error.message}` : `[${id}] 반려 처리에 실패했습니다.`)
     }
   }
 
@@ -81,6 +94,7 @@ export const DashboardPage: React.FC = () => {
         </div>
         <span className="dashboard-live-indicator"><span aria-hidden="true" /> 운영 현황</span>
         {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
+        {dataNotice && <p className="status-message" style={{ color: '#fbbf24', fontSize: '13px', marginTop: '4px' }}>{dataNotice}</p>}
       </div>
 
       {/* KPI Cards Row */}
@@ -184,7 +198,7 @@ export const DashboardPage: React.FC = () => {
             <Link to="/printers">전체 보기 <span aria-hidden="true">→</span></Link>
           </div>
           <div className="dashboard-printer-list">
-            {mockPrinters.map((prt) => (
+            {printers.map((prt) => (
               <div className="dashboard-printer-item" key={prt.id}>
                 <div className="dashboard-printer-heading">
                   <span title={prt.name}>{prt.name}</span>

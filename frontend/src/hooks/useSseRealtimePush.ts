@@ -18,8 +18,9 @@ export function useSseRealtimePush(onEvent: (payload: SsePayload) => void, enabl
 
   useEffect(() => {
     if (!enabled) return
+    if (!import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_EVENTS !== 'true') return
 
-    // SSE EventSource 시뮬레이션 및 웹소켓 헬퍼 바인딩
+    // 명시적으로 활성화한 개발 환경에서만 데모 이벤트를 발생시킵니다.
     const mockEvents: SsePayload[] = [
       { type: 'PRINT_CREATED', message: '신규 인쇄 승인 신청이 접수되었습니다 (REQ-88194)' },
       { type: 'SNMP_ALERT', message: '프린터 PRT-1F-RICOH 토너 잔량 5% 경고' },

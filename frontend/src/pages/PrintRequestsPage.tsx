@@ -15,6 +15,7 @@ export const PrintRequestsPage: React.FC = () => {
   const { t } = useTranslation()
   const [requests, setRequests] = useState(mockPrintRequests)
   const [message, setMessage] = useState<string | null>(null)
+  const [dataNotice, setDataNotice] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUrgentModalOpen, setIsUrgentModalOpen] = useState(false)
   const [pinTarget, setPinTarget] = useState<{ id: string; name: string } | null>(null)
@@ -22,8 +23,13 @@ export const PrintRequestsPage: React.FC = () => {
   const [compareTargetDoc, setCompareTargetDoc] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
-  const refreshRequests = useCallback(() => {
-    fetchPrintRequestsFromBackend().then(setRequests)
+  const refreshRequests = useCallback(async () => {
+    try {
+      setRequests(await fetchPrintRequestsFromBackend())
+      setDataNotice(null)
+    } catch {
+      setDataNotice('백엔드 연결을 확인할 수 없어 예시 요청을 표시하고 있습니다.')
+    }
   }, [])
 
   useEffect(() => {
@@ -49,8 +55,8 @@ export const PrintRequestsPage: React.FC = () => {
         prev.map((r) => (r.id === id ? { ...r, status: 'APPROVED', approverName: '이동현 팀장' } : r))
       )
       setMessage(`[${id}] 요청이 성공적으로 승인되었습니다.`)
-    } catch {
-      setMessage(`[${id}] 승인 처리 중 (백엔드 모듈 연결 완료)`)
+    } catch (error) {
+      setMessage(error instanceof Error ? `승인 실패: ${error.message}` : `[${id}] 승인 처리에 실패했습니다.`)
     }
   }
 
@@ -61,26 +67,34 @@ export const PrintRequestsPage: React.FC = () => {
         prev.map((r) => (r.id === id ? { ...r, status: 'REJECTED', approverName: '이동현 팀장' } : r))
       )
       setMessage(`[${id}] 요청이 반려 처리되었습니다.`)
-    } catch {
-      setMessage(`[${id}] 반려 처리 중 (백엔드 모듈 연결 완료)`)
+    } catch (error) {
+      setMessage(error instanceof Error ? `반려 실패: ${error.message}` : `[${id}] 반려 처리에 실패했습니다.`)
     }
   }
 
-  const handleBulkApprove = () => {
+  const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return
-    setRequests((prev) =>
-      prev.map((r) => (selectedIds.includes(r.id) ? { ...r, status: 'APPROVED', approverName: '이동현 팀장 (일괄승인)' } : r))
+    const results = await Promise.allSettled(
+      selectedIds.map((id) => approvePrintRequestApi(id, '일괄 승인'))
     )
-    setMessage(`선택된 ${selectedIds.length}건의 요청이 일괄 승인되었습니다.`)
+    const succeededIds = selectedIds.filter((_, index) => results[index].status === 'fulfilled')
+    setRequests((prev) =>
+      prev.map((r) => (succeededIds.includes(r.id) ? { ...r, status: 'APPROVED', approverName: '이동현 팀장 (일괄승인)' } : r))
+    )
+    setMessage(`${succeededIds.length}건 승인 완료, ${selectedIds.length - succeededIds.length}건 실패`)
     setSelectedIds([])
   }
 
-  const handleBulkReject = () => {
+  const handleBulkReject = async () => {
     if (selectedIds.length === 0) return
-    setRequests((prev) =>
-      prev.map((r) => (selectedIds.includes(r.id) ? { ...r, status: 'REJECTED', approverName: '이동현 팀장 (일괄반려)' } : r))
+    const results = await Promise.allSettled(
+      selectedIds.map((id) => rejectPrintRequestApi(id, '일괄 반려'))
     )
-    setMessage(`선택된 ${selectedIds.length}건의 요청이 일괄 반려 처리되었습니다.`)
+    const succeededIds = selectedIds.filter((_, index) => results[index].status === 'fulfilled')
+    setRequests((prev) =>
+      prev.map((r) => (succeededIds.includes(r.id) ? { ...r, status: 'REJECTED', approverName: '이동현 팀장 (일괄반려)' } : r))
+    )
+    setMessage(`${succeededIds.length}건 반려 완료, ${selectedIds.length - succeededIds.length}건 실패`)
     setSelectedIds([])
   }
 
@@ -110,6 +124,7 @@ export const PrintRequestsPage: React.FC = () => {
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>인쇄 승인 결재함</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 임직원의 인쇄 요청 결재 및 재인쇄 통제 관리</p>
           {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
+          {dataNotice && <p className="status-message" style={{ color: '#fbbf24', fontSize: '13px', marginTop: '4px' }}>{dataNotice}</p>}
         </div>
         <div className="page-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           {selectedIds.length > 0 && (

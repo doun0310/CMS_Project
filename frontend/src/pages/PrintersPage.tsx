@@ -13,6 +13,7 @@ export const PrintersPage: React.FC = () => {
   const [printers, setPrinters] = useState(mockPrinters)
   const [loading, setLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
+  const [dataNotice, setDataNotice] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [isPingModalOpen, setIsPingModalOpen] = useState(false)
@@ -21,24 +22,39 @@ export const PrintersPage: React.FC = () => {
   const [autoPolling, setAutoPolling] = useState(false)
 
   useEffect(() => {
-    fetchPrintersFromBackend().then(setPrinters)
+    fetchPrintersFromBackend()
+      .then((items) => {
+        setPrinters(items)
+        setDataNotice(null)
+      })
+      .catch(() => {
+        setDataNotice('백엔드 연결을 확인할 수 없어 예시 프린터를 표시하고 있습니다.')
+      })
   }, [])
 
   const handleSnmpSyncAll = async () => {
     setLoading(true)
     setSyncStatus('네트워크 프린터 SNMP 상태 수집 중...')
     try {
-      await syncPrinterSnmpApi(1)
-      setSyncStatus('⚡ SNMP 실시간 동기화가 성공적으로 완료되었습니다!')
-    } catch {
-      setSyncStatus('네트워크 통신 대기 중 (SNMP 프로토콜 모듈 동작 완료)')
+      const printerIds = printers
+        .map((printer) => Number(printer.id))
+        .filter((id) => Number.isInteger(id) && id > 0)
+      if (printerIds.length === 0) {
+        throw new Error('백엔드에서 불러온 프린터가 없어 동기화할 수 없습니다.')
+      }
+      const results = await Promise.allSettled(printerIds.map(syncPrinterSnmpApi))
+      const succeeded = results.filter((result) => result.status === 'fulfilled').length
+      const failed = results.length - succeeded
+      setSyncStatus(`SNMP 동기화 완료: 성공 ${succeeded}대, 실패 ${failed}대`)
+    } catch (error) {
+      setSyncStatus(error instanceof Error ? `SNMP 동기화 실패: ${error.message}` : 'SNMP 동기화에 실패했습니다.')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    let timer: any = null
+    let timer: ReturnType<typeof setInterval> | null = null
     if (autoPolling) {
       setSyncStatus('⏱️ 30초 주기 SNMP 자동 동기화 활성화됨')
       timer = setInterval(() => {
@@ -69,6 +85,7 @@ export const PrintersPage: React.FC = () => {
           <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_title')}</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_sub')}</p>
           {syncStatus && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{syncStatus}</p>}
+          {dataNotice && <p className="status-message" style={{ color: '#fbbf24', fontSize: '13px', marginTop: '4px' }}>{dataNotice}</p>}
         </div>
         <button
           onClick={() => setIsModalOpen(true)}

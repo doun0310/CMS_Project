@@ -54,6 +54,20 @@ export async function findPrintJobById(jobId: number) {
   return result.rows[0] ?? null;
 }
 
+export async function findPrintJobByIdForUpdate(client: PoolClient, jobId: number) {
+  const result = await client.query<PrintJobRow>(
+    `
+      SELECT *
+      FROM print_jobs
+      WHERE id = $1
+      FOR UPDATE
+    `,
+    [jobId]
+  );
+
+  return result.rows[0] ?? null;
+}
+
 export async function findPrintJobForAgent(jobId: number, agentKey: string) {
   const sql = `
     SELECT j.*
@@ -65,6 +79,27 @@ export async function findPrintJobForAgent(jobId: number, agentKey: string) {
   `;
 
   const result = await query<PrintJobRow>(sql, [jobId, agentKey]);
+  return result.rows[0] ?? null;
+}
+
+export async function findPrintJobForAgentForUpdate(
+  client: PoolClient,
+  jobId: number,
+  agentKey: string
+) {
+  const result = await client.query<PrintJobRow>(
+    `
+      SELECT j.*
+      FROM print_jobs j
+      INNER JOIN printers pr ON pr.id = j.printer_id
+      WHERE j.id = $1
+        AND pr.agent_key = $2
+        AND (j.agent_key = $2 OR j.agent_key IS NULL)
+      FOR UPDATE OF j
+    `,
+    [jobId, agentKey]
+  );
+
   return result.rows[0] ?? null;
 }
 
@@ -96,7 +131,7 @@ export async function updatePrintJobStatus(params: {
   jobId: number;
   jobStatus: string;
   failureReason?: string | null;
-}) {
+}, client?: PoolClient) {
   const sql = `
     UPDATE print_jobs
     SET job_status = $2,
@@ -114,16 +149,23 @@ export async function updatePrintJobStatus(params: {
     RETURNING *
   `;
 
-  const result = await query<PrintJobRow>(sql, [
+  const values = [
     params.jobId,
     params.jobStatus,
     params.failureReason ?? null
-  ]);
+  ];
+  const result = client
+    ? await client.query<PrintJobRow>(sql, values)
+    : await query<PrintJobRow>(sql, values);
 
   return result.rows[0] ?? null;
 }
 
-export async function retryPrintJobById(jobId: number, reason?: string) {
+export async function retryPrintJobById(
+  jobId: number,
+  reason?: string,
+  client?: PoolClient
+) {
   const sql = `
     UPDATE print_jobs
     SET job_status = 'QUEUED',
@@ -133,9 +175,13 @@ export async function retryPrintJobById(jobId: number, reason?: string) {
         finished_at = NULL,
         updated_at = NOW()
     WHERE id = $1
+      AND job_status = 'FAILED'
     RETURNING *
   `;
 
-  const result = await query<PrintJobRow>(sql, [jobId, reason ?? null]);
+  const values = [jobId, reason ?? null];
+  const result = client
+    ? await client.query<PrintJobRow>(sql, values)
+    : await query<PrintJobRow>(sql, values);
   return result.rows[0] ?? null;
 }

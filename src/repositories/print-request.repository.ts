@@ -26,6 +26,41 @@ export interface PrintRequestRow {
   updated_at: string;
 }
 
+export interface AssignablePrinterRow {
+  id: number;
+  organization_id: number | null;
+  status: string;
+}
+
+export async function findAssignablePrinterById(id: number) {
+  const result = await query<AssignablePrinterRow>(
+    `
+      SELECT id, organization_id, status
+      FROM printers
+      WHERE id = $1
+    `,
+    [id]
+  );
+
+  return result.rows[0] ?? null;
+}
+
+export async function isActiveTemplate(templateId: number) {
+  const result = await query<{ exists: boolean }>(
+    `
+      SELECT EXISTS (
+        SELECT 1
+        FROM document_templates
+        WHERE id = $1
+          AND status = 'ACTIVE'
+      ) AS exists
+    `,
+    [templateId]
+  );
+
+  return result.rows[0]?.exists === true;
+}
+
 export async function listPrintRequestsByOrganization(organizationId: number) {
   const sql = `
     SELECT *

@@ -206,15 +206,11 @@ function normalizeAuditLog(row: Record<string, unknown>): AuditLog {
 }
 
 export async function fetchPrintRequestsFromBackend() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/print-requests`)
-    if (!res.ok) throw new Error('Failed to fetch print requests')
-    const json = await res.json()
-    const items = json.data?.items || json.items
-    return Array.isArray(items) ? items.map(normalizePrintRequest) : mockPrintRequests
-  } catch {
-    return mockPrintRequests
-  }
+  const res = await fetch(`${API_BASE_URL}/print-requests`)
+  const json = await parseResponse<{ data?: { items?: unknown[] }, items?: unknown[] }>(res)
+  const items = json.data?.items || json.items
+  if (!Array.isArray(items)) throw new Error('인쇄 요청 응답 형식이 올바르지 않습니다.')
+  return items.map((item) => normalizePrintRequest(item as Record<string, unknown>))
 }
 
 export async function approvePrintRequestApi(id: string, comment?: string) {
@@ -245,15 +241,11 @@ export async function syncPrinterSnmpApi(printerId: number = 1) {
 }
 
 export async function fetchPrintersFromBackend() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/printers`)
-    if (!res.ok) throw new Error('Failed to fetch printers')
-    const json = await res.json()
-    const items = json.data?.items || json.items
-    return Array.isArray(items) ? items.map(normalizePrinter) : mockPrinters
-  } catch {
-    return mockPrinters
-  }
+  const res = await fetch(`${API_BASE_URL}/printers`)
+  const json = await parseResponse<{ data?: { items?: unknown[] }, items?: unknown[] }>(res)
+  const items = json.data?.items || json.items
+  if (!Array.isArray(items)) throw new Error('프린터 응답 형식이 올바르지 않습니다.')
+  return items.map((item) => normalizePrinter(item as Record<string, unknown>))
 }
 
 export async function fetchPoliciesFromBackend() {
@@ -268,24 +260,16 @@ export async function fetchPoliciesFromBackend() {
 }
 
 export async function fetchDashboardKpisApi() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/dashboard-kpis`)
-    if (!res.ok) throw new Error('Failed to fetch KPIs')
-    const json = await res.json()
-    return json.data || mockKpiData
-  } catch {
-    return mockKpiData
-  }
+  const res = await fetch(`${API_BASE_URL}/dashboard-kpis`)
+  const json = await parseResponse<{ data?: KpiSummary }>(res)
+  if (!json.data) throw new Error('대시보드 KPI 응답 형식이 올바르지 않습니다.')
+  return json.data
 }
 
 export async function fetchAuditLogsFromBackend() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/audit-logs`)
-    if (!res.ok) throw new Error('Failed to fetch audit logs')
-    const json = await res.json()
-    const items = json.data?.items
-    return Array.isArray(items) ? items.map(normalizeAuditLog) : mockAuditLogs
-  } catch {
-    return mockAuditLogs
-  }
+  const res = await fetch(`${API_BASE_URL}/audit-logs`)
+  const json = await parseResponse<{ data?: { items?: unknown[] } }>(res)
+  const items = json.data?.items
+  if (!Array.isArray(items)) throw new Error('감사 로그 응답 형식이 올바르지 않습니다.')
+  return items.map((item) => normalizeAuditLog(item as Record<string, unknown>))
 }

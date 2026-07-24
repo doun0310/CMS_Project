@@ -10,6 +10,13 @@ export async function getPendingApprovals(_req: Request, res: Response) {
 }
 
 export async function approveRequest(req: Request, res: Response) {
+  if (
+    req.body.comment !== undefined &&
+    (typeof req.body.comment !== "string" || req.body.comment.length > 300)
+  ) {
+    return fail(res, "comment must be a string of at most 300 characters", 400);
+  }
+
   return ok(
     res,
     await service.approve(
@@ -23,8 +30,12 @@ export async function approveRequest(req: Request, res: Response) {
 }
 
 export async function rejectRequest(req: Request, res: Response) {
-  if (!req.body.reason) {
-    return fail(res, "reason is required", 400);
+  if (
+    typeof req.body.reason !== "string" ||
+    !req.body.reason.trim() ||
+    req.body.reason.length > 300
+  ) {
+    return fail(res, "reason must be a non-empty string of at most 300 characters", 400);
   }
 
   return ok(

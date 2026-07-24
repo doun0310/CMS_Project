@@ -11,8 +11,10 @@ export async function pollAgentJobs(req: Request, res: Response) {
   if (
     typeof agentKey !== "string" ||
     !agentKey.trim() ||
+    agentKey.length > 100 ||
     !Array.isArray(printerIds) ||
     printerIds.length === 0 ||
+    printerIds.length > 100 ||
     !printerIds.every((id: unknown) => Number.isInteger(id) && Number(id) > 0)
   ) {
     return fail(res, "agentKey and printerIds are required", 400);
@@ -24,7 +26,14 @@ export async function pollAgentJobs(req: Request, res: Response) {
 export async function updateAgentJobStatus(req: Request, res: Response) {
   const { agentKey, jobStatus, failureReason } = req.body;
 
-  if (typeof agentKey !== "string" || !agentKey.trim() || !jobStatus) {
+  if (
+    typeof agentKey !== "string" ||
+    !agentKey.trim() ||
+    agentKey.length > 100 ||
+    typeof jobStatus !== "string" ||
+    (failureReason !== undefined &&
+      (typeof failureReason !== "string" || failureReason.length > 300))
+  ) {
     return fail(res, "agentKey and jobStatus are required", 400);
   }
 

@@ -10,13 +10,17 @@ export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState(mockAuditLogs)
   const [searchTerm, setSearchTerm] = useState('')
   const [isIntegrityModalOpen, setIsIntegrityModalOpen] = useState(false)
+  const [dataNotice, setDataNotice] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAuditLogsFromBackend().then((data) => {
-      if (data && Array.isArray(data)) {
+    fetchAuditLogsFromBackend()
+      .then((data) => {
         setLogs(data)
-      }
-    })
+        setDataNotice(null)
+      })
+      .catch(() => {
+        setDataNotice('백엔드 연결을 확인할 수 없어 예시 감사 로그를 표시하고 있습니다.')
+      })
   }, [])
 
   const filteredLogs = logs.filter((log) =>
@@ -40,6 +44,7 @@ export const AuditLogsPage: React.FC = () => {
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>{t('audit_title')}</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('audit_sub')}</p>
+          {dataNotice && <p className="status-message" style={{ color: '#fbbf24', fontSize: '13px', marginTop: '4px' }}>{dataNotice}</p>}
         </div>
         <div className="page-actions" style={{ display: 'flex', gap: '10px' }}>
           <button

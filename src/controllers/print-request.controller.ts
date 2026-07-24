@@ -24,7 +24,15 @@ export async function createPrintRequest(req: Request, res: Response) {
     !Number.isInteger(templateId) ||
     templateId <= 0 ||
     !Number.isInteger(copies) ||
-    copies <= 0
+    copies <= 0 ||
+    documentType.length > 30 ||
+    sourceDocumentId.length > 100 ||
+    (req.body.printerId !== undefined &&
+      (!Number.isInteger(req.body.printerId) || req.body.printerId <= 0)) ||
+    (req.body.isSensitive !== undefined && typeof req.body.isSensitive !== "boolean") ||
+    (req.body.isUrgent !== undefined && typeof req.body.isUrgent !== "boolean") ||
+    (req.body.requestReason !== undefined &&
+      (typeof req.body.requestReason !== "string" || req.body.requestReason.length > 300))
   ) {
     return fail(
       res,
@@ -43,7 +51,10 @@ export async function reprintRequest(req: Request, res: Response) {
     !Number.isInteger(copies) ||
     copies <= 0 ||
     typeof reprintReason !== "string" ||
-    !reprintReason.trim()
+    !reprintReason.trim() ||
+    reprintReason.length > 300 ||
+    (req.body.printerId !== undefined &&
+      (!Number.isInteger(req.body.printerId) || req.body.printerId <= 0))
   ) {
     return fail(res, "copies must be a positive integer and reprintReason is required", 400);
   }

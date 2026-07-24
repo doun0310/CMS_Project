@@ -1,6 +1,7 @@
-import { query, withTransaction } from "../config/database";
+import { withTransaction } from "../config/database";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/app-error";
-import { createAuditLog, createAuditLogTx } from "../repositories/audit.repository";
+import { createAuditLogTx } from "../repositories/audit.repository";
+import { findPrinterById } from "../repositories/admin.repository";
 import {
   findPrintRequestById,
   findPrintRequestByIdForUpdate,
@@ -9,13 +10,14 @@ import {
 import {
   createPrintJob,
   findPrintJobById,
+  findPrintJobByIdForUpdate,
   retryPrintJobById
 } from "../repositories/print-job.repository";
 
 export class PrintJobService {
   async dispatch(
     printRequestId: number,
-    actor: { organizationId: number; roleCode: string }
+    actor: { id: number; organizationId: number; roleCode: string }
   ) {
     return withTransaction(async (client) => {
       const request = await findPrintRequestByIdForUpdate(client, printRequestId);
@@ -41,6 +43,32 @@ export class PrintJobService {
         });
       }
 
+      const printer = await findPrinterById(request.printer_id);
+      if (!printer) {
+        throw new BadRequestError("Assigned printer does not exist", {
+          printRequestId,
+          printerId: request.printer_id
+        });
+      }
+      if (
+        printer.organization_id !== null &&
+        Number(printer.organization_id) !== request.requester_organization_id
+      ) {
+        throw new ForbiddenError("Assigned printer belongs to another organization", {
+          printRequestId,
+          printerId: request.printer_id,
+          requestOrganizationId: request.requester_organization_id,
+          printerOrganizationId: Number(printer.organization_id)
+        });
+      }
+      if (["INACTIVE", "MAINTENANCE", "OFFLINE", "ERROR"].includes(printer.status)) {
+        throw new BadRequestError("Assigned printer is not ready", {
+          printRequestId,
+          printerId: request.printer_id,
+          printerStatus: printer.status
+        });
+      }
+
       const printJob = await createPrintJob({
         printRequestId: request.id,
         printerId: request.printer_id
@@ -52,7 +80,7 @@ export class PrintJobService {
       }, client);
 
       await createAuditLogTx(client, {
-        actorId: null,
+        actorId: actor.id,
         actionType: "DISPATCH_PRINT_JOB",
         targetType: "PRINT_JOB",
         targetId: printJob.id,
@@ -97,49 +125,63 @@ export class PrintJobService {
   async retry(
     jobId: number,
     reason: string | undefined,
-    actor: { organizationId: number; roleCode: string }
+    actor: { id: number; organizationId: number; roleCode: string }
   ) {
-    const existingJob = await this.getById(jobId, actor);
-    if (existingJob.job_status !== "FAILED") {
-      throw new BadRequestError("Only failed print jobs can be retried", {
-        jobId,
-        currentStatus: existingJob.job_status
-      });
-    }
-
-    const job = await retryPrintJobById(jobId, reason);
-
-    if (!job) {
-      throw new NotFoundError("Print job not found", {
-        jobId
-      });
-    }
-
-    await query(
-      `
-        UPDATE print_requests
-        SET status = 'QUEUED',
-            updated_at = NOW()
-        WHERE id = $1
-      `,
-      [job.print_request_id]
-    );
-
-    await createAuditLog({
-      actorId: null,
-      actionType: "RETRY_PRINT_JOB",
-      targetType: "PRINT_JOB",
-      targetId: job.id,
-      detailJson: {
-        reason: reason ?? null
+    return withTransaction(async (client) => {
+      const existingJob = await findPrintJobByIdForUpdate(client, jobId);
+      if (!existingJob) {
+        throw new NotFoundError("Print job not found", {
+          jobId
+        });
       }
-    });
 
-    return {
-      jobId: job.id,
-      jobStatus: job.job_status,
-      reason: reason || null
-    };
+      const request = await findPrintRequestByIdForUpdate(
+        client,
+        existingJob.print_request_id
+      );
+      if (!request) {
+        throw new NotFoundError("Print request for job not found", {
+          jobId,
+          printRequestId: existingJob.print_request_id
+        });
+      }
+      this.assertOrganizationAccess(request.requester_organization_id, actor);
+
+      if (existingJob.job_status !== "FAILED") {
+        throw new BadRequestError("Only failed print jobs can be retried", {
+          jobId,
+          currentStatus: existingJob.job_status
+        });
+      }
+
+      const job = await retryPrintJobById(jobId, reason, client);
+      if (!job) {
+        throw new BadRequestError("Print job is no longer retryable", {
+          jobId
+        });
+      }
+
+      await updatePrintRequestStatus({
+        id: job.print_request_id,
+        status: "QUEUED"
+      }, client);
+
+      await createAuditLogTx(client, {
+        actorId: actor.id,
+        actionType: "RETRY_PRINT_JOB",
+        targetType: "PRINT_JOB",
+        targetId: job.id,
+        detailJson: {
+          reason: reason ?? null
+        }
+      });
+
+      return {
+        jobId: job.id,
+        jobStatus: job.job_status,
+        reason: reason || null
+      };
+    });
   }
 
   private assertOrganizationAccess(

@@ -72,7 +72,7 @@ export async function listAuditLogs(organizationId: number | null) {
       COALESCE(u.name, 'System') as actor_name,
       CONCAT(a.target_type, ' #', a.target_id) as target_resource,
       a.detail_json::text as details,
-      COALESCE(a.ip_address, '127.0.0.1') as ip_address,
+      '-'::text AS ip_address,
       a.created_at
     FROM audit_logs a
     LEFT JOIN users u ON a.actor_id = u.id
