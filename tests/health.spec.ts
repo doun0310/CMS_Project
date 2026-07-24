@@ -15,4 +15,11 @@ describe("GET /health", () => {
       }
     });
   });
+
+  it("is reachable through the Vite API proxy prefix", async () => {
+    const response = await request(createApp()).get("/api/v1/health");
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe("ok");
+  });
 });

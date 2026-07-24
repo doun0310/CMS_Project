@@ -9,6 +9,12 @@ import { swaggerUiServe, swaggerUiSetup } from "./config/swagger";
 
 export function createApp() {
   const app = express();
+  const healthPayload = {
+    success: true,
+    data: {
+      status: "ok"
+    }
+  };
 
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -24,12 +30,11 @@ export function createApp() {
   app.use(mockAuth);
 
   app.get("/health", (_req, res) => {
-    res.json({
-      success: true,
-      data: {
-        status: "ok"
-      }
-    });
+    res.json(healthPayload);
+  });
+
+  app.get("/api/v1/health", (_req, res) => {
+    res.json(healthPayload);
   });
 
   app.use("/docs", swaggerUiServe, swaggerUiSetup);

@@ -37,10 +37,10 @@ export const PrintRequestsPage: React.FC = () => {
   }, [refreshRequests])
 
   const syncCallback = useCallback(() => {
-    refreshRequests()
+    return refreshRequests()
   }, [refreshRequests])
 
-  useRealtimeSync(syncCallback, 10000)
+  useRealtimeSync(syncCallback, dataNotice ? 30000 : 10000)
 
   const handleSsePush = useCallback((payload: any) => {
     setMessage(`⚡ [SSE PUSH] ${payload.message}`)

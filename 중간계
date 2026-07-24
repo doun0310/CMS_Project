@@ -10,3 +10,7 @@ git checkout --track origin/main
 FormEvent는 SubmitEvent<HTMLFormElement>로 변경
 
 초기 로딩속도 개선이 필요할 시에 Suspense나 Lazy를 사용 (IF/ELSE 코드를 사용하지 않고도 선언적으로 상태 관리 가능)
+
+[vite] https proxy error: 가 지속적으로 발생 시에 vite.config.ts 파일 확인
+
+* 백엔드 서버 연결 및 데이터베이스 필요

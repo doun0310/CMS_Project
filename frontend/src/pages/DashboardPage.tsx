@@ -45,20 +45,24 @@ export const DashboardPage: React.FC = () => {
   ]
 
   React.useEffect(() => {
-    Promise.all([
-      fetchDashboardKpisApi(),
-      fetchPrintRequestsFromBackend(),
-      fetchPrintersFromBackend(),
-    ])
-      .then(([kpis, printRequests, printerItems]) => {
+    const loadDashboard = async () => {
+      try {
+        // KPI 요청을 연결 확인용으로 먼저 수행해, 서버 중단 시 병렬 오류가 쏟아지지 않게 합니다.
+        const kpis = await fetchDashboardKpisApi()
+        const [printRequests, printerItems] = await Promise.all([
+          fetchPrintRequestsFromBackend(),
+          fetchPrintersFromBackend(),
+        ])
         setKpiData(kpis)
         setRequests(printRequests)
         setPrinters(printerItems)
         setDataNotice(null)
-      })
-      .catch(() => {
+      } catch {
         setDataNotice('백엔드 연결을 확인할 수 없어 예시 데이터를 표시하고 있습니다.')
-      })
+      }
+    }
+
+    void loadDashboard()
   }, [])
 
   const handleApprove = async (id: string) => {
