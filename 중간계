@@ -26,3 +26,8 @@ FormEvent는 SubmitEvent<HTMLFormElement>로 변경
     * OCR·레이아웃: DocLayNet + CORD-v2 + 실제 사내 스캔 문서
     * 보안등급·승인 예측: 공개 데이터보다 자체 익명화 데이터 중심
     * 프린터 예측 유지보수: 운영 과정에서 SNMP 시계열 데이터를 직접 축적
+
+    * 사용 전 THIRD_PARTY_DATASETS.md 작성 
+    * 데이터셋 커밋-푸시 시 commit SHA로 고정
+    * 파일 체크섬 저장 및 라이선스 파일 원본 보관
+    * 학습 전 실존 개인정보 확인
