@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { mockPrinters } from '../services/api'
 import { CreatePrinterModal } from '../components/CreatePrinterModal'
-import { RefreshCw, Plus } from 'lucide-react'
+import { PrinterMapModal } from '../components/PrinterMapModal'
+import { RefreshCw, Plus, Clock, MapPin } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
-  const [printers, setPrinters] = React.useState(mockPrinters)
-  const [loading, setLoading] = React.useState(false)
-  const [syncStatus, setSyncStatus] = React.useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [printers, setPrinters] = useState(mockPrinters)
+  const [loading, setLoading] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false)
+  const [autoPolling, setAutoPolling] = useState(false)
 
   const handleSnmpSyncAll = async () => {
     setLoading(true)
@@ -28,6 +31,21 @@ export const PrintersPage: React.FC = () => {
     }
   }
 
+  useEffect(() => {
+    let timer: any = null
+    if (autoPolling) {
+      setSyncStatus('⏱️ 30초 주기 SNMP 자동 동기화 활성화됨')
+      timer = setInterval(() => {
+        handleSnmpSyncAll()
+      }, 30000)
+    } else {
+      setSyncStatus(null)
+    }
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [autoPolling])
+
   const handleCreateSuccess = (newPrt: any) => {
     setPrinters((prev) => [newPrt, ...prev])
     setSyncStatus(`신규 프린터 장비(${newPrt.name})가 등록되었습니다.`)
@@ -41,7 +59,21 @@ export const PrintersPage: React.FC = () => {
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 네트워크 프린터 장비 상태 및 SNMP 소모품 실시간 감지</p>
           {syncStatus && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px' }}>{syncStatus}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            onClick={() => setIsMapModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#334155', border: '1px solid #475569', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <MapPin size={14} /> 🗺️ 층별 장비 위치 지도
+          </button>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: autoPolling ? '#38bdf8' : '#94a3b8', background: 'rgba(15, 23, 42, 0.6)', padding: '6px 12px', borderRadius: '8px', border: '1px solid #334155', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={autoPolling}
+              onChange={(e) => setAutoPolling(e.target.checked)}
+            />
+            <Clock size={14} /> 30초 자동 SNMP 수집
+          </label>
           <button
             onClick={handleSnmpSyncAll}
             disabled={loading}
@@ -57,6 +89,11 @@ export const PrintersPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <PrinterMapModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+      />
 
       <CreatePrinterModal
         isOpen={isModalOpen}

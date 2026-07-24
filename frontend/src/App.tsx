@@ -5,6 +5,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { PrintRequestsPage } from './pages/PrintRequestsPage'
 import { PrintersPage } from './pages/PrintersPage'
 import { AuditLogsPage } from './pages/AuditLogsPage'
+import { PoliciesPage } from './pages/PoliciesPage'
 
 export const App: React.FC = () => {
   return (
@@ -14,8 +15,9 @@ export const App: React.FC = () => {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/requests" element={<PrintRequestsPage />} />
           <Route path="/printers" element={<PrintersPage />} />
+          <Route path="/policies" element={<PoliciesPage />} />
           <Route path="/audit-logs" element={<AuditLogsPage />} />
-          <Route path="/settings" element={<div style={{ padding: 20 }}>⚙️ 승인 및 자동화 정책 설정 화면</div>} />
+          <Route path="/settings" element={<PoliciesPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

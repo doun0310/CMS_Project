@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { mockAuditLogs, fetchAuditLogsFromBackend } from '../services/api'
 import { exportToCsv } from '../utils/csvExporter'
 import { AuditIntegrityModal } from '../components/AuditIntegrityModal'
-import { Download, Search, Lock } from 'lucide-react'
+import { Download, Search, Lock, Printer } from 'lucide-react'
 
 export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState(mockAuditLogs)
@@ -28,6 +28,10 @@ export const AuditLogsPage: React.FC = () => {
     exportToCsv(`cms_audit_logs_${today}`, filteredLogs)
   }
 
+  const handlePrintReport = () => {
+    window.print()
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -36,6 +40,12 @@ export const AuditLogsPage: React.FC = () => {
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>인쇄 신청, 결재 조치, 프린터 출력 변경 이력 추적</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={handlePrintReport}
+            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <Printer size={14} /> 🖨️ 리포트 인쇄/PDF
+          </button>
           <button
             onClick={() => setIsIntegrityModalOpen(true)}
             style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}

@@ -1,0 +1,8 @@
+'main' 브랜치 이름 바꾸기
+git branch -m main-old
+
+깃허브에서 커밋 가져오기
+git fetch origin
+
+깃허브에서 새로운 `main` 브랜치 만들기
+git checkout --track origin/main

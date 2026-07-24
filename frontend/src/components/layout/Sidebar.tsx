@@ -7,8 +7,8 @@ export const Sidebar: React.FC = () => {
     { path: '/', label: '대시보드', icon: LayoutDashboard },
     { path: '/requests', label: '인쇄 승인 큐', icon: FileCheck },
     { path: '/printers', label: '프린터 Fleet 모니터링', icon: Printer },
+    { path: '/policies', label: '승인/워터마크 정책', icon: Settings },
     { path: '/audit-logs', label: '감사 및 이력 로그', icon: ShieldAlert },
-    { path: '/settings', label: '승인/자동화 정책', icon: Settings },
   ]
 
   return (

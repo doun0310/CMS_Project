@@ -107,3 +107,24 @@ button {
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
+
+/* Print Media Queries for Audit Reports */
+@media print {
+  aside, header, button, input {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+  }
+  .data-table th, .data-table td {
+    color: #000000 !important;
+    border-bottom: 1px solid #ccc !important;
+  }
+}

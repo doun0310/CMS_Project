@@ -1,12 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
 import { CreatePrintRequestModal } from '../components/CreatePrintRequestModal'
-import { CheckCircle, XCircle, Plus } from 'lucide-react'
+import { PinReleaseModal } from '../components/PinReleaseModal'
+import { PiiInspectorModal } from '../components/PiiInspectorModal'
+import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
-  const [requests, setRequests] = React.useState(mockPrintRequests)
-  const [message, setMessage] = React.useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [requests, setRequests] = useState(mockPrintRequests)
+  const [message, setMessage] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [pinTarget, setPinTarget] = useState<{ id: string; name: string } | null>(null)
+  const [piiTargetDoc, setPiiTargetDoc] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const handleApprove = async (id: string) => {
     try {
@@ -32,6 +37,38 @@ export const PrintRequestsPage: React.FC = () => {
     }
   }
 
+  const handleBulkApprove = () => {
+    if (selectedIds.length === 0) return
+    setRequests((prev) =>
+      prev.map((r) => (selectedIds.includes(r.id) ? { ...r, status: 'APPROVED', approverName: '이동현 팀장 (일괄승인)' } : r))
+    )
+    setMessage(`선택된 ${selectedIds.length}건의 요청이 일괄 승인되었습니다.`)
+    setSelectedIds([])
+  }
+
+  const handleBulkReject = () => {
+    if (selectedIds.length === 0) return
+    setRequests((prev) =>
+      prev.map((r) => (selectedIds.includes(r.id) ? { ...r, status: 'REJECTED', approverName: '이동현 팀장 (일괄반려)' } : r))
+    )
+    setMessage(`선택된 ${selectedIds.length}건의 요청이 일괄 반려 처리되었습니다.`)
+    setSelectedIds([])
+  }
+
+  const handleToggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(requests.map((r) => r.id))
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleToggleSelectOne = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
+  }
+
   const handleCreateSuccess = (newReq: any) => {
     setRequests((prev) => [newReq, ...prev])
     setMessage(`신규 인쇄 승인 요청(${newReq.id})이 백엔드로 제출되었습니다.`)
@@ -45,12 +82,31 @@ export const PrintRequestsPage: React.FC = () => {
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 임직원의 인쇄 요청 결재 및 재인쇄 통제 관리</p>
           {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '6px' }}>{message}</p>}
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          style={{ padding: '10px 16px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-        >
-          <Plus size={16} /> 신규 인쇄 신청
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {selectedIds.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '4px 10px', borderRadius: '8px', border: '1px solid #334155' }}>
+              <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>{selectedIds.length}건 선택됨</span>
+              <button
+                onClick={handleBulkApprove}
+                style={{ padding: '6px 10px', background: '#059669', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              >
+                <CheckCircle size={13} /> 일괄 승인
+              </button>
+              <button
+                onClick={handleBulkReject}
+                style={{ padding: '6px 10px', background: '#ef4444', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              >
+                <XCircle size={13} /> 일괄 반려
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            style={{ padding: '10px 16px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <Plus size={16} /> 신규 인쇄 신청
+          </button>
+        </div>
       </div>
 
       <CreatePrintRequestModal
@@ -59,10 +115,35 @@ export const PrintRequestsPage: React.FC = () => {
         onSuccess={handleCreateSuccess}
       />
 
+      {pinTarget && (
+        <PinReleaseModal
+          isOpen={!!pinTarget}
+          requestId={pinTarget.id}
+          documentName={pinTarget.name}
+          onClose={() => setPinTarget(null)}
+        />
+      )}
+
+      {piiTargetDoc && (
+        <PiiInspectorModal
+          isOpen={!!piiTargetDoc}
+          documentName={piiTargetDoc}
+          onClose={() => setPiiTargetDoc(null)}
+        />
+      )}
+
       <div className="glass-card">
         <table className="data-table">
           <thead>
             <tr>
+              <th style={{ width: '40px', textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === requests.length && requests.length > 0}
+                  onChange={handleToggleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
               <th>요청 ID</th>
               <th>문서명 / 수량</th>
               <th>요청자 / 부서</th>
@@ -74,10 +155,28 @@ export const PrintRequestsPage: React.FC = () => {
           </thead>
           <tbody>
             {requests.map((req) => (
-              <tr key={req.id}>
+              <tr key={req.id} style={{ background: selectedIds.includes(req.id) ? 'rgba(56, 189, 248, 0.08)' : 'transparent' }}>
+                <td style={{ textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(req.id)}
+                    onChange={() => handleToggleSelectOne(req.id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
                 <td style={{ fontWeight: 600, color: '#38bdf8' }}>{req.id}</td>
                 <td>
-                  <div style={{ fontWeight: 600 }}>{req.documentName}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                    {req.documentName}
+                    {req.documentName.includes('PII') && (
+                      <button
+                        onClick={() => setPiiTargetDoc(req.documentName)}
+                        style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '4px', color: '#f87171', fontSize: '10px', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'pointer' }}
+                      >
+                        <ShieldAlert size={10} /> PII 검사
+                      </button>
+                    )}
+                  </div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>{req.pageCount} Pages × {req.copyCount} Copies</div>
                 </td>
                 <td>
@@ -110,7 +209,17 @@ export const PrintRequestsPage: React.FC = () => {
                       </button>
                     </div>
                   ) : (
-                    <span style={{ fontSize: '13px', color: '#64748b' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '13px', color: '#64748b' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
+                      {req.status === 'APPROVED' && (
+                        <button
+                          onClick={() => setPinTarget({ id: req.id, name: req.documentName })}
+                          style={{ padding: '4px 8px', background: '#0284c7', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                        >
+                          <KeyRound size={12} /> 🔑 무인 PIN 발급
+                        </button>
+                      )}
+                    </div>
                   )}
                 </td>
               </tr>
