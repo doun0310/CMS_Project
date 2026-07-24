@@ -134,18 +134,26 @@ export const mockAuditLogs: AuditLog[] = [
 // ==========================================
 const API_BASE_URL = '/api/v1'
 
+function extractNumericId(id: string | number): number {
+  if (typeof id === 'number') return id
+  const num = parseInt(id.replace(/\D/g, ''), 10)
+  return isNaN(num) ? 1 : num
+}
+
 export async function fetchPrintRequestsFromBackend() {
   try {
     const res = await fetch(`${API_BASE_URL}/print-requests`)
     if (!res.ok) throw new Error('Failed to fetch print requests')
-    return await res.json()
+    const json = await res.json()
+    return json.data?.items || json.items || mockPrintRequests
   } catch {
-    return { items: mockPrintRequests }
+    return mockPrintRequests
   }
 }
 
 export async function approvePrintRequestApi(id: string, comment?: string) {
-  const res = await fetch(`${API_BASE_URL}/approvals/print-requests/${id}/approve`, {
+  const numericId = extractNumericId(id)
+  const res = await fetch(`${API_BASE_URL}/approvals/${numericId}/approve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ comment: comment || '승인 완료' }),
@@ -154,7 +162,8 @@ export async function approvePrintRequestApi(id: string, comment?: string) {
 }
 
 export async function rejectPrintRequestApi(id: string, reason: string) {
-  const res = await fetch(`${API_BASE_URL}/approvals/print-requests/${id}/reject`, {
+  const numericId = extractNumericId(id)
+  const res = await fetch(`${API_BASE_URL}/approvals/${numericId}/reject`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ reason }),
@@ -163,15 +172,37 @@ export async function rejectPrintRequestApi(id: string, reason: string) {
 }
 
 export async function syncPrinterSnmpApi(printerId: number = 1) {
-  const res = await fetch(`${API_BASE_URL}/admin/printers/${printerId}/snmp-sync`, {
+  const res = await fetch(`${API_BASE_URL}/printers/${printerId}/snmp-sync`, {
     method: 'POST',
   })
   return res.json()
 }
 
+export async function fetchPrintersFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/printers`)
+    if (!res.ok) throw new Error('Failed to fetch printers')
+    const json = await res.json()
+    return json.data?.items || json.items || mockPrinters
+  } catch {
+    return mockPrinters
+  }
+}
+
+export async function fetchPoliciesFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/approval-policies`)
+    if (!res.ok) throw new Error('Failed to fetch policies')
+    const json = await res.json()
+    return json.data?.items || json.items
+  } catch {
+    return null
+  }
+}
+
 export async function fetchDashboardKpisApi() {
   try {
-    const res = await fetch(`${API_BASE_URL}/admin/dashboard-kpis`)
+    const res = await fetch(`${API_BASE_URL}/dashboard-kpis`)
     if (!res.ok) throw new Error('Failed to fetch KPIs')
     const json = await res.json()
     return json.data || mockKpiData
@@ -182,7 +213,7 @@ export async function fetchDashboardKpisApi() {
 
 export async function fetchAuditLogsFromBackend() {
   try {
-    const res = await fetch(`${API_BASE_URL}/admin/audit-logs`)
+    const res = await fetch(`${API_BASE_URL}/audit-logs`)
     if (!res.ok) throw new Error('Failed to fetch audit logs')
     const json = await res.json()
     return json.data?.items || mockAuditLogs

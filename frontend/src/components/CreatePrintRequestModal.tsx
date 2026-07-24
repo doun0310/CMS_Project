@@ -149,14 +149,14 @@ export const CreatePrintRequestModal: React.FC<Props> = ({ isOpen, onClose, onSu
             <button
               type="button"
               onClick={onClose}
-              style={{ padding: '8px 16px', background: '#334155', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer' }}
+              className="btn btn-md btn-secondary"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={submitting}
-              style={{ padding: '8px 16px', background: '#0284c7', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+              className="btn btn-md btn-primary"
             >
               <Send size={14} /> {submitting ? '신청 중...' : '인쇄 승인 신청'}
             </button>

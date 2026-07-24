@@ -158,14 +158,14 @@ export const CreatePrinterModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
             <button
               type="button"
               onClick={onClose}
-              style={{ padding: '8px 16px', background: '#334155', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer' }}
+              className="btn btn-md btn-secondary"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={submitting}
-              style={{ padding: '8px 16px', background: '#10b981', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+              className="btn btn-md btn-success"
             >
               <Plus size={14} /> {submitting ? '등록 중...' : '프린터 등록'}
             </button>

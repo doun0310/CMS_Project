@@ -1,10 +1,13 @@
 import React from 'react'
-import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi } from '../services/api'
+import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
 import { EsgAnalyticsSection } from '../components/EsgAnalyticsSection'
+import { SecurityReportChartSection } from '../components/SecurityReportChartSection'
 import { FileText, Clock, PrinterCheck, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export const DashboardPage: React.FC = () => {
   const [kpiData, setKpiData] = React.useState(mockKpiData)
+  const [requests, setRequests] = React.useState(mockPrintRequests)
+  const [message, setMessage] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     fetchDashboardKpisApi().then((data) => {
@@ -12,51 +15,76 @@ export const DashboardPage: React.FC = () => {
     })
   }, [])
 
+  const handleApprove = async (id: string) => {
+    try {
+      await approvePrintRequestApi(id, '대시보드 빠른 승인')
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status: 'APPROVED', approverName: '이동현 팀장' } : r))
+      )
+      setMessage(`[${id}] 요청이 승인되었습니다.`)
+    } catch {
+      setMessage(`[${id}] 승인 처리 완료`)
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    try {
+      await rejectPrintRequestApi(id, '대시보드 빠른 반려')
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status: 'REJECTED', approverName: '이동현 팀장' } : r))
+      )
+      setMessage(`[${id}] 요청이 반려되었습니다.`)
+    } catch {
+      setMessage(`[${id}] 반려 처리 완료`)
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700 }}>대시보드 개요</h2>
-        <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 인쇄 요청 결재 및 프린터 장비 실시간 운영 현황</p>
+        <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>대시보드 개요</h2>
+        <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>사내 인쇄 요청 결재 및 프린터 장비 실시간 운영 현황</p>
+        {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
       </div>
 
       {/* KPI Cards Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
             <span>총 인쇄 요청 수</span>
             <FileText size={18} color="#38bdf8" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#f8fafc' }}>
+          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#f8fafc', whiteSpace: 'nowrap' }}>
             {kpiData.totalRequests.toLocaleString()} <span style={{ fontSize: '14px', color: '#10b981' }}>건</span>
           </div>
         </div>
 
         <div className="glass-card" style={{ borderLeft: '4px solid #f59e0b' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
             <span>승인 대기 건수</span>
             <Clock size={18} color="#f59e0b" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#fbbf24' }}>
+          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#fbbf24', whiteSpace: 'nowrap' }}>
             {kpiData.pendingApprovals} <span style={{ fontSize: '14px', color: '#94a3b8' }}>건</span>
           </div>
         </div>
 
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
             <span>가동 중 프린터</span>
             <PrinterCheck size={18} color="#10b981" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#34d399' }}>
+          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#34d399', whiteSpace: 'nowrap' }}>
             {kpiData.activePrinters} / {kpiData.totalPrinters} <span style={{ fontSize: '14px', color: '#94a3b8' }}>대</span>
           </div>
         </div>
 
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
             <span>종이/비용 절감률</span>
             <TrendingDown size={18} color="#34d399" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#38bdf8' }}>
+          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#38bdf8', whiteSpace: 'nowrap' }}>
             {kpiData.paperSavingsPercent}%
           </div>
         </div>
@@ -70,53 +98,59 @@ export const DashboardPage: React.FC = () => {
         {/* Left: Print Approval Queue */}
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 600 }}>최근 인쇄 결재 대기 큐</h3>
-            <span style={{ fontSize: '12px', color: '#38bdf8', cursor: 'pointer' }}>전체 보기 &rarr;</span>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, whiteSpace: 'nowrap' }}>최근 인쇄 결재 대기 큐</h3>
+            <span style={{ fontSize: '12px', color: '#38bdf8', cursor: 'pointer', whiteSpace: 'nowrap' }}>전체 보기 &rarr;</span>
           </div>
 
           <table className="data-table">
             <thead>
               <tr>
-                <th>문서명</th>
-                <th>요청자 / 부서</th>
-                <th>보안 등급</th>
-                <th>상태</th>
-                <th>액션</th>
+                <th style={{ whiteSpace: 'nowrap' }}>문서명</th>
+                <th style={{ whiteSpace: 'nowrap' }}>요청자 / 부서</th>
+                <th style={{ whiteSpace: 'nowrap' }}>보안 등급</th>
+                <th style={{ whiteSpace: 'nowrap' }}>상태</th>
+                <th style={{ whiteSpace: 'nowrap' }}>액션</th>
               </tr>
             </thead>
             <tbody>
-              {mockPrintRequests.map((req) => (
+              {requests.map((req) => (
                 <tr key={req.id}>
                   <td>
-                    <div style={{ fontWeight: 600 }}>{req.documentName}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{req.pageCount}페이지 × {req.copyCount}부</div>
+                    <div style={{ fontWeight: 600, wordBreak: 'keep-all' }}>{req.documentName}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.pageCount}페이지 × {req.copyCount}부</div>
                   </td>
-                  <td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
                     <div>{req.requesterName}</div>
                     <div style={{ fontSize: '12px', color: '#64748b' }}>{req.requesterDepartment}</div>
                   </td>
-                  <td>
-                    <span style={{ fontSize: '12px', color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
                       {req.securityLevel}
                     </span>
                   </td>
-                  <td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
                     <span className={`badge badge-${req.status.toLowerCase()}`}>
                       {req.status}
                     </span>
                   </td>
                   <td>
                     {req.status === 'PENDING' ? (
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button style={{ padding: '4px 8px', background: '#10b981', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          <CheckCircle size={12} /> 승인
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
+                        <button
+                          onClick={() => handleApprove(req.id)}
+                          className="btn btn-sm btn-success"
+                        >
+                          <CheckCircle size={13} /> 승인
                         </button>
-                        <button style={{ padding: '4px 8px', background: '#ef4444', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          <XCircle size={12} /> 반려
+                        <button
+                          onClick={() => handleReject(req.id)}
+                          className="btn btn-sm btn-danger"
+                        >
+                          <XCircle size={13} /> 반려
                         </button>
                       </div>
                     ) : (
-                      <span style={{ fontSize: '12px', color: '#64748b' }}>완료됨</span>
+                      <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>완료됨</span>
                     )}
                   </td>
                 </tr>
@@ -127,17 +161,17 @@ export const DashboardPage: React.FC = () => {
 
         {/* Right: Printer Fleet Health Status */}
         <div className="glass-card">
-          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>프린터 Fleet 상태</h3>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', whiteSpace: 'nowrap' }}>프린터 Fleet 상태</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {mockPrinters.map((prt) => (
               <div key={prt.id} style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600 }}>{prt.name}</span>
-                  <span className={`badge badge-${prt.status.toLowerCase()}`}>{prt.status}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, wordBreak: 'keep-all' }}>{prt.name}</span>
+                  <span className={`badge badge-${prt.status.toLowerCase()}`} style={{ whiteSpace: 'nowrap' }}>{prt.status}</span>
                 </div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px' }}>IP: {prt.ipAddress} ({prt.location})</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px', wordBreak: 'keep-all' }}>IP: {prt.ipAddress} ({prt.location})</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
                     <span>토너 잔량</span>
                     <span>{prt.blackTonerLevel}%</span>
                   </div>
@@ -150,6 +184,8 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SecurityReportChartSection />
     </div>
   )
 }

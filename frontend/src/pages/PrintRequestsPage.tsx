@@ -3,15 +3,19 @@ import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi } from
 import { CreatePrintRequestModal } from '../components/CreatePrintRequestModal'
 import { PinReleaseModal } from '../components/PinReleaseModal'
 import { PiiInspectorModal } from '../components/PiiInspectorModal'
+import { DocumentComparisonModal } from '../components/DocumentComparisonModal'
+import { UrgentEscalationModal } from '../components/UrgentEscalationModal'
 import { useRealtimeSync } from '../hooks/useRealtimeSync'
-import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare, RefreshCw } from 'lucide-react'
+import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare, RefreshCw, ArrowRightLeft, AlertTriangle } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
   const [requests, setRequests] = useState(mockPrintRequests)
   const [message, setMessage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isUrgentModalOpen, setIsUrgentModalOpen] = useState(false)
   const [pinTarget, setPinTarget] = useState<{ id: string; name: string } | null>(null)
   const [piiTargetDoc, setPiiTargetDoc] = useState<string | null>(null)
+  const [compareTargetDoc, setCompareTargetDoc] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const syncCallback = useCallback(() => {
@@ -95,26 +99,38 @@ export const PrintRequestsPage: React.FC = () => {
               <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>{selectedIds.length}건 선택됨</span>
               <button
                 onClick={handleBulkApprove}
-                style={{ padding: '6px 10px', background: '#059669', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                className="btn btn-sm btn-success"
               >
                 <CheckCircle size={13} /> 일괄 승인
               </button>
               <button
                 onClick={handleBulkReject}
-                style={{ padding: '6px 10px', background: '#ef4444', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                className="btn btn-sm btn-danger"
               >
                 <XCircle size={13} /> 일괄 반려
               </button>
             </div>
           )}
           <button
+            onClick={() => setIsUrgentModalOpen(true)}
+            className="btn btn-md btn-danger"
+          >
+            <AlertTriangle size={15} /> 🚨 긴급 에스컬레이션
+          </button>
+          <button
             onClick={() => setIsModalOpen(true)}
-            style={{ padding: '10px 16px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-primary"
           >
             <Plus size={16} /> 신규 인쇄 신청
           </button>
         </div>
       </div>
+
+      <UrgentEscalationModal
+        isOpen={isUrgentModalOpen}
+        onClose={() => setIsUrgentModalOpen(false)}
+        onSuccess={(msg) => setMessage(msg)}
+      />
 
       <CreatePrintRequestModal
         isOpen={isModalOpen}
@@ -128,6 +144,14 @@ export const PrintRequestsPage: React.FC = () => {
           requestId={pinTarget.id}
           documentName={pinTarget.name}
           onClose={() => setPinTarget(null)}
+        />
+      )}
+
+      {compareTargetDoc && (
+        <DocumentComparisonModal
+          isOpen={!!compareTargetDoc}
+          documentName={compareTargetDoc}
+          onClose={() => setCompareTargetDoc(null)}
         />
       )}
 
@@ -201,30 +225,40 @@ export const PrintRequestsPage: React.FC = () => {
                 </td>
                 <td>
                   {req.status === 'PENDING' ? (
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                       <button
                         onClick={() => handleApprove(req.id)}
-                        style={{ padding: '6px 12px', background: '#10b981', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                        className="btn btn-sm btn-success"
                       >
                         <CheckCircle size={14} /> 승인
                       </button>
                       <button
                         onClick={() => handleReject(req.id)}
-                        style={{ padding: '6px 12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                        className="btn btn-sm btn-danger"
                       >
                         <XCircle size={14} /> 반려
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '13px', color: '#64748b' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
+                      <span style={{ fontSize: '13px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
                       {req.status === 'APPROVED' && (
-                        <button
-                          onClick={() => setPinTarget({ id: req.id, name: req.documentName })}
-                          style={{ padding: '4px 8px', background: '#0284c7', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                        >
-                          <KeyRound size={12} /> 🔑 무인 PIN 발급
-                        </button>
+                        <>
+                          <button
+                            onClick={() => setCompareTargetDoc(req.documentName)}
+                            className="btn btn-sm btn-secondary"
+                            style={{ fontSize: '11px', padding: '4px 8px' }}
+                          >
+                            <ArrowRightLeft size={11} /> 🔍 대조 검증
+                          </button>
+                          <button
+                            onClick={() => setPinTarget({ id: req.id, name: req.documentName })}
+                            className="btn btn-sm btn-primary"
+                            style={{ fontSize: '11px', padding: '4px 8px' }}
+                          >
+                            <KeyRound size={11} /> 🔑 PIN 발급
+                          </button>
+                        </>
                       )}
                     </div>
                   )}

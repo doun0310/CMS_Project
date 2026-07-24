@@ -58,13 +58,13 @@ export const PoliciesPage: React.FC = () => {
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={() => setIsMediaModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#f59e0b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-warning"
           >
             <HardDrive size={14} /> 💾 외장 매체/USB 보안 통제
           </button>
           <button
             onClick={() => setIsWatermarkModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-primary"
           >
             <Eye size={14} /> 🖨️ 워터마크 실시간 설정
           </button>

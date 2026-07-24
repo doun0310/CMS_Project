@@ -1,7 +1,10 @@
-import React from 'react'
-import { Printer, Bell, User } from 'lucide-react'
+import React, { useState } from 'react'
+import { Printer, Bell, User, Palette } from 'lucide-react'
+import { ThemeSettingsModal } from '../ThemeSettingsModal'
 
 export const Navbar: React.FC = () => {
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false)
+
   return (
     <header
       style={{
@@ -26,6 +29,14 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button
+          onClick={() => setIsThemeModalOpen(true)}
+          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+          title="UI 테마 설정"
+        >
+          <Palette size={18} color="#38bdf8" /> 테마
+        </button>
+
         <div style={{ position: 'relative', cursor: 'pointer' }}>
           <Bell size={20} color="#94a3b8" />
           <span
@@ -59,6 +70,11 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ThemeSettingsModal
+        isOpen={isThemeModalOpen}
+        onClose={() => setIsThemeModalOpen(false)}
+      />
     </header>
   )
 }

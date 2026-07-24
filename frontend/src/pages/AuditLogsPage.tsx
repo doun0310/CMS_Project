@@ -42,19 +42,19 @@ export const AuditLogsPage: React.FC = () => {
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={handlePrintReport}
-            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-primary"
           >
             <Printer size={14} /> 🖨️ 리포트 인쇄/PDF
           </button>
           <button
             onClick={() => setIsIntegrityModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-success"
           >
             <Lock size={14} /> 🔒 SHA-256 무결성 검증
           </button>
           <button
             onClick={handleExportCsv}
-            style={{ padding: '8px 14px', background: '#334155', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#f8fafc', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-md btn-secondary"
           >
             <Download size={14} /> CSV 내보내기
           </button>

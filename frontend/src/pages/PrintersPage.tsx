@@ -3,7 +3,8 @@ import { mockPrinters } from '../services/api'
 import { CreatePrinterModal } from '../components/CreatePrinterModal'
 import { PrinterMapModal } from '../components/PrinterMapModal'
 import { PingDiagnosticModal } from '../components/PingDiagnosticModal'
-import { RefreshCw, Plus, Clock, MapPin, Radio } from 'lucide-react'
+import { ConsumableReorderModal } from '../components/ConsumableReorderModal'
+import { RefreshCw, Plus, Clock, MapPin, Radio, ShoppingCart } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
   const [printers, setPrinters] = useState(mockPrinters)
@@ -12,6 +13,7 @@ export const PrintersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [isPingModalOpen, setIsPingModalOpen] = useState(false)
+  const [isReorderModalOpen, setIsReorderModalOpen] = useState(false)
   const [autoPolling, setAutoPolling] = useState(false)
 
   const handleSnmpSyncAll = async () => {
@@ -53,28 +55,53 @@ export const PrintersPage: React.FC = () => {
     setSyncStatus(`신규 프린터 장비(${newPrt.name})가 등록되었습니다.`)
   }
 
+  const handleReorderSuccess = (msg: string) => {
+    setSyncStatus(msg)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Top Title & Primary Action Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>프린터 Fleet 모니터링</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>사내 네트워크 프린터 장비 상태 및 SNMP 소모품 실시간 감지</p>
-          {syncStatus && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px' }}>{syncStatus}</p>}
+          <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>프린터 Fleet 모니터링</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>사내 네트워크 프린터 장비 상태 및 SNMP 소모품 실시간 감지</p>
+          {syncStatus && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{syncStatus}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="btn btn-md btn-primary"
+          style={{ flexShrink: 0 }}
+        >
+          <Plus size={16} /> 신규 프린터 등록
+        </button>
+      </div>
+
+      {/* Control Toolbar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => setIsPingModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-sm btn-primary"
           >
-            <Radio size={14} /> 📡 IP/SNMP 네트워크 진단
+            <Radio size={14} /> 📡 IP/SNMP 진단
           </button>
           <button
             onClick={() => setIsMapModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#334155', border: '1px solid #475569', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-sm btn-secondary"
           >
-            <MapPin size={14} /> 🗺️ 층별 장비 위치 지도
+            <MapPin size={14} /> 🗺️ 층별 위치 지도
           </button>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: autoPolling ? '#38bdf8' : '#94a3b8', background: 'rgba(15, 23, 42, 0.6)', padding: '6px 12px', borderRadius: '8px', border: '1px solid #334155', cursor: 'pointer' }}>
+          <button
+            onClick={() => setIsReorderModalOpen(true)}
+            className="btn btn-sm btn-secondary"
+          >
+            <ShoppingCart size={14} /> 🛒 소모품 재주문
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: autoPolling ? '#38bdf8' : '#94a3b8', background: 'rgba(30, 41, 59, 0.8)', padding: '6px 12px', borderRadius: '6px', border: '1px solid #334155', cursor: 'pointer', whiteSpace: 'nowrap' }}>
             <input
               type="checkbox"
               checked={autoPolling}
@@ -85,18 +112,18 @@ export const PrintersPage: React.FC = () => {
           <button
             onClick={handleSnmpSyncAll}
             disabled={loading}
-            style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            className="btn btn-sm btn-success"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {loading ? '동기화 중...' : '⚡ 전체 SNMP 동기화'}
           </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-          >
-            <Plus size={14} /> 신규 프린터 등록
-          </button>
         </div>
       </div>
+
+      <ConsumableReorderModal
+        isOpen={isReorderModalOpen}
+        onClose={() => setIsReorderModalOpen(false)}
+        onSuccess={handleReorderSuccess}
+      />
 
       <PrinterMapModal
         isOpen={isMapModalOpen}
@@ -114,36 +141,37 @@ export const PrintersPage: React.FC = () => {
         onSuccess={handleCreateSuccess}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      {/* Printer Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
         {printers.map((prt) => (
           <div key={prt.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h3 style={{ fontSize: '16px', fontWeight: 700 }}>{prt.name}</h3>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>{prt.modelName}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prt.name}</h3>
+                <div style={{ fontSize: '12px', color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prt.modelName}</div>
               </div>
-              <span className={`badge badge-${prt.status.toLowerCase()}`}>{prt.status}</span>
+              <span className={`badge badge-${prt.status.toLowerCase()}`} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{prt.status}</span>
             </div>
 
             <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '8px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8' }}>IP 주소:</span>
-                <span>{prt.ipAddress}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#94a3b8', whiteSpace: 'nowrap' }}>IP 주소:</span>
+                <span style={{ whiteSpace: 'nowrap', fontFamily: 'monospace' }}>{prt.ipAddress}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8' }}>위치:</span>
-                <span>{prt.location}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#94a3b8', whiteSpace: 'nowrap' }}>위치:</span>
+                <span style={{ whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{prt.location}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8' }}>현재 출력 작업:</span>
-                <span style={{ color: '#38bdf8', fontWeight: 600 }}>{prt.activeJobCount} 건</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#94a3b8', whiteSpace: 'nowrap' }}>현재 출력 작업:</span>
+                <span style={{ color: '#38bdf8', fontWeight: 600, whiteSpace: 'nowrap' }}>{prt.activeJobCount} 건</span>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>소모품 수집 상태</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1', whiteSpace: 'nowrap' }}>소모품 수집 상태</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', whiteSpace: 'nowrap' }}>
                   <span>블랙 토너</span>
                   <span>{prt.blackTonerLevel}%</span>
                 </div>
