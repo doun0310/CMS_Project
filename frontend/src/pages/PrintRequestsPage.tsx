@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { mockPrintRequests, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
 import { CreatePrintRequestModal } from '../components/CreatePrintRequestModal'
 import { PinReleaseModal } from '../components/PinReleaseModal'
 import { PiiInspectorModal } from '../components/PiiInspectorModal'
-import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare } from 'lucide-react'
+import { useRealtimeSync } from '../hooks/useRealtimeSync'
+import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare, RefreshCw } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
   const [requests, setRequests] = useState(mockPrintRequests)
@@ -12,6 +13,12 @@ export const PrintRequestsPage: React.FC = () => {
   const [pinTarget, setPinTarget] = useState<{ id: string; name: string } | null>(null)
   const [piiTargetDoc, setPiiTargetDoc] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  const syncCallback = useCallback(() => {
+    // 실시간 비동기 결재함 데이터 동기화
+  }, [])
+
+  useRealtimeSync(syncCallback, 10000)
 
   const handleApprove = async (id: string) => {
     try {

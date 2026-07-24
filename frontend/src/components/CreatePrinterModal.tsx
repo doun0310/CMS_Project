@@ -148,7 +148,7 @@ export const CreatePrinterModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="예: 3층 개발존 중앙"
+                placeholder="예: 3층 개발존 중앙, 사내 전용 구역"
                 style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px' }}
               />
             </div>

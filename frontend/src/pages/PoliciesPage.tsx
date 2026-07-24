@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { WatermarkModal } from '../components/WatermarkModal'
-import { ShieldCheck, Plus, CheckCircle, AlertTriangle, Eye } from 'lucide-react'
+import { MediaControlModal } from '../components/MediaControlModal'
+import { ShieldCheck, Plus, CheckCircle, AlertTriangle, Eye, HardDrive } from 'lucide-react'
 
 export const initialPolicies = [
   {
@@ -35,10 +36,15 @@ export const initialPolicies = [
 export const PoliciesPage: React.FC = () => {
   const [policies, setPolicies] = useState(initialPolicies)
   const [isWatermarkModalOpen, setIsWatermarkModalOpen] = useState(false)
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   const handleWatermarkSuccess = (updatedWatermark: any) => {
     setMessage(`인쇄 지면 동적 워터마크 문구("${updatedWatermark.watermarkText}")가 모든 프린터 출력물에 적용되었습니다.`)
+  }
+
+  const handleMediaSuccess = (statusMessage: string) => {
+    setMessage(statusMessage)
   }
 
   return (
@@ -51,6 +57,12 @@ export const PoliciesPage: React.FC = () => {
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
+            onClick={() => setIsMediaModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#f59e0b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <HardDrive size={14} /> 💾 외장 매체/USB 보안 통제
+          </button>
+          <button
             onClick={() => setIsWatermarkModalOpen(true)}
             style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
           >
@@ -58,6 +70,12 @@ export const PoliciesPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <MediaControlModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSuccess={handleMediaSuccess}
+      />
 
       <WatermarkModal
         isOpen={isWatermarkModalOpen}
