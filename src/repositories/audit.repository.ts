@@ -63,3 +63,22 @@ export async function createAuditLogTx(
 
   return result.rows[0];
 }
+
+export async function listAuditLogs() {
+  const sql = `
+    SELECT 
+      a.id,
+      a.action_type as action,
+      COALESCE(u.name, 'System') as actor_name,
+      CONCAT(a.target_type, ' #', a.target_id) as target_resource,
+      a.detail_json::text as details,
+      COALESCE(a.ip_address, '127.0.0.1') as ip_address,
+      a.created_at
+    FROM audit_logs a
+    LEFT JOIN users u ON a.actor_id = u.id
+    ORDER BY a.created_at DESC
+    LIMIT 100
+  `;
+  const result = await query(sql);
+  return result.rows;
+}

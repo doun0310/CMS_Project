@@ -9,6 +9,10 @@ export async function getDashboardKpis(_req: Request, res: Response) {
   return ok(res, await service.getDashboardKpis());
 }
 
+export async function listAuditLogs(_req: Request, res: Response) {
+  return ok(res, await service.listAuditLogs());
+}
+
 export async function listPrinters(_req: Request, res: Response) {
   return ok(res, await service.listPrinters());
 }

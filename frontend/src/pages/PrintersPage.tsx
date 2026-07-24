@@ -1,10 +1,13 @@
 import React from 'react'
 import { mockPrinters } from '../services/api'
+import { CreatePrinterModal } from '../components/CreatePrinterModal'
 import { RefreshCw, Plus } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
+  const [printers, setPrinters] = React.useState(mockPrinters)
   const [loading, setLoading] = React.useState(false)
   const [syncStatus, setSyncStatus] = React.useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
 
   const handleSnmpSyncAll = async () => {
     setLoading(true)
@@ -25,6 +28,11 @@ export const PrintersPage: React.FC = () => {
     }
   }
 
+  const handleCreateSuccess = (newPrt: any) => {
+    setPrinters((prev) => [newPrt, ...prev])
+    setSyncStatus(`신규 프린터 장비(${newPrt.name})가 등록되었습니다.`)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -41,14 +49,23 @@ export const PrintersPage: React.FC = () => {
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {loading ? '동기화 중...' : '⚡ 전체 SNMP 동기화'}
           </button>
-          <button style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
             <Plus size={14} /> 신규 프린터 등록
           </button>
         </div>
       </div>
 
+      <CreatePrinterModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-        {mockPrinters.map((prt) => (
+        {printers.map((prt) => (
           <div key={prt.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>

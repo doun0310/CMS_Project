@@ -11,7 +11,7 @@ import {
   updatePrinter,
   updateTemplate
 } from "../repositories/admin.repository";
-import { createAuditLog } from "../repositories/audit.repository";
+import { createAuditLog, listAuditLogs } from "../repositories/audit.repository";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/app-error";
 import { findOrganizationById } from "../repositories/organization.repository";
 import { fetchSnmpPrinterStatus } from "./snmp.service";
@@ -25,6 +25,12 @@ interface ActorContext {
 export class AdminService {
   async getDashboardKpis() {
     return await getDashboardKpis();
+  }
+
+  async listAuditLogs() {
+    return {
+      items: await listAuditLogs()
+    };
   }
 
   async listPrinters() {

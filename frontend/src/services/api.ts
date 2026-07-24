@@ -10,51 +10,51 @@ export const mockKpiData: KpiSummary = {
 
 export const mockPrintRequests: PrintRequest[] = [
   {
-    id: 'PR-2026-001',
-    documentName: '2026_Q3_Financial_Report.docx',
+    id: 'PR-2026-EN01',
+    documentName: '2026_Q3_Financial_Statement.docx (PII 포함)',
     pageCount: 45,
     copyCount: 2,
     securityLevel: 'CONFIDENTIAL',
     status: 'PENDING',
-    requesterName: '김민수 대리',
-    requesterDepartment: '재무회계팀',
-    createdAt: '2026-07-23 16:30',
+    requesterName: 'Richard Causey 수석차장 (EMP-3002)',
+    requesterDepartment: '재무회계팀 (Finance Risk)',
+    createdAt: '2026-07-24 09:30',
   },
   {
-    id: 'PR-2026-002',
-    documentName: 'Project_Alpha_Architecture_v2.pdf',
+    id: 'PR-2026-EN02',
+    documentName: 'MSA_Cloud_Architecture_v1.pdf',
     pageCount: 12,
     copyCount: 1,
     securityLevel: 'RESTRICTED',
     status: 'APPROVED',
-    requesterName: '박서연 과장',
-    requesterDepartment: '기술개발본부',
-    approverName: '이동현 팀장',
-    createdAt: '2026-07-23 15:10',
+    requesterName: 'Vince Kaminski 수석연구원 (EMP-2002)',
+    requesterDepartment: '기술개발본부 R&D 센터',
+    approverName: 'Greg Whalley R&D 본부장',
+    createdAt: '2026-07-24 08:50',
   },
   {
-    id: 'PR-2026-003',
-    documentName: 'Marketing_Flyer_Draft.ai',
+    id: 'PR-2026-EN03',
+    documentName: 'Global_Product_Flyer_2026.ai',
     pageCount: 4,
     copyCount: 50,
     securityLevel: 'PUBLIC',
     status: 'REJECTED',
-    requesterName: '정수진 사원',
-    requesterDepartment: '마케팅팀',
-    approverName: '이동현 팀장',
-    rejectionReason: '컬러 50장 출력 사유 부족. 디지털 문서 배포 권장',
-    createdAt: '2026-07-23 14:05',
+    requesterName: 'Lou Pai 해외영업팀장 (EMP-5002)',
+    requesterDepartment: '글로벌 사업본부',
+    approverName: 'John Lavorato 영업본부장',
+    rejectionReason: '컬러 50장 대량 출력 사유 부족. 디지털 PDF 문서 배포 권장',
+    createdAt: '2026-07-24 07:15',
   },
   {
-    id: 'PR-2026-004',
-    documentName: 'Employee_Evaluation_2026.xlsx',
+    id: 'PR-2026-EN04',
+    documentName: '2026_Employee_Evaluation_v3.xlsx',
     pageCount: 8,
     copyCount: 1,
     securityLevel: 'CONFIDENTIAL',
     status: 'PENDING',
-    requesterName: '최현우 차장',
+    requesterName: 'Sally Beck 총무 매니저 (EMP-4002)',
     requesterDepartment: '인사총무팀',
-    createdAt: '2026-07-23 13:45',
+    createdAt: '2026-07-24 06:40',
   },
 ]
 
@@ -177,5 +177,16 @@ export async function fetchDashboardKpisApi() {
     return json.data || mockKpiData
   } catch {
     return mockKpiData
+  }
+}
+
+export async function fetchAuditLogsFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/audit-logs`)
+    if (!res.ok) throw new Error('Failed to fetch audit logs')
+    const json = await res.json()
+    return json.data?.items || mockAuditLogs
+  } catch {
+    return mockAuditLogs
   }
 }

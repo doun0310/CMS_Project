@@ -4,6 +4,7 @@ import {
   createPrinter,
   createTemplate,
   getDashboardKpis,
+  listAuditLogs,
   listPolicies,
   listPrinters,
   listTemplates,
@@ -18,6 +19,7 @@ import { asyncHandler } from "../utils/async-handler";
 const router = Router();
 
 router.get("/dashboard-kpis", requireRole(["ADMIN", "MANAGER", "USER"]), asyncHandler(getDashboardKpis));
+router.get("/audit-logs", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listAuditLogs));
 router.get("/printers", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listPrinters));
 router.post("/printers", requireRole(["ADMIN"]), asyncHandler(createPrinter));
 router.patch("/printers/:id", requireRole(["ADMIN"]), asyncHandler(updatePrinter));
