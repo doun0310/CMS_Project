@@ -13,7 +13,7 @@ export const PingDiagnosticModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null
 
-  const handleTest = (e: React.FormEvent) => {
+  const handleTest = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     setTesting(true)
     setResult(null)

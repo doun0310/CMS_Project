@@ -17,7 +17,7 @@ export const CreatePrintRequestModal: React.FC<Props> = ({ isOpen, onClose, onSu
 
   if (!isOpen) return null
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!documentName.trim()) return
 
