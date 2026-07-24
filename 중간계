@@ -14,3 +14,15 @@ FormEvent는 SubmitEvent<HTMLFormElement>로 변경
 [vite] https proxy error: 가 지속적으로 발생 시에 vite.config.ts 파일 확인
 
 * 백엔드 서버 연결 및 데이터베이스 필요
+
+* 데이터셋 검토 후 적용하기
+    1. bc-pii-ko (CC-BY-4.0, 원본까지 출처 표시 필요) [조건부 사용가능]
+    2. DocLayNet (CDLA-Permissive-1.0) [비교적 안전]
+    3. synthetic_pii_finanace_multilingual 
+    4. OpenPII 1M (CC-BY-4.0, 상업적 이용 허용) [조건부 사용가능]
+
+    * PII 탐지: bc-pii-ko + OpenPII 1M + 자체 한국어 검증 데이터
+    * 금융 문서: Gretel 금융 PII 데이터 + 자체 재무·회계 양식
+    * OCR·레이아웃: DocLayNet + CORD-v2 + 실제 사내 스캔 문서
+    * 보안등급·승인 예측: 공개 데이터보다 자체 익명화 데이터 중심
+    * 프린터 예측 유지보수: 운영 과정에서 SNMP 시계열 데이터를 직접 축적
