@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { mockAuditLogs, fetchAuditLogsFromBackend } from '../services/api'
 import { exportToCsv } from '../utils/csvExporter'
-import { Download, Search } from 'lucide-react'
+import { AuditIntegrityModal } from '../components/AuditIntegrityModal'
+import { Download, Search, Lock } from 'lucide-react'
 
 export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState(mockAuditLogs)
   const [searchTerm, setSearchTerm] = useState('')
+  const [isIntegrityModalOpen, setIsIntegrityModalOpen] = useState(false)
 
   useEffect(() => {
     fetchAuditLogsFromBackend().then((data) => {
@@ -33,13 +35,26 @@ export const AuditLogsPage: React.FC = () => {
           <h2 style={{ fontSize: '24px', fontWeight: 700 }}>감사 및 이력 로그 (Audit Trail)</h2>
           <p style={{ color: '#94a3b8', fontSize: '14px' }}>인쇄 신청, 결재 조치, 프린터 출력 변경 이력 추적</p>
         </div>
-        <button
-          onClick={handleExportCsv}
-          style={{ padding: '8px 14px', background: '#334155', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#f8fafc', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-        >
-          <Download size={14} /> CSV 내보내기
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => setIsIntegrityModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <Lock size={14} /> 🔒 SHA-256 무결성 검증
+          </button>
+          <button
+            onClick={handleExportCsv}
+            style={{ padding: '8px 14px', background: '#334155', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#f8fafc', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <Download size={14} /> CSV 내보내기
+          </button>
+        </div>
       </div>
+
+      <AuditIntegrityModal
+        isOpen={isIntegrityModalOpen}
+        onClose={() => setIsIntegrityModalOpen(false)}
+      />
 
       <div className="glass-card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <Search size={18} color="#94a3b8" />

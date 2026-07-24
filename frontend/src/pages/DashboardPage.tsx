@@ -1,5 +1,6 @@
 import React from 'react'
 import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi } from '../services/api'
+import { EsgAnalyticsSection } from '../components/EsgAnalyticsSection'
 import { FileText, Clock, PrinterCheck, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export const DashboardPage: React.FC = () => {
@@ -60,6 +61,9 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ESG Green Print Analytics Section */}
+      <EsgAnalyticsSection />
 
       {/* Main Grid Content */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
