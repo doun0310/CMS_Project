@@ -12,7 +12,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Navbar />
       <div className="app-body" style={{ display: 'flex', flex: 1 }}>
         <Sidebar />
-        <main className="app-main" style={{ flex: 1, padding: '32px 40px', overflowY: 'auto' }}>{children}</main>
+        <main className="app-main" style={{ flex: 1, padding: '24px 28px', overflowY: 'auto' }}>{children}</main>
       </div>
     </div>
   )

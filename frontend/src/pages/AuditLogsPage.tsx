@@ -68,7 +68,7 @@ export const AuditLogsPage: React.FC = () => {
         onClose={() => setIsIntegrityModalOpen(false)}
       />
 
-      <div className="glass-card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div className="glass-card compact-search-card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <Search size={18} color="#94a3b8" />
         <input
           type="text"

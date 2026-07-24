@@ -80,7 +80,7 @@ export const PrintersPage: React.FC = () => {
       </div>
 
       {/* Control Toolbar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '10px' }}>
+      <div className="compact-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => setIsSlaModalOpen(true)}
@@ -159,7 +159,7 @@ export const PrintersPage: React.FC = () => {
       {/* Printer Cards Grid */}
       <div className="printer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
         {printers.map((prt) => (
-          <div key={prt.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div key={prt.id} className="glass-card printer-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prt.name}</h3>
@@ -168,7 +168,7 @@ export const PrintersPage: React.FC = () => {
               <span className={`badge badge-${prt.status.toLowerCase()}`} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{prt.status}</span>
             </div>
 
-            <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '8px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="printer-card-details" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '8px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#94a3b8', whiteSpace: 'nowrap' }}>IP 주소:</span>
                 <span style={{ whiteSpace: 'nowrap', fontFamily: 'monospace' }}>{prt.ipAddress}</span>

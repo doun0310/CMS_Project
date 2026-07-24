@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileCheck, Printer, ShieldAlert, Settings } from 'lucide-react'
+import { LayoutDashboard, FileCheck, Printer, ShieldAlert, Settings, PieChart, FileCode } from 'lucide-react'
 import { useTranslation } from '../../hooks/useTranslation'
 
 export const Sidebar: React.FC = () => {
@@ -11,6 +11,8 @@ export const Sidebar: React.FC = () => {
     { path: '/requests', label: t('nav_print_requests'), icon: FileCheck },
     { path: '/printers', label: t('nav_printers'), icon: Printer },
     { path: '/policies', label: t('nav_policies'), icon: Settings },
+    { path: '/templates', label: t('nav_templates'), icon: FileCode },
+    { path: '/quota', label: t('nav_quota'), icon: PieChart },
     { path: '/audit-logs', label: t('nav_audit_logs'), icon: ShieldAlert },
   ]
 

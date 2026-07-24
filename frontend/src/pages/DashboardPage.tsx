@@ -3,6 +3,7 @@ import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi, ap
 import { EsgAnalyticsSection } from '../components/EsgAnalyticsSection'
 import { SecurityReportChartSection } from '../components/SecurityReportChartSection'
 import { useTranslation } from '../hooks/useTranslation'
+import { Link } from 'react-router-dom'
 import { FileText, Clock, PrinterCheck, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export const DashboardPage: React.FC = () => {
@@ -10,6 +11,36 @@ export const DashboardPage: React.FC = () => {
   const [kpiData, setKpiData] = React.useState(mockKpiData)
   const [requests, setRequests] = React.useState(mockPrintRequests)
   const [message, setMessage] = React.useState<string | null>(null)
+  const kpiCards = [
+    {
+      label: '총 인쇄 요청 수',
+      value: kpiData.totalRequests.toLocaleString(),
+      unit: '건',
+      icon: FileText,
+      accent: '#38bdf8',
+    },
+    {
+      label: '승인 대기 건수',
+      value: kpiData.pendingApprovals.toLocaleString(),
+      unit: '건',
+      icon: Clock,
+      accent: '#f59e0b',
+    },
+    {
+      label: '가동 중 프린터',
+      value: `${kpiData.activePrinters} / ${kpiData.totalPrinters}`,
+      unit: '대',
+      icon: PrinterCheck,
+      accent: '#10b981',
+    },
+    {
+      label: '종이·비용 절감률',
+      value: `${kpiData.paperSavingsPercent}`,
+      unit: '%',
+      icon: TrendingDown,
+      accent: '#a78bfa',
+    },
+  ]
 
   React.useEffect(() => {
     fetchDashboardKpisApi().then((data) => {
@@ -43,53 +74,32 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="page-stack" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div className="page-header">
-        <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_title')}</h2>
-        <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_sub')}</p>
+      <div className="page-header dashboard-heading">
+        <div>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_title')}</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_sub')}</p>
+        </div>
+        <span className="dashboard-live-indicator"><span aria-hidden="true" /> 운영 현황</span>
         {message && <p className="status-message" style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
       </div>
 
       {/* KPI Cards Row */}
       <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
-            <span>총 인쇄 요청 수</span>
-            <FileText size={18} color="#38bdf8" />
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#f8fafc', whiteSpace: 'nowrap' }}>
-            {kpiData.totalRequests.toLocaleString()} <span style={{ fontSize: '14px', color: '#10b981' }}>건</span>
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ borderLeft: '4px solid #f59e0b' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
-            <span>승인 대기 건수</span>
-            <Clock size={18} color="#f59e0b" />
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#fbbf24', whiteSpace: 'nowrap' }}>
-            {kpiData.pendingApprovals} <span style={{ fontSize: '14px', color: '#94a3b8' }}>건</span>
-          </div>
-        </div>
-
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
-            <span>가동 중 프린터</span>
-            <PrinterCheck size={18} color="#10b981" />
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#34d399', whiteSpace: 'nowrap' }}>
-            {kpiData.activePrinters} / {kpiData.totalPrinters} <span style={{ fontSize: '14px', color: '#94a3b8' }}>대</span>
-          </div>
-        </div>
-
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '13px', whiteSpace: 'nowrap' }}>
-            <span>종이/비용 절감률</span>
-            <TrendingDown size={18} color="#34d399" />
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: '#38bdf8', whiteSpace: 'nowrap' }}>
-            {kpiData.paperSavingsPercent}%
-          </div>
-        </div>
+        {kpiCards.map(({ label, value, unit, icon: Icon, accent }) => (
+          <article
+            className="glass-card dashboard-kpi-card"
+            key={label}
+            style={{ '--kpi-accent': accent } as React.CSSProperties}
+          >
+            <div className="dashboard-kpi-label">
+              <span>{label}</span>
+              <span className="dashboard-kpi-icon"><Icon size={19} /></span>
+            </div>
+            <div className="dashboard-kpi-value">
+              {value} <span>{unit}</span>
+            </div>
+          </article>
+        ))}
       </div>
 
       {/* ESG Green Print Analytics Section */}
@@ -98,10 +108,13 @@ export const DashboardPage: React.FC = () => {
       {/* Main Grid Content */}
       <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
         {/* Left: Print Approval Queue */}
-        <div className="glass-card table-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 600, whiteSpace: 'nowrap' }}>최근 인쇄 결재 대기 큐</h3>
-            <span style={{ fontSize: '12px', color: '#38bdf8', cursor: 'pointer', whiteSpace: 'nowrap' }}>전체 보기 &rarr;</span>
+        <div className="glass-card table-card dashboard-panel">
+          <div className="dashboard-section-header">
+            <div>
+              <h3>최근 인쇄 결재 대기 큐</h3>
+              <p>승인 또는 반려가 필요한 최근 요청입니다.</p>
+            </div>
+            <Link to="/requests">전체 보기 <span aria-hidden="true">→</span></Link>
           </div>
 
           <table className="data-table">
@@ -162,22 +175,28 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Right: Printer Fleet Health Status */}
-        <div className="glass-card">
-          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', whiteSpace: 'nowrap' }}>프린터 Fleet 상태</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="glass-card dashboard-panel">
+          <div className="dashboard-section-header">
+            <div>
+              <h3>프린터 Fleet 상태</h3>
+              <p>장비 연결 및 소모품 현황입니다.</p>
+            </div>
+            <Link to="/printers">전체 보기 <span aria-hidden="true">→</span></Link>
+          </div>
+          <div className="dashboard-printer-list">
             {mockPrinters.map((prt) => (
-              <div key={prt.id} style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, wordBreak: 'keep-all' }}>{prt.name}</span>
+              <div className="dashboard-printer-item" key={prt.id}>
+                <div className="dashboard-printer-heading">
+                  <span title={prt.name}>{prt.name}</span>
                   <span className={`badge badge-${prt.status.toLowerCase()}`} style={{ whiteSpace: 'nowrap' }}>{prt.status}</span>
                 </div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px', wordBreak: 'keep-all' }}>IP: {prt.ipAddress} ({prt.location})</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
+                <div className="dashboard-printer-meta">IP {prt.ipAddress} · {prt.location}</div>
+                <div className="dashboard-toner">
+                  <div>
                     <span>토너 잔량</span>
                     <span>{prt.blackTonerLevel}%</span>
                   </div>
-                  <div style={{ width: '100%', height: '6px', background: '#334155', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div className="dashboard-progress">
                     <div style={{ width: `${prt.blackTonerLevel}%`, height: '100%', background: prt.blackTonerLevel <= 20 ? '#ef4444' : '#10b981' }} />
                   </div>
                 </div>

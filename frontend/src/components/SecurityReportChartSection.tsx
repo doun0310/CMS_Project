@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShieldCheck, BarChart3, TrendingUp, AlertTriangle } from 'lucide-react'
+import { BarChart3 } from 'lucide-react'
 
 export const SecurityReportChartSection: React.FC = () => {
   const deptMetrics = [
@@ -18,31 +18,34 @@ export const SecurityReportChartSection: React.FC = () => {
   ]
 
   return (
-    <div className="glass-card" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <BarChart3 color="#38bdf8" size={20} />
-          <h3 style={{ fontSize: '16px', fontWeight: 700 }}>부서별 인쇄 보안 준수율 & PII 감지 트렌드 분석</h3>
+    <section className="glass-card dashboard-security-section">
+      <div className="dashboard-section-header dashboard-security-header">
+        <div className="dashboard-block-title">
+          <span className="dashboard-block-title-icon"><BarChart3 size={20} /></span>
+          <div>
+            <h3>인쇄 보안 준수 및 PII 감지 추이</h3>
+            <p>부서별 준수율과 최근 5일간 탐지 현황입니다.</p>
+          </div>
         </div>
-        <span style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(15, 23, 42, 0.6)', padding: '4px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
-          ⚡ 실시간 통계 분석 엔진 동작 중
+        <span className="dashboard-engine-status">
+          <span aria-hidden="true" /> 실시간 분석 중
         </span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="dashboard-security-grid">
         {/* Department Compliance List */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '14px', borderRadius: '10px', border: '1px solid #334155' }}>
-          <h4 style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>🏢 주요 부서별 보안 승인 준수율</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="dashboard-chart-card">
+          <h4>주요 부서별 보안 승인 준수율</h4>
+          <div className="dashboard-compliance-list">
             {deptMetrics.map((item) => (
-              <div key={item.dept} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: '#fff', fontWeight: 600 }}>{item.dept}</span>
-                  <span style={{ color: item.complianceRate >= 95 ? '#34d399' : '#fbbf24', fontWeight: 700 }}>
+              <div className="dashboard-compliance-item" key={item.dept}>
+                <div>
+                  <span>{item.dept}</span>
+                  <strong style={{ color: item.complianceRate >= 95 ? '#34d399' : '#fbbf24' }}>
                     {item.complianceRate}% 준수 ({item.piiCount}건 PII 탐지)
-                  </span>
+                  </strong>
                 </div>
-                <div style={{ width: '100%', height: '6px', background: '#1e293b', borderRadius: '3px', overflow: 'hidden' }}>
+                <div className="dashboard-progress">
                   <div style={{
                     width: `${item.complianceRate}%`,
                     height: '100%',
@@ -57,9 +60,9 @@ export const SecurityReportChartSection: React.FC = () => {
         </div>
 
         {/* Weekly Trend Bar Simulation */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '14px', borderRadius: '10px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <h4 style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>📈 주간 인쇄 요청 & PII 탐지 트렌드</h4>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '100px', padding: '0 10px' }}>
+        <div className="dashboard-chart-card dashboard-trend-card">
+          <h4>주간 인쇄 요청·PII 탐지 추이</h4>
+          <div className="dashboard-weekly-bars">
             {weeklyTrend.map((wt) => (
               <div key={wt.day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '80px' }}>
@@ -74,16 +77,16 @@ export const SecurityReportChartSection: React.FC = () => {
                     title={`PII 탐지 ${wt.piiDetected}건`}
                   />
                 </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8' }}>{wt.day}</span>
+                <span>{wt.day}</span>
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', color: '#94a3b8', marginTop: '8px' }}>
+          <div className="dashboard-chart-legend">
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '8px', height: '8px', background: '#0284c7', borderRadius: '2px' }}></span> 인쇄 승인 요청</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '8px', height: '8px', background: '#ef4444', borderRadius: '2px' }}></span> PII 탐지 건수</span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

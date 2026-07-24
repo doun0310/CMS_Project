@@ -6,6 +6,8 @@ import { PrintRequestsPage } from './pages/PrintRequestsPage'
 import { PrintersPage } from './pages/PrintersPage'
 import { AuditLogsPage } from './pages/AuditLogsPage'
 import { PoliciesPage } from './pages/PoliciesPage'
+import { QuotaPage } from './pages/QuotaPage'
+import { TemplatesPage } from './pages/TemplatesPage'
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal'
 
 export const App: React.FC = () => {
@@ -29,6 +31,8 @@ export const App: React.FC = () => {
           <Route path="/requests" element={<PrintRequestsPage />} />
           <Route path="/printers" element={<PrintersPage />} />
           <Route path="/policies" element={<PoliciesPage />} />
+          <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/quota" element={<QuotaPage />} />
           <Route path="/audit-logs" element={<AuditLogsPage />} />
           <Route path="/settings" element={<PoliciesPage />} />
         </Routes>
