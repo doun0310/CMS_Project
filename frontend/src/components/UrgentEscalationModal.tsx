@@ -15,7 +15,7 @@ export const UrgentEscalationModal: React.FC<Props> = ({ isOpen, onClose, onSucc
 
   if (!isOpen) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
     setTimeout(() => {

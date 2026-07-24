@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { WatermarkModal } from '../components/WatermarkModal'
 import { MediaControlModal } from '../components/MediaControlModal'
-import { ShieldCheck, Plus, CheckCircle, AlertTriangle, Eye, HardDrive } from 'lucide-react'
+import { MultiStageApprovalModal } from '../components/MultiStageApprovalModal'
+import { ShieldCheck, Plus, CheckCircle, AlertTriangle, Eye, HardDrive, UserCheck } from 'lucide-react'
 
 export const initialPolicies = [
   {
@@ -37,6 +38,7 @@ export const PoliciesPage: React.FC = () => {
   const [policies, setPolicies] = useState(initialPolicies)
   const [isWatermarkModalOpen, setIsWatermarkModalOpen] = useState(false)
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false)
+  const [isMultiStageModalOpen, setIsMultiStageModalOpen] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   const handleWatermarkSuccess = (updatedWatermark: any) => {
@@ -57,8 +59,14 @@ export const PoliciesPage: React.FC = () => {
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
+            onClick={() => setIsMultiStageModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <UserCheck size={14} /> 🔒 Zero-Trust 다단계 결재선
+          </button>
+          <button
             onClick={() => setIsMediaModalOpen(true)}
-            className="btn btn-md btn-warning"
+            style={{ padding: '8px 14px', background: '#f59e0b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
           >
             <HardDrive size={14} /> 💾 외장 매체/USB 보안 통제
           </button>
@@ -70,6 +78,12 @@ export const PoliciesPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <MultiStageApprovalModal
+        isOpen={isMultiStageModalOpen}
+        onClose={() => setIsMultiStageModalOpen(false)}
+        onSuccess={(msg) => setMessage(msg)}
+      />
 
       <MediaControlModal
         isOpen={isMediaModalOpen}

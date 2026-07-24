@@ -5,7 +5,9 @@ import { PinReleaseModal } from '../components/PinReleaseModal'
 import { PiiInspectorModal } from '../components/PiiInspectorModal'
 import { DocumentComparisonModal } from '../components/DocumentComparisonModal'
 import { UrgentEscalationModal } from '../components/UrgentEscalationModal'
+import { AiRiskInspectorBadge } from '../components/AiRiskInspectorBadge'
 import { useRealtimeSync } from '../hooks/useRealtimeSync'
+import { useSseRealtimePush } from '../hooks/useSseRealtimePush'
 import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare, RefreshCw, ArrowRightLeft, AlertTriangle } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
@@ -23,6 +25,12 @@ export const PrintRequestsPage: React.FC = () => {
   }, [])
 
   useRealtimeSync(syncCallback, 10000)
+
+  const handleSsePush = useCallback((payload: any) => {
+    setMessage(`⚡ [SSE PUSH] ${payload.message}`)
+  }, [])
+
+  useSseRealtimePush(handleSsePush)
 
   const handleApprove = async (id: string) => {
     try {
@@ -163,110 +171,123 @@ export const PrintRequestsPage: React.FC = () => {
         />
       )}
 
-      <div className="glass-card">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th style={{ width: '40px', textAlign: 'center' }}>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.length === requests.length && requests.length > 0}
-                  onChange={handleToggleSelectAll}
-                  style={{ cursor: 'pointer' }}
-                />
-              </th>
-              <th>요청 ID</th>
-              <th>문서명 / 수량</th>
-              <th>요청자 / 부서</th>
-              <th>보안 등급</th>
-              <th>신청 일시</th>
-              <th>결재 상태</th>
-              <th>처리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((req) => (
-              <tr key={req.id} style={{ background: selectedIds.includes(req.id) ? 'rgba(56, 189, 248, 0.08)' : 'transparent' }}>
-                <td style={{ textAlign: 'center' }}>
+      <div className="glass-card" style={{ width: '100%', overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table className="data-table" style={{ minWidth: '950px' }}>
+            <thead>
+              <tr>
+                <th style={{ width: '40px', textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(req.id)}
-                    onChange={() => handleToggleSelectOne(req.id)}
+                    checked={selectedIds.length === requests.length && requests.length > 0}
+                    onChange={handleToggleSelectAll}
                     style={{ cursor: 'pointer' }}
                   />
-                </td>
-                <td style={{ fontWeight: 600, color: '#38bdf8' }}>{req.id}</td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                    {req.documentName}
-                    {req.documentName.includes('PII') && (
-                      <button
-                        onClick={() => setPiiTargetDoc(req.documentName)}
-                        style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '4px', color: '#f87171', fontSize: '10px', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'pointer' }}
-                      >
-                        <ShieldAlert size={10} /> PII 검사
-                      </button>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{req.pageCount} Pages × {req.copyCount} Copies</div>
-                </td>
-                <td>
-                  <div>{req.requesterName}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{req.requesterDepartment}</div>
-                </td>
-                <td>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
-                    {req.securityLevel}
-                  </span>
-                </td>
-                <td style={{ fontSize: '13px', color: '#94a3b8' }}>{req.createdAt}</td>
-                <td>
-                  <span className={`badge badge-${req.status.toLowerCase()}`}>{req.status}</span>
-                </td>
-                <td>
-                  {req.status === 'PENDING' ? (
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
-                      <button
-                        onClick={() => handleApprove(req.id)}
-                        className="btn btn-sm btn-success"
-                      >
-                        <CheckCircle size={14} /> 승인
-                      </button>
-                      <button
-                        onClick={() => handleReject(req.id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        <XCircle size={14} /> 반려
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
-                      <span style={{ fontSize: '13px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
-                      {req.status === 'APPROVED' && (
-                        <>
-                          <button
-                            onClick={() => setCompareTargetDoc(req.documentName)}
-                            className="btn btn-sm btn-secondary"
-                            style={{ fontSize: '11px', padding: '4px 8px' }}
-                          >
-                            <ArrowRightLeft size={11} /> 🔍 대조 검증
-                          </button>
-                          <button
-                            onClick={() => setPinTarget({ id: req.id, name: req.documentName })}
-                            className="btn btn-sm btn-primary"
-                            style={{ fontSize: '11px', padding: '4px 8px' }}
-                          >
-                            <KeyRound size={11} /> 🔑 PIN 발급
-                          </button>
-                        </>
+                </th>
+                <th style={{ whiteSpace: 'nowrap' }}>요청 ID</th>
+                <th style={{ whiteSpace: 'nowrap' }}>문서명 / 수량</th>
+                <th style={{ whiteSpace: 'nowrap' }}>요청자 / 부서</th>
+                <th style={{ whiteSpace: 'nowrap' }}>보안 등급</th>
+                <th style={{ whiteSpace: 'nowrap' }}>신청 일시</th>
+                <th style={{ whiteSpace: 'nowrap' }}>결재 상태</th>
+                <th style={{ whiteSpace: 'nowrap' }}>처리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {requests.map((req) => (
+                <tr key={req.id} style={{ background: selectedIds.includes(req.id) ? 'rgba(56, 189, 248, 0.08)' : 'transparent' }}>
+                  <td style={{ textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(req.id)}
+                      onChange={() => handleToggleSelectOne(req.id)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </td>
+                  <td style={{ fontWeight: 600, color: '#38bdf8', whiteSpace: 'nowrap' }}>{req.id}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, flexWrap: 'wrap' }}>
+                      <span style={{ whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{req.documentName}</span>
+                      <AiRiskInspectorBadge
+                        documentName={req.documentName}
+                        score={req.documentName.includes('PII') || req.securityLevel === 'CONFIDENTIAL' ? 92 : 25}
+                        riskFactors={
+                          req.documentName.includes('PII') || req.securityLevel === 'CONFIDENTIAL'
+                            ? ['신한은행 계좌번호 (ACCOUNT_NUMBER) 포함', 'STRICTLY CONFIDENTIAL 기밀 직인 감지', '외부 유출 시 손실 위험도 상(HIGH)']
+                            : ['사내 서식 표준 문서', '특이 유출 위험 키워드 미감지']
+                        }
+                      />
+                      {req.documentName.includes('PII') && (
+                        <button
+                          onClick={() => setPiiTargetDoc(req.documentName)}
+                          style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '4px', color: '#f87171', fontSize: '10px', padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >
+                          <ShieldAlert size={10} /> PII 검사
+                        </button>
                       )}
                     </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.pageCount} Pages × {req.copyCount} Copies</div>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <div>{req.requesterName}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>{req.requesterDepartment}</div>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: req.securityLevel === 'CONFIDENTIAL' ? '#f87171' : '#94a3b8' }}>
+                      {req.securityLevel}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: '13px', color: '#94a3b8', whiteSpace: 'nowrap' }}>{req.createdAt}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <span className={`badge badge-${req.status.toLowerCase()}`}>{req.status}</span>
+                  </td>
+                  <td>
+                    {req.status === 'PENDING' ? (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
+                        <button
+                          onClick={() => handleApprove(req.id)}
+                          className="btn btn-sm btn-success"
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          <CheckCircle size={14} /> 승인
+                        </button>
+                        <button
+                          onClick={() => handleReject(req.id)}
+                          className="btn btn-sm btn-danger"
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          <XCircle size={14} /> 반려
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{req.approverName ? `${req.approverName} 처리` : '처리완료'}</span>
+                        {req.status === 'APPROVED' && (
+                          <>
+                            <button
+                              onClick={() => setCompareTargetDoc(req.documentName)}
+                              className="btn btn-sm btn-secondary"
+                              style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap' }}
+                            >
+                              <ArrowRightLeft size={11} /> 🔍 대조 검증
+                            </button>
+                            <button
+                              onClick={() => setPinTarget({ id: req.id, name: req.documentName })}
+                              className="btn btn-sm btn-primary"
+                              style={{ fontSize: '11px', padding: '4px 8px', whiteSpace: 'nowrap' }}
+                            >
+                              <KeyRound size={11} /> 🔑 PIN 발급
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

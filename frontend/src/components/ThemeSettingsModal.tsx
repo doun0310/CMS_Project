@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, Palette, Sun, Moon, Sparkles, Check } from 'lucide-react'
 
 interface Props {
@@ -7,13 +7,42 @@ interface Props {
 }
 
 export const ThemeSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const [selectedTheme, setSelectedTheme] = useState('GLASS_DARK')
-  const [fontSize, setFontSize] = useState('MEDIUM')
-  const [enableBlur, setEnableBlur] = useState(true)
+  const [selectedTheme, setSelectedTheme] = useState(() => localStorage.getItem('cms_theme') || 'GLASS_DARK')
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('cms_fontsize') || 'MEDIUM')
+  const [enableBlur, setEnableBlur] = useState(() => localStorage.getItem('cms_blur') !== 'false')
+
+  const applyThemeToDOM = (theme: string, fSize: string, blur: boolean) => {
+    // 1. Theme Data Attribute
+    document.documentElement.setAttribute('data-theme', theme)
+
+    // 2. Font Size
+    if (fSize === 'SMALL') {
+      document.documentElement.style.fontSize = '13px'
+    } else if (fSize === 'LARGE') {
+      document.documentElement.style.fontSize = '16px'
+    } else {
+      document.documentElement.style.fontSize = '14px'
+    }
+
+    // 3. Blur
+    if (!blur) {
+      document.body.classList.add('no-blur')
+    } else {
+      document.body.classList.remove('no-blur')
+    }
+  }
+
+  useEffect(() => {
+    applyThemeToDOM(selectedTheme, fontSize, enableBlur)
+  }, [])
 
   if (!isOpen) return null
 
   const handleSave = () => {
+    applyThemeToDOM(selectedTheme, fontSize, enableBlur)
+    localStorage.setItem('cms_theme', selectedTheme)
+    localStorage.setItem('cms_fontsize', fontSize)
+    localStorage.setItem('cms_blur', String(enableBlur))
     onClose()
   }
 

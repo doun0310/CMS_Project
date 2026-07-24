@@ -13,6 +13,35 @@
   --sidebar-width: 250px;
 }
 
+/* High Contrast Theme */
+[data-theme="HIGH_CONTRAST"] {
+  --bg-main: #000000;
+  --bg-card: #050505;
+  --bg-card-hover: #1f1f1f;
+  --border-color: #f59e0b;
+  --text-main: #ffffff;
+  --text-muted: #fbbf24;
+  --primary: #fbbf24;
+  --primary-hover: #d97706;
+}
+
+/* Slate Minimal Theme */
+[data-theme="SLATE_MINIMAL"] {
+  --bg-main: #1e293b;
+  --bg-card: #0f172a;
+  --bg-card-hover: #334155;
+  --border-color: #475569;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --primary: #38bdf8;
+  --primary-hover: #0284c7;
+}
+
+/* Disable Blur Utility */
+body.no-blur .glass-card {
+  backdrop-filter: none !important;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

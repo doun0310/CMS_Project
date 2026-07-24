@@ -4,7 +4,8 @@ import { CreatePrinterModal } from '../components/CreatePrinterModal'
 import { PrinterMapModal } from '../components/PrinterMapModal'
 import { PingDiagnosticModal } from '../components/PingDiagnosticModal'
 import { ConsumableReorderModal } from '../components/ConsumableReorderModal'
-import { RefreshCw, Plus, Clock, MapPin, Radio, ShoppingCart } from 'lucide-react'
+import { SlaTrackerModal } from '../components/SlaTrackerModal'
+import { RefreshCw, Plus, Clock, MapPin, Radio, ShoppingCart, FileText } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
   const [printers, setPrinters] = useState(mockPrinters)
@@ -14,6 +15,7 @@ export const PrintersPage: React.FC = () => {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [isPingModalOpen, setIsPingModalOpen] = useState(false)
   const [isReorderModalOpen, setIsReorderModalOpen] = useState(false)
+  const [isSlaModalOpen, setIsSlaModalOpen] = useState(false)
   const [autoPolling, setAutoPolling] = useState(false)
 
   const handleSnmpSyncAll = async () => {
@@ -81,6 +83,12 @@ export const PrintersPage: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
+            onClick={() => setIsSlaModalOpen(true)}
+            className="btn btn-sm btn-secondary"
+          >
+            <FileText size={14} /> 📜 SLA & 렌탈 자산
+          </button>
+          <button
             onClick={() => setIsPingModalOpen(true)}
             className="btn btn-sm btn-primary"
           >
@@ -118,6 +126,12 @@ export const PrintersPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <SlaTrackerModal
+        isOpen={isSlaModalOpen}
+        onClose={() => setIsSlaModalOpen(false)}
+        onSuccess={(msg) => setSyncStatus(msg)}
+      />
 
       <ConsumableReorderModal
         isOpen={isReorderModalOpen}
