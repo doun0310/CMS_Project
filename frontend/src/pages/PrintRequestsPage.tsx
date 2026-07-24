@@ -8,9 +8,11 @@ import { UrgentEscalationModal } from '../components/UrgentEscalationModal'
 import { AiRiskInspectorBadge } from '../components/AiRiskInspectorBadge'
 import { useRealtimeSync } from '../hooks/useRealtimeSync'
 import { useSseRealtimePush } from '../hooks/useSseRealtimePush'
+import { useTranslation } from '../hooks/useTranslation'
 import { CheckCircle, XCircle, Plus, KeyRound, ShieldAlert, CheckSquare, RefreshCw, ArrowRightLeft, AlertTriangle } from 'lucide-react'
 
 export const PrintRequestsPage: React.FC = () => {
+  const { t } = useTranslation()
   const [requests, setRequests] = useState(mockPrintRequests)
   const [message, setMessage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -109,13 +111,13 @@ export const PrintRequestsPage: React.FC = () => {
                 onClick={handleBulkApprove}
                 className="btn btn-sm btn-success"
               >
-                <CheckCircle size={13} /> 일괄 승인
+                <CheckCircle size={13} /> {t('btn_bulk_approve')}
               </button>
               <button
                 onClick={handleBulkReject}
                 className="btn btn-sm btn-danger"
               >
-                <XCircle size={13} /> 일괄 반려
+                <XCircle size={13} /> {t('btn_bulk_reject')}
               </button>
             </div>
           )}
@@ -123,13 +125,13 @@ export const PrintRequestsPage: React.FC = () => {
             onClick={() => setIsUrgentModalOpen(true)}
             className="btn btn-md btn-danger"
           >
-            <AlertTriangle size={15} /> 🚨 긴급 에스컬레이션
+            <AlertTriangle size={15} /> {t('btn_escalation')}
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
             className="btn btn-md btn-primary"
           >
-            <Plus size={16} /> 신규 인쇄 신청
+            <Plus size={16} /> {t('btn_new_request')}
           </button>
         </div>
       </div>
@@ -184,13 +186,13 @@ export const PrintRequestsPage: React.FC = () => {
                     style={{ cursor: 'pointer' }}
                   />
                 </th>
-                <th style={{ whiteSpace: 'nowrap' }}>요청 ID</th>
-                <th style={{ whiteSpace: 'nowrap' }}>문서명 / 수량</th>
-                <th style={{ whiteSpace: 'nowrap' }}>요청자 / 부서</th>
-                <th style={{ whiteSpace: 'nowrap' }}>보안 등급</th>
-                <th style={{ whiteSpace: 'nowrap' }}>신청 일시</th>
-                <th style={{ whiteSpace: 'nowrap' }}>결재 상태</th>
-                <th style={{ whiteSpace: 'nowrap' }}>처리</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_request_id')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_doc_name')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_requester')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_security_level')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_created_at')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_status')}</th>
+                <th style={{ whiteSpace: 'nowrap' }}>{t('col_actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -249,14 +251,14 @@ export const PrintRequestsPage: React.FC = () => {
                           className="btn btn-sm btn-success"
                           style={{ whiteSpace: 'nowrap' }}
                         >
-                          <CheckCircle size={14} /> 승인
+                          <CheckCircle size={14} /> {t('btn_approve')}
                         </button>
                         <button
                           onClick={() => handleReject(req.id)}
                           className="btn btn-sm btn-danger"
                           style={{ whiteSpace: 'nowrap' }}
                         >
-                          <XCircle size={14} /> 반려
+                          <XCircle size={14} /> {t('btn_reject')}
                         </button>
                       </div>
                     ) : (

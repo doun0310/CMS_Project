@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { WatermarkModal } from '../components/WatermarkModal'
 import { MediaControlModal } from '../components/MediaControlModal'
 import { MultiStageApprovalModal } from '../components/MultiStageApprovalModal'
+import { useTranslation } from '../hooks/useTranslation'
 import { ShieldCheck, Plus, CheckCircle, AlertTriangle, Eye, HardDrive, UserCheck } from 'lucide-react'
 
 export const initialPolicies = [
@@ -35,6 +36,7 @@ export const initialPolicies = [
 ]
 
 export const PoliciesPage: React.FC = () => {
+  const { t } = useTranslation()
   const [policies, setPolicies] = useState(initialPolicies)
   const [isWatermarkModalOpen, setIsWatermarkModalOpen] = useState(false)
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false)
@@ -53,8 +55,8 @@ export const PoliciesPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>인쇄 보안 통제 및 워터마크 설정</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>부서별 문서 결재 승인 규칙 및 출력물 물리 보안 워터마크 제어</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>{t('policies_title')}</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('policies_sub')}</p>
           {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px' }}>{message}</p>}
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -62,19 +64,19 @@ export const PoliciesPage: React.FC = () => {
             onClick={() => setIsMultiStageModalOpen(true)}
             style={{ padding: '8px 14px', background: '#059669', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
           >
-            <UserCheck size={14} /> 🔒 Zero-Trust 다단계 결재선
+            <UserCheck size={14} /> {t('btn_zerotrust')}
           </button>
           <button
             onClick={() => setIsMediaModalOpen(true)}
             style={{ padding: '8px 14px', background: '#f59e0b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
           >
-            <HardDrive size={14} /> 💾 외장 매체/USB 보안 통제
+            <HardDrive size={14} /> {t('btn_usb_control')}
           </button>
           <button
             onClick={() => setIsWatermarkModalOpen(true)}
             className="btn btn-md btn-primary"
           >
-            <Eye size={14} /> 🖨️ 워터마크 실시간 설정
+            <Eye size={14} /> {t('btn_watermark')}
           </button>
         </div>
       </div>

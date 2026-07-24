@@ -1,14 +1,17 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, FileCheck, Printer, ShieldAlert, Settings } from 'lucide-react'
+import { useTranslation } from '../../hooks/useTranslation'
 
 export const Sidebar: React.FC = () => {
+  const { t } = useTranslation()
+
   const menuItems = [
-    { path: '/', label: '대시보드', icon: LayoutDashboard },
-    { path: '/requests', label: '인쇄 승인 큐', icon: FileCheck },
-    { path: '/printers', label: '프린터 Fleet 모니터링', icon: Printer },
-    { path: '/policies', label: '승인/워터마크 정책', icon: Settings },
-    { path: '/audit-logs', label: '감사 및 이력 로그', icon: ShieldAlert },
+    { path: '/', label: t('nav_dashboard'), icon: LayoutDashboard },
+    { path: '/requests', label: t('nav_print_requests'), icon: FileCheck },
+    { path: '/printers', label: t('nav_printers'), icon: Printer },
+    { path: '/policies', label: t('nav_policies'), icon: Settings },
+    { path: '/audit-logs', label: t('nav_audit_logs'), icon: ShieldAlert },
   ]
 
   return (

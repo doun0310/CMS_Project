@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
-import { Printer, Bell, User, Palette } from 'lucide-react'
+import { Printer, Bell, User, Palette, Globe } from 'lucide-react'
 import { ThemeSettingsModal } from '../ThemeSettingsModal'
+import { I18nLanguageModal } from '../I18nLanguageModal'
+import { useTranslation } from '../../hooks/useTranslation'
 
 export const Navbar: React.FC = () => {
+  const { t, lang } = useTranslation()
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false)
+  const [isLangModalOpen, setIsLangModalOpen] = useState(false)
 
   return (
     <header
@@ -30,11 +34,19 @@ export const Navbar: React.FC = () => {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button
+          onClick={() => setIsLangModalOpen(true)}
+          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+          title="글로벌 언어 설정"
+        >
+          <Globe size={18} color="#38bdf8" /> {lang}
+        </button>
+
+        <button
           onClick={() => setIsThemeModalOpen(true)}
           style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
           title="UI 테마 설정"
         >
-          <Palette size={18} color="#38bdf8" /> 테마
+          <Palette size={18} color="#38bdf8" /> {t('theme_setting')}
         </button>
 
         <div style={{ position: 'relative', cursor: 'pointer' }}>
@@ -65,11 +77,17 @@ export const Navbar: React.FC = () => {
             <User size={18} color="#f8fafc" />
           </div>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 600 }}>이동현 팀장</div>
-            <div style={{ fontSize: '11px', color: '#94a3b8' }}>기술개발본부 (승인권자)</div>
+            <div style={{ fontSize: '13px', fontWeight: 600 }}>{t('user_name')}</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{t('user_dept')}</div>
           </div>
         </div>
       </div>
+
+      <I18nLanguageModal
+        isOpen={isLangModalOpen}
+        onClose={() => setIsLangModalOpen(false)}
+        onLanguageChange={() => {}}
+      />
 
       <ThemeSettingsModal
         isOpen={isThemeModalOpen}

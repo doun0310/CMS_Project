@@ -2,9 +2,11 @@ import React from 'react'
 import { mockKpiData, mockPrintRequests, mockPrinters, fetchDashboardKpisApi, approvePrintRequestApi, rejectPrintRequestApi } from '../services/api'
 import { EsgAnalyticsSection } from '../components/EsgAnalyticsSection'
 import { SecurityReportChartSection } from '../components/SecurityReportChartSection'
+import { useTranslation } from '../hooks/useTranslation'
 import { FileText, Clock, PrinterCheck, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation()
   const [kpiData, setKpiData] = React.useState(mockKpiData)
   const [requests, setRequests] = React.useState(mockPrintRequests)
   const [message, setMessage] = React.useState<string | null>(null)
@@ -42,8 +44,8 @@ export const DashboardPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>대시보드 개요</h2>
-        <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>사내 인쇄 요청 결재 및 프린터 장비 실시간 운영 현황</p>
+        <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_title')}</h2>
+        <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('dashboard_sub')}</p>
         {message && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{message}</p>}
       </div>
 

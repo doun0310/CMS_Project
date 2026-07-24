@@ -5,9 +5,11 @@ import { PrinterMapModal } from '../components/PrinterMapModal'
 import { PingDiagnosticModal } from '../components/PingDiagnosticModal'
 import { ConsumableReorderModal } from '../components/ConsumableReorderModal'
 import { SlaTrackerModal } from '../components/SlaTrackerModal'
+import { useTranslation } from '../hooks/useTranslation'
 import { RefreshCw, Plus, Clock, MapPin, Radio, ShoppingCart, FileText } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
+  const { t } = useTranslation()
   const [printers, setPrinters] = useState(mockPrinters)
   const [loading, setLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
@@ -66,8 +68,8 @@ export const PrintersPage: React.FC = () => {
       {/* Top Title & Primary Action Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>프린터 Fleet 모니터링</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>사내 네트워크 프린터 장비 상태 및 SNMP 소모품 실시간 감지</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_title')}</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', whiteSpace: 'nowrap', wordBreak: 'keep-all' }}>{t('printers_sub')}</p>
           {syncStatus && <p style={{ color: '#38bdf8', fontSize: '13px', marginTop: '4px', whiteSpace: 'nowrap' }}>{syncStatus}</p>}
         </div>
         <button
@@ -75,7 +77,7 @@ export const PrintersPage: React.FC = () => {
           className="btn btn-md btn-primary"
           style={{ flexShrink: 0 }}
         >
-          <Plus size={16} /> 신규 프린터 등록
+          <Plus size={16} /> {t('btn_new_printer')}
         </button>
       </div>
 
@@ -86,25 +88,25 @@ export const PrintersPage: React.FC = () => {
             onClick={() => setIsSlaModalOpen(true)}
             className="btn btn-sm btn-secondary"
           >
-            <FileText size={14} /> 📜 SLA & 렌탈 자산
+            <FileText size={14} /> {t('btn_sla_asset')}
           </button>
           <button
             onClick={() => setIsPingModalOpen(true)}
             className="btn btn-sm btn-primary"
           >
-            <Radio size={14} /> 📡 IP/SNMP 진단
+            <Radio size={14} /> {t('btn_ip_diag')}
           </button>
           <button
             onClick={() => setIsMapModalOpen(true)}
             className="btn btn-sm btn-secondary"
           >
-            <MapPin size={14} /> 🗺️ 층별 위치 지도
+            <MapPin size={14} /> {t('btn_map')}
           </button>
           <button
             onClick={() => setIsReorderModalOpen(true)}
             className="btn btn-sm btn-secondary"
           >
-            <ShoppingCart size={14} /> 🛒 소모품 재주문
+            <ShoppingCart size={14} /> {t('btn_reorder')}
           </button>
         </div>
 
@@ -115,14 +117,15 @@ export const PrintersPage: React.FC = () => {
               checked={autoPolling}
               onChange={(e) => setAutoPolling(e.target.checked)}
             />
-            <Clock size={14} /> 30초 자동 SNMP 수집
+            <Clock size={13} /> 30초 SNMP 수집
           </label>
           <button
             onClick={handleSnmpSyncAll}
             disabled={loading}
-            className="btn btn-sm btn-success"
+            className="btn btn-sm btn-secondary"
+            style={{ whiteSpace: 'nowrap' }}
           >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {loading ? '동기화 중...' : '⚡ 전체 SNMP 동기화'}
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {loading ? '동기화 중...' : t('btn_snmp_sync')}
           </button>
         </div>
       </div>

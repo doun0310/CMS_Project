@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { mockAuditLogs, fetchAuditLogsFromBackend } from '../services/api'
 import { exportToCsv } from '../utils/csvExporter'
 import { AuditIntegrityModal } from '../components/AuditIntegrityModal'
+import { useTranslation } from '../hooks/useTranslation'
 import { Download, Search, Lock, Printer } from 'lucide-react'
 
 export const AuditLogsPage: React.FC = () => {
+  const { t } = useTranslation()
   const [logs, setLogs] = useState(mockAuditLogs)
   const [searchTerm, setSearchTerm] = useState('')
   const [isIntegrityModalOpen, setIsIntegrityModalOpen] = useState(false)
@@ -36,27 +38,27 @@ export const AuditLogsPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>감사 및 이력 로그 (Audit Trail)</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>인쇄 신청, 결재 조치, 프린터 출력 변경 이력 추적</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>{t('audit_title')}</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>{t('audit_sub')}</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={handlePrintReport}
             className="btn btn-md btn-primary"
           >
-            <Printer size={14} /> 🖨️ 리포트 인쇄/PDF
+            <Printer size={14} /> {t('btn_print_pdf')}
           </button>
           <button
             onClick={() => setIsIntegrityModalOpen(true)}
             className="btn btn-md btn-success"
           >
-            <Lock size={14} /> 🔒 SHA-256 무결성 검증
+            <Lock size={14} /> {t('btn_integrity')}
           </button>
           <button
             onClick={handleExportCsv}
             className="btn btn-md btn-secondary"
           >
-            <Download size={14} /> CSV 내보내기
+            <Download size={14} /> {t('btn_export_csv')}
           </button>
         </div>
       </div>
