@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { mockPrinters } from '../services/api'
 import { CreatePrinterModal } from '../components/CreatePrinterModal'
 import { PrinterMapModal } from '../components/PrinterMapModal'
-import { RefreshCw, Plus, Clock, MapPin } from 'lucide-react'
+import { PingDiagnosticModal } from '../components/PingDiagnosticModal'
+import { RefreshCw, Plus, Clock, MapPin, Radio } from 'lucide-react'
 
 export const PrintersPage: React.FC = () => {
   const [printers, setPrinters] = useState(mockPrinters)
@@ -10,6 +11,7 @@ export const PrintersPage: React.FC = () => {
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
+  const [isPingModalOpen, setIsPingModalOpen] = useState(false)
   const [autoPolling, setAutoPolling] = useState(false)
 
   const handleSnmpSyncAll = async () => {
@@ -61,6 +63,12 @@ export const PrintersPage: React.FC = () => {
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
+            onClick={() => setIsPingModalOpen(true)}
+            style={{ padding: '8px 14px', background: '#0284c7', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+          >
+            <Radio size={14} /> 📡 IP/SNMP 네트워크 진단
+          </button>
+          <button
             onClick={() => setIsMapModalOpen(true)}
             style={{ padding: '8px 14px', background: '#334155', border: '1px solid #475569', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
           >
@@ -93,6 +101,11 @@ export const PrintersPage: React.FC = () => {
       <PrinterMapModal
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
+      />
+
+      <PingDiagnosticModal
+        isOpen={isPingModalOpen}
+        onClose={() => setIsPingModalOpen(false)}
       />
 
       <CreatePrinterModal
