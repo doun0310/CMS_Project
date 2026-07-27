@@ -54,7 +54,12 @@ const readPersistedState = (): PersistedState => {
 
     const data = parsed as Record<string, unknown>;
     return {
-      issues: Array.isArray(data.issues) ? data.issues as Issue[] : undefined,
+      issues: Array.isArray(data.issues)
+        ? (data.issues as Issue[]).map(i => ({
+            ...i,
+            type: i.type === 'story' ? 'feature' : i.type === 'task' ? 'workitem' : i.type === 'epic' ? 'initiative' : i.type
+          }))
+        : undefined,
       sprints: Array.isArray(data.sprints) ? data.sprints as Sprint[] : undefined,
       epics: Array.isArray(data.epics) ? data.epics as Epic[] : undefined,
       automationRules: Array.isArray(data.automationRules)

@@ -152,6 +152,7 @@ export const Header: React.FC = () => {
             <option value="workitem">WorkItem</option>
             <option value="bug">Bug</option>
             <option value="initiative">Initiative</option>
+            <option value="subtask">SubTask</option>
           </select>
         </div>
       </div>

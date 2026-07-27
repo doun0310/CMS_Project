@@ -19,6 +19,7 @@ import {
   IconChevronRight,
   IconChevronDown
 } from '../common/Icons';
+import { isIssueTypeMatch } from '../../utils/typeMatcher';
 
 type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
 
@@ -81,7 +82,7 @@ export const KanbanBoard: React.FC = () => {
     }
     if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
     if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
-    if (selectedType !== 'all' && issue.type !== selectedType) return false;
+    if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
     if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
     if (selectedLabel && !(issue.labels || []).includes(selectedLabel)) return false;
 

@@ -41,6 +41,7 @@ export const IssueDetailModal: React.FC = () => {
   // Check if any blocker is unfinished (Status !== DONE)
   const unfinishedBlockers = blockedByIssues.filter(i => i.status !== 'done');
   const hasCriticalPathRisk = unfinishedBlockers.length > 0;
+  const downstreamIssues = issues.filter((i: Issue) => (i.blockedBy || []).includes(issue.id));
 
   const handleAddCommentSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -217,6 +218,36 @@ export const IssueDetailModal: React.FC = () => {
                     + Link Blocker
                   </button>
                 </div>
+
+                {downstreamIssues.length > 0 && (
+                  <div className="downstream-blocks-group" style={{ marginTop: '14px' }}>
+                    <span className="downstream-title" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                      🚀 Blocks Downstream Tasks ({downstreamIssues.length}):
+                    </span>
+                    <div className="linked-issues-list">
+                      {downstreamIssues.map(down => (
+                        <div key={down.id} className="linked-issue-item">
+                          <div className="linked-left">
+                            <IconLink size={14} color="#6366f1" />
+                            <span
+                              className="linked-key-link"
+                              onClick={() => setSelectedIssueId(down.id)}
+                              title="Click to view downstream issue"
+                            >
+                              {down.key}
+                            </span>
+                            <span className="linked-summary">{down.summary}</span>
+                          </div>
+                          <div className="linked-right">
+                            <span className={`status-badge-sm ${down.status}`}>
+                              {down.status.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -20,6 +20,8 @@ import {
   IconCalendar
 } from '../common/Icons';
 
+import { isIssueTypeMatch } from '../../utils/typeMatcher';
+
 export const BacklogView: React.FC = () => {
   const {
     issues,
@@ -58,7 +60,7 @@ export const BacklogView: React.FC = () => {
       if (!issue.key.toLowerCase().includes(q) && !issue.summary.toLowerCase().includes(q)) return false;
     }
     if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
-    if (selectedType !== 'all' && issue.type !== selectedType) return false;
+    if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
     return true;
   });
 
