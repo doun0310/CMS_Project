@@ -178,23 +178,21 @@ export const Header: React.FC = () => {
             onClick={() => setIsStandupOpen(true)}
             title="Open AI Daily Standup Digest"
           >
-            <span className="btn-standup-text">Standup Digest</span>
+            <span className="btn-standup-text">Standup</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsReleaseOpen(true)}
             title="Open AI Release Notes Generator"
           >
-            <span>📄</span>
-            <span className="btn-standup-text">Release Notes</span>
+            <span className="btn-standup-text">Release</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsTestOpen(true)}
             title="Open AI Test & AC Workbench"
           >
-            <span>🧪</span>
-            <span className="btn-standup-text">Test Workbench</span>
+            <span className="btn-standup-text">Tests</span>
           </button>
         </div>
       </div>
