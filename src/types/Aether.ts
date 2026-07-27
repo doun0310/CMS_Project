@@ -92,6 +92,8 @@ export interface Issue {
   updatedAt: string;
   blockedBy?: string[]; // issue keys or ids
   blocks?: string[];    // issue keys or ids
+  acceptanceCriteria?: string[];
+  testScenarios?: { id: string; title: string; gherkin: string; codeSnippet: string }[];
 }
 
 export interface Project {

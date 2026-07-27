@@ -4810,3 +4810,212 @@ input:checked + .slider:before {
   margin: 0;
   line-height: 1.5;
 }
+/* Test Workbench Modal Styles */
+.test-generator-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 720px;
+  max-width: 94vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: var(--z-modal, 1000);
+}
+
+.test-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.test-issue-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.test-issue-dropdown {
+  flex: 1;
+  padding: 7px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.test-sp-badge {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--color-in-progress, #6366f1);
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.selected-issue-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selected-issue-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-issue-key {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.selected-issue-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.selected-issue-desc {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.test-tabs-bar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.test-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.test-tab-btn.active {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--color-in-progress, #6366f1);
+}
+
+.ac-container {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.ac-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ac-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.ac-item-row input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: var(--color-in-progress, #6366f1);
+}
+
+.gherkin-container,
+.code-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.code-box-header,
+.framework-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.framework-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.fw-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.fw-btn.active {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.btn-copy-small {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.margin-left-auto {
+  margin-left: auto;
+}
+
+.code-pre {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}

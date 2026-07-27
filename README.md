@@ -133,6 +133,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **자동 체인지로그 카테고리화**: 완료된 스프린트 안의 이슈들을 Feature(신규 기능), WorkItem(작업), Bug(버그 수정), Initiative(전략 목표) 4개 섹션으로 자동 수집/분류.
 - **1-Click GitHub / Confluence 릴리즈 노트 수출 (`Copy Release Notes`)**: 커스텀 버전을 입력하여 마크다운 문서로 즉시 클립보드 복사 및 외부 배포 게시 지원.
 
+### 🧪 29. AI Acceptance Criteria & Test Workbench (AI 수락 조건 & BDD 테스트 스텁 생성기)
+- **AI BDD (Gherkin) 테스트 시나리오 자동 생성**: 이슈의 요약 및 타입을 분석하여 `Given-When-Then` 해피패스 및 에러 핸들링 시나리오 자동 설계.
+- **다중 테스트 프레임워크 지원 (`Playwright` / `Cypress` / `Vitest`)**: 1-Click 실행 가능한 QA 자동화 스텁 코드 생성 및 이슈 설명(`Description`) 원클릭 첨부 지원.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

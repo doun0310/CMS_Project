@@ -15,6 +15,7 @@ import {
 import { DailyStandupModal } from '../modals/DailyStandupModal';
 import { ProjectSwitchModal } from '../modals/ProjectSwitchModal';
 import { ReleaseNotesModal } from '../modals/ReleaseNotesModal';
+import { TestGeneratorModal } from '../modals/TestGeneratorModal';
 
 export const Header: React.FC = () => {
   const {
@@ -46,6 +47,7 @@ export const Header: React.FC = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isStandupOpen, setIsStandupOpen] = useState(false);
   const [isReleaseOpen, setIsReleaseOpen] = useState(false);
+  const [isTestOpen, setIsTestOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
@@ -183,7 +185,16 @@ export const Header: React.FC = () => {
             onClick={() => setIsReleaseOpen(true)}
             title="Open AI Release Notes Generator"
           >
-            <span className="btn-standup-text">Release Summary</span>
+            <span>📄</span>
+            <span className="btn-standup-text">Release Notes</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsTestOpen(true)}
+            title="Open AI Test & AC Workbench"
+          >
+            <span>🧪</span>
+            <span className="btn-standup-text">Test Workbench</span>
           </button>
         </div>
       </div>
@@ -312,6 +323,12 @@ export const Header: React.FC = () => {
       <ReleaseNotesModal
         isOpen={isReleaseOpen}
         onClose={() => setIsReleaseOpen(false)}
+      />
+
+      {/* AI Acceptance Criteria & Test Workbench Modal */}
+      <TestGeneratorModal
+        isOpen={isTestOpen}
+        onClose={() => setIsTestOpen(false)}
       />
     </header>
   );
