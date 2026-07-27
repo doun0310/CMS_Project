@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
 import { IconX, IconTrash, IconClock, IconLink } from '../common/Icons';
 

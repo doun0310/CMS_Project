@@ -1,18 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { useEffect, useState, type ReactNode } from 'react';
 import type {
-  User,
-  Project,
   Epic,
   Sprint,
   Issue,
   AutomationRule,
   AutomationAuditLog,
-  ViewMode,
   IssueStatus,
   IssueType,
   Priority,
   SubTask,
-  RetrospectiveItem
+  RetrospectiveItem,
+  ViewMode
 } from '../types/Aether';
 import {
   initialUsers,
@@ -25,101 +23,85 @@ import {
   initialAutomationAuditLogs
 } from '../mock/AetherData';
 import { translations, type Language } from '../i18n/translations';
-
-interface AetherContextType {
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
-  accentColor: string;
-  setAccentColor: (color: string) => void;
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-  currentProject: Project;
-  setCurrentProject: (proj: Project) => void;
-  projects: Project[];
-  users: User[];
-  epics: Epic[];
-  sprints: Sprint[];
-  issues: Issue[];
-  automationRules: AutomationRule[];
-  automationAuditLogs: AutomationAuditLog[];
-  retrospectiveItems: RetrospectiveItem[];
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
-  
-  // Retro Actions
-  addRetroItem: (type: 'went_well' | 'to_improve' | 'action_item', content: string) => void;
-  voteRetroItem: (id: string) => void;
-  deleteRetroItem: (id: string) => void;
-  
-  // Filters
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
-  onlyMyIssues: boolean;
-  setOnlyMyIssues: (val: boolean) => void;
-  selectedEpicId: string | null;
-  setSelectedEpicId: (id: string | null) => void;
-  selectedType: IssueType | 'all';
-  setSelectedType: (type: IssueType | 'all') => void;
-  selectedPriority: Priority | 'all';
-  setSelectedPriority: (prio: Priority | 'all') => void;
-  currentUser: User;
-  setCurrentUser: (u: User) => void;
-
-  // Selected Issue Modal
-  selectedIssueId: string | null;
-  setSelectedIssueId: (id: string | null) => void;
-  isCreateModalOpen: boolean;
-  setIsCreateModalOpen: (open: boolean) => void;
-
-  // Issue CRUD Actions
-  createIssue: (issueData: Partial<Issue>) => void;
-  updateIssue: (id: string, updates: Partial<Issue>) => void;
-  deleteIssue: (id: string) => void;
-  moveIssueStatus: (issueId: string, newStatus: IssueStatus) => void;
-  addComment: (issueId: string, text: string) => void;
-  toggleSubtask: (issueId: string, subtaskId: string) => void;
-  addSubtask: (issueId: string, title: string) => void;
-
-  // Sprint Actions
-  startSprint: (sprintId: string) => void;
-  completeSprint: (sprintId: string) => void;
-  createSprint: (name: string, goal: string) => void;
-
-  // Automation Actions
-  toggleAutomationRule: (ruleId: string) => void;
-  addAutomationRule: (name: string, trigger: string, action: string) => void;
-  runAutomationRule: (ruleId: string) => void;
-
-  // System Data Management
-  resetDemoData: () => void;
-  exportDataJSON: () => string;
-  importDataJSON: (jsonStr: string) => boolean;
-}
+import { AetherContext } from './AetherContextValue';
 
 const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
+// Read the previous product key once so existing users keep their local workspace data.
+const PREVIOUS_STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
 
-const AetherContext = createContext<AetherContextType | undefined>(undefined);
+interface PersistedState {
+  issues?: Issue[];
+  sprints?: Sprint[];
+  epics?: Epic[];
+  automationRules?: AutomationRule[];
+  retrospectiveItems?: RetrospectiveItem[];
+  automationAuditLogs?: AutomationAuditLog[];
+  theme?: 'light' | 'dark';
+  language?: Language;
+  accentColor?: string;
+}
+
+const isLanguage = (value: unknown): value is Language =>
+  value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
+
+const readPersistedState = (): PersistedState => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(PREVIOUS_STORAGE_KEY);
+    if (!saved) return {};
+
+    const parsed: unknown = JSON.parse(saved);
+    if (!parsed || typeof parsed !== 'object') return {};
+
+    const data = parsed as Record<string, unknown>;
+    return {
+      issues: Array.isArray(data.issues) ? data.issues as Issue[] : undefined,
+      sprints: Array.isArray(data.sprints) ? data.sprints as Sprint[] : undefined,
+      epics: Array.isArray(data.epics) ? data.epics as Epic[] : undefined,
+      automationRules: Array.isArray(data.automationRules)
+        ? data.automationRules as AutomationRule[]
+        : undefined,
+      retrospectiveItems: Array.isArray(data.retrospectiveItems)
+        ? data.retrospectiveItems as RetrospectiveItem[]
+        : undefined,
+      automationAuditLogs: Array.isArray(data.automationAuditLogs)
+        ? data.automationAuditLogs as AutomationAuditLog[]
+        : undefined,
+      theme: data.theme === 'light' || data.theme === 'dark' ? data.theme : undefined,
+      language: isLanguage(data.language) ? data.language : undefined,
+      accentColor: typeof data.accentColor === 'string' ? data.accentColor : undefined
+    };
+  } catch (error) {
+    console.error('Failed to load local storage data:', error);
+    return {};
+  }
+};
 
 export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [accentColor, setAccentColor] = useState<string>('#6366f1');
-  const [language, setLanguage] = useState<Language>('ko');
+  const [persistedState] = useState(readPersistedState);
+  const [theme, setTheme] = useState<'light' | 'dark'>(persistedState.theme ?? 'dark');
+  const [accentColor, setAccentColor] = useState(persistedState.accentColor ?? '#6366f1');
+  const [language, setLanguage] = useState<Language>(persistedState.language ?? 'ko');
 
   useEffect(() => {
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
     document.documentElement.style.setProperty('--border-focus', accentColor);
   }, [accentColor]);
-  const [projects] = useState<Project[]>(initialProjects);
-  const [currentProject, setCurrentProject] = useState<Project>(initialProjects[0]);
-  const [users] = useState<User[]>(initialUsers);
-  const [currentUser, setCurrentUser] = useState<User>(initialUsers[2]); // Alex Rivera Lead
-  const [epics, setEpics] = useState<Epic[]>(initialEpics);
-  const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
-  const [issues, setIssues] = useState<Issue[]>(initialIssues);
-  const [automationRules, setAutomationRules] = useState<AutomationRule[]>(initialAutomationRules);
-  const [automationAuditLogs, setAutomationAuditLogs] = useState<AutomationAuditLog[]>(initialAutomationAuditLogs);
-  const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(initialRetrospectiveItems);
+  const [projects] = useState(initialProjects);
+  const [currentProject, setCurrentProject] = useState(initialProjects[0]);
+  const [users] = useState(initialUsers);
+  const [currentUser, setCurrentUser] = useState(initialUsers[2]);
+  const [epics, setEpics] = useState(persistedState.epics ?? initialEpics);
+  const [sprints, setSprints] = useState(persistedState.sprints ?? initialSprints);
+  const [issues, setIssues] = useState(persistedState.issues ?? initialIssues);
+  const [automationRules, setAutomationRules] = useState(
+    persistedState.automationRules ?? initialAutomationRules
+  );
+  const [automationAuditLogs, setAutomationAuditLogs] = useState(
+    persistedState.automationAuditLogs ?? initialAutomationAuditLogs
+  );
+  const [retrospectiveItems, setRetrospectiveItems] = useState(
+    persistedState.retrospectiveItems ?? initialRetrospectiveItems
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>('board');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -136,28 +118,6 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return langDict[key] || translations.en[key] || key;
   };
 
-  // Load state from LocalStorage on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.issues)) setIssues(parsed.issues);
-        if (Array.isArray(parsed.sprints)) setSprints(parsed.sprints);
-        if (Array.isArray(parsed.epics)) setEpics(parsed.epics);
-        if (Array.isArray(parsed.automationRules)) setAutomationRules(parsed.automationRules);
-        if (Array.isArray(parsed.retrospectiveItems)) setRetrospectiveItems(parsed.retrospectiveItems);
-        if (Array.isArray(parsed.automationAuditLogs)) setAutomationAuditLogs(parsed.automationAuditLogs);
-        if (parsed.theme) setTheme(parsed.theme);
-        if (parsed.language) setLanguage(parsed.language);
-        if (parsed.accentColor) setAccentColor(parsed.accentColor);
-      }
-    } catch (e) {
-      console.error('Failed to load local storage data:', e);
-    }
-  }, []);
-
-  // Save state to LocalStorage
   useEffect(() => {
     try {
       const stateToSave = {
@@ -172,8 +132,9 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         accentColor
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-    } catch (e) {
-      console.error('Failed to save to local storage:', e);
+      localStorage.removeItem(PREVIOUS_STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to save to local storage:', error);
     }
   }, [issues, sprints, epics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
 
@@ -186,44 +147,43 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Helper trigger automation
-  const triggerAutomations = (triggerType: string) => {
-    automationRules.forEach(rule => {
-      if (!rule.enabled) return;
-      if (rule.id === 'auto-1' && triggerType === 'DONE_STATUS') {
-        setAutomationRules(prev => prev.map(r => r.id === 'auto-1' ? { ...r, lastExecuted: new Date().toLocaleTimeString() } : r));
-      }
-    });
+  const recordDoneStatusAutomation = () => {
+    setAutomationRules(previousRules =>
+      previousRules.map(rule =>
+        rule.id === 'auto-1' && rule.enabled
+          ? { ...rule, lastExecuted: new Date().toLocaleTimeString() }
+          : rule
+      )
+    );
   };
 
   const moveIssueStatus = (issueId: string, newStatus: IssueStatus) => {
+    const issue = issues.find(item => item.id === issueId);
+    if (!issue || issue.status === newStatus) return;
+
+    const now = new Date().toISOString();
     setIssues(prev =>
-      prev.map(item => {
-        if (item.id === issueId) {
-          const now = new Date().toISOString();
-          const updatedHistory = [
-            ...item.history,
-            {
-              id: 'h_' + Date.now(),
-              authorId: currentUser.id,
-              action: `Status changed to ${newStatus.toUpperCase()}`,
-              timestamp: now
+      prev.map(item =>
+        item.id === issueId
+          ? {
+              ...item,
+              status: newStatus,
+              history: [
+                ...item.history,
+                {
+                  id: `h_${Date.now()}`,
+                  authorId: currentUser.id,
+                  action: `Status changed to ${newStatus.toUpperCase()}`,
+                  timestamp: now
+                }
+              ],
+              updatedAt: now
             }
-          ];
-          const updated = {
-            ...item,
-            status: newStatus,
-            history: updatedHistory,
-            updatedAt: now
-          };
-          if (newStatus === 'done') {
-            triggerAutomations('DONE_STATUS');
-          }
-          return updated;
-        }
-        return item;
-      })
+          : item
+      )
     );
+
+    if (newStatus === 'done') recordDoneStatusAutomation();
   };
 
   const createIssue = (issueData: Partial<Issue>) => {
@@ -234,24 +194,26 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const newIssue: Issue = {
       id: 'issue_' + Date.now(),
       key,
-      summary: issueData.summary || 'New Issue',
-      description: issueData.description || '',
-      type: issueData.type || 'story',
-      status: issueData.status || 'todo',
-      priority: issueData.priority || 'medium',
-      assigneeId: issueData.assigneeId || currentUser.id,
+      summary: issueData.summary ?? 'New Issue',
+      description: issueData.description ?? '',
+      type: issueData.type ?? 'story',
+      status: issueData.status ?? 'todo',
+      priority: issueData.priority ?? 'medium',
+      assigneeId: issueData.assigneeId === undefined ? currentUser.id : issueData.assigneeId,
       reporterId: currentUser.id,
-      epicId: issueData.epicId || null,
-      sprintId: issueData.sprintId !== undefined ? issueData.sprintId : sprints.find(s => s.status === 'active')?.id || null,
-      storyPoints: issueData.storyPoints || 3,
+      epicId: issueData.epicId ?? null,
+      sprintId: issueData.sprintId === undefined
+        ? sprints.find(s => s.status === 'active')?.id ?? null
+        : issueData.sprintId,
+      storyPoints: issueData.storyPoints ?? 3,
       subtasks: [],
       comments: [],
       history: [{ id: 'h_1', authorId: currentUser.id, action: 'Created issue', timestamp: now }],
-      labels: issueData.labels || ['agile'],
-      component: issueData.component || 'Core Engine',
-      dueDate: issueData.dueDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      originalEstimate: issueData.originalEstimate || 8,
-      timeLogged: 0,
+      labels: issueData.labels ?? ['agile'],
+      component: issueData.component ?? 'Core Engine',
+      dueDate: issueData.dueDate ?? new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      originalEstimate: issueData.originalEstimate ?? 8,
+      timeLogged: issueData.timeLogged ?? 0,
       createdAt: now,
       updatedAt: now
     };
@@ -310,7 +272,11 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const startSprint = (sprintId: string) => {
     setSprints(prev =>
-      prev.map(s => (s.id === sprintId ? { ...s, status: 'active' } : s))
+      prev.map(sprint => {
+        if (sprint.id === sprintId) return { ...sprint, status: 'active' };
+        if (sprint.status === 'active') return { ...sprint, status: 'future' };
+        return sprint;
+      })
     );
   };
 
@@ -419,6 +385,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRetrospectiveItems(initialRetrospectiveItems);
     setAutomationAuditLogs(initialAutomationAuditLogs);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PREVIOUS_STORAGE_KEY);
   };
 
   const exportDataJSON = () => {
@@ -427,16 +394,40 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const importDataJSON = (jsonStr: string): boolean => {
     try {
-      const data = JSON.parse(jsonStr);
-      if (Array.isArray(data.issues)) setIssues(data.issues);
-      if (Array.isArray(data.sprints)) setSprints(data.sprints);
-      if (Array.isArray(data.epics)) setEpics(data.epics);
-      if (Array.isArray(data.retrospectiveItems)) setRetrospectiveItems(data.retrospectiveItems);
-      if (Array.isArray(data.automationRules)) setAutomationRules(data.automationRules);
-      if (Array.isArray(data.automationAuditLogs)) setAutomationAuditLogs(data.automationAuditLogs);
-      return true;
-    } catch (e) {
-      console.error('Import error:', e);
+      const parsed: unknown = JSON.parse(jsonStr);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+
+      const data = parsed as Record<string, unknown>;
+      let importedSectionCount = 0;
+
+      if (Array.isArray(data.issues)) {
+        setIssues(data.issues as Issue[]);
+        importedSectionCount += 1;
+      }
+      if (Array.isArray(data.sprints)) {
+        setSprints(data.sprints as Sprint[]);
+        importedSectionCount += 1;
+      }
+      if (Array.isArray(data.epics)) {
+        setEpics(data.epics as Epic[]);
+        importedSectionCount += 1;
+      }
+      if (Array.isArray(data.retrospectiveItems)) {
+        setRetrospectiveItems(data.retrospectiveItems as RetrospectiveItem[]);
+        importedSectionCount += 1;
+      }
+      if (Array.isArray(data.automationRules)) {
+        setAutomationRules(data.automationRules as AutomationRule[]);
+        importedSectionCount += 1;
+      }
+      if (Array.isArray(data.automationAuditLogs)) {
+        setAutomationAuditLogs(data.automationAuditLogs as AutomationAuditLog[]);
+        importedSectionCount += 1;
+      }
+
+      return importedSectionCount > 0;
+    } catch (error) {
+      console.error('Import error:', error);
       return false;
     }
   };
@@ -503,10 +494,4 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       {children}
     </AetherContext.Provider>
   );
-};
-
-export const useAether = () => {
-  const context = useContext(AetherContext);
-  if (!context) throw new Error('useAether must be used within an AetherProvider');
-  return context;
 };

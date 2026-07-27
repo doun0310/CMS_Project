@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import type { ViewMode } from '../../types/Aether';
 import { IconSearch, IconZap, IconPlus, IconX } from '../common/Icons';
 

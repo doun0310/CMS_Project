@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
+import type { Language } from '../../i18n/translations';
 import { IconDownload, IconReset, IconCheck } from '../common/Icons';
 
 export const SettingsView: React.FC = () => {
@@ -78,7 +79,7 @@ export const SettingsView: React.FC = () => {
             <label className="settings-label">{t('selectLanguage')}</label>
             <select
               value={language}
-              onChange={e => setLanguage(e.target.value as any)}
+              onChange={e => setLanguage(e.target.value as Language)}
               className="settings-input-select"
             >
               <option value="ko">🇰🇷 한국어 (Korean)</option>

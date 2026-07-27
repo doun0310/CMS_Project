@@ -1,5 +1,6 @@
 import React from 'react';
-import { AetherProvider, useAether } from './context/AetherContext';
+import { AetherProvider } from './context/AetherContext';
+import { useAether } from './context/AetherContextValue';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { KanbanBoard } from './components/views/KanbanBoard';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import { IconAutomation, IconPlay, IconPlus, IconCheck } from '../common/Icons';
 
 export const AutomationView: React.FC = () => {

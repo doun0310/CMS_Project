@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue, IssueStatus, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import {
   IconStory,
@@ -17,6 +17,17 @@ import {
   IconUser,
   IconCheck
 } from '../common/Icons';
+
+type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
+
+interface SwimlaneGroup {
+  id: string;
+  name: string;
+}
+
+const UNASSIGNED_GROUP_ID = 'unassigned';
+const NO_EPIC_GROUP_ID = 'no-epic';
+const PRIORITY_GROUPS: Priority[] = ['highest', 'high', 'medium', 'low', 'lowest'];
 
 export const KanbanBoard: React.FC = () => {
   const {
@@ -36,7 +47,7 @@ export const KanbanBoard: React.FC = () => {
     t
   } = useAether();
 
-  const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'assignee' | 'epic' | 'priority'>('none');
+  const [swimlaneBy, setSwimlaneBy] = useState<SwimlaneMode>('none');
   const [draggedIssueId, setDraggedIssueId] = useState<string | null>(null);
   const [addingToStatus, setAddingToStatus] = useState<IssueStatus | null>(null);
   const [quickSummary, setQuickSummary] = useState<string>('');
@@ -76,6 +87,25 @@ export const KanbanBoard: React.FC = () => {
     { status: 'in_review', title: t('in_review'), color: 'var(--color-in-review)' },
     { status: 'done', title: t('done'), color: 'var(--color-done)' }
   ];
+
+  const swimlaneGroups: SwimlaneGroup[] = (() => {
+    if (swimlaneBy === 'assignee') {
+      return [
+        ...users.map(user => ({ id: user.id, name: user.name })),
+        { id: UNASSIGNED_GROUP_ID, name: 'Unassigned' }
+      ];
+    }
+    if (swimlaneBy === 'epic') {
+      return [
+        ...epics.map(epic => ({ id: epic.id, name: epic.summary })),
+        { id: NO_EPIC_GROUP_ID, name: 'No Epic' }
+      ];
+    }
+    if (swimlaneBy === 'priority') {
+      return PRIORITY_GROUPS.map(priority => ({ id: priority, name: priority.toUpperCase() }));
+    }
+    return [];
+  })();
 
   const renderTypeIcon = (type: IssueType) => {
     switch (type) {
@@ -211,7 +241,7 @@ export const KanbanBoard: React.FC = () => {
           <select
             className="control-select"
             value={swimlaneBy}
-            onChange={e => setSwimlaneBy(e.target.value as any)}
+            onChange={e => setSwimlaneBy(e.target.value as SwimlaneMode)}
           >
             <option value="none">None</option>
             <option value="assignee">By Assignee</option>
@@ -285,20 +315,23 @@ export const KanbanBoard: React.FC = () => {
         /* Swimlanes view */
         <div className="swimlane-container">
           {/* Render swimlanes based on swimlaneBy */}
-          {(swimlaneBy === 'assignee' ? users : swimlaneBy === 'epic' ? epics : ['highest', 'high', 'medium', 'low', 'lowest']).map((group: any) => {
-            const groupId = typeof group === 'string' ? group : group.id;
-            const groupName = typeof group === 'string' ? group.toUpperCase() : group.name || group.summary;
-
+          {swimlaneGroups.map(group => {
             const groupIssues = filteredIssues.filter((i: Issue) => {
-              if (swimlaneBy === 'assignee') return i.assigneeId === groupId;
-              if (swimlaneBy === 'epic') return i.epicId === groupId;
-              return i.priority === groupId;
+              if (swimlaneBy === 'assignee') {
+                return group.id === UNASSIGNED_GROUP_ID
+                  ? i.assigneeId === null
+                  : i.assigneeId === group.id;
+              }
+              if (swimlaneBy === 'epic') {
+                return group.id === NO_EPIC_GROUP_ID ? i.epicId === null : i.epicId === group.id;
+              }
+              return i.priority === group.id;
             });
 
             return (
-              <div key={groupId} className="swimlane-group">
+              <div key={group.id} className="swimlane-group">
                 <div className="swimlane-header">
-                  <span>{groupName}</span>
+                  <span>{group.name}</span>
                   <span className="swimlane-count">({groupIssues.length} issues)</span>
                 </div>
                 <div className="kanban-grid">

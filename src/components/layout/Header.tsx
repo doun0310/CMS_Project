@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
-import type { Project, User } from '../../types/Aether';
+import { useAether } from '../../context/AetherContextValue';
+import type { Language } from '../../i18n/translations';
+import type { IssueType, Project, User } from '../../types/Aether';
 import {
   IconSearch,
   IconPlus,
@@ -65,7 +66,7 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="aether-header">
+    <header className="app-header">
       {/* Left section: Logo & App title */}
       <div className="header-left">
         <div className="brand">
@@ -144,7 +145,7 @@ export const Header: React.FC = () => {
           <select
             className="filter-select"
             value={selectedType}
-            onChange={e => setSelectedType(e.target.value as any)}
+            onChange={e => setSelectedType(e.target.value as IssueType | 'all')}
           >
             <option value="all">{t('allTypes')}</option>
             <option value="story">Story</option>
@@ -161,7 +162,7 @@ export const Header: React.FC = () => {
         <select
           className="lang-select-header"
           value={language}
-          onChange={e => setLanguage(e.target.value as any)}
+          onChange={e => setLanguage(e.target.value as Language)}
           title="Select Language"
         >
           <option value="ko">🇰🇷 한국어</option>

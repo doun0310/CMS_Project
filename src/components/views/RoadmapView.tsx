@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue } from '../../types/Aether';
 
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';

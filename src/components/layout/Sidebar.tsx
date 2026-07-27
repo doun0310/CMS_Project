@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAether } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContextValue';
 import type { ViewMode } from '../../types/Aether';
 import {
   IconBoard,
@@ -67,7 +67,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="aether-sidebar">
+    <aside className="app-sidebar">
       {/* Sidebar Top Project Card */}
       <div className="sidebar-project-card">
         <div className="project-icon">{currentProject.avatar}</div>
@@ -86,6 +86,8 @@ export const Sidebar: React.FC = () => {
             key={item.id}
             className={`sidebar-link ${viewMode === item.id ? 'active' : ''}`}
             onClick={() => setViewMode(item.id)}
+            title={item.label}
+            aria-label={item.label}
           >
             <span className="link-icon">{item.icon}</span>
             <span className="link-text">{item.label}</span>
