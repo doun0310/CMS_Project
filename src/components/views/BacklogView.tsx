@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useJira } from '../../context/AetherContext';
 import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
+import { SprintCelebrationModal } from '../modals/SprintCelebrationModal';
 import {
   IconStory,
   IconTask,
@@ -42,6 +43,12 @@ export const BacklogView: React.FC = () => {
 
   const [addingToSprintId, setAddingToSprintId] = useState<string | null | 'backlog'>(null);
   const [quickSummary, setQuickSummary] = useState('');
+  const [celebratingSprint, setCelebratingSprint] = useState<Sprint | null>(null);
+
+  const handleCompleteSprint = (sprint: Sprint) => {
+    completeSprint(sprint.id);
+    setCelebratingSprint(sprint);
+  };
 
   // Filter issues
   const filteredIssues = issues.filter(issue => {
@@ -182,7 +189,7 @@ export const BacklogView: React.FC = () => {
               </button>
             )}
             {sprint.status === 'active' && (
-              <button className="btn-primary-sm" onClick={() => completeSprint(sprint.id)}>
+              <button className="btn-primary-sm" onClick={() => handleCompleteSprint(sprint)}>
                 <IconCheck size={14} /> Complete Sprint
               </button>
             )}
@@ -312,6 +319,13 @@ export const BacklogView: React.FC = () => {
           )}
         </div>
       </div>
+
+      <SprintCelebrationModal
+        sprint={celebratingSprint}
+        sprintIssues={issues.filter(i => i.sprintId === celebratingSprint?.id)}
+        users={users}
+        onClose={() => setCelebratingSprint(null)}
+      />
     </div>
   );
 };

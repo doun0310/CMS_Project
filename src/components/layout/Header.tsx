@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useJira } from '../../context/AetherContext';
+import type { Project, User } from '../../types/Aether';
 import {
   IconSearch,
   IconPlus,
   IconSun,
   IconMoon,
   IconChevronDown,
-  IconReset
+  IconReset,
+  IconBell
 } from '../common/Icons';
 
 export const Header: React.FC = () => {
@@ -28,12 +30,39 @@ export const Header: React.FC = () => {
     setOnlyMyIssues,
     selectedType,
     setSelectedType,
+    setSelectedIssueId,
     setIsCreateModalOpen,
     resetDemoData
   } = useJira();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [unreadNotifs, setUnreadNotifs] = useState(3);
+
+  const notifications = [
+    {
+      id: 'n1',
+      title: '⚡ Rule Executed: Auto-Assign QA',
+      text: 'CLOUD-101 was automatically assigned to QA Engineer (David Park)',
+      time: '10m ago',
+      issueId: 'issue-1'
+    },
+    {
+      id: 'n2',
+      title: '🤖 AI Workload Auto-Balancer',
+      text: 'Rebalanced 3 story points from Alex Rivera to Maria Santos',
+      time: '1h ago',
+      issueId: 'issue-2'
+    },
+    {
+      id: 'n3',
+      title: '💬 New Comment on CLOUD-103',
+      text: 'David Park: "GPU WebSocket token stream integration passed latency tests!"',
+      time: '3h ago',
+      issueId: 'issue-3'
+    }
+  ];
 
   return (
     <header className="jira-header">
@@ -62,7 +91,7 @@ export const Header: React.FC = () => {
           {isProjectDropdownOpen && (
             <div className="dropdown-menu animate-fade-in">
               <div className="dropdown-header">SWITCH PROJECT</div>
-              {projects.map(p => (
+              {projects.map((p: Project) => (
                 <div
                   key={p.id}
                   className={`dropdown-item ${p.id === currentProject.id ? 'active' : ''}`}
@@ -141,6 +170,48 @@ export const Header: React.FC = () => {
           <option value="zh">🇨🇳 中文</option>
         </select>
 
+        {/* Notification Center */}
+        <div className="dropdown-container">
+          <button
+            className="header-action-icon notif-bell-btn"
+            title="Notification Center"
+            onClick={() => {
+              setIsNotifOpen(!isNotifOpen);
+              if (unreadNotifs > 0) setUnreadNotifs(0);
+            }}
+          >
+            <IconBell size={18} />
+            {unreadNotifs > 0 && <span className="notif-unread-badge">{unreadNotifs}</span>}
+          </button>
+
+          {isNotifOpen && (
+            <div className="dropdown-menu right notif-dropdown animate-fade-in">
+              <div className="dropdown-header notif-header-flex">
+                <span>TEAM ACTIVITY & AI ALERTS</span>
+                <span className="notif-clear-text" onClick={() => setUnreadNotifs(0)}>Mark as read</span>
+              </div>
+              <div className="notif-items-list">
+                {notifications.map(n => (
+                  <div
+                    key={n.id}
+                    className="notif-item"
+                    onClick={() => {
+                      if (n.issueId) setSelectedIssueId(n.issueId);
+                      setIsNotifOpen(false);
+                    }}
+                  >
+                    <div className="notif-title-row">
+                      <span className="notif-title">{n.title}</span>
+                      <span className="notif-time">{n.time}</span>
+                    </div>
+                    <div className="notif-text">{n.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <button
           className="header-action-icon"
           title="Reset Demo Data"
@@ -170,7 +241,7 @@ export const Header: React.FC = () => {
           {isUserDropdownOpen && (
             <div className="dropdown-menu right animate-fade-in">
               <div className="dropdown-header">SWITCH CURRENT USER</div>
-              {users.map(u => (
+              {users.map((u: User) => (
                 <div
                   key={u.id}
                   className={`dropdown-item ${u.id === currentUser.id ? 'active' : ''}`}

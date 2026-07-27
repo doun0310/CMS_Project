@@ -3,9 +3,29 @@ import { useJira } from '../../context/AetherContext';
 import { IconDownload, IconReset } from '../common/Icons';
 
 export const SettingsView: React.FC = () => {
-  const { currentProject, exportDataJSON, importDataJSON, resetDemoData, language, setLanguage, theme, toggleTheme, t } = useJira();
+  const {
+    currentProject,
+    exportDataJSON,
+    importDataJSON,
+    resetDemoData,
+    language,
+    setLanguage,
+    theme,
+    toggleTheme,
+    accentColor,
+    setAccentColor,
+    t
+  } = useJira();
   const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const colorOptions = [
+    { name: 'Aether Indigo', hex: '#6366f1' },
+    { name: 'Atlassian Blue', hex: '#0052cc' },
+    { name: 'Emerald Tech', hex: '#10b981' },
+    { name: 'Crimson Pulse', hex: '#ef4444' },
+    { name: 'Violet Glow', hex: '#8b5cf6' }
+  ];
 
   const handleExport = () => {
     const jsonStr = exportDataJSON();
@@ -69,6 +89,22 @@ export const SettingsView: React.FC = () => {
             <button className="btn-secondary" onClick={toggleTheme}>
               {theme === 'dark' ? `🌙 ${t('darkTheme')}` : `☀️ ${t('lightTheme')}`}
             </button>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label>🎨 Brand Accent Theme Color</label>
+            <div className="color-swatches-row">
+              {colorOptions.map(c => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  className={`color-swatch-btn ${accentColor === c.hex ? 'active' : ''}`}
+                  style={{ backgroundColor: c.hex }}
+                  title={c.name}
+                  onClick={() => setAccentColor(c.hex)}
+                />
+              ))}
+            </div>
           </div>
         </div>
 

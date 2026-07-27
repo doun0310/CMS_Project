@@ -61,6 +61,18 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **상호 연관 이슈 네트워크 모듈**: 선행 미해결 블로커 이슈(Blocked By)의 1-Click 바인딩 및 클릭 이동 링크 지원.
 - **⚠️ AI Critical Path Risk Warning**: 이슈 진행에 영향을 미치는 선행 블로커 이슈가 미완료 상태인 경우, 병목 위험 경고 뱃지를 자동으로 감지해 시각화.
 
+### 🔔 11. Real-Time Team Activity Stream & Notification Center (실시간 알림 센터 & 팀 활동 내역)
+- **헤더 알림 종 & 미읽은 알림 뱃지**: 미확인 팀 알림 개수를 나타내는 실시간 뱃지.
+- **팀 활동 & AI 경보 팝오버**: 자동화 실행 이력, AI 업무 재배치 알림, 댓글 업로드 내역을 포함한 실시간 스트림 및 1-Click 해당 이슈 바로가기 지원.
+
+### 🎨 12. Dynamic Brand Accent Theme Color Swatches (브랜드 엑센트 테마 선택기)
+- **실시간 테마 컬러 스위처**: Aether Indigo, Atlassian Blue, Emerald Tech, Crimson Pulse, Violet Glow 스와치 팔레트 제공.
+- **CSS Custom Variable Sync**: 클릭 한 번으로 앱 전체 엑센트 포인트, 진행 상태 뱃지, 입력 포커스 링 색상이 원클릭 동기화 변경.
+
+### 🏆 13. Agile Sprint Goal & Milestone Celebration (스프린트 성공 목표 달성 & 축하 시스템)
+- **스프린트 완료 축하 모달**: 백로그 또는 보드에서 'Complete Sprint' 클릭 시 인터랙티브 승리 모달 출력.
+- **스프린트 성과 지표 & MVP 뱃지**: 전체 소진 스토리 포인트 완료율(%), 목표 달성 상태, 스프린트 최고의 기여 팀원(🌟 SPRINT MVP) 자동 선정 및 시각화.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

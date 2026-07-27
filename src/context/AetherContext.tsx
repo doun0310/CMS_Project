@@ -23,12 +23,14 @@ import {
   initialAutomationRules,
   initialRetrospectiveItems,
   initialAutomationAuditLogs
-} from '../mock/jiraData';
+} from '../mock/AetherData';
 import { translations, type Language } from '../i18n/translations';
 
 interface JiraContextType {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  accentColor: string;
+  setAccentColor: (color: string) => void;
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
@@ -101,7 +103,13 @@ const JiraContext = createContext<JiraContextType | undefined>(undefined);
 
 export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [accentColor, setAccentColor] = useState<string>('#6366f1');
   const [language, setLanguage] = useState<Language>('ko');
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-in-progress', accentColor);
+    document.documentElement.style.setProperty('--border-focus', accentColor);
+  }, [accentColor]);
   const [projects] = useState<Project[]>(initialProjects);
   const [currentProject, setCurrentProject] = useState<Project>(initialProjects[0]);
   const [users] = useState<User[]>(initialUsers);
@@ -429,6 +437,8 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         theme,
         toggleTheme,
+        accentColor,
+        setAccentColor,
         language,
         setLanguage,
         t,
