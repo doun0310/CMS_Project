@@ -21,6 +21,7 @@ import {
 } from '../common/Icons';
 
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
+import { SprintGoalBanner } from '../common/SprintGoalBanner';
 
 export const BacklogView: React.FC = () => {
   const {
@@ -245,6 +246,9 @@ export const BacklogView: React.FC = () => {
 
   return (
     <div className="backlog-view">
+      {/* Realtime Sprint Goal & Progress Banner */}
+      <SprintGoalBanner />
+
       <div className="view-header-bar">
         <div>
           <h1 className="view-title">Backlog & Sprint Management</h1>

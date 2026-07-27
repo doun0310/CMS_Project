@@ -11,7 +11,7 @@ export const RetrospectiveView: React.FC = () => {
   const [convertedIds, setConvertedIds] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<string | null>(null);
 
-  const handleAdd = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAdd = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newContent.trim()) return;
     addRetroItem(targetColumn, newContent.trim());

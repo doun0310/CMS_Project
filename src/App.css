@@ -3605,6 +3605,8 @@ input:checked + .slider:before {
   color: white;
   border-color: var(--color-in-progress, #6366f1);
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
 /* Keyboard Shortcuts Modal Styles */
 .shortcuts-modal {
   background: var(--bg-secondary);
@@ -3689,4 +3691,195 @@ input:checked + .slider:before {
   color: var(--text-tertiary);
 }
 
+/* Compact sprint goal indicator */
+.sprint-goal-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+  align-items: center;
+  gap: 16px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  background: linear-gradient(110deg, var(--bg-secondary), var(--bg-tertiary));
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--color-in-progress, #6366f1);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
+.goal-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.goal-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sprint-badge-label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.days-left-chip {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: 2px 7px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-in-progress, #6366f1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 999px;
+}
+
+.status-dot-active {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  background: #36b37e;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #36b37e;
+}
+
+.goal-statement-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.goal-prefix {
+  margin-right: 6px;
+  color: var(--text-primary);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.sprint-progress-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.progress-header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  font-size: 0.7rem;
+}
+
+.completion-label {
+  color: var(--text-secondary);
+}
+
+.completion-label strong {
+  color: var(--color-done, #36b37e);
+  font-size: 0.84rem;
+}
+
+.meta-numbers {
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.visual-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.segment-done,
+.segment-in-progress {
+  display: block;
+  background: linear-gradient(90deg, #36b37e 0%, #22c55e 100%);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.segment-in-progress {
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+}
+
+.stat-pills-row {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.done-pill {
+  background: rgba(54, 179, 126, 0.12);
+  color: #22c55e;
+  border-color: rgba(54, 179, 126, 0.3);
+}
+
+.progress-pill {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.todo-pill {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+@media (max-width: 720px) {
+  .sprint-goal-banner {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .sprint-goal-banner {
+    padding: 8px 9px;
+  }
+  .goal-header-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

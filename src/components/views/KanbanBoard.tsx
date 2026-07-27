@@ -19,6 +19,7 @@ import {
   IconChevronRight,
   IconChevronDown
 } from '../common/Icons';
+import { SprintGoalBanner } from '../common/SprintGoalBanner';
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
 
 type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
@@ -237,6 +238,9 @@ export const KanbanBoard: React.FC = () => {
 
   return (
     <div className="kanban-view animate-fade-in">
+      {/* Realtime Sprint Goal & Progress Banner */}
+      <SprintGoalBanner />
+
       {/* Board Header Bar */}
       <div className="board-header">
         <div>

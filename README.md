@@ -101,6 +101,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **양방향 선행/후행 종속성 시각화**: 이슈 상세 드라이어 내 선행 블로커(`Blocked By`)뿐만 아니라 본 이슈 완료 시 차단 해제되는 후행 작업(`Blocks Downstream Tasks`) 양방향 매핑 디스플레이.
 - **크리티컬 패스 병목 경고 뱃지**: 미완료 블로커 이슈가 존재하는 경우 실시간 `⚠️ Critical Path Risk` 경고 및 원클릭 교차 이동 링크 제공.
 
+### 🎯 21. Realtime Sprint Goal Banner & Story Point Completion Widget (스프린트 목표 실시간 인디케이터)
+- **실시간 스프린트 목표 & 소진 게이지**: 칸반 보드 및 백로그 상단에 활성 스프린트 목표 Statement, 마감 남은 시간(`⏳ Days Remaining`), 소진 스토리 포인트 비율(`% Complete`) 라이브 게이지 시각화.
+- **상태별 포인트 뱃지**: `Done`, `In Progress`, `To Do` 각 상태별 실시간 스토리 포인트 분폐 및 툴팁 호버 지원.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
