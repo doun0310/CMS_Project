@@ -25,7 +25,7 @@ export const AutomationView: React.FC = () => {
     setTimeout(() => setTestNotification(null), 4000);
   };
 
-  const handleCreateRuleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleCreateRuleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!ruleName.trim()) return;
     addAutomationRule(ruleName.trim(), triggerWhen, actionThen);
@@ -59,7 +59,7 @@ export const AutomationView: React.FC = () => {
       {isCreatingRule && (
         <form onSubmit={handleCreateRuleSubmit} className="automation-builder-card animate-fade-in">
           <h3>🛠️ Custom Automation Rule Builder</h3>
-          
+
           <div className="builder-grid">
             <div className="form-group">
               <label>Rule Name:</label>
@@ -110,17 +110,20 @@ export const AutomationView: React.FC = () => {
               <div key={rule.id} className={`rule-card ${rule.enabled ? 'enabled' : 'disabled'}`}>
                 <div className="rule-info">
                   <div className="rule-title-row">
-                    <IconAutomation size={20} className="rule-icon" />
+                    <IconAutomation size={18} className="rule-icon" />
                     <span className="rule-name">{rule.name}</span>
                     <span className="exec-count-badge">Runs: {rule.executionCount || 0}</span>
                   </div>
 
                   <div className="rule-flow">
                     <div className="flow-step trigger">
-                      <span className="step-label">WHEN:</span> {rule.trigger}
+                      <span className="step-badge when-badge">WHEN</span>
+                      <span className="step-text">{rule.trigger}</span>
                     </div>
+                    <span className="flow-arrow">➔</span>
                     <div className="flow-step action">
-                      <span className="step-label">THEN:</span> {rule.action}
+                      <span className="step-badge then-badge">THEN</span>
+                      <span className="step-text">{rule.action}</span>
                     </div>
                   </div>
                 </div>
@@ -130,7 +133,7 @@ export const AutomationView: React.FC = () => {
                     <IconPlay size={14} /> Run Rule
                   </button>
 
-                  <label className="toggle-switch">
+                  <label className="toggle-switch" title={rule.enabled ? 'Enabled' : 'Disabled'}>
                     <input
                       type="checkbox"
                       checked={rule.enabled}
@@ -155,7 +158,7 @@ export const AutomationView: React.FC = () => {
                   <span className="log-time">{log.triggeredAt}</span>
                 </div>
                 <div className="log-rule-name">{log.ruleName}</div>
-                <div className="log-target">Target: <span className="issue-badge">{log.targetIssueKey}</span></div>
+                <div className="log-target">Target Issue: <span className="issue-badge">{log.targetIssueKey}</span></div>
                 <div className="log-action">{log.actionTaken}</div>
               </div>
             ))}

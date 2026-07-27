@@ -77,6 +77,14 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **실시간 중간관리자 뷰**: 리포트 대시보드 내에 팀원별 역할, 할당 이슈 수, 소진 스토리 포인트(완료/전체), 역량 상태(🟢 Optimal / 🟡 Heavy / 🔴 Overloaded)를 실시간 행렬표로 시각화.
 - **리소스 최적화 및 1-Click 관리**: 중간관리자가 과부하된 팀원의 상태를 한눈에 모니터링하고 업무를 안전하게 분산 제어할 수 있는 관리 테이블 탑재.
 
+### 📌 15. Kanban Column Collapsing & WIP Limit Warning Engine (칸반 컬럼 접기 & WIP 과부하 경고)
+- **인터랙티브 컬럼 접기/펼치기**: 칸반 보드의 특정 단계 컬럼을 원클릭으로 접어 슬림 스트립 형태로 축소 디스플레이(주요 작업 컬럼 집중 지원).
+- **⚠️ WIP(Work In Progress) Limit 경고 뱃지**: `IN PROGRESS` 및 `IN REVIEW` 단계에 과도한 태스크 할당 시 자동 과부하 경고 뱃지 출력.
+
+### 📥 16. Sprint Analytics Export & CFD View Switcher (스프린트 애널리틱스 리포트 내보내기 & 누적 흐름도)
+- **1-Click CSV 리포트 내보내기**: 현재 활성 스프린트 성과, 소진 스토리 포인트, 완료율 및 팀원별 역량 건강도를 엑셀/CSV 데이터(`aether-sprint-report.csv`)로 원클릭 추출.
+- **인터랙티브 차트 전환 스위처**: 번다운 차트(Burndown Chart)와 누적 흐름도(Cumulative Flow Diagram - CFD) 간 원클릭 스위칭 지원.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

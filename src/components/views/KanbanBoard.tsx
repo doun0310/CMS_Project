@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import type { Epic, Issue, IssueStatus, IssueType, Priority, Sprint, User } from '../../types/Aether';
+import type { Issue, IssueStatus, IssueType, Priority, Sprint } from '../../types/Aether';
 import {
   IconStory,
   IconTask,
@@ -15,7 +15,9 @@ import {
   IconPlus,
   IconMessage,
   IconUser,
-  IconCheck
+  IconCheck,
+  IconChevronRight,
+  IconChevronDown
 } from '../common/Icons';
 
 type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
@@ -43,8 +45,7 @@ export const KanbanBoard: React.FC = () => {
     onlyMyIssues,
     selectedEpicId,
     selectedType,
-    selectedPriority,
-    t
+    selectedPriority
   } = useAether();
 
   const [swimlaneBy, setSwimlaneBy] = useState<SwimlaneMode>('none');
@@ -52,94 +53,61 @@ export const KanbanBoard: React.FC = () => {
   const [addingToStatus, setAddingToStatus] = useState<IssueStatus | null>(null);
   const [quickSummary, setQuickSummary] = useState<string>('');
 
+  // Column collapse state
+  const [collapsedColumns, setCollapsedColumns] = useState<Record<string, boolean>>({
+    todo: false,
+    in_progress: false,
+    in_review: false,
+    done: false
+  });
+
+  const toggleColumnCollapse = (status: string) => {
+    setCollapsedColumns(prev => ({ ...prev, [status]: !prev[status] }));
+  };
+
   const activeSprint = sprints.find((s: Sprint) => s.status === 'active');
 
   // Filter issues for active sprint (or all issues if no active sprint)
   const filteredIssues = issues.filter((issue: Issue) => {
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchKey = issue.key.toLowerCase().includes(q);
       const matchSummary = issue.summary.toLowerCase().includes(q);
-      const matchDesc = issue.description.toLowerCase().includes(q);
-      const matchLabel = issue.labels.some((l: string) => l.toLowerCase().includes(q));
+      const matchDesc = (issue.description || '').toLowerCase().includes(q);
+      const matchLabel = (issue.labels || []).some((l: string) => l.toLowerCase().includes(q));
       if (!matchKey && !matchSummary && !matchDesc && !matchLabel) return false;
     }
-    // Only my issues
     if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
-    // Epic filter
     if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
-    // Type filter
     if (selectedType !== 'all' && issue.type !== selectedType) return false;
-    // Priority filter
     if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
 
-    // Show active sprint issues or unassigned sprint issues if sprint view
     if (activeSprint) {
       return issue.sprintId === activeSprint.id || !issue.sprintId;
     }
     return true;
   });
 
-  const columns: { status: IssueStatus; title: string; color: string }[] = [
-    { status: 'todo', title: t('todo'), color: 'var(--color-todo)' },
-    { status: 'in_progress', title: t('in_progress'), color: 'var(--color-in-progress)' },
-    { status: 'in_review', title: t('in_review'), color: 'var(--color-in-review)' },
-    { status: 'done', title: t('done'), color: 'var(--color-done)' }
+  const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
+    { status: 'todo', title: 'TO DO', color: '#94a3b8' },
+    { status: 'in_progress', title: 'IN PROGRESS', color: '#6366f1', wipLimit: 4 },
+    { status: 'in_review', title: 'IN REVIEW', color: '#f59e0b', wipLimit: 3 },
+    { status: 'done', title: 'DONE', color: '#10b981' }
   ];
 
-  const swimlaneGroups: SwimlaneGroup[] = (() => {
-    if (swimlaneBy === 'assignee') {
-      return [
-        ...users.map(user => ({ id: user.id, name: user.name })),
-        { id: UNASSIGNED_GROUP_ID, name: 'Unassigned' }
-      ];
-    }
-    if (swimlaneBy === 'epic') {
-      return [
-        ...epics.map(epic => ({ id: epic.id, name: epic.summary })),
-        { id: NO_EPIC_GROUP_ID, name: 'No Epic' }
-      ];
-    }
-    if (swimlaneBy === 'priority') {
-      return PRIORITY_GROUPS.map(priority => ({ id: priority, name: priority.toUpperCase() }));
-    }
-    return [];
-  })();
+  // Build swimlane groups dynamically based on mode
+  const swimlaneGroups: SwimlaneGroup[] = [];
+  if (swimlaneBy === 'assignee') {
+    users.forEach(u => swimlaneGroups.push({ id: u.id, name: u.name }));
+    swimlaneGroups.push({ id: UNASSIGNED_GROUP_ID, name: 'Unassigned' });
+  } else if (swimlaneBy === 'epic') {
+    epics.forEach(e => swimlaneGroups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
+    swimlaneGroups.push({ id: NO_EPIC_GROUP_ID, name: 'Issues without Epic' });
+  } else if (swimlaneBy === 'priority') {
+    PRIORITY_GROUPS.forEach(p => swimlaneGroups.push({ id: p, name: `${p.toUpperCase()} Priority` }));
+  }
 
-  const renderTypeIcon = (type: IssueType) => {
-    switch (type) {
-      case 'story': return <IconStory size={16} />;
-      case 'task': return <IconTask size={16} />;
-      case 'bug': return <IconBug size={16} />;
-      case 'epic': return <IconEpic size={16} />;
-      default: return <IconSubtask size={16} />;
-    }
-  };
-
-  const renderPriorityIcon = (prio: Priority) => {
-    switch (prio) {
-      case 'highest': return <PriorityHighest size={16} />;
-      case 'high': return <PriorityHigh size={16} />;
-      case 'medium': return <PriorityMedium size={16} />;
-      case 'low': return <PriorityLow size={16} />;
-      case 'lowest': return <PriorityLowest size={16} />;
-    }
-  };
-
-  const handleQuickAdd = (status: IssueStatus) => {
-    if (!quickSummary.trim()) return;
-    createIssue({
-      summary: quickSummary.trim(),
-      status,
-      type: 'story',
-      priority: 'medium',
-      sprintId: activeSprint?.id || null
-    });
-    setQuickSummary('');
-    setAddingToStatus(null);
-  };
-
+  // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, issueId: string) => {
     e.dataTransfer.setData('text/plain', issueId);
     setDraggedIssueId(issueId);
@@ -149,19 +117,50 @@ export const KanbanBoard: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, status: IssueStatus) => {
+  const handleDrop = (e: React.DragEvent, targetStatus: IssueStatus) => {
     e.preventDefault();
-    const issueId = e.dataTransfer.getData('text/plain');
+    const issueId = e.dataTransfer.getData('text/plain') || draggedIssueId;
     if (issueId) {
-      moveIssueStatus(issueId, status);
+      moveIssueStatus(issueId, targetStatus);
+      setDraggedIssueId(null);
     }
-    setDraggedIssueId(null);
+  };
+
+  const handleQuickAdd = (status: IssueStatus) => {
+    if (!quickSummary.trim()) return;
+    createIssue({
+      summary: quickSummary.trim(),
+      status,
+      sprintId: activeSprint?.id || null
+    });
+    setQuickSummary('');
+    setAddingToStatus(null);
+  };
+
+  const renderTypeIcon = (type: IssueType) => {
+    switch (type) {
+      case 'story': return <IconStory size={14} />;
+      case 'task': return <IconTask size={14} />;
+      case 'bug': return <IconBug size={14} />;
+      case 'epic': return <IconEpic size={14} />;
+      default: return <IconSubtask size={14} />;
+    }
+  };
+
+  const renderPriorityIcon = (priority: Priority) => {
+    switch (priority) {
+      case 'highest': return <PriorityHighest size={14} />;
+      case 'high': return <PriorityHigh size={14} />;
+      case 'medium': return <PriorityMedium size={14} />;
+      case 'low': return <PriorityLow size={14} />;
+      default: return <PriorityLowest size={14} />;
+    }
   };
 
   const renderCard = (issue: Issue) => {
-    const epic = epics.find((e: Epic) => e.id === issue.epicId);
-    const assignee = users.find((u: User) => u.id === issue.assigneeId);
-    const completedSubtasks = issue.subtasks.filter(s => s.completed).length;
+    const assignee = users.find(u => u.id === issue.assigneeId);
+    const epic = epics.find(e => e.id === issue.epicId);
+    const completedSubtasks = (issue.subtasks || []).filter(s => s.completed).length;
 
     return (
       <div
@@ -170,18 +169,19 @@ export const KanbanBoard: React.FC = () => {
         draggable
         onDragStart={e => handleDragStart(e, issue.id)}
         onClick={() => setSelectedIssueId(issue.id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && setSelectedIssueId(issue.id)}
       >
-        {/* Epic Badge */}
         {epic && (
-          <div className="card-epic-tag" style={{ backgroundColor: epic.color + '25', color: epic.color }}>
-            {epic.summary}
+          <div className="card-epic-tag" style={{ color: epic.color, borderColor: epic.color }}>
+            {epic.key}
           </div>
         )}
 
         <div className="card-summary">{issue.summary}</div>
 
-        {/* Labels */}
-        {issue.labels.length > 0 && (
+        {(issue.labels || []).length > 0 && (
           <div className="card-labels">
             {issue.labels.slice(0, 2).map((lbl, idx) => (
               <span key={idx} className="label-badge">#{lbl}</span>
@@ -189,7 +189,6 @@ export const KanbanBoard: React.FC = () => {
           </div>
         )}
 
-        {/* Card Footer: Type, Key, Priority, Points, Assignee */}
         <div className="card-footer">
           <div className="footer-left">
             <span className="card-type" title={issue.type}>{renderTypeIcon(issue.type)}</span>
@@ -198,12 +197,12 @@ export const KanbanBoard: React.FC = () => {
             {issue.storyPoints > 0 && (
               <span className="points-badge">{issue.storyPoints}</span>
             )}
-            {issue.subtasks.length > 0 && (
+            {(issue.subtasks || []).length > 0 && (
               <span className="subtasks-badge" title={`${completedSubtasks}/${issue.subtasks.length} subtasks done`}>
                 <IconCheck size={12} /> {completedSubtasks}/{issue.subtasks.length}
               </span>
             )}
-            {issue.comments.length > 0 && (
+            {(issue.comments || []).length > 0 && (
               <span className="comments-badge">
                 <IconMessage size={12} /> {issue.comments.length}
               </span>
@@ -223,7 +222,7 @@ export const KanbanBoard: React.FC = () => {
   };
 
   return (
-    <div className="kanban-view">
+    <div className="kanban-view animate-fade-in">
       {/* Board Header Bar */}
       <div className="board-header">
         <div>
@@ -257,19 +256,50 @@ export const KanbanBoard: React.FC = () => {
           {columns.map(col => {
             const colIssues = filteredIssues.filter((i: Issue) => i.status === col.status);
             const totalPoints = colIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
+            const isCollapsed = !!collapsedColumns[col.status];
+            const isWipExceeded = col.wipLimit && colIssues.length > col.wipLimit;
+
+            if (isCollapsed) {
+              return (
+                <div
+                  key={col.status}
+                  className="kanban-column collapsed-column"
+                  onClick={() => toggleColumnCollapse(col.status)}
+                  title={`Expand ${col.title} column`}
+                >
+                  <div className="collapsed-header">
+                    <span className="status-indicator" style={{ backgroundColor: col.color }}></span>
+                    <span className="collapsed-title">{col.title} ({colIssues.length})</span>
+                    <IconChevronRight size={14} />
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <div
                 key={col.status}
-                className="kanban-column"
+                className={`kanban-column ${isWipExceeded ? 'wip-exceeded' : ''}`}
                 onDragOver={handleDragOver}
                 onDrop={e => handleDrop(e, col.status)}
               >
                 <div className="column-header">
                   <div className="header-title-group">
+                    <button
+                      className="btn-collapse-col"
+                      onClick={() => toggleColumnCollapse(col.status)}
+                      title="Collapse column"
+                    >
+                      <IconChevronDown size={14} />
+                    </button>
                     <span className="status-indicator" style={{ backgroundColor: col.color }}></span>
                     <span className="column-title">{col.title}</span>
                     <span className="column-count">{colIssues.length}</span>
+                    {isWipExceeded && (
+                      <span className="wip-badge" title={`WIP limit exceeded (${col.wipLimit} max)`}>
+                        ⚠️ WIP Exceeded
+                      </span>
+                    )}
                   </div>
                   <span className="column-points">{totalPoints} pts</span>
                 </div>
@@ -314,7 +344,6 @@ export const KanbanBoard: React.FC = () => {
       ) : (
         /* Swimlanes view */
         <div className="swimlane-container">
-          {/* Render swimlanes based on swimlaneBy */}
           {swimlaneGroups.map(group => {
             const groupIssues = filteredIssues.filter((i: Issue) => {
               if (swimlaneBy === 'assignee') {
