@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { Epic, Issue } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { Epic, Issue } from '../../types/Aether';
 
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
 

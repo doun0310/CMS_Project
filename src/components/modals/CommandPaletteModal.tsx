@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { ViewMode } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { ViewMode } from '../../types/Aether';
 import { IconSearch, IconZap, IconPlus, IconX } from '../common/Icons';
 
 export const CommandPaletteModal: React.FC = () => {

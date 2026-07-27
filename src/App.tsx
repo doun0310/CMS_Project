@@ -1,5 +1,5 @@
 import React from 'react';
-import { JiraProvider, useJira } from './context/JiraContext';
+import { JiraProvider, useJira } from './context/AetherContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { KanbanBoard } from './components/views/KanbanBoard';

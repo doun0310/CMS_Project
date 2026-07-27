@@ -1,4 +1,4 @@
-import type { User, Project, Epic, Sprint, Issue, AutomationRule } from '../types/jira';
+import type { User, Project, Epic, Sprint, Issue, AutomationRule } from '../types/Aether';
 
 export const initialUsers: User[] = [
   {
@@ -373,4 +373,24 @@ export const initialRetrospectiveItems = [
     createdAt: '2026-07-26T14:00:00Z'
   }
 ];
+
+export const initialAutomationAuditLogs = [
+  {
+    id: 'log-1',
+    ruleName: 'Auto-Assign QA on Review',
+    triggeredAt: '2026-07-27 11:20:00',
+    targetIssueKey: 'CLOUD-101',
+    actionTaken: 'Assigned to QA Engineer (David Park)',
+    status: 'SUCCESS' as const
+  },
+  {
+    id: 'log-2',
+    ruleName: 'Alert Highest Priority Bugs',
+    triggeredAt: '2026-07-27 09:45:12',
+    targetIssueKey: 'CLOUD-102',
+    actionTaken: 'Sent AI alert to Team Lead Slack channel',
+    status: 'SUCCESS' as const
+  }
+];
+
 

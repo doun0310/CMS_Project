@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { IssueType, Priority } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { IssueType, Priority } from '../../types/Aether';
 import { IconX } from '../common/Icons';
 
 export const CreateIssueModal: React.FC = () => {
@@ -27,7 +27,7 @@ export const CreateIssueModal: React.FC = () => {
 
   if (!isCreateModalOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!summary.trim()) return;
 

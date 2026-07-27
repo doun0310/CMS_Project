@@ -1,6 +1,6 @@
 import React from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { ViewMode } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { ViewMode } from '../../types/Aether';
 import {
   IconBoard,
   IconBacklog,

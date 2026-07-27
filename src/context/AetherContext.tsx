@@ -6,13 +6,14 @@ import type {
   Sprint,
   Issue,
   AutomationRule,
+  AutomationAuditLog,
   ViewMode,
   IssueStatus,
   IssueType,
   Priority,
   SubTask,
   RetrospectiveItem
-} from '../types/jira';
+} from '../types/Aether';
 import {
   initialUsers,
   initialProjects,
@@ -20,7 +21,8 @@ import {
   initialSprints,
   initialIssues,
   initialAutomationRules,
-  initialRetrospectiveItems
+  initialRetrospectiveItems,
+  initialAutomationAuditLogs
 } from '../mock/jiraData';
 import { translations, type Language } from '../i18n/translations';
 
@@ -38,6 +40,7 @@ interface JiraContextType {
   sprints: Sprint[];
   issues: Issue[];
   automationRules: AutomationRule[];
+  automationAuditLogs: AutomationAuditLog[];
   retrospectiveItems: RetrospectiveItem[];
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
@@ -83,6 +86,8 @@ interface JiraContextType {
 
   // Automation Actions
   toggleAutomationRule: (ruleId: string) => void;
+  addAutomationRule: (name: string, trigger: string, action: string) => void;
+  runAutomationRule: (ruleId: string) => void;
 
   // System Data Management
   resetDemoData: () => void;
@@ -105,6 +110,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
   const [issues, setIssues] = useState<Issue[]>(initialIssues);
   const [automationRules, setAutomationRules] = useState<AutomationRule[]>(initialAutomationRules);
+  const [automationAuditLogs, setAutomationAuditLogs] = useState<AutomationAuditLog[]>(initialAutomationAuditLogs);
   const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(initialRetrospectiveItems);
 
   const [viewMode, setViewMode] = useState<ViewMode>('board');
@@ -324,6 +330,51 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
+  const addAutomationRule = (name: string, trigger: string, action: string) => {
+    const newRule: AutomationRule = {
+      id: `rule-${Date.now()}`,
+      name,
+      trigger,
+      action,
+      enabled: true,
+      executionCount: 0
+    };
+    setAutomationRules(prev => [newRule, ...prev]);
+  };
+
+  const runAutomationRule = (ruleId: string) => {
+    const rule = automationRules.find(r => r.id === ruleId);
+    if (!rule) return;
+
+    // Execute rule simulation on issues
+    const targetIssue = issues[0] || { key: 'CLOUD-101' };
+    const nowStr = new Date().toLocaleString();
+
+    const newLog: AutomationAuditLog = {
+      id: `log-${Date.now()}`,
+      ruleName: rule.name,
+      triggeredAt: nowStr,
+      targetIssueKey: targetIssue.key,
+      actionTaken: rule.action,
+      status: 'SUCCESS'
+    };
+
+    setAutomationAuditLogs(prev => [newLog, ...prev]);
+
+    // Increment execution count and timestamp
+    setAutomationRules(prev =>
+      prev.map(r =>
+        r.id === ruleId
+          ? {
+              ...r,
+              lastExecuted: 'Just now',
+              executionCount: (r.executionCount || 0) + 1
+            }
+          : r
+      )
+    );
+  };
+
   const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string) => {
     const newItem: RetrospectiveItem = {
       id: `retro-${Date.now()}`,
@@ -389,6 +440,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sprints,
         issues,
         automationRules,
+        automationAuditLogs,
         retrospectiveItems,
         viewMode,
         setViewMode,
@@ -422,6 +474,8 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         completeSprint,
         createSprint,
         toggleAutomationRule,
+        addAutomationRule,
+        runAutomationRule,
         resetDemoData,
         exportDataJSON,
         importDataJSON

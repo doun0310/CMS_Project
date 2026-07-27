@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
+import { useJira } from '../../context/AetherContext';
 import { IconDownload, IconReset } from '../common/Icons';
 
 export const SettingsView: React.FC = () => {
@@ -19,7 +19,7 @@ export const SettingsView: React.FC = () => {
     setMsg({ text: 'Data exported successfully as JSON file!', type: 'success' });
   };
 
-  const handleImportSubmit = (e: React.FormEvent) => {
+  const handleImportSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!importText.trim()) return;
     const ok = importDataJSON(importText.trim());

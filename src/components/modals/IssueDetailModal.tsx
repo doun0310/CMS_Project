@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { IssueStatus, Priority, IssueType } from '../../types/jira';
-import { IconX, IconTrash, IconClock } from '../common/Icons';
+import { useJira } from '../../context/AetherContext';
+import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
+import { IconX, IconTrash, IconClock, IconLink } from '../common/Icons';
 
 export const IssueDetailModal: React.FC = () => {
   const {
@@ -21,10 +21,11 @@ export const IssueDetailModal: React.FC = () => {
 
   const [newCommentText, setNewCommentText] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [selectedBlockerId, setSelectedBlockerId] = useState('');
 
   if (!selectedIssueId) return null;
 
-  const issue = issues.find(i => i.id === selectedIssueId);
+  const issue = issues.find((i: Issue) => i.id === selectedIssueId);
   if (!issue) return null;
 
   const reporter = users.find(u => u.id === issue.reporterId);
@@ -32,18 +33,43 @@ export const IssueDetailModal: React.FC = () => {
   const completedSubtasks = issue.subtasks.filter(s => s.completed).length;
   const subtaskProgressPct = issue.subtasks.length > 0 ? Math.round((completedSubtasks / issue.subtasks.length) * 100) : 0;
 
-  const handleAddCommentSubmit = (e: React.FormEvent) => {
+  // Resolve Linked Blocker Issues
+  const blockedByIssues = (issue.blockedBy || [])
+    .map(keyOrId => issues.find((i: Issue) => i.id === keyOrId || i.key === keyOrId))
+    .filter((i): i is Issue => i !== undefined);
+
+  // Check if any blocker is unfinished (Status !== DONE)
+  const unfinishedBlockers = blockedByIssues.filter(i => i.status !== 'done');
+  const hasCriticalPathRisk = unfinishedBlockers.length > 0;
+
+  const handleAddCommentSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
     addComment(issue.id, newCommentText.trim());
     setNewCommentText('');
   };
 
-  const handleAddSubtaskSubmit = (e: React.FormEvent) => {
+  const handleAddSubtaskSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newSubtaskTitle.trim()) return;
     addSubtask(issue.id, newSubtaskTitle.trim());
     setNewSubtaskTitle('');
+  };
+
+  const handleAddBlocker = () => {
+    if (!selectedBlockerId) return;
+    const currentBlockers = issue.blockedBy || [];
+    if (!currentBlockers.includes(selectedBlockerId)) {
+      updateIssue(issue.id, { blockedBy: [...currentBlockers, selectedBlockerId] });
+    }
+    setSelectedBlockerId('');
+  };
+
+  const handleRemoveBlocker = (blockerIdOrKey: string) => {
+    const currentBlockers = issue.blockedBy || [];
+    updateIssue(issue.id, {
+      blockedBy: currentBlockers.filter(b => b !== blockerIdOrKey)
+    });
   };
 
   return (
@@ -78,7 +104,7 @@ export const IssueDetailModal: React.FC = () => {
         <div className="drawer-body">
           {/* Main Left Details */}
           <div className="detail-main-col">
-            {/* Editable Title */}
+            {/* Title Input */}
             <input
               type="text"
               className="issue-title-input"
@@ -86,11 +112,11 @@ export const IssueDetailModal: React.FC = () => {
               onChange={e => updateIssue(issue.id, { summary: e.target.value })}
             />
 
-            {/* Status Workflow Dropdown */}
+            {/* Workflow status Bar */}
             <div className="status-workflow-bar">
-              <span className="workflow-label">Status:</span>
+              <label>Status: </label>
               <select
-                className={`status-select status-${issue.status}`}
+                className={`status-select ${issue.status}`}
                 value={issue.status}
                 onChange={e => moveIssueStatus(issue.id, e.target.value as IssueStatus)}
               >
@@ -99,32 +125,107 @@ export const IssueDetailModal: React.FC = () => {
                 <option value="in_review">IN REVIEW</option>
                 <option value="done">DONE</option>
               </select>
+
+              {/* AI Security & PR Readiness Audit Badge */}
+              <div className="ai-audit-box">
+                <div className="audit-score-row">
+                  <span className="audit-badge pass">AI Audit 98%</span>
+                  <span className="audit-badge sec">Security Clear</span>
+                </div>
+                <div className="audit-desc">
+                  Sub-task SLA 100%, 0 security vulnerabilities detected. PR ready for merge.
+                </div>
+              </div>
             </div>
 
-            {/* Description Textarea */}
+            {/* Description Section */}
             <div className="detail-section">
               <h3>Description</h3>
               <textarea
                 className="description-textarea"
-                rows={5}
+                rows={4}
                 value={issue.description}
-                placeholder="Add a detailed description..."
                 onChange={e => updateIssue(issue.id, { description: e.target.value })}
+                placeholder="Add a detailed description..."
               />
             </div>
 
-            {/* Sub-tasks Checklist */}
+            {/* Interactive Issue Dependency & Critical Path Section */}
             <div className="detail-section">
-              <div className="section-header-inline">
-                <h3>Sub-tasks</h3>
-                <span className="subtask-count">{completedSubtasks} of {issue.subtasks.length} done ({subtaskProgressPct}%)</span>
+              <div className="section-title-with-badge">
+                <h3>🔗 Issue Dependencies & Critical Path</h3>
+                {hasCriticalPathRisk && (
+                  <span className="critical-path-badge animate-pulse">
+                    ⚠️ Critical Path Risk ({unfinishedBlockers.length} Unfinished Blocker)
+                  </span>
+                )}
               </div>
 
-              {issue.subtasks.length > 0 && (
-                <div className="subtask-progress-bar">
-                  <div className="fill" style={{ width: `${subtaskProgressPct}%` }}></div>
+              <div className="dependency-box">
+                {blockedByIssues.length === 0 ? (
+                  <div className="no-deps-text">No blocker dependencies linked to this issue.</div>
+                ) : (
+                  <div className="linked-issues-list">
+                    {blockedByIssues.map(blocker => (
+                      <div key={blocker.id} className="linked-issue-item">
+                        <div className="linked-left">
+                          <IconLink size={14} />
+                          <span
+                            className="linked-key-link"
+                            onClick={() => setSelectedIssueId(blocker.id)}
+                            title="Click to view issue"
+                          >
+                            {blocker.key}
+                          </span>
+                          <span className="linked-summary">{blocker.summary}</span>
+                        </div>
+                        <div className="linked-right">
+                          <span className={`status-badge-sm ${blocker.status}`}>
+                            {blocker.status.toUpperCase()}
+                          </span>
+                          <button
+                            className="btn-unlink-sm"
+                            onClick={() => handleRemoveBlocker(blocker.id)}
+                            title="Unlink dependency"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add Blocker Form */}
+                <div className="add-blocker-row">
+                  <select
+                    value={selectedBlockerId}
+                    onChange={e => setSelectedBlockerId(e.target.value)}
+                    className="settings-select"
+                    style={{ flex: 1 }}
+                  >
+                    <option value="">-- Select Blocker Issue --</option>
+                    {issues
+                      .filter((i: Issue) => i.id !== issue.id)
+                      .map((i: Issue) => (
+                        <option key={i.id} value={i.id}>
+                          {i.key}: {i.summary} [{i.status.toUpperCase()}]
+                        </option>
+                      ))}
+                  </select>
+                  <button className="btn-primary-sm" onClick={handleAddBlocker}>
+                    + Link Blocker
+                  </button>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Subtasks Section */}
+            <div className="detail-section">
+              <h3>Sub-tasks ({completedSubtasks}/{issue.subtasks.length})</h3>
+              <div className="subtask-progress-bar">
+                <div className="fill" style={{ width: `${subtaskProgressPct}%` }}></div>
+              </div>
 
               <div className="subtasks-list">
                 {issue.subtasks.map(st => (
@@ -137,17 +238,17 @@ export const IssueDetailModal: React.FC = () => {
                     <span className={st.completed ? 'completed-text' : ''}>{st.title}</span>
                   </div>
                 ))}
-
-                <form onSubmit={handleAddSubtaskSubmit} className="add-subtask-form">
-                  <input
-                    type="text"
-                    placeholder="Add a sub-task..."
-                    value={newSubtaskTitle}
-                    onChange={e => setNewSubtaskTitle(e.target.value)}
-                  />
-                  <button type="submit" className="btn-primary-sm">Add</button>
-                </form>
               </div>
+
+              <form onSubmit={handleAddSubtaskSubmit} className="add-subtask-form">
+                <input
+                  type="text"
+                  placeholder="Add a subtask..."
+                  value={newSubtaskTitle}
+                  onChange={e => setNewSubtaskTitle(e.target.value)}
+                />
+                <button type="submit" className="btn-primary-sm">Add</button>
+              </form>
             </div>
 
             {/* Time Tracking */}
@@ -262,7 +363,7 @@ export const IssueDetailModal: React.FC = () => {
             </div>
 
             <div className="field-group">
-              <label>Epic Link</label>
+              <label>Epic</label>
               <select
                 value={issue.epicId || ''}
                 onChange={e => updateIssue(issue.id, { epicId: e.target.value || null })}
@@ -298,71 +399,12 @@ export const IssueDetailModal: React.FC = () => {
             </div>
 
             <div className="field-group">
-              <label>Due Date</label>
-              <input
-                type="date"
-                value={issue.dueDate}
-                onChange={e => updateIssue(issue.id, { dueDate: e.target.value })}
-              />
-            </div>
-
-            <div className="field-group">
               <label>Component</label>
               <input
                 type="text"
                 value={issue.component}
                 onChange={e => updateIssue(issue.id, { component: e.target.value })}
               />
-            </div>
-
-            {/* Time Tracking Progress */}
-            <div className="field-group time-tracking-group">
-              <label><IconClock size={14} /> Time Tracking</label>
-              <div className="time-tracking-bar">
-                <div
-                  className="logged-bar"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      Math.round(((issue.timeLogged || 0) / Math.max(1, issue.originalEstimate || 1)) * 100)
-                    )}%`
-                  }}
-                ></div>
-              </div>
-              <div className="time-stats">
-                <span>Logged: {issue.timeLogged || 0}h</span>
-                <span>Est: {issue.originalEstimate || 0}h</span>
-              </div>
-              <div className="log-time-inputs">
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Log hours..."
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      const val = Number((e.target as HTMLInputElement).value);
-                      if (val > 0) {
-                        updateIssue(issue.id, { timeLogged: (issue.timeLogged || 0) + val });
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* AI Security & Code Audit Widget */}
-            <div className="field-group ai-audit-widget">
-              <label>✨ AI Security & PR Readiness</label>
-              <div className="ai-audit-box">
-                <div className="audit-score-row">
-                  <span className="audit-badge pass">SLA Check: PASS</span>
-                  <span className="audit-badge sec">Security Score: 98/100</span>
-                </div>
-                <p className="audit-desc">
-                  No hardcoded secrets or memory leaks detected across modified AST nodes.
-                </p>
-              </div>
             </div>
           </div>
         </div>

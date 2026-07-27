@@ -113,5 +113,15 @@ export interface AutomationRule {
   executionCount?: number;
 }
 
+export interface AutomationAuditLog {
+  id: string;
+  ruleName: string;
+  triggeredAt: string;
+  targetIssueKey: string;
+  actionTaken: string;
+  status: 'SUCCESS' | 'WARNING' | 'FAILED';
+}
+
 export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective';
+
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { Issue, IssueType, Priority, Sprint } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import {
   IconStory,
   IconTask,
@@ -74,7 +74,7 @@ export const BacklogView: React.FC = () => {
     }
   };
 
-  const handleCreateSprintSubmit = (e: React.FormEvent) => {
+  const handleCreateSprintSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newSprintName.trim()) return;
     createSprint(newSprintName.trim(), newSprintGoal.trim());
@@ -96,8 +96,8 @@ export const BacklogView: React.FC = () => {
   };
 
   const renderIssueRow = (issue: Issue) => {
-    const epic = epics.find(e => e.id === issue.epicId);
-    const assignee = users.find(u => u.id === issue.assigneeId);
+    const epic = epics.find((e: Epic) => e.id === issue.epicId);
+    const assignee = users.find((u: User) => u.id === issue.assigneeId);
 
     return (
       <div
@@ -140,12 +140,12 @@ export const BacklogView: React.FC = () => {
             value={issue.sprintId || 'backlog'}
             onClick={e => e.stopPropagation()}
             onChange={e => {
-              const val = e.target.value === 'backlog' ? null : e.target.value;
-              updateIssue(issue.id, { sprintId: val });
+              const val = e.target.value;
+              updateIssue(issue.id, { sprintId: val === 'backlog' ? null : val });
             }}
           >
             <option value="backlog">Backlog</option>
-            {sprints.map(s => (
+            {sprints.map((s: Sprint) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
@@ -155,11 +155,11 @@ export const BacklogView: React.FC = () => {
   };
 
   const renderSprintSection = (sprint: Sprint) => {
-    const sprintIssues = filteredIssues.filter(i => i.sprintId === sprint.id);
-    const totalPoints = sprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+    const sprintIssues = filteredIssues.filter((i: Issue) => i.sprintId === sprint.id);
+    const totalPoints = sprintIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
     const donePoints = sprintIssues
-      .filter(i => i.status === 'done')
-      .reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+      .filter((i: Issue) => i.status === 'done')
+      .reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
 
     return (
       <div key={sprint.id} className={`sprint-block ${sprint.status}`}>
@@ -222,8 +222,8 @@ export const BacklogView: React.FC = () => {
     );
   };
 
-  const backlogIssues = filteredIssues.filter(i => !i.sprintId);
-  const backlogPoints = backlogIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+  const backlogIssues = filteredIssues.filter((i: Issue) => !i.sprintId);
+  const backlogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
 
   return (
     <div className="backlog-view">

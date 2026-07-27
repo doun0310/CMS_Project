@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { Issue, IssueStatus, IssueType, Priority } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { Epic, Issue, IssueStatus, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import {
   IconStory,
   IconTask,
@@ -41,17 +41,17 @@ export const KanbanBoard: React.FC = () => {
   const [addingToStatus, setAddingToStatus] = useState<IssueStatus | null>(null);
   const [quickSummary, setQuickSummary] = useState<string>('');
 
-  const activeSprint = sprints.find(s => s.status === 'active');
+  const activeSprint = sprints.find((s: Sprint) => s.status === 'active');
 
   // Filter issues for active sprint (or all issues if no active sprint)
-  const filteredIssues = issues.filter(issue => {
+  const filteredIssues = issues.filter((issue: Issue) => {
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchKey = issue.key.toLowerCase().includes(q);
       const matchSummary = issue.summary.toLowerCase().includes(q);
       const matchDesc = issue.description.toLowerCase().includes(q);
-      const matchLabel = issue.labels.some(l => l.toLowerCase().includes(q));
+      const matchLabel = issue.labels.some((l: string) => l.toLowerCase().includes(q));
       if (!matchKey && !matchSummary && !matchDesc && !matchLabel) return false;
     }
     // Only my issues
@@ -129,8 +129,8 @@ export const KanbanBoard: React.FC = () => {
   };
 
   const renderCard = (issue: Issue) => {
-    const epic = epics.find(e => e.id === issue.epicId);
-    const assignee = users.find(u => u.id === issue.assigneeId);
+    const epic = epics.find((e: Epic) => e.id === issue.epicId);
+    const assignee = users.find((u: User) => u.id === issue.assigneeId);
     const completedSubtasks = issue.subtasks.filter(s => s.completed).length;
 
     return (
@@ -225,8 +225,8 @@ export const KanbanBoard: React.FC = () => {
       {swimlaneBy === 'none' ? (
         <div className="kanban-grid">
           {columns.map(col => {
-            const colIssues = filteredIssues.filter(i => i.status === col.status);
-            const totalPoints = colIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+            const colIssues = filteredIssues.filter((i: Issue) => i.status === col.status);
+            const totalPoints = colIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
 
             return (
               <div
@@ -289,7 +289,7 @@ export const KanbanBoard: React.FC = () => {
             const groupId = typeof group === 'string' ? group : group.id;
             const groupName = typeof group === 'string' ? group.toUpperCase() : group.name || group.summary;
 
-            const groupIssues = filteredIssues.filter(i => {
+            const groupIssues = filteredIssues.filter((i: Issue) => {
               if (swimlaneBy === 'assignee') return i.assigneeId === groupId;
               if (swimlaneBy === 'epic') return i.epicId === groupId;
               return i.priority === groupId;
@@ -303,7 +303,7 @@ export const KanbanBoard: React.FC = () => {
                 </div>
                 <div className="kanban-grid">
                   {columns.map(col => {
-                    const colIssues = groupIssues.filter(i => i.status === col.status);
+                    const colIssues = groupIssues.filter((i: Issue) => i.status === col.status);
                     return (
                       <div
                         key={col.status}

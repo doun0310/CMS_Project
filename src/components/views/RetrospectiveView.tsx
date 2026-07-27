@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
-import type { RetrospectiveItem, User } from '../../types/jira';
+import { useJira } from '../../context/AetherContext';
+import type { RetrospectiveItem, User } from '../../types/Aether';
 import { IconPlus, IconTrash } from '../common/Icons';
 
 export const RetrospectiveView: React.FC = () => {
@@ -9,7 +9,7 @@ export const RetrospectiveView: React.FC = () => {
   const [newContent, setNewContent] = useState('');
   const [targetColumn, setTargetColumn] = useState<'went_well' | 'to_improve' | 'action_item'>('went_well');
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newContent.trim()) return;
     addRetroItem(targetColumn, newContent.trim());

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/JiraContext';
+import { useJira } from '../../context/AetherContext';
 import {
   generateAISpecs,
   analyzeSprintHealth,

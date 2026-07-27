@@ -1,4 +1,4 @@
-import type { Issue, Sprint, User, WorkloadSuggestion } from '../types/jira';
+import type { Issue, Sprint, User, WorkloadSuggestion } from '../types/Aether';
 
 export interface AISpecSuggestion {
   acceptanceCriteria: string[];

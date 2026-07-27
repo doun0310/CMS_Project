@@ -49,6 +49,18 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **시간 추적 바**: 최초 추정 시간(Original Estimate) 대비 실제 작업 시간(Logged Time) 게이지 및 실시간 시간 로깅.
 - **AI PR Readiness & Security Audit Widget**: SLA 래턴시 체크, 보안 점수(Security Score 98/100), 메모리 누수 및 비밀키 노출 자동 진단.
 
+### ⚙️ 8. Visual Automation Engine & Rule Simulator (비주얼 워크플로우 자동화)
+- **커스텀 룰 빌더**: WHEN(트리거) - THEN(실행 액션) 조건을 조합한 커스텀 자동화 규칙 생성.
+- **1-Click 룰 시뮬레이터**: 이슈 카드에 규칙을 즉시 적용해 테스트하고 실행 카운터 및 실시간 감사 로그(Execution Audit Log) 추적.
+
+### 📊 9. Advanced Velocity Forecasting Dashboard (AI 미래 속도 및 과부하 예측)
+- **스프린트 선택 드롭다운**: 스프린트별 Burndown Chart 및 속도 비교.
+- **AI 벨로시티 미래 예측 렌즈**: 팀의 과거 속도 데이터를 계산해 백로그 소진 예상 시간(주 단위) 및 개발자별 과부하 방지 권장 스토리 포인트 자동 계산.
+
+### 🔗 10. Interactive Issue Dependencies & Critical Path Risk (이슈 종속성 & 크리티컬 패스 병목 감지)
+- **상호 연관 이슈 네트워크 모듈**: 선행 미해결 블로커 이슈(Blocked By)의 1-Click 바인딩 및 클릭 이동 링크 지원.
+- **⚠️ AI Critical Path Risk Warning**: 이슈 진행에 영향을 미치는 선행 블로커 이슈가 미완료 상태인 경우, 병목 위험 경고 뱃지를 자동으로 감지해 시각화.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
