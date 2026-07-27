@@ -7,6 +7,9 @@ git fetch origin
 깃허브에서 새로운 `main` 브랜치 만들기
 git checkout --track origin/main
 
+DB 실행 명령어
+npm run db:setup
+
 FormEvent는 SubmitEvent<HTMLFormElement>로 변경
 
 초기 로딩속도 개선이 필요할 시에 Suspense나 Lazy를 사용 (IF/ELSE 코드를 사용하지 않고도 선언적으로 상태 관리 가능)

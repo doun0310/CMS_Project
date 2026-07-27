@@ -12,6 +12,7 @@ import {
 } from "../repositories/print-request.repository";
 import { findPolicyForDocumentType } from "../repositories/policy.repository";
 import { PrintRequestPayload, ReprintPayload } from "../types/domain";
+import { detectPII } from "../utils/pii-detector";
 
 export class PrintRequestService {
   async list(organizationId: number) {
@@ -49,9 +50,15 @@ export class PrintRequestService {
       currentUser.organizationId
     );
 
+    const textToScan = [payload.documentContent, payload.requestReason, payload.sourceDocumentId]
+      .filter(Boolean)
+      .join("\n");
+    const piiAnalysis = detectPII(textToScan);
+    const isSensitive = payload.isSensitive === true || piiAnalysis.hasPII;
+
     const policy = await findPolicyForDocumentType(payload.documentType, currentUser.organizationId);
     const requireManagerApproval =
-      payload.isSensitive === true ||
+      isSensitive ||
       payload.copies >= (policy?.min_copies ?? Number.MAX_SAFE_INTEGER) ||
       policy?.requires_manager_approval === true ||
       policy?.requires_sensitive_approval === true;
@@ -67,7 +74,7 @@ export class PrintRequestService {
         templateId: payload.templateId,
         printerId: payload.printerId,
         copies: payload.copies,
-        isSensitive: payload.isSensitive ?? false,
+        isSensitive: isSensitive,
         isUrgent: payload.isUrgent ?? false,
         requestReason: payload.requestReason
       });
@@ -86,7 +93,11 @@ export class PrintRequestService {
         detailJson: {
           requestNo: request.request_no,
           documentType: request.document_type,
-          approvalRole: approvalStep.approver_role_code
+          approvalRole: approvalStep.approver_role_code,
+          isSensitive,
+          piiDetected: piiAnalysis.hasPII,
+          detectedPiiTypes: piiAnalysis.detectedTypes,
+          sensitiveScore: piiAnalysis.sensitiveScore
         }
       });
 
@@ -94,6 +105,13 @@ export class PrintRequestService {
         id: request.id,
         requestNo: request.request_no,
         status: request.status,
+        isSensitive: isSensitive,
+        piiAnalysis: {
+          hasPII: piiAnalysis.hasPII,
+          detectedTypes: piiAnalysis.detectedTypes,
+          sensitiveScore: piiAnalysis.sensitiveScore,
+          maskedText: piiAnalysis.maskedText
+        },
         approvalRoute: [
           {
             stepNo: approvalStep.step_no,

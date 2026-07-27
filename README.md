@@ -53,15 +53,17 @@ PostgreSQL/Supabase 데이터베이스, React 관리자 화면으로 구성됩�
 ## 시작 순서
 
 1. PostgreSQL 또는 Supabase 프로젝트 생성
-2. `db/schema.sql` 실행
-3. `db/seed.sql` 실행
-4. `.env.example`를 참고해 `.env` 작성
-5. 백엔드와 프론트엔드 의존성 설치
-6. 개발 서버 실행
+2. `.env.example`를 참고해 `.env` 작성 (`DATABASE_URL` 또는 `DB_HOST`/`DB_PORT`/`DB_NAME` 설정)
+3. DB 스키마 및 데이터셋 시드 자동 일괄 적용:
+   ```bash
+   npm run db:setup
+   ```
+   (또는 수동 실행 시: `db/schema.sql` ➔ `db/seed.sql` ➔ `db/seed_dataset_fixtures.sql` 순서로 실행)
+4. 백엔드와 프론트엔드 의존성 설치
+5. 개발 서버 실행
 
-`db/seed.sql`이 현재 스키마에 대응하는 공식 시드입니다.
-`seed_*_dataset.sql` 파일은 이전 데이터 모델 기반의 참고용 레거시 픽스처이므로
-현재 스키마에 직접 실행하지 마세요.
+`db/seed.sql` 및 `db/seed_dataset_fixtures.sql`이 현재 스키마에 대응하는 공식 시드 및 데이터셋 픽스처입니다.
+`seed_mock_dataset.sql` 등 기존 레거시 시드 파일은 이전 데이터 모델 기반이므로 현재 스키마에 직접 실행하지 마세요.
 
 ## 개발 명령어
 

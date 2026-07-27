@@ -21,6 +21,7 @@ export interface PrintRequestPayload {
   isSensitive?: boolean;
   isUrgent?: boolean;
   requestReason?: string;
+  documentContent?: string;
 }
 
 export interface ReprintPayload {
