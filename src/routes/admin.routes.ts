@@ -5,6 +5,7 @@ import {
   createTemplate,
   getDashboardKpis,
   listAuditLogs,
+  verifyAuditChainLogs,
   listPolicies,
   listPrinters,
   listTemplates,
@@ -24,6 +25,7 @@ router.get(
   asyncHandler(getDashboardKpis)
 );
 router.get("/audit-logs", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listAuditLogs));
+router.get("/audit-logs/verify", requireRole(["ADMIN", "MANAGER"]), asyncHandler(verifyAuditChainLogs));
 router.get("/printers", requireRole(["ADMIN", "MANAGER"]), asyncHandler(listPrinters));
 router.post("/printers", requireRole(["ADMIN"]), asyncHandler(createPrinter));
 router.patch("/printers/:id", requireRole(["ADMIN"]), asyncHandler(updatePrinter));

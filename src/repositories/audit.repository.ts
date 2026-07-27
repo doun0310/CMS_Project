@@ -9,7 +9,7 @@ export async function createAuditLog(params: {
   targetId: number;
   detailJson?: Record<string, unknown>;
 }) {
-  const lastLogRes = await query(`SELECT hash FROM audit_logs ORDER BY id DESC LIMIT 1`);
+  const lastLogRes = await query(`SELECT detail_json->>'auditHash' as hash FROM audit_logs ORDER BY id DESC LIMIT 1`);
   const prevHash = lastLogRes.rows[0]?.hash || "GENESIS_HASH_00000000000000000000000000000000";
   const now = new Date();
   const hash = generateAuditHash(prevHash, params.actorId || 0, params.actionType, params.targetType, params.targetId, now);
@@ -93,4 +93,31 @@ export async function listAuditLogs(organizationId: number | null) {
   `;
   const result = await query(sql, [organizationId]);
   return result.rows;
+}
+
+export async function verifyAuditChain() {
+  const sql = `SELECT id, detail_json FROM audit_logs ORDER BY id ASC`;
+  const res = await query(sql);
+  const rows = res.rows;
+
+  let expectedPrevHash = "GENESIS_HASH_00000000000000000000000000000000";
+  let tamperedLogId: number | null = null;
+
+  for (const row of rows) {
+    const detail = row.detail_json || {};
+    if (detail.prevHash && detail.prevHash !== expectedPrevHash) {
+      tamperedLogId = row.id;
+      break;
+    }
+    if (detail.auditHash) {
+      expectedPrevHash = detail.auditHash;
+    }
+  }
+
+  return {
+    isValid: tamperedLogId === null,
+    tamperedLogId,
+    totalLogsVerified: rows.length,
+    verifiedAt: new Date().toISOString()
+  };
 }

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AdminService } from "../services/admin.service";
 import { fail, ok } from "../utils/api-response";
 import { getPositiveIntParam } from "../utils/params";
+import { verifyAuditChain } from "../repositories/audit.repository";
 
 const service = new AdminService();
 
@@ -11,6 +12,10 @@ export async function getDashboardKpis(req: Request, res: Response) {
 
 export async function listAuditLogs(req: Request, res: Response) {
   return ok(res, await service.listAuditLogs(req.user!));
+}
+
+export async function verifyAuditChainLogs(_req: Request, res: Response) {
+  return ok(res, await verifyAuditChain());
 }
 
 export async function listPrinters(req: Request, res: Response) {
