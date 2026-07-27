@@ -42,6 +42,24 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface RetrospectiveItem {
+  id: string;
+  type: 'went_well' | 'to_improve' | 'action_item';
+  content: string;
+  votes: number;
+  authorId: string;
+  createdAt: string;
+}
+
+export interface WorkloadSuggestion {
+  issueId: string;
+  issueKey: string;
+  issueSummary: string;
+  fromUserId: string;
+  toUserId: string;
+  reason: string;
+}
+
 export interface ActivityLog {
   id: string;
   authorId: string;
@@ -72,6 +90,8 @@ export interface Issue {
   timeLogged: number; // hours
   createdAt: string;
   updatedAt: string;
+  blockedBy?: string[]; // issue keys or ids
+  blocks?: string[];    // issue keys or ids
 }
 
 export interface Project {
@@ -90,6 +110,8 @@ export interface AutomationRule {
   action: string;
   enabled: boolean;
   lastExecuted?: string;
+  executionCount?: number;
 }
 
-export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings';
+export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective';
+

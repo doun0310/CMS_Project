@@ -32,7 +32,8 @@ export const KanbanBoard: React.FC = () => {
     onlyMyIssues,
     selectedEpicId,
     selectedType,
-    selectedPriority
+    selectedPriority,
+    t
   } = useJira();
 
   const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'assignee' | 'epic' | 'priority'>('none');
@@ -70,10 +71,10 @@ export const KanbanBoard: React.FC = () => {
   });
 
   const columns: { status: IssueStatus; title: string; color: string }[] = [
-    { status: 'todo', title: 'TO DO', color: 'var(--color-todo)' },
-    { status: 'in_progress', title: 'IN PROGRESS', color: 'var(--color-in-progress)' },
-    { status: 'in_review', title: 'IN REVIEW', color: 'var(--color-in-review)' },
-    { status: 'done', title: 'DONE', color: 'var(--color-done)' }
+    { status: 'todo', title: t('todo'), color: 'var(--color-todo)' },
+    { status: 'in_progress', title: t('in_progress'), color: 'var(--color-in-progress)' },
+    { status: 'in_review', title: t('in_review'), color: 'var(--color-in-review)' },
+    { status: 'done', title: t('done'), color: 'var(--color-done)' }
   ];
 
   const renderTypeIcon = (type: IssueType) => {

@@ -13,6 +13,9 @@ export const Header: React.FC = () => {
   const {
     theme,
     toggleTheme,
+    language,
+    setLanguage,
+    t,
     currentProject,
     setCurrentProject,
     projects,
@@ -82,7 +85,7 @@ export const Header: React.FC = () => {
         {/* Quick Create Button */}
         <button className="btn-create" onClick={() => setIsCreateModalOpen(true)}>
           <IconPlus size={16} />
-          <span>Create Issue</span>
+          <span>{t('createIssue')}</span>
         </button>
       </div>
 
@@ -92,7 +95,7 @@ export const Header: React.FC = () => {
           <IconSearch size={16} className="search-icon" />
           <input
             type="text"
-            placeholder="Search issues by summary, key (e.g. CLOUD-101), labels..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -107,14 +110,14 @@ export const Header: React.FC = () => {
             className={`filter-chip ${onlyMyIssues ? 'active' : ''}`}
             onClick={() => setOnlyMyIssues(!onlyMyIssues)}
           >
-            Only My Issues
+            {t('onlyMyIssues')}
           </button>
           <select
             className="filter-select"
             value={selectedType}
             onChange={e => setSelectedType(e.target.value as any)}
           >
-            <option value="all">All Types</option>
+            <option value="all">{t('allTypes')}</option>
             <option value="story">Story</option>
             <option value="task">Task</option>
             <option value="bug">Bug</option>
@@ -123,8 +126,21 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Section: Theme Toggle, User Switcher, Demo Reset */}
+      {/* Right Section: Language Switcher, Theme Toggle, User Switcher, Demo Reset */}
       <div className="header-right">
+        {/* Language Selector */}
+        <select
+          className="lang-select-header"
+          value={language}
+          onChange={e => setLanguage(e.target.value as any)}
+          title="Select Language"
+        >
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="zh">🇨🇳 中文</option>
+        </select>
+
         <button
           className="header-action-icon"
           title="Reset Demo Data"

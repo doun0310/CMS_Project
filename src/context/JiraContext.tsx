@@ -10,7 +10,8 @@ import type {
   IssueStatus,
   IssueType,
   Priority,
-  SubTask
+  SubTask,
+  RetrospectiveItem
 } from '../types/jira';
 import {
   initialUsers,
@@ -18,12 +19,17 @@ import {
   initialEpics,
   initialSprints,
   initialIssues,
-  initialAutomationRules
+  initialAutomationRules,
+  initialRetrospectiveItems
 } from '../mock/jiraData';
+import { translations, type Language } from '../i18n/translations';
 
 interface JiraContextType {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
   currentProject: Project;
   setCurrentProject: (proj: Project) => void;
   projects: Project[];
@@ -32,8 +38,14 @@ interface JiraContextType {
   sprints: Sprint[];
   issues: Issue[];
   automationRules: AutomationRule[];
+  retrospectiveItems: RetrospectiveItem[];
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
+  
+  // Retro Actions
+  addRetroItem: (type: 'went_well' | 'to_improve' | 'action_item', content: string) => void;
+  voteRetroItem: (id: string) => void;
+  deleteRetroItem: (id: string) => void;
   
   // Filters
   searchQuery: string;
@@ -84,6 +96,7 @@ const JiraContext = createContext<JiraContextType | undefined>(undefined);
 
 export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [language, setLanguage] = useState<Language>('ko');
   const [projects] = useState<Project[]>(initialProjects);
   const [currentProject, setCurrentProject] = useState<Project>(initialProjects[0]);
   const [users] = useState<User[]>(initialUsers);
@@ -92,6 +105,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
   const [issues, setIssues] = useState<Issue[]>(initialIssues);
   const [automationRules, setAutomationRules] = useState<AutomationRule[]>(initialAutomationRules);
+  const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(initialRetrospectiveItems);
 
   const [viewMode, setViewMode] = useState<ViewMode>('board');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -102,6 +116,11 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+
+  const t = (key: string): string => {
+    const langDict = translations[language] || translations.en;
+    return langDict[key] || translations.en[key] || key;
+  };
 
   // Load state from LocalStorage on mount
   useEffect(() => {
@@ -114,6 +133,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (parsed.epics) setEpics(parsed.epics);
         if (parsed.automationRules) setAutomationRules(parsed.automationRules);
         if (parsed.theme) setTheme(parsed.theme);
+        if (parsed.language) setLanguage(parsed.language);
       }
     } catch (e) {
       console.error('Failed to load local storage data:', e);
@@ -128,13 +148,14 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sprints,
         epics,
         automationRules,
-        theme
+        theme,
+        language
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
       console.error('Failed to save to local storage:', e);
     }
-  }, [issues, sprints, epics, automationRules, theme]);
+  }, [issues, sprints, epics, automationRules, theme, language]);
 
   // Apply Theme attribute to body
   useEffect(() => {
@@ -303,16 +324,39 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
+  const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string) => {
+    const newItem: RetrospectiveItem = {
+      id: `retro-${Date.now()}`,
+      type,
+      content,
+      votes: 1,
+      authorId: currentUser.id,
+      createdAt: new Date().toISOString()
+    };
+    setRetrospectiveItems(prev => [newItem, ...prev]);
+  };
+
+  const voteRetroItem = (id: string) => {
+    setRetrospectiveItems(prev =>
+      prev.map(item => (item.id === id ? { ...item, votes: item.votes + 1 } : item))
+    );
+  };
+
+  const deleteRetroItem = (id: string) => {
+    setRetrospectiveItems(prev => prev.filter(item => item.id !== id));
+  };
+
   const resetDemoData = () => {
     setIssues(initialIssues);
     setSprints(initialSprints);
     setEpics(initialEpics);
     setAutomationRules(initialAutomationRules);
+    setRetrospectiveItems(initialRetrospectiveItems);
     localStorage.removeItem(STORAGE_KEY);
   };
 
   const exportDataJSON = () => {
-    return JSON.stringify({ issues, sprints, epics, automationRules }, null, 2);
+    return JSON.stringify({ issues, sprints, epics, automationRules, retrospectiveItems }, null, 2);
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
@@ -321,6 +365,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (data.issues) setIssues(data.issues);
       if (data.sprints) setSprints(data.sprints);
       if (data.epics) setEpics(data.epics);
+      if (data.retrospectiveItems) setRetrospectiveItems(data.retrospectiveItems);
       return true;
     } catch (e) {
       console.error('Import error:', e);
@@ -333,6 +378,9 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         theme,
         toggleTheme,
+        language,
+        setLanguage,
+        t,
         currentProject,
         setCurrentProject,
         projects,
@@ -341,8 +389,12 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sprints,
         issues,
         automationRules,
+        retrospectiveItems,
         viewMode,
         setViewMode,
+        addRetroItem,
+        voteRetroItem,
+        deleteRetroItem,
         searchQuery,
         setSearchQuery,
         onlyMyIssues,

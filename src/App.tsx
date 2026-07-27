@@ -8,8 +8,10 @@ import { RoadmapView } from './components/views/RoadmapView';
 import { ReportsView } from './components/views/ReportsView';
 import { AutomationView } from './components/views/AutomationView';
 import { SettingsView } from './components/views/SettingsView';
+import { RetrospectiveView } from './components/views/RetrospectiveView';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
+import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
 import { AICopilotPanel } from './components/common/AICopilotPanel';
 import './App.css';
 
@@ -28,6 +30,8 @@ const MainLayout: React.FC = () => {
         return <ReportsView />;
       case 'automation':
         return <AutomationView />;
+      case 'retrospective':
+        return <RetrospectiveView />;
       case 'settings':
         return <SettingsView />;
       default:
@@ -53,6 +57,7 @@ const MainLayout: React.FC = () => {
       {/* Global Modals & AI Panel */}
       <IssueDetailModal />
       <CreateIssueModal />
+      <CommandPaletteModal />
       <AICopilotPanel />
     </div>
   );

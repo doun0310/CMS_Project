@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useJira } from '../../context/JiraContext';
+import type { Epic, Issue } from '../../types/jira';
 
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
 
@@ -18,43 +19,47 @@ export const RoadmapView: React.FC = () => {
   // Timeline date columns (14-day window for visual clarity)
   const today = new Date('2026-07-27');
   const days: Date[] = [];
-  for (let i = -3; i <= 14; i++) {
+  for (let i = -3; i < 11; i++) {
     const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    d.setDate(d.getDate() + i);
     days.push(d);
   }
 
   const getPositionPercent = (dateStr: string) => {
-    if (!dateStr) return 20;
     const d = new Date(dateStr);
-    const firstDay = days[0];
-    const diffTime = d.getTime() - firstDay.getTime();
-    const diffDays = diffTime / (1000 * 3600 * 24);
-    const pct = (diffDays / days.length) * 100;
-    return Math.max(2, Math.min(95, pct));
+    const start = days[0].getTime();
+    const end = days[days.length - 1].getTime();
+    const current = d.getTime();
+    if (current <= start) return 0;
+    if (current >= end) return 95;
+    return Math.round(((current - start) / (end - start)) * 100);
   };
 
   return (
-    <div className="roadmap-view">
+    <div className="roadmap-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h1 className="view-title">Timeline Roadmap</h1>
-          <p className="view-subtitle">High-level strategic epic roadmap and cross-team milestone planning</p>
+          <h2>🗺️ Agile Timeline Roadmap</h2>
+          <p className="subtext">
+            Visualize macro epic deliverables, release schedules, and cross-team dependencies.
+          </p>
         </div>
       </div>
 
       {/* Gantt Timeline Container */}
       <div className="gantt-container">
         {/* Timeline Header Row */}
-        <div className="gantt-header-row">
-          <div className="gantt-sidebar-col">EPIC & STORIES</div>
+        <div className="gantt-header">
+          <div className="gantt-sidebar-col">Epics & Features</div>
           <div className="gantt-timeline-grid">
-            {days.map((d, i) => {
-              const isToday = d.toDateString() === today.toDateString();
+            {days.map((day, idx) => {
+              const isToday = day.toISOString().split('T')[0] === '2026-07-27';
               return (
-                <div key={i} className={`gantt-day-col ${isToday ? 'today' : ''}`}>
-                  <div className="day-name">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                  <div className="day-num">{d.getDate()}</div>
+                <div key={idx} className={`gantt-day-cell ${isToday ? 'today' : ''}`}>
+                  <span className="day-name">
+                    {day.toLocaleDateString('en-US', { weekday: 'narrow' })}
+                  </span>
+                  <span className="day-num">{day.getDate()}</span>
                 </div>
               );
             })}
@@ -63,10 +68,10 @@ export const RoadmapView: React.FC = () => {
 
         {/* Epics and Children list */}
         <div className="gantt-body">
-          {epics.map(epic => {
+          {epics.map((epic: Epic) => {
             const isExpanded = !!expandedEpics[epic.id];
-            const childIssues = issues.filter(i => i.epicId === epic.id);
-            const doneChildCount = childIssues.filter(i => i.status === 'done').length;
+            const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
+            const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
             const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
 
             return (
@@ -99,7 +104,7 @@ export const RoadmapView: React.FC = () => {
                 </div>
 
                 {/* Child issues rows */}
-                {isExpanded && childIssues.map(issue => {
+                {isExpanded && childIssues.map((issue: Issue) => {
                   const leftPos = getPositionPercent(issue.createdAt);
                   const rightPos = getPositionPercent(issue.dueDate);
                   const barWidth = Math.max(15, rightPos - leftPos);

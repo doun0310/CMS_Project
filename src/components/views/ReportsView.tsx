@@ -1,31 +1,31 @@
 import React from 'react';
 import { useJira } from '../../context/JiraContext';
-
+import type { Issue, Sprint, User } from '../../types/jira';
 
 export const ReportsView: React.FC = () => {
   const { issues, sprints, users } = useJira();
 
-  const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
-  const sprintIssues = issues.filter(i => i.sprintId === activeSprint?.id);
+  const activeSprint = sprints.find((s: Sprint) => s.status === 'active') || sprints[0];
+  const sprintIssues = issues.filter((i: Issue) => i.sprintId === activeSprint?.id);
 
-  const totalPoints = sprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+  const totalPoints = sprintIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
   const donePoints = sprintIssues
-    .filter(i => i.status === 'done')
-    .reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+    .filter((i: Issue) => i.status === 'done')
+    .reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
   const remainingPoints = totalPoints - donePoints;
 
   // Status breakdown count
   const statusCounts = {
-    todo: sprintIssues.filter(i => i.status === 'todo').length,
-    in_progress: sprintIssues.filter(i => i.status === 'in_progress').length,
-    in_review: sprintIssues.filter(i => i.status === 'in_review').length,
-    done: sprintIssues.filter(i => i.status === 'done').length
+    todo: sprintIssues.filter((i: Issue) => i.status === 'todo').length,
+    in_progress: sprintIssues.filter((i: Issue) => i.status === 'in_progress').length,
+    in_review: sprintIssues.filter((i: Issue) => i.status === 'in_review').length,
+    done: sprintIssues.filter((i: Issue) => i.status === 'done').length
   };
 
   // Workload breakdown by user
-  const userWorkloads = users.map(u => {
-    const uIssues = sprintIssues.filter(i => i.assigneeId === u.id);
-    const pts = uIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0);
+  const userWorkloads = users.map((u: User) => {
+    const uIssues = sprintIssues.filter((i: Issue) => i.assigneeId === u.id);
+    const pts = uIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
     return { user: u, count: uIssues.length, points: pts };
   });
 
@@ -117,8 +117,9 @@ export const ReportsView: React.FC = () => {
           </div>
 
           <div className="workload-list">
-            {userWorkloads.map(({ user, count, points }) => {
-              const maxPts = Math.max(...userWorkloads.map(u => u.points), 1);
+            {userWorkloads.map((item: { user: User; count: number; points: number }) => {
+              const { user, count, points } = item;
+              const maxPts = Math.max(...userWorkloads.map((u: { points: number }) => u.points), 1);
               const barWidth = Math.round((points / maxPts) * 100);
 
               return (

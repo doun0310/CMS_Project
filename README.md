@@ -1,32 +1,105 @@
-# React + TypeScript + Vite
+# ⚡ AetherPulse - Next-Gen AI-Powered Smart Agile Workspace
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> **AetherPulse**는 인공지능(AI) 기반의 차세대 스마트 애자일 프로젝트 관리 워크스페이스입니다.  
+> Atlassian Jira 스타일의 직관적인 디자인과 고도화된 AI 코파일럿, 1-Click 자동 업무 재배치, 애자일 회고 보드, 다국어 지원 시스템을 탑재하여 팀의 생산성과 협업 효율성을 극대화합니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 핵심 역할 (Core Role)
 
-## React Compiler
+AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니어 및 DevOps 팀이 프로젝트의 전체 수명 주기를 효율적으로 운용할 수 있도록 돕습니다.
+- **애자일 워크플로우 관리**: 스프린트 계획, 백로그 정제, 칸반 보드 상태 전이 및 로드맵 관리.
+- **AI 기반 프로젝트 진단**: 스프린트 리스크 탐지, 데일리 스탠드업 요약, 팀원별 스토리 포인트 과부하 자동 재배치.
+- **글로벌 팀 협업**: 4개국어(한국어, 영어, 일본어, 중국어) 실시간 전환 및 스포트라이트 단축키 기반 생산성 환경 제공.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🔥 주요 특징 및 차별화된 기능 (Key Features)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 🤖 1. Aether AI Copilot & Smart Workload Auto-Balancer (독창적 AI 엔진)
+- **스프린트 건강도 지수 (Sprint Health Index)**: 미해결 블로커, 미할당 이슈, 버그 비율을 다각도로 분석하여 스프린트 건강 점수(0~100점) 및 맞춤 전략 제안.
+- **1-Click AI Auto-Balancer**: 특정 엔지니어의 업무 과부하(Story Points)를 감지하여 여유가 있는 팀원에게 1-Click으로 최적 재배치 추천 및 즉시 적용.
+- **Daily AI Standup & Digest**: 지난 24시간의 변경 내역을 바탕으로 "진행 중 작업", "감지된 블로커", "AI 미래 속도 예측" 보고서 자동 생성.
+- **Gherkin BDD 기반 Spec Generator**: 자연어 프롬프트로부터 인수 조건(`Given-When-Then`), 하위 작업(Sub-tasks) 및 스토리 포인트를 자동 작성.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+### 🌐 2. Multi-Language Support (4개국어 실시간 지원)
+- **지원 언어**: 🇰🇷 **한국어 (ko)** | 🇺🇸 **English (en)** | 🇯🇵 **日本語 (ja)** | 🇨🇳 **中文 (zh)**
+- 상단 헤더의 드롭다운 선택기 및 프로젝트 설정 메뉴에서 클릭 한 번으로 앱 전체 UI 언어를 즉시 변경할 수 있습니다.
+- 선택된 언어 설정은 `localStorage`에 영구 보존됩니다.
+
+### 🔄 3. Interactive Sprint Retrospective Board (애자일 회고 보드)
+- 스프린트 완료 후 팀의 회고를 돕는 전용 보드 제공 (`/retrospective`).
+- 🟢 **What Went Well** (잘한 점) / 🟠 **What Can Be Improved** (개선할 점) / 🔵 **Action Items** (실행 과제) 3개 컬럼.
+- 안건별 **추천(Upvote) 시스템**, 작성자 태깅, 실시간 카드 추가/삭제 기능 지원.
+
+### ⚡ 4. Universal Command Palette (`Cmd + K` / `Ctrl + K`)
+- 키보드 단축키 하나로 호출되는 전역 스포트라이트 검색 바.
+- 빠르게 이슈 키/제목 검색, 모달 열기, 7가지 뷰 모드 간 전환, 데모 데이터 리셋 실행.
+
+### 📋 5. Kanban Board & Backlog Management (칸반 및 백로그)
+- **드래그 앤 드롭 (Drag & Drop)**: 이슈 상태(TO DO, IN PROGRESS, IN REVIEW, DONE) 간 원활한 이동.
+- **스윔레인(Swimlane) 그룹화**: 담당자별, 에픽별, 우선순위별로 칸반 레인을 동적으로 분할.
+- **백로그 & 스프린트 제어**: 백로그 이슈를 활성 스프린트로 드래그 이동 및 스프린트 시작/완료 관리.
+
+### 🗺️ 6. Timeline Roadmap (타임라인 로드맵)
+- 마크로 에픽(Epic) 및 하위 스토리의 마일스톤 및 마감일 일정 시각화.
+- 에픽별 하위 이슈 완료율(%) 게이지 및 Gantt 형태의 타임라인 바 제공.
+
+### ⏱️ 7. Time Tracking & AI Code Audit (시간 추적 및 코드 검증)
+- **시간 추적 바**: 최초 추정 시간(Original Estimate) 대비 실제 작업 시간(Logged Time) 게이지 및 실시간 시간 로깅.
+- **AI PR Readiness & Security Audit Widget**: SLA 래턴시 체크, 보안 점수(Security Score 98/100), 메모리 누수 및 비밀키 노출 자동 진단.
+
+---
+
+## 🛠️ 기술 스택 (Tech Stack)
+
+| 구분 | 기술 / 라이브러리 |
+| :--- | :--- |
+| **Core Framework** | React 19, TypeScript, Vite |
+| **Styling** | Vanilla CSS (CSS Custom Properties & Design Tokens), Dark/Light Theme System |
+| **Data Persistence** | LocalStorage API, Custom JSON Import/Export |
+| **Lint & Quality** | Oxlint, TypeScript Compiler (`tsc -b`) |
+
+---
+
+## 🚀 빠른 시작 안내 (Getting Started)
+
+### 1. 의존성 패키지 설치
+```bash
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### 2. 개발 서버 실행 (Local Dev Server)
+```bash
+npm run dev
+```
+기본적으로 `http://localhost:5173` 에서 개발 서버가 실행됩니다.
+
+### 3. 프로덕션 검증 빌드 (Production Build)
+```bash
+npm run build
+```
+
+---
+
+## 📁 프로젝트 구조 (Project Structure)
+
+```
+src/
+├── components/
+│   ├── common/         # AI 코파일럿 패널, 아이콘 팩 (Icons.tsx)
+│   ├── layout/         # Header, Sidebar Top Navigation
+│   ├── modals/         # IssueDetailModal, CreateIssueModal, CommandPaletteModal
+│   └── views/          # KanbanBoard, BacklogView, RoadmapView, ReportsView, AutomationView, RetrospectiveView, SettingsView
+├── context/            # JiraContext (상태 관리, LocalStorage 영속성, i18n)
+├── i18n/               # translations.ts (한/영/일/중 4개국어 번역 딕셔너리)
+├── mock/               # 초기 애자일 데이터 (Users, Epics, Sprints, Issues, RetroItems)
+├── services/           # aiCopilot.ts (AI 건강도 분석, Auto-Balancer, Standup 생성 로직)
+└── types/              # jira.ts (TypeScript 데이터 모델 및 타입 정의)
+```
+
+---
+
+## 📄 라이선스 (License)
+
+Private Repository - **AetherPulse AI System**

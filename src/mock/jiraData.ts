@@ -346,3 +346,31 @@ export const initialIssues: Issue[] = [
     updatedAt: '2026-07-25T13:00:00Z'
   }
 ];
+
+export const initialRetrospectiveItems = [
+  {
+    id: 'retro-1',
+    type: 'went_well' as const,
+    content: 'Completed high-throughput WebSocket token stream implementation ahead of schedule with 0 memory leaks!',
+    votes: 5,
+    authorId: 'u3',
+    createdAt: '2026-07-26T10:00:00Z'
+  },
+  {
+    id: 'retro-2',
+    type: 'to_improve' as const,
+    content: 'API documentation for rate-limiting headers was missing during QA deployment, causing false positive alerts.',
+    votes: 3,
+    authorId: 'u2',
+    createdAt: '2026-07-26T11:30:00Z'
+  },
+  {
+    id: 'retro-3',
+    type: 'action_item' as const,
+    content: 'Automate OpenAPI Spec generation in GitHub Actions CI pipeline before merging PRs into release branch.',
+    votes: 7,
+    authorId: 'u4',
+    createdAt: '2026-07-26T14:00:00Z'
+  }
+];
+

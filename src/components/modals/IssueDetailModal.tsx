@@ -314,6 +314,56 @@ export const IssueDetailModal: React.FC = () => {
                 onChange={e => updateIssue(issue.id, { component: e.target.value })}
               />
             </div>
+
+            {/* Time Tracking Progress */}
+            <div className="field-group time-tracking-group">
+              <label><IconClock size={14} /> Time Tracking</label>
+              <div className="time-tracking-bar">
+                <div
+                  className="logged-bar"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.round(((issue.timeLogged || 0) / Math.max(1, issue.originalEstimate || 1)) * 100)
+                    )}%`
+                  }}
+                ></div>
+              </div>
+              <div className="time-stats">
+                <span>Logged: {issue.timeLogged || 0}h</span>
+                <span>Est: {issue.originalEstimate || 0}h</span>
+              </div>
+              <div className="log-time-inputs">
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Log hours..."
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const val = Number((e.target as HTMLInputElement).value);
+                      if (val > 0) {
+                        updateIssue(issue.id, { timeLogged: (issue.timeLogged || 0) + val });
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* AI Security & Code Audit Widget */}
+            <div className="field-group ai-audit-widget">
+              <label>✨ AI Security & PR Readiness</label>
+              <div className="ai-audit-box">
+                <div className="audit-score-row">
+                  <span className="audit-badge pass">SLA Check: PASS</span>
+                  <span className="audit-badge sec">Security Score: 98/100</span>
+                </div>
+                <p className="audit-desc">
+                  No hardcoded secrets or memory leaks detected across modified AST nodes.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

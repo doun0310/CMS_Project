@@ -7,6 +7,7 @@ import {
   IconTimeline,
   IconReports,
   IconAutomation,
+  IconRetro,
   IconSettings
 } from '../common/Icons';
 
@@ -18,7 +19,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { viewMode, setViewMode, currentProject, issues, sprints } = useJira();
+  const { viewMode, setViewMode, currentProject, issues, sprints, retrospectiveItems, t } = useJira();
 
   const activeSprint = sprints.find(s => s.status === 'active');
   const activeSprintIssues = issues.filter(i => i.sprintId === activeSprint?.id);
@@ -27,34 +28,40 @@ export const Sidebar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       id: 'board',
-      label: 'Kanban Board',
+      label: t('board'),
       icon: <IconBoard size={18} />,
       badge: `${activeSprintIssues.length}`
     },
     {
       id: 'backlog',
-      label: 'Backlog & Sprints',
+      label: t('backlog'),
       icon: <IconBacklog size={18} />,
       badge: `${backlogIssues.length}`
     },
     {
       id: 'roadmap',
-      label: 'Timeline Roadmap',
+      label: t('roadmap'),
       icon: <IconTimeline size={18} />
     },
     {
       id: 'reports',
-      label: 'Agile Reports',
+      label: t('reports'),
       icon: <IconReports size={18} />
     },
     {
       id: 'automation',
-      label: 'Automation Engine',
+      label: t('automation'),
       icon: <IconAutomation size={18} />
     },
     {
+      id: 'retrospective',
+      label: t('retrospective'),
+      icon: <IconRetro size={18} />,
+      badge: `${retrospectiveItems.length}`
+    },
+    {
       id: 'settings',
-      label: 'Project Settings',
+      label: t('settings'),
       icon: <IconSettings size={18} />
     }
   ];
