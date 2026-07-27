@@ -1,0 +1,141 @@
+import React from 'react';
+import { useJira } from '../../context/JiraContext';
+import type { ViewMode } from '../../types/jira';
+import {
+  IconBoard,
+  IconBacklog,
+  IconTimeline,
+  IconReports,
+  IconAutomation,
+  IconSettings
+} from '../common/Icons';
+
+interface NavItem {
+  id: ViewMode;
+  label: string;
+  icon: React.ReactNode;
+  badge?: string;
+}
+
+export const Sidebar: React.FC = () => {
+  const { viewMode, setViewMode, currentProject, issues, sprints } = useJira();
+
+  const activeSprint = sprints.find(s => s.status === 'active');
+  const activeSprintIssues = issues.filter(i => i.sprintId === activeSprint?.id);
+  const backlogIssues = issues.filter(i => !i.sprintId);
+
+  const navItems: NavItem[] = [
+    {
+      id: 'board',
+      label: 'Kanban Board',
+      icon: <IconBoard size={18} />,
+      badge: `${activeSprintIssues.length}`
+    },
+    {
+      id: 'backlog',
+      label: 'Backlog & Sprints',
+      icon: <IconBacklog size={18} />,
+      badge: `${backlogIssues.length}`
+    },
+    {
+      id: 'roadmap',
+      label: 'Timeline Roadmap',
+      icon: <IconTimeline size={18} />
+    },
+    {
+      id: 'reports',
+      label: 'Agile Reports',
+      icon: <IconReports size={18} />
+    },
+    {
+      id: 'automation',
+      label: 'Automation Engine',
+      icon: <IconAutomation size={18} />
+    },
+    {
+      id: 'settings',
+      label: 'Project Settings',
+      icon: <IconSettings size={18} />
+    }
+  ];
+
+  return (
+    <aside className="jira-sidebar">
+      {/* Sidebar Top Project Card */}
+      <div className="sidebar-project-card">
+        <div className="project-icon">{currentProject.avatar}</div>
+        <div className="project-info">
+          <div className="project-title">{currentProject.name}</div>
+          <div className="project-type">Software Project (Agile)</div>
+        </div>
+      </div>
+
+      <div className="sidebar-section-header">PLANNING & WORKFLOWS</div>
+
+      {/* Navigation list */}
+      <nav className="sidebar-nav">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            className={`sidebar-link ${viewMode === item.id ? 'active' : ''}`}
+            onClick={() => setViewMode(item.id)}
+          >
+            <span className="link-icon">{item.icon}</span>
+            <span className="link-text">{item.label}</span>
+            {item.badge !== undefined && (
+              <span className="link-badge">{item.badge}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      {/* Active Sprint Summary Widget */}
+      {activeSprint && (
+        <div className="sidebar-sprint-widget">
+          <div className="widget-header">
+            <span className="pulse-dot"></span>
+            <span className="widget-title">ACTIVE SPRINT</span>
+          </div>
+          <div className="sprint-name">{activeSprint.name}</div>
+          <div className="sprint-dates">
+            {activeSprint.startDate} ~ {activeSprint.endDate}
+          </div>
+          <div className="sprint-progress-bar">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${
+                  activeSprintIssues.length > 0
+                    ? Math.round(
+                        (activeSprintIssues.filter(i => i.status === 'done').length /
+                          activeSprintIssues.length) *
+                          100
+                      )
+                    : 0
+                }%`
+              }}
+            ></div>
+          </div>
+          <div className="sprint-stats">
+            <span>
+              Done:{' '}
+              {activeSprintIssues.filter(i => i.status === 'done').length}/
+              {activeSprintIssues.length}
+            </span>
+            <span>
+              {activeSprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0)}{' '}
+              pts
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar Footer */}
+      <div className="sidebar-footer">
+        <div className="atlassian-credit">
+          Powered by <strong>AetherPulse AI</strong> System
+        </div>
+      </div>
+    </aside>
+  );
+};

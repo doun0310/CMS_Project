@@ -1,41 +1,26 @@
 {
-  "name": "cms-printer-application",
-  "version": "0.1.0",
-  "description": "Approval-based printer application for internal CMS",
-  "main": "dist/server.js",
+  "name": "aether-pulse",
+  "description": "AetherPulse - Next-Gen AI-Powered Smart Agile Workspace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "dev:all": "node scripts/dev-all.js",
-    "db:setup": "node scripts/apply-db-schema.js",
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-rate-limit": "^8.6.0",
-    "helmet": "^8.3.0",
-    "net-snmp": "^3.26.3",
-    "pg": "^8.13.1",
-    "swagger-ui-express": "^5.0.1",
-    "yamljs": "^0.3.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/jest": "^30.0.0",
-    "@types/net-snmp": "^3.23.0",
-    "@types/node": "^22.10.2",
-    "@types/pg": "^8.11.10",
-    "@types/supertest": "^6.0.3",
-    "@types/swagger-ui-express": "^4.1.8",
-    "@types/yamljs": "^0.2.34",
-    "jest": "^30.0.5",
-    "supertest": "^7.1.1",
-    "ts-jest": "^29.4.1",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.2"
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.71.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
   }
 }
