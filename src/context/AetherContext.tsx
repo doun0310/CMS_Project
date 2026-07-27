@@ -142,12 +142,15 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.issues) setIssues(parsed.issues);
-        if (parsed.sprints) setSprints(parsed.sprints);
-        if (parsed.epics) setEpics(parsed.epics);
-        if (parsed.automationRules) setAutomationRules(parsed.automationRules);
+        if (Array.isArray(parsed.issues)) setIssues(parsed.issues);
+        if (Array.isArray(parsed.sprints)) setSprints(parsed.sprints);
+        if (Array.isArray(parsed.epics)) setEpics(parsed.epics);
+        if (Array.isArray(parsed.automationRules)) setAutomationRules(parsed.automationRules);
+        if (Array.isArray(parsed.retrospectiveItems)) setRetrospectiveItems(parsed.retrospectiveItems);
+        if (Array.isArray(parsed.automationAuditLogs)) setAutomationAuditLogs(parsed.automationAuditLogs);
         if (parsed.theme) setTheme(parsed.theme);
         if (parsed.language) setLanguage(parsed.language);
+        if (parsed.accentColor) setAccentColor(parsed.accentColor);
       }
     } catch (e) {
       console.error('Failed to load local storage data:', e);
@@ -162,14 +165,17 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sprints,
         epics,
         automationRules,
+        retrospectiveItems,
+        automationAuditLogs,
         theme,
-        language
+        language,
+        accentColor
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
       console.error('Failed to save to local storage:', e);
     }
-  }, [issues, sprints, epics, automationRules, theme, language]);
+  }, [issues, sprints, epics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
 
   // Apply Theme attribute to body
   useEffect(() => {
@@ -221,8 +227,8 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const createIssue = (issueData: Partial<Issue>) => {
-    const nextIdNum = issues.length + 101;
-    const key = `${currentProject.key}-${nextIdNum}`;
+    const maxNum = issues.reduce((max, i) => Math.max(max, parseInt(i.key.split('-')[1]) || 0), 100);
+    const key = `${currentProject.key}-${maxNum + 1}`;
     const now = new Date().toISOString();
 
     const newIssue: Issue = {
@@ -411,6 +417,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setEpics(initialEpics);
     setAutomationRules(initialAutomationRules);
     setRetrospectiveItems(initialRetrospectiveItems);
+    setAutomationAuditLogs(initialAutomationAuditLogs);
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -421,10 +428,12 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const importDataJSON = (jsonStr: string): boolean => {
     try {
       const data = JSON.parse(jsonStr);
-      if (data.issues) setIssues(data.issues);
-      if (data.sprints) setSprints(data.sprints);
-      if (data.epics) setEpics(data.epics);
-      if (data.retrospectiveItems) setRetrospectiveItems(data.retrospectiveItems);
+      if (Array.isArray(data.issues)) setIssues(data.issues);
+      if (Array.isArray(data.sprints)) setSprints(data.sprints);
+      if (Array.isArray(data.epics)) setEpics(data.epics);
+      if (Array.isArray(data.retrospectiveItems)) setRetrospectiveItems(data.retrospectiveItems);
+      if (Array.isArray(data.automationRules)) setAutomationRules(data.automationRules);
+      if (Array.isArray(data.automationAuditLogs)) setAutomationAuditLogs(data.automationAuditLogs);
       return true;
     } catch (e) {
       console.error('Import error:', e);

@@ -51,7 +51,7 @@ export const CreateIssueModal: React.FC = () => {
   };
 
   return (
-    <div className="modal-backdrop animate-fade-in" onClick={() => setIsCreateModalOpen(false)}>
+    <div className="modal-backdrop-center animate-fade-in" onClick={() => setIsCreateModalOpen(false)}>
       <div className="create-issue-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
           <h2>Create Issue • {currentProject.key}</h2>

@@ -29,7 +29,21 @@ export const ReportsView: React.FC = () => {
   const userWorkloads = users.map((u: User) => {
     const uIssues = sprintIssues.filter((i: Issue) => i.assigneeId === u.id);
     const pts = uIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
-    return { user: u, count: uIssues.length, points: pts };
+    const completedPts = uIssues
+      .filter((i: Issue) => i.status === 'done')
+      .reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
+
+    let statusLabel = '🟢 Optimal';
+    let statusClass = 'optimal';
+    if (pts > 11) {
+      statusLabel = '🔴 Overloaded';
+      statusClass = 'overloaded';
+    } else if (pts > 8) {
+      statusLabel = '🟡 Heavy Capacity';
+      statusClass = 'heavy';
+    }
+
+    return { user: u, count: uIssues.length, points: pts, completedPts, statusLabel, statusClass };
   });
 
   // AI Velocity Forecasting Calculation
@@ -43,9 +57,9 @@ export const ReportsView: React.FC = () => {
     <div className="reports-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>📊 Advanced Agile Analytics & AI Velocity Predictor</h2>
+          <h2>📊 Advanced Agile Analytics & Manager Capacity Matrix</h2>
           <p className="subtext">
-            Sprint burndown trends, team workload distribution, and AI-powered velocity completion forecasts.
+            Sprint burndown trends, team workload matrix, and AI-powered velocity completion forecasts.
           </p>
         </div>
 
@@ -171,9 +185,9 @@ export const ReportsView: React.FC = () => {
           </div>
 
           <div className="workload-list">
-            {userWorkloads.map((item: { user: User; count: number; points: number }) => {
+            {userWorkloads.map((item) => {
               const { user, count, points } = item;
-              const maxPts = Math.max(...userWorkloads.map((u: { points: number }) => u.points), 1);
+              const maxPts = Math.max(...userWorkloads.map(u => u.points), 1);
               const barWidth = Math.round((points / maxPts) * 100);
 
               return (
@@ -197,6 +211,54 @@ export const ReportsView: React.FC = () => {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* Manager Resource & Capacity Allocation Matrix Table */}
+      <div className="manager-matrix-section animate-fade-in">
+        <div className="section-title-group">
+          <h3>👨‍💼 Manager Team Resource & Capacity Matrix</h3>
+          <span className="section-subtitle">Real-time team load balancing & capacity status for Managers</span>
+        </div>
+
+        <div className="matrix-table-wrap">
+          <table className="matrix-table">
+            <thead>
+              <tr>
+                <th>Team Member</th>
+                <th>Role</th>
+                <th>Assigned Tasks</th>
+                <th>Story Points (Done / Total)</th>
+                <th>Capacity Health</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userWorkloads.map(item => (
+                <tr key={item.user.id}>
+                  <td>
+                    <div className="user-info-flex">
+                      <img src={item.user.avatar} alt="" className="avatar-xs" />
+                      <strong>{item.user.name}</strong>
+                    </div>
+                  </td>
+                  <td>{item.user.role}</td>
+                  <td>{item.count} tasks</td>
+                  <td>
+                    <strong>{item.completedPts}</strong> / {item.points} pts
+                  </td>
+                  <td>
+                    <span className={`capacity-badge ${item.statusClass}`}>{item.statusLabel}</span>
+                  </td>
+                  <td>
+                    <button className="btn-ghost-sm" title="Manage workload">
+                      View Tasks
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

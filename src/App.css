@@ -1,4 +1,4 @@
-/* JiraVerse App Layout */
+/* AetherPulse App Layout */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -7,6 +7,13 @@
   overflow: hidden;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+
+  /* z-index Token System */
+  --z-header: 100;
+  --z-dropdown: 300;
+  --z-copilot-trigger: 250;
+  --z-copilot-drawer: 280;
+  --z-modal: 400;
 }
 
 .app-main-layout {
@@ -32,7 +39,7 @@
   justify-content: space-between;
   padding: 0 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 100;
+  z-index: var(--z-header);
   gap: 16px;
 }
 
@@ -242,7 +249,7 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
   min-width: 260px;
   padding: 8px 0;
-  z-index: 200;
+  z-index: var(--z-dropdown);
 }
 .dropdown-menu.right {
   left: auto;
@@ -878,9 +885,19 @@
   position: fixed;
   inset: 0;
   background: var(--modal-overlay);
-  z-index: 300;
+  z-index: var(--z-modal);
   display: flex;
   justify-content: flex-end;
+}
+
+.modal-backdrop-center {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  z-index: var(--z-modal);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .issue-detail-drawer {
@@ -1374,7 +1391,7 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 8px;
-  z-index: 250;
+  z-index: var(--z-copilot-trigger);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .ai-copilot-trigger:hover {
@@ -1392,7 +1409,7 @@ input:checked + .slider:before {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  z-index: 260;
+  z-index: var(--z-copilot-drawer);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2534,6 +2551,161 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
 }
+
+/* Manager Resource & Capacity Matrix Styles */
+.manager-matrix-section {
+  margin-top: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.section-title-group h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.section-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.matrix-table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.matrix-table th {
+  background: var(--bg-tertiary);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.matrix-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.user-info-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capacity-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.capacity-badge.optimal {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.capacity-badge.heavy {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.capacity-badge.overloaded {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 1280px) {
+  .reports-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .forecast-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .celebration-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .jira-sidebar {
+    width: 56px;
+    min-width: 56px;
+  }
+  .jira-sidebar .sidebar-nav-label,
+  .jira-sidebar .sidebar-section-title,
+  .jira-sidebar .sidebar-project-info,
+  .jira-sidebar .sidebar-sprint-progress,
+  .jira-sidebar .sidebar-footer {
+    display: none;
+  }
+  .jira-sidebar .sidebar-nav-icon {
+    margin-right: 0;
+  }
+  .issue-detail-drawer {
+    width: 90vw;
+    max-width: 720px;
+  }
+  .ai-copilot-drawer {
+    width: 90vw;
+    max-width: 420px;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .kanban-columns {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .jira-header {
+    padding: 0 12px;
+  }
+  .header-search {
+    width: 180px;
+  }
+  .jira-sidebar {
+    position: fixed;
+    left: -240px;
+    transition: left 0.3s ease;
+    z-index: var(--z-header);
+  }
+  .jira-sidebar.open {
+    left: 0;
+    width: 240px;
+  }
+  .reports-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
+  .backlog-issue-row {
+    flex-wrap: wrap;
+  }
+  .matrix-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .matrix-table {
+    min-width: 600px;
+  }
+}
+
+
 
 
 

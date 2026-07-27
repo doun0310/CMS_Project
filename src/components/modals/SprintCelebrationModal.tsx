@@ -41,7 +41,7 @@ export const SprintCelebrationModal: React.FC<SprintCelebrationModalProps> = ({
   });
 
   return (
-    <div className="modal-backdrop animate-fade-in" onClick={onClose}>
+    <div className="modal-backdrop-center animate-fade-in" onClick={onClose}>
       <div className="celebration-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <button className="celebration-close-btn" onClick={onClose}>
           <IconX size={20} />

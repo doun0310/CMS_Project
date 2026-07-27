@@ -26,6 +26,7 @@ export const BacklogView: React.FC = () => {
     sprints,
     epics,
     users,
+    currentUser,
     createSprint,
     startSprint,
     completeSprint,
@@ -56,7 +57,7 @@ export const BacklogView: React.FC = () => {
       const q = searchQuery.toLowerCase();
       if (!issue.key.toLowerCase().includes(q) && !issue.summary.toLowerCase().includes(q)) return false;
     }
-    if (onlyMyIssues && issue.assigneeId !== users[2].id) return false;
+    if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
     if (selectedType !== 'all' && issue.type !== selectedType) return false;
     return true;
   });
@@ -247,7 +248,7 @@ export const BacklogView: React.FC = () => {
 
       {/* Create Sprint Modal */}
       {isCreatingSprint && (
-        <div className="modal-backdrop animate-fade-in">
+        <div className="modal-backdrop-center animate-fade-in">
           <div className="modal-box">
             <h2>Create New Sprint</h2>
             <form onSubmit={handleCreateSprintSubmit}>
@@ -322,7 +323,7 @@ export const BacklogView: React.FC = () => {
 
       <SprintCelebrationModal
         sprint={celebratingSprint}
-        sprintIssues={issues.filter(i => i.sprintId === celebratingSprint?.id)}
+        sprintIssues={celebratingSprint ? issues.filter(i => i.sprintId === celebratingSprint.id) : []}
         users={users}
         onClose={() => setCelebratingSprint(null)}
       />
