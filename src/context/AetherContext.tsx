@@ -26,7 +26,7 @@ import {
 } from '../mock/AetherData';
 import { translations, type Language } from '../i18n/translations';
 
-interface JiraContextType {
+interface AetherContextType {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
   accentColor: string;
@@ -97,11 +97,11 @@ interface JiraContextType {
   importDataJSON: (jsonStr: string) => boolean;
 }
 
-const STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
+const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
 
-const JiraContext = createContext<JiraContextType | undefined>(undefined);
+const AetherContext = createContext<AetherContextType | undefined>(undefined);
 
-export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [accentColor, setAccentColor] = useState<string>('#6366f1');
   const [language, setLanguage] = useState<Language>('ko');
@@ -442,7 +442,7 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <JiraContext.Provider
+    <AetherContext.Provider
       value={{
         theme,
         toggleTheme,
@@ -501,12 +501,12 @@ export const JiraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }}
     >
       {children}
-    </JiraContext.Provider>
+    </AetherContext.Provider>
   );
 };
 
-export const useJira = () => {
-  const context = useContext(JiraContext);
-  if (!context) throw new Error('useJira must be used within a JiraProvider');
+export const useAether = () => {
+  const context = useContext(AetherContext);
+  if (!context) throw new Error('useAether must be used within an AetherProvider');
   return context;
 };

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { RetrospectiveItem, User } from '../../types/Aether';
 import { IconPlus, IconTrash } from '../common/Icons';
 
 export const RetrospectiveView: React.FC = () => {
-  const { retrospectiveItems, addRetroItem, voteRetroItem, deleteRetroItem, users } = useJira();
+  const { retrospectiveItems, addRetroItem, voteRetroItem, deleteRetroItem, users } = useAether();
   
   const [newContent, setNewContent] = useState('');
   const [targetColumn, setTargetColumn] = useState<'went_well' | 'to_improve' | 'action_item'>('went_well');

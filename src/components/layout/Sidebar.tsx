@@ -1,5 +1,5 @@
 import React from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { ViewMode } from '../../types/Aether';
 import {
   IconBoard,
@@ -19,7 +19,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { viewMode, setViewMode, currentProject, issues, sprints, retrospectiveItems, t } = useJira();
+  const { viewMode, setViewMode, currentProject, issues, sprints, retrospectiveItems, t } = useAether();
 
   const activeSprint = sprints.find(s => s.status === 'active');
   const activeSprintIssues = issues.filter(i => i.sprintId === activeSprint?.id);
@@ -67,7 +67,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="jira-sidebar">
+    <aside className="aether-sidebar">
       {/* Sidebar Top Project Card */}
       <div className="sidebar-project-card">
         <div className="project-icon">{currentProject.avatar}</div>

@@ -30,7 +30,7 @@
 }
 
 /* Header Styles */
-.jira-header {
+.aether-header {
   height: 56px;
   background-color: var(--bg-header);
   color: var(--text-header);
@@ -294,7 +294,7 @@
 }
 
 /* Sidebar */
-.jira-sidebar {
+.aether-sidebar {
   width: 240px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
@@ -2853,18 +2853,18 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 1024px) {
-  .jira-sidebar {
+  .aether-sidebar {
     width: 56px;
     min-width: 56px;
   }
-  .jira-sidebar .sidebar-nav-label,
-  .jira-sidebar .sidebar-section-title,
-  .jira-sidebar .sidebar-project-info,
-  .jira-sidebar .sidebar-sprint-progress,
-  .jira-sidebar .sidebar-footer {
+  .aether-sidebar .sidebar-nav-label,
+  .aether-sidebar .sidebar-section-title,
+  .aether-sidebar .sidebar-project-info,
+  .aether-sidebar .sidebar-sprint-progress,
+  .aether-sidebar .sidebar-footer {
     display: none;
   }
-  .jira-sidebar .sidebar-nav-icon {
+  .aether-sidebar .sidebar-nav-icon {
     margin-right: 0;
   }
   .issue-detail-drawer {
@@ -2884,19 +2884,19 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
-  .jira-header {
+  .aether-header {
     padding: 0 12px;
   }
   .header-search {
     width: 180px;
   }
-  .jira-sidebar {
+  .aether-sidebar {
     position: fixed;
     left: -240px;
     transition: left 0.3s ease;
     z-index: var(--z-header);
   }
-  .jira-sidebar.open {
+  .aether-sidebar.open {
     left: 0;
     width: 240px;
   }
@@ -2917,7 +2917,6 @@ input:checked + .slider:before {
     min-width: 600px;
   }
 }
-
 
 
 

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { Epic, Issue } from '../../types/Aether';
 
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
-  const { epics, issues, setSelectedIssueId } = useJira();
+  const { epics, issues, setSelectedIssueId } = useAether();
   const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>({
     'epic-1': true,
     'epic-2': true,

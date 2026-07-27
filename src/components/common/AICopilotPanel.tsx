@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import {
   generateAISpecs,
   analyzeSprintHealth,
@@ -10,7 +10,7 @@ import {
 import { IconX, IconZap, IconCheck } from './Icons';
 
 export const AICopilotPanel: React.FC = () => {
-  const { users, sprints, issues, selectedIssueId, updateIssue, addSubtask } = useJira();
+  const { users, sprints, issues, selectedIssueId, updateIssue, addSubtask } = useAether();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'advisor' | 'rebalance' | 'generator'>('advisor');
 
@@ -241,4 +241,3 @@ export const AICopilotPanel: React.FC = () => {
     </>
   );
 };
-

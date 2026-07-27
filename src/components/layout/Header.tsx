@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { Project, User } from '../../types/Aether';
 import {
   IconSearch,
@@ -33,7 +33,7 @@ export const Header: React.FC = () => {
     setSelectedIssueId,
     setIsCreateModalOpen,
     resetDemoData
-  } = useJira();
+  } = useAether();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="jira-header">
+    <header className="aether-header">
       {/* Left section: Logo & App title */}
       <div className="header-left">
         <div className="brand">

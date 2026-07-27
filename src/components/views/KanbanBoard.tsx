@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { Epic, Issue, IssueStatus, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import {
   IconStory,
@@ -34,7 +34,7 @@ export const KanbanBoard: React.FC = () => {
     selectedType,
     selectedPriority,
     t
-  } = useJira();
+  } = useAether();
 
   const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'assignee' | 'epic' | 'priority'>('none');
   const [draggedIssueId, setDraggedIssueId] = useState<string | null>(null);

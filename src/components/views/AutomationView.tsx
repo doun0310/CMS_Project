@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import { IconAutomation, IconPlay, IconPlus, IconCheck } from '../common/Icons';
 
 export const AutomationView: React.FC = () => {
@@ -9,7 +9,7 @@ export const AutomationView: React.FC = () => {
     toggleAutomationRule,
     addAutomationRule,
     runAutomationRule
-  } = useJira();
+  } = useAether();
 
   const [testNotification, setTestNotification] = useState<string | null>(null);
   const [isCreatingRule, setIsCreatingRule] = useState(false);

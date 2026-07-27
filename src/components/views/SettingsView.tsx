@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import { IconDownload, IconReset, IconCheck } from '../common/Icons';
 
 export const SettingsView: React.FC = () => {
@@ -15,7 +15,7 @@ export const SettingsView: React.FC = () => {
     accentColor,
     setAccentColor,
     t
-  } = useJira();
+  } = useAether();
   const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 

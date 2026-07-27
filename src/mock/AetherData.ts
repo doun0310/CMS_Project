@@ -4,35 +4,35 @@ export const initialUsers: User[] = [
   {
     id: 'u1',
     name: '김민수 (Min-su Kim)',
-    email: 'minsu.kim@jiraverse.io',
+    email: 'minsu.kim@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     role: 'Product Owner'
   },
   {
     id: 'u2',
     name: 'Sarah Connor',
-    email: 'sarah.c@jiraverse.io',
+    email: 'sarah.c@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     role: 'Senior Backend Architect'
   },
   {
     id: 'u3',
     name: 'Alex Rivera',
-    email: 'alex.rivera@jiraverse.io',
+    email: 'alex.rivera@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     role: 'Frontend Lead'
   },
   {
     id: 'u4',
     name: 'Elena Rostova',
-    email: 'elena.r@jiraverse.io',
+    email: 'elena.r@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
     role: 'DevOps & Site Reliability'
   },
   {
     id: 'u5',
     name: '박다윗 (David Park)',
-    email: 'david.park@jiraverse.io',
+    email: 'david.park@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     role: 'QA & Automation Engineer'
   }
@@ -50,7 +50,7 @@ export const initialProjects: Project[] = [
   {
     id: 'p2',
     key: 'MOBILE',
-    name: 'JiraVerse Mobile iOS & Android',
+    name: 'AetherPulse Mobile iOS & Android',
     category: 'Mobile Application',
     avatar: '📱',
     description: 'Native mobile productivity app for agile project tracking'
@@ -219,7 +219,7 @@ export const initialIssues: Issue[] = [
   {
     id: 'issue-103',
     key: 'CLOUD-103',
-    summary: 'Design glassmorphism UI components for JiraVerse Agile Dashboard',
+    summary: 'Design glassmorphism UI components for AetherPulse Agile Dashboard',
     description: 'Implement dark/light mode CSS design system with Atlassian tokens, responsive sidebar, filter chips, and smooth drag animations.',
     type: 'story',
     status: 'done',
@@ -392,5 +392,4 @@ export const initialAutomationAuditLogs = [
     status: 'SUCCESS' as const
   }
 ];
-
 

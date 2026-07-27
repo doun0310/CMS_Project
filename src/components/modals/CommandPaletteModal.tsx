@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { ViewMode } from '../../types/Aether';
 import { IconSearch, IconZap, IconPlus, IconX } from '../common/Icons';
 
@@ -10,7 +10,7 @@ export const CommandPaletteModal: React.FC = () => {
     setSelectedIssueId,
     setIsCreateModalOpen,
     resetDemoData
-  } = useJira();
+  } = useAether();
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');

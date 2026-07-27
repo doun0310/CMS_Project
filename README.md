@@ -1,7 +1,7 @@
 # ⚡ AetherPulse - Next-Gen AI-Powered Smart Agile Workspace
 
 > **AetherPulse**는 인공지능(AI) 기반의 차세대 스마트 애자일 프로젝트 관리 워크스페이스입니다.  
-> Atlassian Jira 스타일의 직관적인 디자인과 고도화된 AI 코파일럿, 1-Click 자동 업무 재배치, 애자일 회고 보드, 다국어 지원 시스템을 탑재하여 팀의 생산성과 협업 효율성을 극대화합니다.
+> Atlassian Aether 스타일의 직관적인 디자인과 고도화된 AI 코파일럿, 1-Click 자동 업무 재배치, 애자일 회고 보드, 다국어 지원 시스템을 탑재하여 팀의 생산성과 협업 효율성을 극대화합니다.
 
 ---
 
@@ -119,11 +119,11 @@ src/
 │   ├── layout/         # Header, Sidebar Top Navigation
 │   ├── modals/         # IssueDetailModal, CreateIssueModal, CommandPaletteModal
 │   └── views/          # KanbanBoard, BacklogView, RoadmapView, ReportsView, AutomationView, RetrospectiveView, SettingsView
-├── context/            # JiraContext (상태 관리, LocalStorage 영속성, i18n)
+├── context/            # AetherContext (상태 관리, LocalStorage 영속성, i18n)
 ├── i18n/               # translations.ts (한/영/일/중 4개국어 번역 딕셔너리)
 ├── mock/               # 초기 애자일 데이터 (Users, Epics, Sprints, Issues, RetroItems)
 ├── services/           # aiCopilot.ts (AI 건강도 분석, Auto-Balancer, Standup 생성 로직)
-└── types/              # jira.ts (TypeScript 데이터 모델 및 타입 정의)
+└── types/              # aether.ts (TypeScript 데이터 모델 및 타입 정의)
 ```
 
 ---

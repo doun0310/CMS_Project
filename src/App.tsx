@@ -1,5 +1,5 @@
 import React from 'react';
-import { JiraProvider, useJira } from './context/AetherContext';
+import { AetherProvider, useAether } from './context/AetherContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { KanbanBoard } from './components/views/KanbanBoard';
@@ -16,7 +16,7 @@ import { AICopilotPanel } from './components/common/AICopilotPanel';
 import './App.css';
 
 const MainLayout: React.FC = () => {
-  const { viewMode } = useJira();
+  const { viewMode } = useAether();
 
   const renderCurrentView = () => {
     switch (viewMode) {
@@ -65,8 +65,8 @@ const MainLayout: React.FC = () => {
 
 export default function App() {
   return (
-    <JiraProvider>
+    <AetherProvider>
       <MainLayout />
-    </JiraProvider>
+    </AetherProvider>
   );
 }

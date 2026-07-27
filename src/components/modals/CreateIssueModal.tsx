@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { IssueType, Priority } from '../../types/Aether';
 import { IconX } from '../common/Icons';
 
@@ -12,7 +12,7 @@ export const CreateIssueModal: React.FC = () => {
     epics,
     sprints,
     currentProject
-  } = useJira();
+  } = useAether();
 
   const [type, setType] = useState<IssueType>('story');
   const [summary, setSummary] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import { SprintCelebrationModal } from '../modals/SprintCelebrationModal';
 import {
@@ -36,7 +36,7 @@ export const BacklogView: React.FC = () => {
     searchQuery,
     onlyMyIssues,
     selectedType
-  } = useJira();
+  } = useAether();
 
   const [isCreatingSprint, setIsCreatingSprint] = useState(false);
   const [newSprintName, setNewSprintName] = useState('');

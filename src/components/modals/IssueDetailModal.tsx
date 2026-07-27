@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
 import { IconX, IconTrash, IconClock, IconLink } from '../common/Icons';
 
@@ -17,7 +17,7 @@ export const IssueDetailModal: React.FC = () => {
     users,
     epics,
     sprints
-  } = useJira();
+  } = useAether();
 
   const [newCommentText, setNewCommentText] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useJira } from '../../context/AetherContext';
+import { useAether } from '../../context/AetherContext';
 import type { Issue, Sprint, User } from '../../types/Aether';
 
 export const ReportsView: React.FC = () => {
-  const { issues, sprints, users } = useJira();
+  const { issues, sprints, users } = useAether();
   const [selectedSprintId, setSelectedSprintId] = useState<string>(
     sprints.find((s: Sprint) => s.status === 'active')?.id || sprints[0]?.id || ''
   );
