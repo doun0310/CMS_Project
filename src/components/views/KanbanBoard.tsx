@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue, IssueStatus, IssueType, Priority, Sprint } from '../../types/Aether';
 import {
-  IconStory,
-  IconTask,
+  IconFeature,
+  IconWorkItem,
   IconBug,
-  IconEpic,
+  IconInitiative,
   IconSubtask,
   PriorityHighest,
   PriorityHigh,
@@ -45,7 +45,9 @@ export const KanbanBoard: React.FC = () => {
     onlyMyIssues,
     selectedEpicId,
     selectedType,
-    selectedPriority
+    selectedPriority,
+    selectedLabel,
+    setSelectedLabel
   } = useAether();
 
   const [swimlaneBy, setSwimlaneBy] = useState<SwimlaneMode>('none');
@@ -81,12 +83,15 @@ export const KanbanBoard: React.FC = () => {
     if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
     if (selectedType !== 'all' && issue.type !== selectedType) return false;
     if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
+    if (selectedLabel && !(issue.labels || []).includes(selectedLabel)) return false;
 
     if (activeSprint) {
       return issue.sprintId === activeSprint.id || !issue.sprintId;
     }
     return true;
   });
+
+  const allLabels = Array.from(new Set(issues.flatMap(i => i.labels || [])));
 
   const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
     { status: 'todo', title: 'TO DO', color: '#94a3b8' },
@@ -139,11 +144,19 @@ export const KanbanBoard: React.FC = () => {
 
   const renderTypeIcon = (type: IssueType) => {
     switch (type) {
-      case 'story': return <IconStory size={14} />;
-      case 'task': return <IconTask size={14} />;
-      case 'bug': return <IconBug size={14} />;
-      case 'epic': return <IconEpic size={14} />;
-      default: return <IconSubtask size={14} />;
+      case 'feature':
+      case 'story':
+        return <IconFeature size={14} />;
+      case 'workitem':
+      case 'task':
+        return <IconWorkItem size={14} />;
+      case 'bug':
+        return <IconBug size={14} />;
+      case 'initiative':
+      case 'epic':
+        return <IconInitiative size={14} />;
+      default:
+        return <IconSubtask size={14} />;
     }
   };
 
@@ -248,6 +261,26 @@ export const KanbanBoard: React.FC = () => {
             <option value="priority">By Priority</option>
           </select>
         </div>
+      </div>
+
+      {/* Tag Filter Pills Bar */}
+      <div className="tag-filter-pills-bar">
+        <span className="filter-label">🏷️ Filter by Tag:</span>
+        <button
+          className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
+          onClick={() => setSelectedLabel(null)}
+        >
+          All Tags
+        </button>
+        {allLabels.map(lbl => (
+          <button
+            key={lbl}
+            className={`tag-pill ${selectedLabel === lbl ? 'active' : ''}`}
+            onClick={() => setSelectedLabel(selectedLabel === lbl ? null : lbl)}
+          >
+            #{lbl}
+          </button>
+        ))}
       </div>
 
       {/* Board Columns Grid */}

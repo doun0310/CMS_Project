@@ -14,7 +14,7 @@ export const CreateIssueModal: React.FC = () => {
     currentProject
   } = useAether();
 
-  const [type, setType] = useState<IssueType>('story');
+  const [type, setType] = useState<IssueType>('feature');
   const [summary, setSummary] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
@@ -27,7 +27,7 @@ export const CreateIssueModal: React.FC = () => {
 
   if (!isCreateModalOpen) return null;
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!summary.trim()) return;
 
@@ -65,10 +65,10 @@ export const CreateIssueModal: React.FC = () => {
             <div className="form-group">
               <label>Issue Type *</label>
               <select value={type} onChange={e => setType(e.target.value as IssueType)}>
-                <option value="story">Story</option>
-                <option value="task">Task</option>
+                <option value="feature">Feature</option>
+                <option value="workitem">WorkItem</option>
                 <option value="bug">Bug</option>
-                <option value="epic">Epic</option>
+                <option value="initiative">Initiative</option>
               </select>
             </div>
 

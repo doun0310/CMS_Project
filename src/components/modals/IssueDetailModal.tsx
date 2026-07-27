@@ -320,10 +320,10 @@ export const IssueDetailModal: React.FC = () => {
                 value={issue.type}
                 onChange={e => updateIssue(issue.id, { type: e.target.value as IssueType })}
               >
-                <option value="story">Story</option>
-                <option value="task">Task</option>
+                <option value="feature">Feature</option>
+                <option value="workitem">WorkItem</option>
                 <option value="bug">Bug</option>
-                <option value="epic">Epic</option>
+                <option value="initiative">Initiative</option>
               </select>
             </div>
 

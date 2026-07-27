@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AetherProvider } from './context/AetherContext';
 import { useAether } from './context/AetherContextValue';
 import { Header } from './components/layout/Header';
@@ -13,11 +13,75 @@ import { RetrospectiveView } from './components/views/RetrospectiveView';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
+import { KeyboardShortcutsModal } from './components/modals/KeyboardShortcutsModal';
 import { AICopilotPanel } from './components/common/AICopilotPanel';
+import type { ViewMode } from './types/Aether';
 import './App.css';
 
 const MainLayout: React.FC = () => {
-  const { viewMode } = useAether();
+  const { viewMode, setViewMode, setIsCreateModalOpen, isCreateModalOpen, selectedIssueId, setSelectedIssueId } = useAether();
+  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+
+  // Global Keyboard Shortcuts Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore hotkeys when typing in input, textarea, or select
+      const activeEl = document.activeElement;
+      const isInputActive = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.tagName === 'SELECT' ||
+        activeEl.getAttribute('contenteditable') === 'true'
+      );
+
+      if (isInputActive) return;
+
+      // Hotkey: ? -> Toggle Shortcuts Modal
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsModalOpen(prev => !prev);
+        return;
+      }
+
+      // Hotkey: C or c -> Open Create Issue Modal
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        setIsCreateModalOpen(true);
+        return;
+      }
+
+      // Hotkeys: 1-7 for View Mode switching
+      const viewMap: Record<string, ViewMode> = {
+        '1': 'board',
+        '2': 'backlog',
+        '3': 'roadmap',
+        '4': 'reports',
+        '5': 'retrospective',
+        '6': 'automation',
+        '7': 'settings'
+      };
+
+      if (viewMap[e.key]) {
+        e.preventDefault();
+        setViewMode(viewMap[e.key]);
+        return;
+      }
+
+      // Hotkey: Esc -> Close active modal / drawer
+      if (e.key === 'Escape') {
+        if (isShortcutsModalOpen) {
+          setIsShortcutsModalOpen(false);
+        } else if (isCreateModalOpen) {
+          setIsCreateModalOpen(false);
+        } else if (selectedIssueId) {
+          setSelectedIssueId(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setViewMode, setIsCreateModalOpen, isCreateModalOpen, isShortcutsModalOpen, selectedIssueId, setSelectedIssueId]);
 
   const renderCurrentView = () => {
     switch (viewMode) {
@@ -59,6 +123,10 @@ const MainLayout: React.FC = () => {
       <IssueDetailModal />
       <CreateIssueModal />
       <CommandPaletteModal />
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsModalOpen}
+        onClose={() => setIsShortcutsModalOpen(false)}
+      />
       <AICopilotPanel />
     </div>
   );

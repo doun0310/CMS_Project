@@ -85,6 +85,18 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **1-Click CSV 리포트 내보내기**: 현재 활성 스프린트 성과, 소진 스토리 포인트, 완료율 및 팀원별 역량 건강도를 엑셀/CSV 데이터(`aether-sprint-report.csv`)로 원클릭 추출.
 - **인터랙티브 차트 전환 스위처**: 번다운 차트(Burndown Chart)와 누적 흐름도(Cumulative Flow Diagram - CFD) 간 원클릭 스위칭 지원.
 
+### 🔄 17. AI Retrospective Summary & Action Item Auto-Ticket Generator (AI 회고 요약 & 1-Click 이슈 변환)
+- **🤖 AI Team Sentiment & Retrospective Digest**: 스프린트 팀 피드백 긍정 비율(%), 핵심 성과, 개선 필요 구간을 AI가 자동 요약 분석.
+- **🎟️ 1-Click Action Item ➔ Backlog Issue 변환**: 회고 보드의 실행 과제(`Action Item`)를 클릭 한 번으로 백로그 태스크 이슈로 자동 생성 및 바인딩.
+
+### 🏷️ 18. Tag Filter Pills & Universal Cross-View Label Filtering (태그 필터 칩 & 레이블 동기화)
+- **1-Click 태그 필터 칩 바 (`tag-filter-pills-bar`)**: 프로젝트 이슈에 할당된 라벨(#agile, #frontend, #security, #retro-action 등)을 자동 수집하여 1-Click 필터 칩으로 디스플레이.
+- **전역 태그 상태 동기화 (`selectedLabel`)**: 필터 칩 클릭 시 칸반 보드 및 관련 뷰에서 해당 라벨을 포함하는 이슈만 실시간 필터링.
+
+### ⌨️ 19. Universal Keyboard Shortcuts & Accessibility Hotkey Engine (전역 단축키 & 접근성 모달)
+- **전역 뷰 스위칭 핫키 (`1`~`7`)**: 키보드 숫자키 `1`~`7`을 눌러 칸반 보드, 백로그, 타임라인, 리포트, 회고, 자동화, 설정 뷰를 즉시 상호 전환.
+- **빠른 액션 단축키 (`C`, `Cmd+K`, `?`, `Esc`)**: `C` (이슈 창 열기), `Cmd+K` (커맨드 팔레트), `?` (단축키 가이드 모달), `Esc` (모달/드라이어 닫기) 전역 수신기 탑재.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

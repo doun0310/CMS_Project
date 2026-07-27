@@ -1,4 +1,4 @@
-export type IssueType = 'epic' | 'story' | 'task' | 'bug' | 'subtask';
+export type IssueType = 'initiative' | 'feature' | 'workitem' | 'bug' | 'subtask' | 'epic' | 'story' | 'task';
 
 export type IssueStatus = 'todo' | 'in_progress' | 'in_review' | 'done';
 

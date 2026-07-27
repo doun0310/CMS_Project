@@ -3,10 +3,10 @@ import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import { SprintCelebrationModal } from '../modals/SprintCelebrationModal';
 import {
-  IconStory,
-  IconTask,
+  IconFeature,
+  IconWorkItem,
   IconBug,
-  IconEpic,
+  IconInitiative,
   IconSubtask,
   PriorityHighest,
   PriorityHigh,
@@ -64,11 +64,19 @@ export const BacklogView: React.FC = () => {
 
   const renderTypeIcon = (type: IssueType) => {
     switch (type) {
-      case 'story': return <IconStory size={16} />;
-      case 'task': return <IconTask size={16} />;
-      case 'bug': return <IconBug size={16} />;
-      case 'epic': return <IconEpic size={16} />;
-      default: return <IconSubtask size={16} />;
+      case 'feature':
+      case 'story':
+        return <IconFeature size={16} />;
+      case 'workitem':
+      case 'task':
+        return <IconWorkItem size={16} />;
+      case 'bug':
+        return <IconBug size={16} />;
+      case 'initiative':
+      case 'epic':
+        return <IconInitiative size={16} />;
+      default:
+        return <IconSubtask size={16} />;
     }
   };
 

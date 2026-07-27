@@ -109,6 +109,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [selectedEpicId, setSelectedEpicId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<IssueType | 'all'>('all');
   const [selectedPriority, setSelectedPriority] = useState<Priority | 'all'>('all');
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
 
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
@@ -196,7 +197,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       key,
       summary: issueData.summary ?? 'New Issue',
       description: issueData.description ?? '',
-      type: issueData.type ?? 'story',
+      type: issueData.type ?? 'feature',
       status: issueData.status ?? 'todo',
       priority: issueData.priority ?? 'medium',
       assigneeId: issueData.assigneeId === undefined ? currentUser.id : issueData.assigneeId,
@@ -467,6 +468,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setSelectedType,
         selectedPriority,
         setSelectedPriority,
+        selectedLabel,
+        setSelectedLabel,
         currentUser,
         setCurrentUser,
         selectedIssueId,

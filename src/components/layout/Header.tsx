@@ -148,10 +148,10 @@ export const Header: React.FC = () => {
             onChange={e => setSelectedType(e.target.value as IssueType | 'all')}
           >
             <option value="all">{t('allTypes')}</option>
-            <option value="story">Story</option>
-            <option value="task">Task</option>
+            <option value="feature">Feature</option>
+            <option value="workitem">WorkItem</option>
             <option value="bug">Bug</option>
-            <option value="epic">Epic</option>
+            <option value="initiative">Initiative</option>
           </select>
         </div>
       </div>

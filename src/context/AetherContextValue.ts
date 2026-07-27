@@ -51,6 +51,8 @@ export interface AetherContextValue {
   setSelectedType: (type: IssueType | 'all') => void;
   selectedPriority: Priority | 'all';
   setSelectedPriority: (priority: Priority | 'all') => void;
+  selectedLabel: string | null;
+  setSelectedLabel: (label: string | null) => void;
   currentUser: User;
   setCurrentUser: (user: User) => void;
 
