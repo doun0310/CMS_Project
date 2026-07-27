@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue, Sprint, User } from '../../types/Aether';
 import { IconDownload } from '../common/Icons';
+import { SprintRiskMatrixCard } from '../common/SprintRiskMatrixCard';
 
 export const ReportsView: React.FC = () => {
   const { issues, sprints, users } = useAether();
@@ -107,6 +108,9 @@ export const ReportsView: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* AI Multi-Factor Sprint Risk Matrix & Automated Mitigation Recommender */}
+      <SprintRiskMatrixCard />
 
       {/* Analytics Summary Stats Cards */}
       <div className="reports-stats-grid">

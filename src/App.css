@@ -3883,3 +3883,157 @@ input:checked + .slider:before {
     gap: 4px;
   }
 }
+/* Sprint Risk Matrix Card Styles */
+.sprint-risk-matrix-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.risk-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.risk-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.risk-card-icon {
+  font-size: 1.5rem;
+}
+
+.risk-title-group h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.risk-title-group p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 2px 0 0 0;
+}
+
+.risk-score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid;
+  background: var(--bg-primary);
+}
+
+.score-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.mitigation-alert-banner {
+  background: rgba(54, 179, 126, 0.15);
+  border: 1px solid rgba(54, 179, 126, 0.4);
+  color: #22c55e;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.risk-vectors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.vector-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vector-card.warning {
+  border-left: 3px solid #ffab00;
+}
+
+.vector-card.ok {
+  border-left: 3px solid #36b37e;
+}
+
+.vector-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vector-icon {
+  font-size: 1rem;
+}
+
+.vector-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vector-body {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.vector-count {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.vector-desc {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.btn-mitigate-sm {
+  background: var(--color-in-progress, #6366f1);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  transition: all 0.15s ease;
+}
+.btn-mitigate-sm:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
