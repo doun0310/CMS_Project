@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { query } from "../config/database";
+import { generateAuditHash } from "../utils/crypto";
 
 export async function createAuditLog(params: {
   actorId?: number | null;
@@ -8,6 +9,11 @@ export async function createAuditLog(params: {
   targetId: number;
   detailJson?: Record<string, unknown>;
 }) {
+  const lastLogRes = await query(`SELECT hash FROM audit_logs ORDER BY id DESC LIMIT 1`);
+  const prevHash = lastLogRes.rows[0]?.hash || "GENESIS_HASH_00000000000000000000000000000000";
+  const now = new Date();
+  const hash = generateAuditHash(prevHash, params.actorId || 0, params.actionType, params.targetType, params.targetId, now);
+
   const sql = `
     INSERT INTO audit_logs (
       actor_id,
@@ -25,10 +31,10 @@ export async function createAuditLog(params: {
     params.actionType,
     params.targetType,
     params.targetId,
-    JSON.stringify(params.detailJson ?? {})
+    JSON.stringify({ ...(params.detailJson || {}), auditHash: hash, prevHash })
   ]);
 
-  return result.rows[0];
+  return { ...result.rows[0], hash };
 }
 
 export async function createAuditLogTx(
@@ -41,6 +47,11 @@ export async function createAuditLogTx(
     detailJson?: Record<string, unknown>;
   }
 ) {
+  const lastLogRes = await client.query(`SELECT detail_json->>'auditHash' as hash FROM audit_logs ORDER BY id DESC LIMIT 1`);
+  const prevHash = lastLogRes.rows[0]?.hash || "GENESIS_HASH_00000000000000000000000000000000";
+  const now = new Date();
+  const hash = generateAuditHash(prevHash, params.actorId || 0, params.actionType, params.targetType, params.targetId, now);
+
   const sql = `
     INSERT INTO audit_logs (
       actor_id,
@@ -58,10 +69,10 @@ export async function createAuditLogTx(
     params.actionType,
     params.targetType,
     params.targetId,
-    JSON.stringify(params.detailJson ?? {})
+    JSON.stringify({ ...(params.detailJson || {}), auditHash: hash, prevHash })
   ]);
 
-  return result.rows[0];
+  return { ...result.rows[0], hash };
 }
 
 export async function listAuditLogs(organizationId: number | null) {
