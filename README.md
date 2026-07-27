@@ -125,6 +125,14 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **개발자별 번아웃 피로도 진단 뱃지**: 개발자별 할당 스토리 포인트, 열린 태스크 수, 완료율을 감지하여 `🟢 Optimal Balance`, `🟡 Heavy Workload`, `🔴 Burnout Risk` 피로도 뱃지 산출.
 - **⚡ 1-Click 스마트 업무 균형 재배치 (`Workload Rebalancer`)**: 과부하 위험군 개발자의 작업을 여유 개발자에게 클릭 한 번으로 자동 균형 재배치.
 
+### 💼 27. Interactive Project Switcher & Workspace Multi-Project Matrix (멀티 워크스페이스 프로젝트 스위처)
+- **엔터프라이즈 멀티 워크스페이스 모달**: 헤더의 프로젝트 드롭다운 및 `Manage All Workspaces...` 메뉴에서 프로젝트별 이슈 수, 캡션, 카테고리를 카드로 한눈에 확인하고 원클릭 전환.
+- **1-Click 신규 프로젝트 워크스페이스 생성**: Key(예: CLOUD, MOBI, PROJ), 프로젝트명, 설정을 직접 작성하여 즉시 새로운 워크스페이스 바인딩 지원.
+
+### 📄 28. Automated Agile Release Notes & Changelog Generator (자동 릴리즈 노트 & 체인지로그 생성기)
+- **자동 체인지로그 카테고리화**: 완료된 스프린트 안의 이슈들을 Feature(신규 기능), WorkItem(작업), Bug(버그 수정), Initiative(전략 목표) 4개 섹션으로 자동 수집/분류.
+- **1-Click GitHub / Confluence 릴리즈 노트 수출 (`Copy Release Notes`)**: 커스텀 버전을 입력하여 마크다운 문서로 즉시 클립보드 복사 및 외부 배포 게시 지원.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

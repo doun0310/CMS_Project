@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue } from '../../types/Aether';
-
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
@@ -46,12 +45,66 @@ export const RoadmapView: React.FC = () => {
         </div>
       </div>
 
-      {/* Gantt Timeline Container */}
+      {/* Dual-Pane Gantt Container */}
       <div className="gantt-container">
-        {/* Timeline Header Row */}
-        <div className="gantt-header">
-          <div className="gantt-sidebar-col">Epics & Features</div>
-          <div className="gantt-timeline-grid">
+        {/* LEFT PANE: Epics & Features Table with 1 SINGLE Unified Horizontal Scrollbar */}
+        <div className="gantt-left-pane">
+          <div className="gantt-left-header">
+            <div className="left-header-title">Epics & Features</div>
+          </div>
+
+          <div className="gantt-left-body">
+            {epics.map((epic: Epic) => {
+              const isExpanded = !!expandedEpics[epic.id];
+              const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
+              const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
+              const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
+
+              const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+              const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+              const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
+
+              let healthStatus = '🟢 On Schedule';
+              let healthClass = 'status-on-schedule';
+              if (pointsPct < 30) {
+                healthStatus = '🔴 At Risk';
+                healthClass = 'status-at-risk';
+              } else if (pointsPct < 70) {
+                healthStatus = '🟡 Attention';
+                healthClass = 'status-attention';
+              }
+
+              return (
+                <React.Fragment key={epic.id}>
+                  {/* Epic Left Row */}
+                  <div className="gantt-left-row epic-row" onClick={() => toggleEpic(epic.id)}>
+                    <span className="expand-icon">
+                      {isExpanded ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
+                    </span>
+                    <IconEpic size={16} color={epic.color} />
+                    <span className="epic-key">{epic.key}</span>
+                    <span className="epic-title" title={epic.summary}>{epic.summary}</span>
+                    <span className="epic-points-badge">{donePoints}/{totalPoints} pts</span>
+                    <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
+                  </div>
+
+                  {/* Child Issues Left Rows */}
+                  {isExpanded && childIssues.map((issue: Issue) => (
+                    <div key={issue.id} className="gantt-left-row issue-row" onClick={() => setSelectedIssueId(issue.id)}>
+                      <span className="issue-key">{issue.key}</span>
+                      <span className="issue-summary" title={issue.summary}>{issue.summary}</span>
+                      <span className="issue-pts">{issue.storyPoints || 0} pts</span>
+                    </div>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT PANE: Timeline Gantt Grid */}
+        <div className="gantt-right-pane">
+          <div className="gantt-right-header">
             {days.map((day, idx) => {
               const isToday = day.toISOString().split('T')[0] === '2026-07-27';
               return (
@@ -64,47 +117,22 @@ export const RoadmapView: React.FC = () => {
               );
             })}
           </div>
-        </div>
 
-        {/* Epics and Children list */}
-        <div className="gantt-body">
-          {epics.map((epic: Epic) => {
-            const isExpanded = !!expandedEpics[epic.id];
-            const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
-            const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
-            const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
+          <div className="gantt-right-body">
+            {epics.map((epic: Epic) => {
+              const isExpanded = !!expandedEpics[epic.id];
+              const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
+              const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
+              const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
 
-            const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
-            const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
-            const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
+              const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+              const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+              const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
 
-            let healthStatus = '🟢 On Schedule';
-            let healthClass = 'status-on-schedule';
-            if (pointsPct < 30) {
-              healthStatus = '🔴 At Risk';
-              healthClass = 'status-at-risk';
-            } else if (pointsPct < 70) {
-              healthStatus = '🟡 Attention';
-              healthClass = 'status-attention';
-            }
-
-            return (
-              <div key={epic.id} className="gantt-epic-group">
-                {/* Epic row */}
-                <div className="gantt-row epic-row">
-                  <div className="gantt-sidebar-col" onClick={() => toggleEpic(epic.id)}>
-                    <span className="expand-icon">
-                      {isExpanded ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
-                    </span>
-                    <IconEpic size={16} color={epic.color} />
-                    <span className="epic-key">{epic.key}</span>
-                    <span className="epic-title" title={epic.summary}>{epic.summary}</span>
-                    <span className="epic-points-badge">{donePoints}/{totalPoints} pts</span>
-                    <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
-                  </div>
-
-                  <div className="gantt-timeline-grid">
-                    {/* Epic Bar spanning timeline */}
+              return (
+                <React.Fragment key={epic.id}>
+                  {/* Epic Timeline Bar Row */}
+                  <div className="gantt-right-row epic-row">
                     <div
                       className="gantt-bar epic-bar"
                       style={{
@@ -118,23 +146,15 @@ export const RoadmapView: React.FC = () => {
                       <div className="bar-progress" style={{ width: `${pointsPct}%` }}></div>
                     </div>
                   </div>
-                </div>
 
-                {/* Child issues rows */}
-                {isExpanded && childIssues.map((issue: Issue) => {
-                  const leftPos = getPositionPercent(issue.createdAt);
-                  const rightPos = getPositionPercent(issue.dueDate);
-                  const barWidth = Math.max(15, rightPos - leftPos);
+                  {/* Child Issues Timeline Bar Rows */}
+                  {isExpanded && childIssues.map((issue: Issue) => {
+                    const leftPos = getPositionPercent(issue.createdAt);
+                    const rightPos = getPositionPercent(issue.dueDate);
+                    const barWidth = Math.max(15, rightPos - leftPos);
 
-                  return (
-                    <div key={issue.id} className="gantt-row issue-row" onClick={() => setSelectedIssueId(issue.id)}>
-                      <div className="gantt-sidebar-col sub-col">
-                        <span className="issue-key">{issue.key}</span>
-                        <span className="issue-summary">{issue.summary}</span>
-                        <span className="issue-pts">{issue.storyPoints || 0} pts</span>
-                      </div>
-
-                      <div className="gantt-timeline-grid">
+                    return (
+                      <div key={issue.id} className="gantt-right-row issue-row" onClick={() => setSelectedIssueId(issue.id)}>
                         <div
                           className={`gantt-bar issue-bar status-${issue.status}`}
                           style={{
@@ -145,12 +165,12 @@ export const RoadmapView: React.FC = () => {
                           <span className="bar-label">{issue.key} • {issue.status.toUpperCase()}</span>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

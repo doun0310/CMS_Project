@@ -13,6 +13,8 @@ import {
 } from '../common/Icons';
 
 import { DailyStandupModal } from '../modals/DailyStandupModal';
+import { ProjectSwitchModal } from '../modals/ProjectSwitchModal';
+import { ReleaseNotesModal } from '../modals/ReleaseNotesModal';
 
 export const Header: React.FC = () => {
   const {
@@ -39,29 +41,31 @@ export const Header: React.FC = () => {
   } = useAether();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isStandupOpen, setIsStandupOpen] = useState(false);
+  const [isReleaseOpen, setIsReleaseOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
     {
       id: 'n1',
-      title: '⚡ Rule Executed: Auto-Assign QA',
+      title: 'Workflow update: QA auto-assigned',
       text: 'CLOUD-101 was automatically assigned to QA Engineer (David Park)',
       time: '10m ago',
       issueId: 'issue-1'
     },
     {
       id: 'n2',
-      title: '🤖 AI Workload Auto-Balancer',
+      title: 'Capacity rebalance completed',
       text: 'Rebalanced 3 story points from Alex Rivera to Maria Santos',
       time: '1h ago',
       issueId: 'issue-2'
     },
     {
       id: 'n3',
-      title: '💬 New Comment on CLOUD-103',
+      title: 'New comment on CLOUD-103',
       text: 'David Park: "GPU WebSocket token stream integration passed latency tests!"',
       time: '3h ago',
       issueId: 'issue-3'
@@ -79,7 +83,7 @@ export const Header: React.FC = () => {
             </svg>
           </div>
           <span className="brand-name">AetherPulse</span>
-          <span className="brand-badge">AI Agile Enterprise</span>
+          <span className="brand-badge">Product Ops</span>
         </div>
 
         {/* Project Selector */}
@@ -111,6 +115,16 @@ export const Header: React.FC = () => {
                   </div>
                 </div>
               ))}
+              <div
+                className="dropdown-item"
+                style={{ borderTop: '1px solid var(--border-color)', color: 'var(--color-in-progress, #6366f1)', fontWeight: 700 }}
+                onClick={() => {
+                  setIsProjectDropdownOpen(false);
+                  setIsProjectModalOpen(true);
+                }}
+              >
+                Manage workspaces...
+              </div>
             </div>
           )}
         </div>
@@ -162,8 +176,14 @@ export const Header: React.FC = () => {
             onClick={() => setIsStandupOpen(true)}
             title="Open AI Daily Standup Digest"
           >
-            <span>🤖</span>
             <span className="btn-standup-text">Standup Digest</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsReleaseOpen(true)}
+            title="Open AI Release Notes Generator"
+          >
+            <span className="btn-standup-text">Release Summary</span>
           </button>
         </div>
       </div>
@@ -201,7 +221,7 @@ export const Header: React.FC = () => {
           {isNotifOpen && (
             <div className="dropdown-menu right notif-dropdown animate-fade-in">
               <div className="dropdown-header notif-header-flex">
-                <span>TEAM ACTIVITY & AI ALERTS</span>
+                <span>TEAM ACTIVITY</span>
                 <span className="notif-clear-text" onClick={() => setUnreadNotifs(0)}>Mark as read</span>
               </div>
               <div className="notif-items-list">
@@ -280,6 +300,18 @@ export const Header: React.FC = () => {
       <DailyStandupModal
         isOpen={isStandupOpen}
         onClose={() => setIsStandupOpen(false)}
+      />
+
+      {/* Enterprise Project Switcher Modal */}
+      <ProjectSwitchModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+      />
+
+      {/* AI Release Notes Generator Modal */}
+      <ReleaseNotesModal
+        isOpen={isReleaseOpen}
+        onClose={() => setIsReleaseOpen(false)}
       />
     </header>
   );

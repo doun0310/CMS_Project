@@ -254,7 +254,7 @@ export const KanbanBoard: React.FC = () => {
 
         {/* Swimlane controls */}
         <div className="board-controls">
-          <span className="control-label">Group Swimlanes:</span>
+          <span className="control-label">Group by</span>
           <select
             className="control-select"
             value={swimlaneBy}
@@ -270,7 +270,7 @@ export const KanbanBoard: React.FC = () => {
 
       {/* Tag Filter Pills Bar */}
       <div className="tag-filter-pills-bar">
-        <span className="filter-label">🏷️ Filter by Tag:</span>
+        <span className="filter-label">Filter by tag</span>
         <button
           className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
           onClick={() => setSelectedLabel(null)}
@@ -335,7 +335,7 @@ export const KanbanBoard: React.FC = () => {
                     <span className="column-count">{colIssues.length}</span>
                     {isWipExceeded && (
                       <span className="wip-badge" title={`WIP limit exceeded (${col.wipLimit} max)`}>
-                        ⚠️ WIP Exceeded
+                        WIP limit
                       </span>
                     )}
                   </div>

@@ -77,7 +77,7 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      <div className="sidebar-section-header">PLANNING & WORKFLOWS</div>
+      <div className="sidebar-section-header">WORKSPACE</div>
 
       {/* Navigation list */}
       <nav className="sidebar-nav">
@@ -103,7 +103,7 @@ export const Sidebar: React.FC = () => {
         <div className="sidebar-sprint-widget">
           <div className="widget-header">
             <span className="pulse-dot"></span>
-            <span className="widget-title">ACTIVE SPRINT</span>
+            <span className="widget-title">CURRENT SPRINT</span>
           </div>
           <div className="sprint-name">{activeSprint.name}</div>
           <div className="sprint-dates">
@@ -142,7 +142,7 @@ export const Sidebar: React.FC = () => {
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
         <div className="atlassian-credit">
-          Powered by <strong>AetherPulse AI</strong> System
+          Built around <strong>AetherPulse</strong>
         </div>
       </div>
     </aside>
