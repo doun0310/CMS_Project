@@ -12,6 +12,8 @@ import {
   IconBell
 } from '../common/Icons';
 
+import { DailyStandupModal } from '../modals/DailyStandupModal';
+
 export const Header: React.FC = () => {
   const {
     theme,
@@ -39,6 +41,7 @@ export const Header: React.FC = () => {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isStandupOpen, setIsStandupOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
@@ -154,11 +157,20 @@ export const Header: React.FC = () => {
             <option value="initiative">Initiative</option>
             <option value="subtask">SubTask</option>
           </select>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsStandupOpen(true)}
+            title="Open AI Daily Standup Digest"
+          >
+            <span>🤖</span>
+            <span className="btn-standup-text">Standup Digest</span>
+          </button>
         </div>
       </div>
 
       {/* Right Section: Language Switcher, Theme Toggle, User Switcher, Demo Reset */}
       <div className="header-right">
+
         {/* Language Selector */}
         <select
           className="lang-select-header"
@@ -263,6 +275,12 @@ export const Header: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* AI Daily Standup Digest Modal */}
+      <DailyStandupModal
+        isOpen={isStandupOpen}
+        onClose={() => setIsStandupOpen(false)}
+      />
     </header>
   );
 };

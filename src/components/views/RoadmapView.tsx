@@ -74,6 +74,20 @@ export const RoadmapView: React.FC = () => {
             const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
             const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
 
+            const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+            const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
+            const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
+
+            let healthStatus = '🟢 On Schedule';
+            let healthClass = 'status-on-schedule';
+            if (pointsPct < 30) {
+              healthStatus = '🔴 At Risk';
+              healthClass = 'status-at-risk';
+            } else if (pointsPct < 70) {
+              healthStatus = '🟡 Attention';
+              healthClass = 'status-attention';
+            }
+
             return (
               <div key={epic.id} className="gantt-epic-group">
                 {/* Epic row */}
@@ -84,7 +98,9 @@ export const RoadmapView: React.FC = () => {
                     </span>
                     <IconEpic size={16} color={epic.color} />
                     <span className="epic-key">{epic.key}</span>
-                    <span className="epic-title">{epic.summary}</span>
+                    <span className="epic-title" title={epic.summary}>{epic.summary}</span>
+                    <span className="epic-points-badge">{donePoints}/{totalPoints} pts</span>
+                    <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
                   </div>
 
                   <div className="gantt-timeline-grid">
@@ -92,13 +108,14 @@ export const RoadmapView: React.FC = () => {
                     <div
                       className="gantt-bar epic-bar"
                       style={{
-                        left: '10%',
-                        width: '75%',
+                        left: '8%',
+                        width: '84%',
                         backgroundColor: epic.color
                       }}
+                      title={`${epic.summary}: ${pointsPct}% completed (${donePoints}/${totalPoints} pts)`}
                     >
-                      <span className="bar-label">{epic.summary} ({progressPct}% Done)</span>
-                      <div className="bar-progress" style={{ width: `${progressPct}%` }}></div>
+                      <span className="bar-label">{epic.summary} ({pointsPct}% Done)</span>
+                      <div className="bar-progress" style={{ width: `${pointsPct}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -114,6 +131,7 @@ export const RoadmapView: React.FC = () => {
                       <div className="gantt-sidebar-col sub-col">
                         <span className="issue-key">{issue.key}</span>
                         <span className="issue-summary">{issue.summary}</span>
+                        <span className="issue-pts">{issue.storyPoints || 0} pts</span>
                       </div>
 
                       <div className="gantt-timeline-grid">

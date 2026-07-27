@@ -25,7 +25,7 @@ export const AutomationView: React.FC = () => {
     setTimeout(() => setTestNotification(null), 4000);
   };
 
-  const handleCreateRuleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateRuleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!ruleName.trim()) return;
     addAutomationRule(ruleName.trim(), triggerWhen, actionThen);

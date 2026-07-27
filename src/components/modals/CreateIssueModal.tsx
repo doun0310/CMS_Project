@@ -27,7 +27,7 @@ export const CreateIssueModal: React.FC = () => {
 
   if (!isCreateModalOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!summary.trim()) return;
 

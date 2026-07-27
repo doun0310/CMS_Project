@@ -109,6 +109,22 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **다요인 리스크 지수 자동 산출**: 미할당 우선순위 태스크, 선행 블로커 지연, 추정치 누락 스코프 3가지 위험 요인을 실시간 가중 분석하여 0~100% 종합 리스크 스코어 산출.
 - **1-Click AI 자동 리스크 완화 액션**: 담당자 없는 고우선순위 태스크 발생 시 테크 리드에게 1-Click 자동 할당 처리 및 완화 알림 트레일 생성.
 
+### 🗺️ 23. Interactive Epic Progress Roadmap & Time Health Indicator (에픽 진행도 시각화 & 마일스톤 타임 게이지)
+- **에픽별 스토리 포인트 진행도 시각화**: 에픽 하위 이슈의 소진 스토리 포인트 비율(`Done Points / Total Points`)을 계산하여 간트 차트 바 및 사이드바 뱃지 디스플레이.
+- **마일스톤 건강 상태 뱃지 (`Time Health Indicator`)**: 완료 비율에 따라 `🟢 On Schedule`, `🟡 Attention Needed`, `🔴 At Risk` 마일스톤 타임 건강 뱃지 자동 산출.
+
+### 📜 24. Enterprise Audit Trail & Realtime User Activity History Logger (전역 감사 트레일 & 히스토리 타임라인)
+- **인터랙티브 액티비티 탭 스위처**: 이슈 상세 드라이어 내 댓글(`💬 Comments`)과 전역 변경 감사 트레일(`📜 Audit History`) 원클릭 탭 스위칭.
+- **엔터프라이즈 감사 트레일 타임라인**: 이슈 생성, 상태 변경, 담당자 변경, 스토리 포인트 수정 등 모든 이력을 수행자 프로필 및 타임스탬프와 함께 수직 감사 타임라인으로 시각화.
+
+### 🤖 25. AI Daily Standup Digest Generator & 1-Click Slack/Teams Exporter (AI 데일리 스탠드업 요약 & 1-Click 공유)
+- **스마트 3분할 스탠드업 요약 자동 집계**: 활성 스프린트의 최근 완료 항목(Done), 오늘 진행 작업(In Progress), 병목/블로커 항목(Blockers)을 AI가 3가지 카테고리로 자동 요약.
+- **1-Click 스마트 텍스트 클립보드 복사 (`Slack/Teams/Jira`)**: 버튼 한 번으로 마크다운 포맷팅된 데일리 스탠드업 보고서를 클립보드에 생성하여 바로 팀 공유 지원.
+
+### 🩺 26. AI Team Health Pulse & Developer Burnout Risk Diagnostics (AI 팀 건강도 & 번아웃 피로도 진단 대시보드)
+- **개발자별 번아웃 피로도 진단 뱃지**: 개발자별 할당 스토리 포인트, 열린 태스크 수, 완료율을 감지하여 `🟢 Optimal Balance`, `🟡 Heavy Workload`, `🔴 Burnout Risk` 피로도 뱃지 산출.
+- **⚡ 1-Click 스마트 업무 균형 재배치 (`Workload Rebalancer`)**: 과부하 위험군 개발자의 작업을 여유 개발자에게 클릭 한 번으로 자동 균형 재배치.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

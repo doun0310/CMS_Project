@@ -22,6 +22,7 @@ export const IssueDetailModal: React.FC = () => {
   const [newCommentText, setNewCommentText] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [selectedBlockerId, setSelectedBlockerId] = useState('');
+  const [activityTab, setActivityTab] = useState<'comments' | 'history'>('comments');
 
   if (!selectedIssueId) return null;
 
@@ -310,36 +311,76 @@ export const IssueDetailModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Comments & Activity Log */}
+            {/* Comments & Activity Audit History */}
             <div className="detail-section">
-              <h3>Activity & Comments</h3>
-              <form onSubmit={handleAddCommentSubmit} className="comment-form">
-                <textarea
-                  rows={2}
-                  placeholder="Add a comment..."
-                  value={newCommentText}
-                  onChange={e => setNewCommentText(e.target.value)}
-                />
-                <button type="submit" className="btn-primary-sm">Save Comment</button>
-              </form>
-
-              <div className="comments-list">
-                {issue.comments.map(c => {
-                  const author = users.find(u => u.id === c.authorId);
-                  return (
-                    <div key={c.id} className="comment-item">
-                      <img src={author?.avatar} alt={author?.name} className="comment-avatar" />
-                      <div className="comment-body">
-                        <div className="comment-meta">
-                          <span className="author-name">{author?.name}</span>
-                          <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
-                        </div>
-                        <div className="comment-text">{c.text}</div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="activity-tabs-header">
+                <button
+                  className={`activity-tab-btn ${activityTab === 'comments' ? 'active' : ''}`}
+                  onClick={() => setActivityTab('comments')}
+                >
+                  💬 Comments ({issue.comments.length})
+                </button>
+                <button
+                  className={`activity-tab-btn ${activityTab === 'history' ? 'active' : ''}`}
+                  onClick={() => setActivityTab('history')}
+                >
+                  📜 Audit History ({(issue.history || []).length})
+                </button>
               </div>
+
+              {activityTab === 'comments' ? (
+                <>
+                  <form onSubmit={handleAddCommentSubmit} className="comment-form">
+                    <textarea
+                      rows={2}
+                      placeholder="Add a comment..."
+                      value={newCommentText}
+                      onChange={e => setNewCommentText(e.target.value)}
+                    />
+                    <button type="submit" className="btn-primary-sm">Save Comment</button>
+                  </form>
+
+                  <div className="comments-list">
+                    {issue.comments.map(c => {
+                      const author = users.find(u => u.id === c.authorId);
+                      return (
+                        <div key={c.id} className="comment-item">
+                          <img src={author?.avatar} alt={author?.name} className="comment-avatar" />
+                          <div className="comment-body">
+                            <div className="comment-meta">
+                              <span className="author-name">{author?.name}</span>
+                              <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
+                            </div>
+                            <div className="comment-text">{c.text}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className="audit-timeline-list">
+                  {(issue.history || []).length === 0 ? (
+                    <div className="no-deps-text">No activity audit history recorded yet.</div>
+                  ) : (
+                    (issue.history || []).map(h => {
+                      const author = users.find(u => u.id === h.authorId);
+                      return (
+                        <div key={h.id} className="audit-timeline-item">
+                          <img src={author?.avatar} alt={author?.name} className="audit-avatar" />
+                          <div className="audit-content">
+                            <div className="audit-header">
+                              <span className="audit-author">{author?.name}</span>
+                              <span className="audit-time">{new Date(h.timestamp).toLocaleString()}</span>
+                            </div>
+                            <div className="audit-action">{h.action}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
