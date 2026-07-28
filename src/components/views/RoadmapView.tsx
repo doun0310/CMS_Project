@@ -4,7 +4,7 @@ import type { Epic, Issue } from '../../types/Aether';
 import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
-  const { epics, issues, setSelectedIssueId } = useAether();
+  const { epics, issues, setSelectedIssueId, t, language } = useAether();
   const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>({
     'epic-1': true,
     'epic-2': true,
@@ -12,6 +12,7 @@ export const RoadmapView: React.FC = () => {
   });
   const [criticalPathOnly, setCriticalPathOnly] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<string>('all');
+  const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language];
 
   const toggleEpic = (id: string) => {
     setExpandedEpics(prev => ({ ...prev, [id]: !prev[id] }));
@@ -40,9 +41,9 @@ export const RoadmapView: React.FC = () => {
     <div className="roadmap-view animate-fade-in">
       <div className="view-header-bar flex-between">
         <div>
-          <h2>🗺️ Agile Timeline Roadmap & Milestone Dependencies</h2>
+          <h2>🗺️ {t('roadmapTitle')}</h2>
           <p className="subtext">
-            Visualize macro epic deliverables, release schedules, critical path bottlenecks & milestone markers.
+            {t('roadmapSubtitle')}
           </p>
         </div>
 
@@ -50,18 +51,18 @@ export const RoadmapView: React.FC = () => {
           <button
             className={`btn-cp-toggle ${criticalPathOnly ? 'active' : ''}`}
             onClick={() => setCriticalPathOnly(!criticalPathOnly)}
-            title="Toggle Critical Path Dependency Highlighting"
+            title={t('criticalPathTitle')}
           >
-            🔴 {criticalPathOnly ? 'Critical Path Mode ON' : 'Highlight Critical Path'}
+            🔴 {criticalPathOnly ? t('criticalPathOn') : t('highlightCriticalPath')}
           </button>
           <select
             value={selectedMilestone}
             onChange={(e) => setSelectedMilestone(e.target.value)}
             className="milestone-select"
           >
-            <option value="all">🚩 All Release Milestones</option>
-            <option value="m1">🚩 Milestone 1: Beta Release (July 24)</option>
-            <option value="m2">🚩 Milestone 2: GA Launch (Aug 02)</option>
+            <option value="all">🚩 {t('allReleaseMilestones')}</option>
+            <option value="m1">🚩 {t('milestoneBeta')}</option>
+            <option value="m2">🚩 {t('milestoneGa')}</option>
           </select>
         </div>
       </div>
@@ -71,7 +72,7 @@ export const RoadmapView: React.FC = () => {
         {/* LEFT PANE: Epics & Features Table with 1 SINGLE Unified Horizontal Scrollbar */}
         <div className="gantt-left-pane">
           <div className="gantt-left-header">
-            <div className="left-header-title">Epics & Features</div>
+            <div className="left-header-title">{t('epicsFeatures')}</div>
           </div>
 
           <div className="gantt-left-body">
@@ -85,13 +86,13 @@ export const RoadmapView: React.FC = () => {
               const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
               const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
 
-              let healthStatus = '🟢 On Schedule';
+              let healthStatus = `🟢 ${t('onSchedule')}`;
               let healthClass = 'status-on-schedule';
               if (pointsPct < 30) {
-                healthStatus = '🔴 At Risk';
+                healthStatus = `🔴 ${t('atRisk')}`;
                 healthClass = 'status-at-risk';
               } else if (pointsPct < 70) {
-                healthStatus = '🟡 Attention';
+                healthStatus = `🟡 ${t('attention')}`;
                 healthClass = 'status-attention';
               }
 
@@ -105,7 +106,7 @@ export const RoadmapView: React.FC = () => {
                     <IconEpic size={16} color={epic.color} />
                     <span className="epic-key">{epic.key}</span>
                     <span className="epic-title" title={epic.summary}>{epic.summary}</span>
-                    <span className="epic-points-badge">{donePoints}/{totalPoints} pts</span>
+                    <span className="epic-points-badge">{donePoints}/{totalPoints} {t('pointsShort')}</span>
                     <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
                   </div>
 
@@ -114,7 +115,7 @@ export const RoadmapView: React.FC = () => {
                     <div key={issue.id} className="gantt-left-row issue-row" onClick={() => setSelectedIssueId(issue.id)}>
                       <span className="issue-key">{issue.key}</span>
                       <span className="issue-summary" title={issue.summary}>{issue.summary}</span>
-                      <span className="issue-pts">{issue.storyPoints || 0} pts</span>
+                      <span className="issue-pts">{issue.storyPoints || 0} {t('pointsShort')}</span>
                     </div>
                   ))}
                 </React.Fragment>
@@ -131,7 +132,7 @@ export const RoadmapView: React.FC = () => {
               return (
                 <div key={idx} className={`gantt-day-cell ${isToday ? 'today' : ''}`}>
                   <span className="day-name">
-                    {day.toLocaleDateString('en-US', { weekday: 'narrow' })}
+                    {day.toLocaleDateString(dateLocale, { weekday: 'narrow' })}
                   </span>
                   <span className="day-num">{day.getDate()}</span>
                 </div>
@@ -142,11 +143,11 @@ export const RoadmapView: React.FC = () => {
           <div className="gantt-right-body">
             {/* Milestone Vertical Flags Overlay */}
             <div className="gantt-milestones-overlay">
-              <div className="milestone-line m1" style={{ left: '25%' }} title="Milestone 1: Beta Release (July 24)">
-                <span className="milestone-flag">🚩 M1: Beta</span>
+              <div className="milestone-line m1" style={{ left: '25%' }} title={t('milestoneBeta')}>
+                <span className="milestone-flag">🚩 {t('milestoneBetaShort')}</span>
               </div>
-              <div className="milestone-line m2" style={{ left: '75%' }} title="Milestone 2: GA Production Launch (Aug 02)">
-                <span className="milestone-flag">🚩 M2: GA Launch</span>
+              <div className="milestone-line m2" style={{ left: '75%' }} title={t('milestoneGa')}>
+                <span className="milestone-flag">🚩 {t('milestoneGaShort')}</span>
               </div>
             </div>
 
@@ -172,11 +173,11 @@ export const RoadmapView: React.FC = () => {
                         width: '84%',
                         backgroundColor: epic.color
                       }}
-                      title={`${epic.summary}: ${pointsPct}% completed (${donePoints}/${totalPoints} pts)`}
+                      title={`${epic.summary}: ${pointsPct}% ${t('completed').toLowerCase()} (${donePoints}/${totalPoints} ${t('pointsShort')})`}
                     >
                       <span className="bar-label">
-                        {isCritical && '🔴 CRITICAL: '}
-                        {epic.summary} ({pointsPct}% Done)
+                        {isCritical && `🔴 ${t('critical')}: `}
+                        {epic.summary} ({pointsPct}% {t('completed')})
                       </span>
                       <div className="bar-progress" style={{ width: `${pointsPct}%` }}></div>
                     </div>
@@ -197,7 +198,7 @@ export const RoadmapView: React.FC = () => {
                             width: `${barWidth}%`
                           }}
                         >
-                          <span className="bar-label">{issue.key} • {issue.status.toUpperCase()}</span>
+                          <span className="bar-label">{issue.key} • {t(issue.status)}</span>
                         </div>
                       </div>
                     );

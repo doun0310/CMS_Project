@@ -8,7 +8,7 @@ import { SlaAnalyticsCard } from '../common/SlaAnalyticsCard';
 import { KnowledgeSiloCard } from '../common/KnowledgeSiloCard';
 
 export const ReportsView: React.FC = () => {
-  const { issues, sprints, users } = useAether();
+  const { issues, sprints, users, t } = useAether();
   const [selectedSprintId, setSelectedSprintId] = useState<string>(
     sprints.find((s: Sprint) => s.status === 'active')?.id || sprints[0]?.id || ''
   );
@@ -41,13 +41,13 @@ export const ReportsView: React.FC = () => {
       .filter((i: Issue) => i.status === 'done')
       .reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
 
-    let statusLabel = '🟢 Optimal';
+    let statusLabel = `🟢 ${t('optimal')}`;
     let statusClass = 'optimal';
     if (pts > 11) {
-      statusLabel = '🔴 Overloaded';
+      statusLabel = `🔴 ${t('overloaded')}`;
       statusClass = 'overloaded';
     } else if (pts > 8) {
-      statusLabel = '🟡 Heavy Capacity';
+      statusLabel = `🟡 ${t('heavyCapacity')}`;
       statusClass = 'heavy';
     }
 
@@ -63,10 +63,10 @@ export const ReportsView: React.FC = () => {
 
   // CSV Report Generator
   const handleExportCSV = () => {
-    const headers = ['Sprint Name', 'Status', 'Total Points', 'Done Points', 'Velocity %'];
-    const row1 = [activeSprint?.name || 'Sprint', activeSprint?.status || 'Active', totalPoints, donePoints, `${completionPercentage}%`].join(',');
+    const headers = [t('sprintName'), t('status'), t('totalPoints'), t('donePoints'), t('velocityPercent')];
+    const row1 = [activeSprint?.name || t('sprint'), activeSprint ? t(activeSprint.status) : t('active'), totalPoints, donePoints, `${completionPercentage}%`].join(',');
 
-    const teamHeader = ['\nTeam Member', 'Role', 'Assigned Tasks', 'Done Points', 'Total Points', 'Capacity Health'];
+    const teamHeader = [`\n${t('teamMember')}`, t('role'), t('assignedTasks'), t('donePoints'), t('totalPoints'), t('capacityHealth')];
     const teamRows = userWorkloads.map(w =>
       [w.user.name, w.user.role, w.count, w.completedPts, w.points, w.statusLabel.replace(/,/g, '')].join(',')
     );
@@ -85,14 +85,14 @@ export const ReportsView: React.FC = () => {
     <div className="reports-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>📊 Sprint Analytics</h2>
+          <h2>📊 {t('sprintAnalytics')}</h2>
           <p className="subtext">
-            Track delivery progress, team capacity, and sprint trends in one place.
+            {t('sprintAnalyticsSubtitle')}
           </p>
         </div>
 
         <div className="sprint-select-wrap reports-controls">
-          <label htmlFor="report-sprint">Sprint</label>
+          <label htmlFor="report-sprint">{t('sprint')}</label>
           <select
             id="report-sprint"
             value={selectedSprintId}
@@ -106,8 +106,8 @@ export const ReportsView: React.FC = () => {
             ))}
           </select>
 
-          <button className="btn-ghost-sm report-export-button" onClick={handleExportCSV} title="Export CSV Report">
-            <IconDownload size={14} /> Export CSV
+          <button className="btn-ghost-sm report-export-button" onClick={handleExportCSV} title={t('exportCsv')}>
+            <IconDownload size={14} /> {t('exportCsv')}
           </button>
         </div>
       </div>
@@ -115,44 +115,44 @@ export const ReportsView: React.FC = () => {
       {/* Analytics Summary Stats Cards */}
       <div className="reports-stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Sprint Commitment</div>
-          <div className="stat-value">{totalPoints} <span className="unit">pts</span></div>
-          <div className="stat-sub">{sprintIssues.length} tasks in {activeSprint?.name}</div>
+          <div className="stat-label">{t('sprintCommitment')}</div>
+          <div className="stat-value">{totalPoints} <span className="unit">{t('pointsShort')}</span></div>
+          <div className="stat-sub">{sprintIssues.length} {t('tasks')} · {activeSprint?.name}</div>
         </div>
 
         <div className="stat-card done">
-          <div className="stat-label">Completed Velocity</div>
-          <div className="stat-value">{donePoints} <span className="unit">pts</span></div>
-          <div className="stat-sub">{completionPercentage}% of goal completed</div>
+          <div className="stat-label">{t('completedVelocity')}</div>
+          <div className="stat-value">{donePoints} <span className="unit">{t('pointsShort')}</span></div>
+          <div className="stat-sub">{completionPercentage}% {t('goalCompleted')}</div>
         </div>
 
         <div className="stat-card remaining">
-          <div className="stat-label">Remaining Work</div>
-          <div className="stat-value">{remainingPoints} <span className="unit">pts</span></div>
-          <div className="stat-sub">{statusCounts.todo + statusCounts.in_progress + statusCounts.in_review} remaining tasks</div>
+          <div className="stat-label">{t('remainingWork')}</div>
+          <div className="stat-value">{remainingPoints} <span className="unit">{t('pointsShort')}</span></div>
+          <div className="stat-sub">{statusCounts.todo + statusCounts.in_progress + statusCounts.in_review} {t('remainingTasks')}</div>
         </div>
       </div>
 
       <div className="ai-forecast-card animate-fade-in">
         <div className="forecast-header">
-          <h3>🤖 AI Sprint Completion & Capacity Forecast</h3>
-          <span className="ai-forecast-badge">Predictive Accuracy 94%</span>
+          <h3>🤖 {t('forecastTitle')}</h3>
+          <span className="ai-forecast-badge">{t('predictiveAccuracy')} 94%</span>
         </div>
         <div className="forecast-grid">
           <div className="forecast-item">
-            <div className="f-title">Avg Team Velocity</div>
-            <div className="f-value">{historicalAvgVelocity} pts / sprint</div>
-            <div className="f-sub">Based on 3 historical sprints</div>
+            <div className="f-title">{t('averageTeamVelocity')}</div>
+            <div className="f-value">{historicalAvgVelocity} {t('pointsShort')} / {t('sprint')}</div>
+            <div className="f-sub">{t('basedOnHistoricalSprints')}</div>
           </div>
           <div className="forecast-item">
-            <div className="f-title">Backlog Burndown Time</div>
-            <div className="f-value">~{estimatedSprintsNeeded} Sprints ({estimatedSprintsNeeded * 2} weeks)</div>
-            <div className="f-sub">{totalBacklogPoints} points in backlog</div>
+            <div className="f-title">{t('backlogBurndownTime')}</div>
+            <div className="f-value">~{estimatedSprintsNeeded} {t('sprints')} ({estimatedSprintsNeeded * 2} {t('weeks')})</div>
+            <div className="f-sub">{totalBacklogPoints} {t('backlogPoints')}</div>
           </div>
           <div className="forecast-item">
-            <div className="f-title">Recommended Capacity</div>
-            <div className="f-value">7.5 pts / engineer</div>
-            <div className="f-sub">Prevents burnout & bottlenecks</div>
+            <div className="f-title">{t('recommendedCapacity')}</div>
+            <div className="f-value">7.5 {t('pointsShort')} / {t('engineer')}</div>
+            <div className="f-sub">{t('preventsBurnout')}</div>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ export const ReportsView: React.FC = () => {
         <div className="chart-box">
           <div className="chart-title-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3>{chartView === 'burndown' ? 'Sprint Burndown Chart' : 'Cumulative Flow Diagram (CFD)'}</h3>
+              <h3>{chartView === 'burndown' ? t('burndownChart') : t('cumulativeFlow')}</h3>
               <span className="chart-subtitle">{activeSprint?.name}</span>
             </div>
             <div className="chart-view-toggle">
@@ -170,7 +170,7 @@ export const ReportsView: React.FC = () => {
                 className={`btn-toggle-sm ${chartView === 'burndown' ? 'active' : ''}`}
                 onClick={() => setChartView('burndown')}
               >
-                Burndown
+                {t('burndown')}
               </button>
               <button
                 className={`btn-toggle-sm ${chartView === 'cfd' ? 'active' : ''}`}
@@ -191,7 +191,7 @@ export const ReportsView: React.FC = () => {
                 <line x1="40" y1="170" x2="480" y2="170" stroke="var(--border-color)" strokeDasharray="3 3" />
 
                 {/* Y Axis Labels */}
-                <text x="10" y="25" fill="var(--text-secondary)" fontSize="11">{totalPoints} pts</text>
+                <text x="10" y="25" fill="var(--text-secondary)" fontSize="11">{totalPoints} {t('pointsShort')}</text>
                 <text x="10" y="75" fill="var(--text-secondary)" fontSize="11">{Math.round(totalPoints * 0.75)}</text>
                 <text x="10" y="125" fill="var(--text-secondary)" fontSize="11">{Math.round(totalPoints * 0.5)}</text>
                 <text x="10" y="175" fill="var(--text-secondary)" fontSize="11">0</text>
@@ -222,23 +222,23 @@ export const ReportsView: React.FC = () => {
                 <polygon points="40,150 120,130 200,100 280,80 360,50 440,30 440,40 360,70 280,100 200,120 120,150 40,170" fill="rgba(245, 158, 11, 0.4)" />
                 <polygon points="40,100 120,80 200,60 280,40 360,30 440,20 440,30 360,50 280,80 200,100 120,130 40,150" fill="rgba(99, 102, 241, 0.4)" />
 
-                <text x="50" y="160" fill="#10b981" fontSize="10" fontWeight="bold">DONE</text>
-                <text x="180" y="110" fill="#f59e0b" fontSize="10" fontWeight="bold">IN REVIEW</text>
-                <text x="300" y="55" fill="#6366f1" fontSize="10" fontWeight="bold">IN PROGRESS</text>
+                <text x="50" y="160" fill="#10b981" fontSize="10" fontWeight="bold">{t('done')}</text>
+                <text x="180" y="110" fill="#f59e0b" fontSize="10" fontWeight="bold">{t('in_review')}</text>
+                <text x="300" y="55" fill="#6366f1" fontSize="10" fontWeight="bold">{t('in_progress')}</text>
               </svg>
             )}
 
             <div className="chart-legend">
               {chartView === 'burndown' ? (
                 <>
-                  <span className="legend-item"><span className="dot ideal"></span> Ideal Guideline</span>
-                  <span className="legend-item"><span className="dot actual"></span> Actual Velocity</span>
+                  <span className="legend-item"><span className="dot ideal"></span> {t('idealGuideline')}</span>
+                  <span className="legend-item"><span className="dot actual"></span> {t('actualVelocity')}</span>
                 </>
               ) : (
                 <>
-                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#10b981' }}></span> Done</span>
-                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#f59e0b' }}></span> In Review</span>
-                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#6366f1' }}></span> In Progress</span>
+                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#10b981' }}></span> {t('done')}</span>
+                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#f59e0b' }}></span> {t('in_review')}</span>
+                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#6366f1' }}></span> {t('in_progress')}</span>
                 </>
               )}
             </div>
@@ -248,8 +248,8 @@ export const ReportsView: React.FC = () => {
         {/* Team Workload Chart */}
         <div className="chart-box">
           <div className="chart-title-group">
-            <h3>Team Member Workload</h3>
-            <span className="chart-subtitle">Story points distribution per engineer</span>
+            <h3>{t('teamWorkload')}</h3>
+            <span className="chart-subtitle">{t('workloadDistribution')}</span>
           </div>
 
           <div className="workload-list">
@@ -273,7 +273,7 @@ export const ReportsView: React.FC = () => {
                   </div>
 
                   <div className="workload-pts">
-                    <strong>{points}</strong> pts ({count} tasks)
+                    <strong>{points}</strong> {t('pointsShort')} ({count} {t('tasks')})
                   </div>
                 </div>
               );
@@ -284,19 +284,19 @@ export const ReportsView: React.FC = () => {
 
       <div className="manager-matrix-section animate-fade-in">
         <div className="section-title-group">
-          <h3>Team Capacity</h3>
-          <span className="section-subtitle">Current workload distribution across the team</span>
+          <h3>{t('teamCapacity')}</h3>
+          <span className="section-subtitle">{t('teamCapacitySubtitle')}</span>
         </div>
 
         <div className="matrix-table-wrap">
           <table className="matrix-table">
             <thead>
               <tr>
-                <th>Team Member</th>
-                <th>Role</th>
-                <th>Assigned Tasks</th>
-                <th>Story Points (Done / Total)</th>
-                <th>Capacity Health</th>
+                <th>{t('teamMember')}</th>
+                <th>{t('role')}</th>
+                <th>{t('assignedTasks')}</th>
+                <th>{t('storyPoints')} ({t('done')} / {t('total')})</th>
+                <th>{t('capacityHealth')}</th>
               </tr>
             </thead>
             <tbody>
@@ -309,9 +309,9 @@ export const ReportsView: React.FC = () => {
                     </div>
                   </td>
                   <td>{item.user.role}</td>
-                  <td>{item.count} tasks</td>
+                  <td>{item.count} {t('tasks')}</td>
                   <td>
-                    <strong>{item.completedPts}</strong> / {item.points} pts
+                    <strong>{item.completedPts}</strong> / {item.points} {t('pointsShort')}
                   </td>
                   <td>
                     <span className={`capacity-badge ${item.statusClass}`}>{item.statusLabel}</span>
@@ -325,15 +325,15 @@ export const ReportsView: React.FC = () => {
 
       <section className="report-insights-section">
         <div>
-          <h3>Advanced insights</h3>
-          <p>Risk signals, team health, SLA status, and knowledge coverage.</p>
+          <h3>{t('advancedInsights')}</h3>
+          <p>{t('advancedInsightsSubtitle')}</p>
         </div>
         <button
           className="btn-ghost-sm report-insights-toggle"
           onClick={() => setShowInsights(current => !current)}
           aria-expanded={showInsights}
         >
-          {showInsights ? 'Hide insights' : 'View insights'}
+          {showInsights ? t('hideInsights') : t('viewInsights')}
         </button>
       </section>
 
