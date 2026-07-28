@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import {
   generateAISpecs,
@@ -13,6 +13,7 @@ export const AICopilotPanel: React.FC = () => {
   const { users, sprints, issues, selectedIssueId, updateIssue, addSubtask } = useAether();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'advisor' | 'rebalance' | 'generator'>('advisor');
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   // AI Generator state
   const [inputSummary, setInputSummary] = useState('');
@@ -22,25 +23,62 @@ export const AICopilotPanel: React.FC = () => {
   const healthData = activeSprint ? analyzeSprintHealth(activeSprint, issues) : null;
   const workloadSuggestions = calculateWorkloadRebalance(users, issues);
   const standupDigest = generateDailyStandupDigest(issues);
+  const selectedIssue = useMemo(
+    () => issues.find(issue => issue.id === selectedIssueId) ?? null,
+    [issues, selectedIssueId]
+  );
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timeoutId = window.setTimeout(() => setFeedback(null), 2600);
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback]);
 
   const handleGenerate = () => {
-    if (!inputSummary.trim()) return;
+    if (!inputSummary.trim()) {
+      setFeedback('Generate할 이슈 요약을 먼저 입력해 주세요.');
+      return;
+    }
     const res = generateAISpecs(inputSummary);
     setAiResult(res);
+    setFeedback('AI 제안이 생성되었습니다. 검토 후 적용할 수 있습니다.');
   };
 
   const handleApplyToIssue = () => {
-    if (!selectedIssueId || !aiResult) return;
-    updateIssue(selectedIssueId, { storyPoints: aiResult.suggestedPoints });
-    aiResult.suggestedSubtasks.forEach(st => {
-      addSubtask(selectedIssueId, st);
+    if (!selectedIssue || !aiResult) {
+      setFeedback('적용할 열린 이슈를 먼저 선택해 주세요.');
+      return;
+    }
+
+    const existingSubtaskTitles = new Set(
+      selectedIssue.subtasks.map(subtask => subtask.title.trim().toLowerCase())
+    );
+    const newSubtasks = aiResult.suggestedSubtasks.filter(
+      subtask => !existingSubtaskTitles.has(subtask.trim().toLowerCase())
+    );
+
+    updateIssue(selectedIssue.id, { storyPoints: aiResult.suggestedPoints });
+    newSubtasks.forEach(subtask => {
+      addSubtask(selectedIssue.id, subtask);
     });
-    alert(`✨ Applied AI Story Points (${aiResult.suggestedPoints} pts) and ${aiResult.suggestedSubtasks.length} Sub-tasks to selected issue!`);
+
+    setFeedback(
+      newSubtasks.length > 0
+        ? `${selectedIssue.key}에 스토리 포인트와 ${newSubtasks.length}개의 새 서브태스크를 반영했습니다.`
+        : `${selectedIssue.key}의 스토리 포인트를 업데이트했고, 중복 없는 새 서브태스크는 없었습니다.`
+    );
   };
 
   const handleApplyRebalance = (issueId: string, toUserId: string) => {
     updateIssue(issueId, { assigneeId: toUserId });
-    alert(`✨ Rebalanced issue to engineer!`);
+    const targetUser = users.find(user => user.id === toUserId);
+    const movedIssue = issues.find(issue => issue.id === issueId);
+    setFeedback(
+      movedIssue && targetUser
+        ? `${movedIssue.key}를 ${targetUser.name}에게 재할당했습니다.`
+        : '이슈를 재할당했습니다.'
+    );
   };
 
   return (
@@ -91,6 +129,8 @@ export const AICopilotPanel: React.FC = () => {
           </div>
 
           <div className="ai-drawer-body">
+            {feedback && <div className="ai-feedback-message">{feedback}</div>}
+
             {activeTab === 'advisor' && healthData && (
               <div className="ai-advisor-section">
                 <div className="health-score-card">
@@ -226,11 +266,13 @@ export const AICopilotPanel: React.FC = () => {
                       ))}
                     </ul>
 
-                    {selectedIssueId && (
-                      <button className="btn-apply-ai" onClick={handleApplyToIssue}>
-                        Apply to Open Issue
-                      </button>
-                    )}
+                    <button
+                      className="btn-apply-ai"
+                      onClick={handleApplyToIssue}
+                      disabled={!selectedIssue}
+                    >
+                      {selectedIssue ? `Apply to ${selectedIssue.key}` : 'Open an issue to apply'}
+                    </button>
                   </div>
                 )}
               </div>

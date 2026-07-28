@@ -4,6 +4,8 @@ import type { Issue, Sprint, User } from '../../types/Aether';
 import { IconDownload } from '../common/Icons';
 import { SprintRiskMatrixCard } from '../common/SprintRiskMatrixCard';
 import { TeamHealthPulseCard } from '../common/TeamHealthPulseCard';
+import { SlaAnalyticsCard } from '../common/SlaAnalyticsCard';
+import { KnowledgeSiloCard } from '../common/KnowledgeSiloCard';
 
 export const ReportsView: React.FC = () => {
   const { issues, sprints, users } = useAether();
@@ -286,6 +288,16 @@ export const ReportsView: React.FC = () => {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Enterprise SLA Diagnostics Card */}
+      <div style={{ marginTop: '20px' }}>
+        <SlaAnalyticsCard />
+      </div>
+
+      {/* Team Knowledge Silo & Bus Factor Card */}
+      <div style={{ marginTop: '20px' }}>
+        <KnowledgeSiloCard />
       </div>
 
       {/* Manager Resource & Capacity Allocation Matrix Table */}

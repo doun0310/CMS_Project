@@ -94,6 +94,15 @@ export interface Issue {
   blocks?: string[];    // issue keys or ids
   acceptanceCriteria?: string[];
   testScenarios?: { id: string; title: string; gherkin: string; codeSnippet: string }[];
+  customFields?: Record<string, string>;
+}
+
+export interface CustomFieldDef {
+  id: string;
+  name: string;
+  type: 'text' | 'select' | 'url' | 'badge';
+  options?: string[];
+  defaultValue?: string;
 }
 
 export interface Project {
@@ -103,6 +112,7 @@ export interface Project {
   category: string;
   avatar: string;
   description: string;
+  customFieldDefs?: CustomFieldDef[];
 }
 
 export interface AutomationRule {
@@ -124,6 +134,6 @@ export interface AutomationAuditLog {
   status: 'SUCCESS' | 'WARNING' | 'FAILED';
 }
 
-export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective';
+export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture';
 
 

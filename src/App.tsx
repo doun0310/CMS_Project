@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useEffectEvent, useState } from 'react';
 import { AetherProvider } from './context/AetherContext';
 import { useAether } from './context/AetherContextValue';
 import { Header } from './components/layout/Header';
@@ -10,6 +10,7 @@ import { ReportsView } from './components/views/ReportsView';
 import { AutomationView } from './components/views/AutomationView';
 import { SettingsView } from './components/views/SettingsView';
 import { RetrospectiveView } from './components/views/RetrospectiveView';
+import { ArchitectureView } from './components/views/ArchitectureView';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
@@ -22,66 +23,64 @@ const MainLayout: React.FC = () => {
   const { viewMode, setViewMode, setIsCreateModalOpen, isCreateModalOpen, selectedIssueId, setSelectedIssueId } = useAether();
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
 
-  // Global Keyboard Shortcuts Listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore hotkeys when typing in input, textarea, or select
-      const activeEl = document.activeElement;
-      const isInputActive = activeEl && (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.tagName === 'SELECT' ||
-        activeEl.getAttribute('contenteditable') === 'true'
-      );
+  const handleGlobalKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    const activeEl = document.activeElement;
+    const isInputActive = activeEl && (
+      activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.tagName === 'SELECT' ||
+      activeEl.getAttribute('contenteditable') === 'true'
+    );
 
-      if (isInputActive) return;
+    if (isInputActive) return;
 
-      // Hotkey: ? -> Toggle Shortcuts Modal
-      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-        e.preventDefault();
-        setIsShortcutsModalOpen(prev => !prev);
-        return;
-      }
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      e.preventDefault();
+      setIsShortcutsModalOpen(prev => !prev);
+      return;
+    }
 
-      // Hotkey: C or c -> Open Create Issue Modal
-      if (e.key === 'c' || e.key === 'C') {
-        e.preventDefault();
-        setIsCreateModalOpen(true);
-        return;
-      }
+    if (e.key === 'c' || e.key === 'C') {
+      e.preventDefault();
+      setIsCreateModalOpen(true);
+      return;
+    }
 
-      // Hotkeys: 1-7 for View Mode switching
-      const viewMap: Record<string, ViewMode> = {
-        '1': 'board',
-        '2': 'backlog',
-        '3': 'roadmap',
-        '4': 'reports',
-        '5': 'retrospective',
-        '6': 'automation',
-        '7': 'settings'
-      };
-
-      if (viewMap[e.key]) {
-        e.preventDefault();
-        setViewMode(viewMap[e.key]);
-        return;
-      }
-
-      // Hotkey: Esc -> Close active modal / drawer
-      if (e.key === 'Escape') {
-        if (isShortcutsModalOpen) {
-          setIsShortcutsModalOpen(false);
-        } else if (isCreateModalOpen) {
-          setIsCreateModalOpen(false);
-        } else if (selectedIssueId) {
-          setSelectedIssueId(null);
-        }
-      }
+    const viewMap: Record<string, ViewMode> = {
+      '1': 'board',
+      '2': 'backlog',
+      '3': 'roadmap',
+      '4': 'reports',
+      '5': 'retrospective',
+      '6': 'automation',
+      '7': 'settings'
     };
 
+    if (viewMap[e.key]) {
+      e.preventDefault();
+      setViewMode(viewMap[e.key]);
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      if (isShortcutsModalOpen) {
+        setIsShortcutsModalOpen(false);
+      } else if (isCreateModalOpen) {
+        setIsCreateModalOpen(false);
+      } else if (selectedIssueId) {
+        setSelectedIssueId(null);
+      }
+    }
+  });
+
+  // Register once; useEffectEvent keeps the handler fresh without re-subscribing.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      handleGlobalKeyDown(e);
+    };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setViewMode, setIsCreateModalOpen, isCreateModalOpen, isShortcutsModalOpen, selectedIssueId, setSelectedIssueId]);
+  }, []);
 
   const renderCurrentView = () => {
     switch (viewMode) {
@@ -99,6 +98,8 @@ const MainLayout: React.FC = () => {
         return <RetrospectiveView />;
       case 'settings':
         return <SettingsView />;
+      case 'architecture':
+        return <ArchitectureView />;
       default:
         return <KanbanBoard />;
     }

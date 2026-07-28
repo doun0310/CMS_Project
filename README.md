@@ -137,6 +137,34 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **AI BDD (Gherkin) 테스트 시나리오 자동 생성**: 이슈의 요약 및 타입을 분석하여 `Given-When-Then` 해피패스 및 에러 핸들링 시나리오 자동 설계.
 - **다중 테스트 프레임워크 지원 (`Playwright` / `Cypress` / `Vitest`)**: 1-Click 실행 가능한 QA 자동화 스텁 코드 생성 및 이슈 설명(`Description`) 원클릭 첨부 지원.
 
+### 🏷️ 30. Custom Fields & Enterprise Metadata Schema Workbench (커스텀 필드 & 동적 메타데이터 관리자)
+- **동적 커스텀 필드 스키마 설계**: Text, Select Dropdown, URL Link, Badge Pill 등 프로젝트별 맞춤 메타데이터(배포 환경, 고객 영향도 Tier, GitHub PR 링크, 보안 게이트) 정의.
+- **이슈 상세 모달 메타데이터 바인딩**: 이슈 상세 모달 사이드바에 🏷️ Custom Fields 섹션을 실시간 바인딩하여 동적 편집 및 상태 관리 지원.
+
+### ⚡ 31. Interactive Sprint Velocity & What-If Capacity Simulator (스프린트 벨로시티 & What-If 용량 시뮬레이터)
+- **실시간 What-If 시나리오 시뮬레이션**: 개발팀 인력 용량 비율(Team Capacity %), 스프린트 중 추가 범위(+Added Scope SP), 기술 부채/리스크 가중치(Complexity Multiplier) 조절.
+- **몬테카를로 확률 모델링 & 1-Click 완화**: 실시간 정시 완료 확률(0~100%) 및 3단계 위험도(`🟢/🟡/🔴`) 산출, AI 권장 기반 우선순위 낮은 이슈 1-Click 백로그 환원 지원.
+
+### ⏱️ 32. Enterprise SLA & MTTR Compliance Diagnostics (엔터프라이즈 SLA & 평균 해결 시간 진단)
+- **우선순위별 SLA 임계치 추적**: Highest(4h), High(24h), Medium(48h), Low(72h) 서비스 수준 합의 기준 대비 경과 시간 및 잔여 시간 실시간 진단.
+- **SLA 위반 위험도(`🟢/🟡/🔴`) & 1-Click 스마트 승격 (`Auto-Escalate`)**: 위반 임박 항목 자동 감지 및 클릭 한 번으로 우선순위 `Highest` 에스컬레이션 승격 지원.
+
+### 🧬 33. AI Code Impact & Architecture Dependency Visualizer (AI 코드 영향도 & 아키텍처 의존성 시각화)
+- **코드베이스 영경 범위(Blast Radius) 점수화**: 이슈 변경이 미치는 서브시스템 영향도(Blast Radius Score 0~100) 및 3단계 파급 위험도(`🟢/🟡/🔴`) 계산.
+- **영향 받는 모듈 디스플레이 & PR 레디니스 검증**: 서브시스템별 파일 수/Diff 행 수 분석, 담당 리뷰어 자동 추천, PR Quality Gate 체크리스트 자동 검증 및 1-Click 이슈 설명 첨부 지원.
+
+### 🧠 34. Team Knowledge Silo & Bus Factor Diagnostics (팀 지식 파편화 & Bus Factor 진단)
+- **서브시스템별 Bus Factor 실시간 산출**: 모듈별 코드 소유권 분석 및 Bus Factor = 1 단일 장애점(Knowledge Silo) 자동 감지.
+- **1-Click 크로스 트레이닝 페어 프로그래밍 작업 생성**: 특정 인원에 편중된 모듈 위험 발견 시, 클릭 한 번으로 페어 프로그래밍 & 지식 전수 하위 태스크 자동 발행 지원.
+
+### 📊 35. AI Sprint Retrospective Executive Report & Exporter (회고 리포트 마크다운 & PDF 생성기)
+- **팀 센티먼트 지수(Sentiment Index) 자동 집계**: 회고 카테고리(Went Well vs To Improve) 비율 분석 기반 팀 긍정 센티먼트 지수(0~100%) 및 투표수 산출.
+- **1-Click 리포트 클립보드 복사 & `.md` 파일 다운로드**: 경영진 및 기술 리더십 공유용 통합 마크다운 회고보고서 자동 가공 및 다운로드 지원.
+
+### 📐 36. Interactive System Architecture & Microservice Visualizer (`ArchitectureView.tsx`)
+- **서브시스템 모듈 노드 매핑**: UI Components, Auth API, Database Cluster, API Gateway, Billing, AI Engine 노드별 3단계 건강도(`🟢/🟡/🔴`) 및 스토리 포인트 로드 디스플레이.
+- **인터랙티브 노드 필터링 & AI 커플링 진단**: 노드 클릭 시 해당 마이크로서비스 연관 이슈 필터링 및 서브시스템 결합도(Coupling) 위험 딥러닝 분석 제공.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

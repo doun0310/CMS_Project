@@ -60,6 +60,12 @@ export const Sidebar: React.FC = () => {
       badge: `${retrospectiveItems.length}`
     },
     {
+      id: 'architecture',
+      label: 'Architecture',
+      icon: <span>📐</span>,
+      badge: '6'
+    },
+    {
       id: 'settings',
       label: t('settings'),
       icon: <IconSettings size={18} />

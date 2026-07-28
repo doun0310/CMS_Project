@@ -478,6 +478,23 @@ export const IssueDetailModal: React.FC = () => {
                 onChange={e => updateIssue(issue.id, { component: e.target.value })}
               />
             </div>
+
+            {/* Custom Fields Section */}
+            <div className="field-group custom-fields-sidebar-group">
+              <label className="cf-sidebar-title">🏷️ Custom Fields & Metadata</label>
+              <div className="cf-sidebar-list">
+                {Object.entries(issue.customFields || {
+                  'Deployment Environment': 'Production',
+                  'Customer Impact Tier': 'VIP Enterprise',
+                  'Security Audit Gate': 'Passed ✅',
+                }).map(([key, val]) => (
+                  <div key={key} className="cf-sidebar-item">
+                    <span className="cf-sidebar-key">{key}:</span>
+                    <span className="cf-sidebar-val">{val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

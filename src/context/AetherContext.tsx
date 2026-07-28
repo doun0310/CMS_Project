@@ -41,8 +41,79 @@ interface PersistedState {
   accentColor?: string;
 }
 
+const isIssueStatus = (value: unknown): value is IssueStatus =>
+  value === 'todo' || value === 'in_progress' || value === 'in_review' || value === 'done';
+
+const isPriority = (value: unknown): value is Priority =>
+  value === 'highest' || value === 'high' || value === 'medium' || value === 'low' || value === 'lowest';
+
 const isLanguage = (value: unknown): value is Language =>
   value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
+
+const normalizeIssueType = (value: unknown): IssueType => {
+  if (value === 'story') return 'feature';
+  if (value === 'task') return 'workitem';
+  if (value === 'epic') return 'initiative';
+  return value === 'initiative' || value === 'feature' || value === 'workitem' || value === 'bug' || value === 'subtask'
+    ? value
+    : 'feature';
+};
+
+const toStringArray = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
+
+const normalizeIssue = (value: unknown, fallback: Issue): Issue | null => {
+  if (!value || typeof value !== 'object') return null;
+
+  const candidate = value as Partial<Issue> & Record<string, unknown>;
+  if (typeof candidate.id !== 'string' || typeof candidate.key !== 'string' || typeof candidate.summary !== 'string') {
+    return null;
+  }
+
+  return {
+    ...fallback,
+    ...candidate,
+    id: candidate.id,
+    key: candidate.key,
+    summary: candidate.summary,
+    description: typeof candidate.description === 'string' ? candidate.description : fallback.description,
+    type: normalizeIssueType(candidate.type),
+    status: isIssueStatus(candidate.status) ? candidate.status : fallback.status,
+    priority: isPriority(candidate.priority) ? candidate.priority : fallback.priority,
+    assigneeId: typeof candidate.assigneeId === 'string' || candidate.assigneeId === null ? candidate.assigneeId : fallback.assigneeId,
+    reporterId: typeof candidate.reporterId === 'string' ? candidate.reporterId : fallback.reporterId,
+    epicId: typeof candidate.epicId === 'string' || candidate.epicId === null ? candidate.epicId : fallback.epicId,
+    sprintId: typeof candidate.sprintId === 'string' || candidate.sprintId === null ? candidate.sprintId : fallback.sprintId,
+    storyPoints: typeof candidate.storyPoints === 'number' ? candidate.storyPoints : fallback.storyPoints,
+    subtasks: Array.isArray(candidate.subtasks) ? candidate.subtasks as SubTask[] : fallback.subtasks,
+    comments: Array.isArray(candidate.comments) ? candidate.comments as Issue['comments'] : fallback.comments,
+    history: Array.isArray(candidate.history) ? candidate.history as Issue['history'] : fallback.history,
+    labels: toStringArray(candidate.labels),
+    component: typeof candidate.component === 'string' ? candidate.component : fallback.component,
+    dueDate: typeof candidate.dueDate === 'string' ? candidate.dueDate : fallback.dueDate,
+    originalEstimate: typeof candidate.originalEstimate === 'number' ? candidate.originalEstimate : fallback.originalEstimate,
+    timeLogged: typeof candidate.timeLogged === 'number' ? candidate.timeLogged : fallback.timeLogged,
+    createdAt: typeof candidate.createdAt === 'string' ? candidate.createdAt : fallback.createdAt,
+    updatedAt: typeof candidate.updatedAt === 'string' ? candidate.updatedAt : fallback.updatedAt,
+    blockedBy: toStringArray(candidate.blockedBy),
+    blocks: toStringArray(candidate.blocks),
+    acceptanceCriteria: toStringArray(candidate.acceptanceCriteria),
+    testScenarios: Array.isArray(candidate.testScenarios) ? candidate.testScenarios as Issue['testScenarios'] : fallback.testScenarios
+  };
+};
+
+const normalizeIssueCollection = (value: unknown, fallbackIssues: Issue[]): Issue[] | undefined => {
+  if (!Array.isArray(value)) return undefined;
+
+  const fallbackById = new Map(fallbackIssues.map(issue => [issue.id, issue]));
+  return value
+    .map((entry, index) => {
+      const entryRecord = entry as Partial<Issue> | undefined;
+      const fallback = (entryRecord?.id && fallbackById.get(entryRecord.id)) ?? fallbackIssues[index] ?? fallbackIssues[0];
+      return fallback ? normalizeIssue(entry, fallback) : null;
+    })
+    .filter((issue): issue is Issue => issue !== null);
+};
 
 const readPersistedState = (): PersistedState => {
   try {
@@ -54,12 +125,7 @@ const readPersistedState = (): PersistedState => {
 
     const data = parsed as Record<string, unknown>;
     return {
-      issues: Array.isArray(data.issues)
-        ? (data.issues as Issue[]).map(i => ({
-            ...i,
-            type: i.type === 'story' ? 'feature' : i.type === 'task' ? 'workitem' : i.type === 'epic' ? 'initiative' : i.type
-          }))
-        : undefined,
+      issues: normalizeIssueCollection(data.issues, initialIssues),
       sprints: Array.isArray(data.sprints) ? data.sprints as Sprint[] : undefined,
       epics: Array.isArray(data.epics) ? data.epics as Epic[] : undefined,
       automationRules: Array.isArray(data.automationRules)
@@ -406,8 +472,9 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const data = parsed as Record<string, unknown>;
       let importedSectionCount = 0;
 
-      if (Array.isArray(data.issues)) {
-        setIssues(data.issues as Issue[]);
+      const normalizedIssues = normalizeIssueCollection(data.issues, initialIssues);
+      if (normalizedIssues && normalizedIssues.length > 0) {
+        setIssues(normalizedIssues);
         importedSectionCount += 1;
       }
       if (Array.isArray(data.sprints)) {

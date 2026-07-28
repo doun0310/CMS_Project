@@ -16,6 +16,10 @@ import { DailyStandupModal } from '../modals/DailyStandupModal';
 import { ProjectSwitchModal } from '../modals/ProjectSwitchModal';
 import { ReleaseNotesModal } from '../modals/ReleaseNotesModal';
 import { TestGeneratorModal } from '../modals/TestGeneratorModal';
+import { CustomFieldModal } from '../modals/CustomFieldModal';
+import { VelocitySimulatorModal } from '../modals/VelocitySimulatorModal';
+import { CodeImpactModal } from '../modals/CodeImpactModal';
+import { RetroReportModal } from '../modals/RetroReportModal';
 
 export const Header: React.FC = () => {
   const {
@@ -48,6 +52,10 @@ export const Header: React.FC = () => {
   const [isStandupOpen, setIsStandupOpen] = useState(false);
   const [isReleaseOpen, setIsReleaseOpen] = useState(false);
   const [isTestOpen, setIsTestOpen] = useState(false);
+  const [isCustomFieldOpen, setIsCustomFieldOpen] = useState(false);
+  const [isVelocityOpen, setIsVelocityOpen] = useState(false);
+  const [isImpactOpen, setIsImpactOpen] = useState(false);
+  const [isRetroReportOpen, setIsRetroReportOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
@@ -194,6 +202,34 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">Tests</span>
           </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsCustomFieldOpen(true)}
+            title="Open Custom Fields & Enterprise Schema Workbench"
+          >
+            <span className="btn-standup-text">Custom Fields</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsVelocityOpen(true)}
+            title="Open Sprint Velocity & What-If Capacity Simulator"
+          >
+            <span className="btn-standup-text">Simulator</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsImpactOpen(true)}
+            title="Open AI Code Impact & Architecture Visualizer"
+          >
+            <span className="btn-standup-text">Code Impact</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsRetroReportOpen(true)}
+            title="Open Sprint Retrospective AI Executive Report & Exporter"
+          >
+            <span className="btn-standup-text">Retro Report</span>
+          </button>
         </div>
       </div>
 
@@ -327,6 +363,30 @@ export const Header: React.FC = () => {
       <TestGeneratorModal
         isOpen={isTestOpen}
         onClose={() => setIsTestOpen(false)}
+      />
+
+      {/* Custom Fields & Enterprise Schema Workbench Modal */}
+      <CustomFieldModal
+        isOpen={isCustomFieldOpen}
+        onClose={() => setIsCustomFieldOpen(false)}
+      />
+
+      {/* Sprint Velocity & What-If Capacity Simulator Modal */}
+      <VelocitySimulatorModal
+        isOpen={isVelocityOpen}
+        onClose={() => setIsVelocityOpen(false)}
+      />
+
+      {/* AI Code Impact & Architecture Visualizer Modal */}
+      <CodeImpactModal
+        isOpen={isImpactOpen}
+        onClose={() => setIsImpactOpen(false)}
+      />
+
+      {/* Sprint Retrospective AI Executive Report & Exporter Modal */}
+      <RetroReportModal
+        isOpen={isRetroReportOpen}
+        onClose={() => setIsRetroReportOpen(false)}
       />
     </header>
   );
