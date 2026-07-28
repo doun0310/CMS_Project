@@ -63,13 +63,11 @@ export const Sidebar: React.FC = () => {
       id: 'architecture',
       label: 'Architecture',
       icon: <span>📐</span>,
-      badge: '6'
     },
     {
       id: 'portfolio',
       label: 'Portfolio',
       icon: <span>💼</span>,
-      badge: '4'
     },
     {
       id: 'settings',
@@ -80,18 +78,14 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="app-sidebar">
-      {/* Sidebar Top Project Card */}
       <div className="sidebar-project-card">
         <div className="project-icon">{currentProject.avatar}</div>
         <div className="project-info">
           <div className="project-title">{currentProject.name}</div>
-          <div className="project-type">Software Project (Agile)</div>
+          <div className="project-type">{currentProject.key}</div>
         </div>
       </div>
 
-      <div className="sidebar-section-header">WORKSPACE</div>
-
-      {/* Navigation list */}
       <nav className="sidebar-nav">
         {navItems.map(item => (
           <button
@@ -110,17 +104,13 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      {/* Active Sprint Summary Widget */}
       {activeSprint && (
         <div className="sidebar-sprint-widget">
           <div className="widget-header">
             <span className="pulse-dot"></span>
-            <span className="widget-title">CURRENT SPRINT</span>
+            <span className="widget-title">ACTIVE SPRINT</span>
           </div>
           <div className="sprint-name">{activeSprint.name}</div>
-          <div className="sprint-dates">
-            {activeSprint.startDate} ~ {activeSprint.endDate}
-          </div>
           <div className="sprint-progress-bar">
             <div
               className="progress-fill"
@@ -138,25 +128,11 @@ export const Sidebar: React.FC = () => {
             ></div>
           </div>
           <div className="sprint-stats">
-            <span>
-              Done:{' '}
-              {activeSprintIssues.filter(i => i.status === 'done').length}/
-              {activeSprintIssues.length}
-            </span>
-            <span>
-              {activeSprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0)}{' '}
-              pts
-            </span>
+            <span>{activeSprintIssues.filter(i => i.status === 'done').length}/{activeSprintIssues.length} done</span>
+            <span>{activeSprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0)} pts</span>
           </div>
         </div>
       )}
-
-      {/* Sidebar Footer */}
-      <div className="sidebar-footer">
-        <div className="atlassian-credit">
-          Built around <strong>AetherPulse</strong>
-        </div>
-      </div>
     </aside>
   );
 };

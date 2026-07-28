@@ -55,6 +55,7 @@ export const Header: React.FC = () => {
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isStandupOpen, setIsStandupOpen] = useState(false);
   const [isReleaseOpen, setIsReleaseOpen] = useState(false);
   const [isTestOpen, setIsTestOpen] = useState(false);
@@ -72,6 +73,7 @@ export const Header: React.FC = () => {
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
   const userDropdownRef = useRef<HTMLDivElement | null>(null);
+  const toolsDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -85,6 +87,9 @@ export const Header: React.FC = () => {
       }
       if (userDropdownRef.current && !userDropdownRef.current.contains(target)) {
         setIsUserDropdownOpen(false);
+      }
+      if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(target)) {
+        setIsToolsOpen(false);
       }
     };
 
@@ -127,6 +132,20 @@ export const Header: React.FC = () => {
     subtask: t('typeSubtask')
   };
 
+  const toolActions = [
+    { label: t('tests'), title: t('openTestsTitle'), onClick: () => setIsTestOpen(true) },
+    { label: t('customFields'), title: t('openCustomFieldsTitle'), onClick: () => setIsCustomFieldOpen(true) },
+    { label: t('simulator'), title: t('openSimulatorTitle'), onClick: () => setIsVelocityOpen(true) },
+    { label: t('codeImpact'), title: t('openCodeImpactTitle'), onClick: () => setIsImpactOpen(true) },
+    { label: t('retroReport'), title: t('openRetroReportTitle'), onClick: () => setIsRetroReportOpen(true) },
+    { label: t('ruleBuilder'), title: t('openRuleBuilderTitle'), onClick: () => setIsAutoRuleOpen(true) },
+    { label: t('prAudit'), title: t('openPrAuditTitle'), onClick: () => setIsPrAuditOpen(true) },
+    { label: 'PTO Calendar', title: 'Open Sprint Team Capacity & Holiday Calendar Integrator', onClick: () => setIsCapacityOpen(true) },
+    { label: 'Release Gate', title: 'Open Enterprise Release Go / No-Go Decision Gate', onClick: () => setIsReleaseGateOpen(true) },
+    { label: 'Skill Matrix', title: 'Open AI Cross-Team Skill Matrix & Resource Load Balancer', onClick: () => setIsSkillMatrixOpen(true) },
+    { label: 'Auto Triage', title: 'Open AI Smart Issue Auto-Triage & Label Recommendation Assistant', onClick: () => setIsTriageOpen(true) }
+  ];
+
   return (
     <header className="app-header">
       {/* Left section: Logo & App title */}
@@ -148,6 +167,7 @@ export const Header: React.FC = () => {
             onClick={() => {
               setIsNotifOpen(false);
               setIsUserDropdownOpen(false);
+              setIsToolsOpen(false);
               setIsProjectDropdownOpen(prev => !prev);
             }}
           >
@@ -244,83 +264,39 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">{t('release')}</span>
           </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsTestOpen(true)}
-            title={t('openTestsTitle')}
-          >
-            <span className="btn-standup-text">{t('tests')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsCustomFieldOpen(true)}
-            title={t('openCustomFieldsTitle')}
-          >
-            <span className="btn-standup-text">{t('customFields')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsVelocityOpen(true)}
-            title={t('openSimulatorTitle')}
-          >
-            <span className="btn-standup-text">{t('simulator')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsImpactOpen(true)}
-            title={t('openCodeImpactTitle')}
-          >
-            <span className="btn-standup-text">{t('codeImpact')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsRetroReportOpen(true)}
-            title={t('openRetroReportTitle')}
-          >
-            <span className="btn-standup-text">{t('retroReport')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsAutoRuleOpen(true)}
-            title={t('openRuleBuilderTitle')}
-          >
-            <span className="btn-standup-text">{t('ruleBuilder')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsPrAuditOpen(true)}
-            title={t('openPrAuditTitle')}
-          >
-            <span className="btn-standup-text">{t('prAudit')}</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsCapacityOpen(true)}
-            title="Open Sprint Team Capacity & Holiday Calendar Integrator"
-          >
-            <span className="btn-standup-text">PTO Calendar</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsReleaseGateOpen(true)}
-            title="Open Enterprise Release Go / No-Go Decision Gate"
-          >
-            <span className="btn-standup-text">Release Gate</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsSkillMatrixOpen(true)}
-            title="Open AI Cross-Team Skill Matrix & Resource Load Balancer"
-          >
-            <span className="btn-standup-text">Skill Matrix</span>
-          </button>
-          <button
-            className="btn-standup-header"
-            onClick={() => setIsTriageOpen(true)}
-            title="Open AI Smart Issue Auto-Triage & Label Recommendation Assistant"
-          >
-            <span className="btn-standup-text">Auto Triage</span>
-          </button>
+          <div className="dropdown-container" ref={toolsDropdownRef}>
+            <button
+              className="btn-tools-header"
+              onClick={() => {
+                setIsProjectDropdownOpen(false);
+                setIsNotifOpen(false);
+                setIsUserDropdownOpen(false);
+                setIsToolsOpen(prev => !prev);
+              }}
+              title="Open workspace tools"
+            >
+              <span className="btn-standup-text">Tools</span>
+              <IconChevronDown size={14} />
+            </button>
+            {isToolsOpen && (
+              <div className="dropdown-menu tools-dropdown right animate-fade-in">
+                <div className="dropdown-header">WORKSPACE TOOLS</div>
+                {toolActions.map(action => (
+                  <button
+                    key={action.label}
+                    className="dropdown-item dropdown-action"
+                    title={action.title}
+                    onClick={() => {
+                      action.onClick();
+                      setIsToolsOpen(false);
+                    }}
+                  >
+                    <span className="dropdown-title">{action.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -348,6 +324,7 @@ export const Header: React.FC = () => {
             onClick={() => {
               setIsProjectDropdownOpen(false);
               setIsUserDropdownOpen(false);
+              setIsToolsOpen(false);
               setIsNotifOpen(prev => !prev);
               if (unreadNotifs > 0) setUnreadNotifs(0);
             }}
@@ -407,6 +384,7 @@ export const Header: React.FC = () => {
             onClick={() => {
               setIsProjectDropdownOpen(false);
               setIsNotifOpen(false);
+              setIsToolsOpen(false);
               setIsUserDropdownOpen(prev => !prev);
             }}
           >
