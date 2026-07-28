@@ -11,6 +11,7 @@ import { AutomationView } from './components/views/AutomationView';
 import { SettingsView } from './components/views/SettingsView';
 import { RetrospectiveView } from './components/views/RetrospectiveView';
 import { ArchitectureView } from './components/views/ArchitectureView';
+import { PortfolioView } from './components/views/PortfolioView';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
@@ -100,6 +101,8 @@ const MainLayout: React.FC = () => {
         return <SettingsView />;
       case 'architecture':
         return <ArchitectureView />;
+      case 'portfolio':
+        return <PortfolioView />;
       default:
         return <KanbanBoard />;
     }

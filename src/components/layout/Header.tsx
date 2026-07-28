@@ -20,6 +20,7 @@ import { CustomFieldModal } from '../modals/CustomFieldModal';
 import { VelocitySimulatorModal } from '../modals/VelocitySimulatorModal';
 import { CodeImpactModal } from '../modals/CodeImpactModal';
 import { RetroReportModal } from '../modals/RetroReportModal';
+import { AutomationRuleModal } from '../modals/AutomationRuleModal';
 
 export const Header: React.FC = () => {
   const {
@@ -56,6 +57,7 @@ export const Header: React.FC = () => {
   const [isVelocityOpen, setIsVelocityOpen] = useState(false);
   const [isImpactOpen, setIsImpactOpen] = useState(false);
   const [isRetroReportOpen, setIsRetroReportOpen] = useState(false);
+  const [isAutoRuleOpen, setIsAutoRuleOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
@@ -230,6 +232,13 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">Retro Report</span>
           </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsAutoRuleOpen(true)}
+            title="Open Visual Automation Rule Builder & Webhook Simulator"
+          >
+            <span className="btn-standup-text">Rule Builder</span>
+          </button>
         </div>
       </div>
 
@@ -387,6 +396,12 @@ export const Header: React.FC = () => {
       <RetroReportModal
         isOpen={isRetroReportOpen}
         onClose={() => setIsRetroReportOpen(false)}
+      />
+
+      {/* Visual Automation Rule Builder & Webhook Simulator Modal */}
+      <AutomationRuleModal
+        isOpen={isAutoRuleOpen}
+        onClose={() => setIsAutoRuleOpen(false)}
       />
     </header>
   );

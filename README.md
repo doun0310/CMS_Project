@@ -165,6 +165,22 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **서브시스템 모듈 노드 매핑**: UI Components, Auth API, Database Cluster, API Gateway, Billing, AI Engine 노드별 3단계 건강도(`🟢/🟡/🔴`) 및 스토리 포인트 로드 디스플레이.
 - **인터랙티브 노드 필터링 & AI 커플링 진단**: 노드 클릭 시 해당 마이크로서비스 연관 이슈 필터링 및 서브시스템 결합도(Coupling) 위험 딥러닝 분석 제공.
 
+### 🎯 37. Retrospective Action Item Execution & Backlog Ticket Conversion Engine (`RetrospectiveView.tsx`)
+- **액션 아이템 이행 상태 추적 서브 탭**: 회고 액션 아이템 전용 실행 매트릭스를 제공하여 `Pending` vs `Converted` 상태 및 이행률(%) 실시간 진단.
+- **1-Click 스마트 일괄 이슈 전환 (`Convert All to Backlog`)**: 회고에서 도출된 액션 아이템을 클릭 한 번으로 백로그 정식 이슈 티켓(`TASK-XXX`)으로 일괄 전환 및 바인딩.
+
+### 🗺️ 38. Interactive Roadmap Critical Path & Milestone Dependency Visualizer (`RoadmapView.tsx`)
+- **🔴 크리티컬 패스 병목 강조 모드 (`Highlight Critical Path`)**: 진척률 50% 미만 핵심 에픽의 타임라인 바를 펄스 레드 애니메이션으로 시각화하여 배포 병목 감지.
+- **🚩 릴리즈 마일스톤 타임라인 핀 오버레이**: Timeline Grid 상에 Milestone 1(Beta Release), Milestone 2(GA Launch) 수직 가이드 플래그 핀 레이어 오버레이 지원.
+
+### ⚡ 39. Visual Automation Rule Builder & Webhook Simulator (`AutomationRuleModal.tsx`)
+- **3단계 비주얼 워크플로우 룰 빌더 (WHEN-IF-THEN)**: 트리거 Event, 선택적 Condition 필터, 실행 Action 3단계 커스텀 워크플로우 설정 지원.
+- **🌐 웹훅 통합 페이로드 시뮬레이터**: Slack, Discord, Microsoft Teams 연동용 웹훅 JSON 페이로드 실시간 생성 및 1-Click 테스트 실행/감사 이력 기록.
+
+### 💼 40. AI Interactive Executive Portfolio & Multi-Project Analytics (`PortfolioView.tsx`)
+- **멀티 워크스페이스 경영진 헬스 대시보드**: 4대 핵심 프로젝트(Core, Mobile, Infra, AI Engine) 벨로시티, 진척률 및 3단계 건강도(`🟢/🟡/🔴`) 통합 관리.
+- **전사 리소스 할당 히트맵 & AI 리더십 진단**: 개발자별 멀티 프로젝트 과중 할당(Overallocated) 상태 실시간 감지 및 원클릭 워크스페이스 전환 지원.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

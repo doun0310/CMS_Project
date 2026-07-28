@@ -10,6 +10,8 @@ export const RoadmapView: React.FC = () => {
     'epic-2': true,
     'epic-3': true
   });
+  const [criticalPathOnly, setCriticalPathOnly] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<string>('all');
 
   const toggleEpic = (id: string) => {
     setExpandedEpics(prev => ({ ...prev, [id]: !prev[id] }));
@@ -36,12 +38,31 @@ export const RoadmapView: React.FC = () => {
 
   return (
     <div className="roadmap-view animate-fade-in">
-      <div className="view-header-bar">
+      <div className="view-header-bar flex-between">
         <div>
-          <h2>🗺️ Agile Timeline Roadmap</h2>
+          <h2>🗺️ Agile Timeline Roadmap & Milestone Dependencies</h2>
           <p className="subtext">
-            Visualize macro epic deliverables, release schedules, and cross-team dependencies.
+            Visualize macro epic deliverables, release schedules, critical path bottlenecks & milestone markers.
           </p>
+        </div>
+
+        <div className="roadmap-controls">
+          <button
+            className={`btn-cp-toggle ${criticalPathOnly ? 'active' : ''}`}
+            onClick={() => setCriticalPathOnly(!criticalPathOnly)}
+            title="Toggle Critical Path Dependency Highlighting"
+          >
+            🔴 {criticalPathOnly ? 'Critical Path Mode ON' : 'Highlight Critical Path'}
+          </button>
+          <select
+            value={selectedMilestone}
+            onChange={(e) => setSelectedMilestone(e.target.value)}
+            className="milestone-select"
+          >
+            <option value="all">🚩 All Release Milestones</option>
+            <option value="m1">🚩 Milestone 1: Beta Release (July 24)</option>
+            <option value="m2">🚩 Milestone 2: GA Launch (Aug 02)</option>
+          </select>
         </div>
       </div>
 
@@ -119,6 +140,16 @@ export const RoadmapView: React.FC = () => {
           </div>
 
           <div className="gantt-right-body">
+            {/* Milestone Vertical Flags Overlay */}
+            <div className="gantt-milestones-overlay">
+              <div className="milestone-line m1" style={{ left: '25%' }} title="Milestone 1: Beta Release (July 24)">
+                <span className="milestone-flag">🚩 M1: Beta</span>
+              </div>
+              <div className="milestone-line m2" style={{ left: '75%' }} title="Milestone 2: GA Production Launch (Aug 02)">
+                <span className="milestone-flag">🚩 M2: GA Launch</span>
+              </div>
+            </div>
+
             {epics.map((epic: Epic) => {
               const isExpanded = !!expandedEpics[epic.id];
               const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
@@ -128,13 +159,14 @@ export const RoadmapView: React.FC = () => {
               const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
               const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
               const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
+              const isCritical = criticalPathOnly && pointsPct < 50;
 
               return (
                 <React.Fragment key={epic.id}>
                   {/* Epic Timeline Bar Row */}
                   <div className="gantt-right-row epic-row">
                     <div
-                      className="gantt-bar epic-bar"
+                      className={`gantt-bar epic-bar ${isCritical ? 'critical-path-bar' : ''}`}
                       style={{
                         left: '8%',
                         width: '84%',
@@ -142,7 +174,10 @@ export const RoadmapView: React.FC = () => {
                       }}
                       title={`${epic.summary}: ${pointsPct}% completed (${donePoints}/${totalPoints} pts)`}
                     >
-                      <span className="bar-label">{epic.summary} ({pointsPct}% Done)</span>
+                      <span className="bar-label">
+                        {isCritical && '🔴 CRITICAL: '}
+                        {epic.summary} ({pointsPct}% Done)
+                      </span>
                       <div className="bar-progress" style={{ width: `${pointsPct}%` }}></div>
                     </div>
                   </div>

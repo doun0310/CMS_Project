@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { IconX, IconCheckCircle, IconZap, IconCopy } from '../common/Icons';
 
@@ -40,7 +41,7 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
     setTimeout(() => setCopied(false), 2500);
   };
 
-  return (
+  return createPortal(
     <div className="modal-backdrop-center animate-fade-in" onClick={onClose}>
       <div className="daily-standup-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
@@ -127,6 +128,7 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { IconX, IconCopy, IconCheckCircle } from '../common/Icons';
 
@@ -48,7 +49,7 @@ ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
     setTimeout(() => setCopied(false), 2500);
   };
 
-  return (
+  return createPortal(
     <div className="modal-backdrop-center animate-fade-in" onClick={onClose}>
       <div className="release-notes-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
@@ -89,6 +90,7 @@ ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

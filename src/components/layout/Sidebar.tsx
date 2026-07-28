@@ -66,6 +66,12 @@ export const Sidebar: React.FC = () => {
       badge: '6'
     },
     {
+      id: 'portfolio',
+      label: 'Portfolio',
+      icon: <span>💼</span>,
+      badge: '4'
+    },
+    {
       id: 'settings',
       label: t('settings'),
       icon: <IconSettings size={18} />

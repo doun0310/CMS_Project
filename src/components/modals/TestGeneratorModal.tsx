@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { IconX, IconCopy, IconCheckCircle } from '../common/Icons';
 import type { Issue } from '../../types/Aether';
@@ -126,7 +127,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
     setTimeout(() => setAppended(false), 2500);
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div
         className="modal-content test-generator-modal"
@@ -286,6 +287,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
