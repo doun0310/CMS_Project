@@ -24,6 +24,8 @@ import { AutomationRuleModal } from '../modals/AutomationRuleModal';
 import { PrAuditModal } from '../modals/PrAuditModal';
 import { CapacityCalendarModal } from '../modals/CapacityCalendarModal';
 import { ReleaseGateModal } from '../modals/ReleaseGateModal';
+import { SkillMatrixModal } from '../modals/SkillMatrixModal';
+import { IssueTriageModal } from '../modals/IssueTriageModal';
 
 export const Header: React.FC = () => {
   const {
@@ -64,6 +66,8 @@ export const Header: React.FC = () => {
   const [isPrAuditOpen, setIsPrAuditOpen] = useState(false);
   const [isCapacityOpen, setIsCapacityOpen] = useState(false);
   const [isReleaseGateOpen, setIsReleaseGateOpen] = useState(false);
+  const [isSkillMatrixOpen, setIsSkillMatrixOpen] = useState(false);
+  const [isTriageOpen, setIsTriageOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -303,6 +307,20 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">Release Gate</span>
           </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsSkillMatrixOpen(true)}
+            title="Open AI Cross-Team Skill Matrix & Resource Load Balancer"
+          >
+            <span className="btn-standup-text">Skill Matrix</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsTriageOpen(true)}
+            title="Open AI Smart Issue Auto-Triage & Label Recommendation Assistant"
+          >
+            <span className="btn-standup-text">Auto Triage</span>
+          </button>
         </div>
       </div>
 
@@ -490,6 +508,18 @@ export const Header: React.FC = () => {
       <ReleaseGateModal
         isOpen={isReleaseGateOpen}
         onClose={() => setIsReleaseGateOpen(false)}
+      />
+
+      {/* AI Cross-Team Skill Matrix & Resource Load Balancer Modal */}
+      <SkillMatrixModal
+        isOpen={isSkillMatrixOpen}
+        onClose={() => setIsSkillMatrixOpen(false)}
+      />
+
+      {/* AI Smart Issue Auto-Triage & Label Recommendation Assistant Modal */}
+      <IssueTriageModal
+        isOpen={isTriageOpen}
+        onClose={() => setIsTriageOpen(false)}
       />
     </header>
   );

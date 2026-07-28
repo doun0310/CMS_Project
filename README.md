@@ -205,6 +205,14 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **4대 이해관계자 서명 승인 팩 (Stakeholder Signoff)**: Engineering Lead, QA Manager, Security Officer, Product Manager 4인 승인 체계 구축.
 - **🤖 AI 배포 판정 점수 & 1-Click 최종 서명 (`GO FOR RELEASE`)**: 블로커 이슈 및 승인 상태에 따른 98% Readiness Score 산출 및 공식 프로덕션 배포 인증서 발급.
 
+### 🧠 47. AI Cross-Team Skill Matrix & Resource Load Balancer (`SkillMatrixModal.tsx`)
+- **4대 기술 분야 역량 평가 표 (Skill Matrix Ratings)**: 팀원별 Frontend, Backend, DevOps, AI/ML 숙련도(★1~5) 매트릭스 시각화.
+- **⚡ AI 기술 적합도 매칭 & 1-Click 최적 담당자 배정 (`Match Score 98%`)**: 미할당 이슈의 기술 요구사항을 분석하여 적합도가 가장 높은 엔지니어 원클릭 자동 배정.
+
+### 📥 48. AI Smart Issue Auto-Triage & Label Recommendation Assistant (`IssueTriageModal.tsx`)
+- **자동 분류 진단 엔진 (AI Auto-Triage Engine)**: 미분류 백로그 이슈의 적정 우선순위(Priority), 서브시스템(Component), 스토리 포인트 추정치(SP) 및 라벨 추천.
+- **⚡ 1-Click 분류 반영 & 백로그 자동 승격**: 버튼 원클릭으로 추천 우선순위 및 태그 라벨을 티켓에 반영하여 신속한 개발 백로그로 스케줄링.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
