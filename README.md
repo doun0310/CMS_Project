@@ -201,6 +201,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **3대 AI 메타데이터 프리셋 추천 팩**: DevOps & Release(환경, PR링크, 아티팩트 Hash), Security & Compliance(보안게이트, Privacy tag, SOC2), Enterprise Customer Impact(고객 Tier, ARR, SLA).
 - **1-Click 프로젝트 스키마 로딩**: 클릭 한 번으로 검증된 엔터프라이즈 커스텀 필드 구조를 프로젝트 전역 메타데이터 스키마로 즉시 로딩 및 값 할당.
 
+### 🛑 46. Enterprise Release Go / No-Go Decision Gate & Compliance Audit (`ReleaseGateModal.tsx`)
+- **4대 이해관계자 서명 승인 팩 (Stakeholder Signoff)**: Engineering Lead, QA Manager, Security Officer, Product Manager 4인 승인 체계 구축.
+- **🤖 AI 배포 판정 점수 & 1-Click 최종 서명 (`GO FOR RELEASE`)**: 블로커 이슈 및 승인 상태에 따른 98% Readiness Score 산출 및 공식 프로덕션 배포 인증서 발급.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

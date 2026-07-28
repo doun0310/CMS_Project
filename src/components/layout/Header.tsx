@@ -23,6 +23,7 @@ import { RetroReportModal } from '../modals/RetroReportModal';
 import { AutomationRuleModal } from '../modals/AutomationRuleModal';
 import { PrAuditModal } from '../modals/PrAuditModal';
 import { CapacityCalendarModal } from '../modals/CapacityCalendarModal';
+import { ReleaseGateModal } from '../modals/ReleaseGateModal';
 
 export const Header: React.FC = () => {
   const {
@@ -62,6 +63,7 @@ export const Header: React.FC = () => {
   const [isAutoRuleOpen, setIsAutoRuleOpen] = useState(false);
   const [isPrAuditOpen, setIsPrAuditOpen] = useState(false);
   const [isCapacityOpen, setIsCapacityOpen] = useState(false);
+  const [isReleaseGateOpen, setIsReleaseGateOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -294,6 +296,13 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">PTO Calendar</span>
           </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsReleaseGateOpen(true)}
+            title="Open Enterprise Release Go / No-Go Decision Gate"
+          >
+            <span className="btn-standup-text">Release Gate</span>
+          </button>
         </div>
       </div>
 
@@ -475,6 +484,12 @@ export const Header: React.FC = () => {
       <CapacityCalendarModal
         isOpen={isCapacityOpen}
         onClose={() => setIsCapacityOpen(false)}
+      />
+
+      {/* Enterprise Release Go / No-Go Decision Gate Modal */}
+      <ReleaseGateModal
+        isOpen={isReleaseGateOpen}
+        onClose={() => setIsReleaseGateOpen(false)}
       />
     </header>
   );
