@@ -438,6 +438,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setAutomationRules(prev => [newRule, ...prev]);
   };
 
+  const deleteAutomationRule = (ruleId: string) => {
+    setAutomationRules(prev => prev.filter(rule => rule.id !== ruleId));
+  };
+
   const runAutomationRule = (ruleId: string) => {
     const rule = automationRules.find(r => r.id === ruleId);
     if (!rule) return;
@@ -613,6 +617,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         createSprint,
         toggleAutomationRule,
         addAutomationRule,
+        deleteAutomationRule,
         runAutomationRule,
         resetDemoData,
         exportDataJSON,

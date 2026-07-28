@@ -76,6 +76,7 @@ export interface AetherContextValue {
 
   toggleAutomationRule: (ruleId: string) => void;
   addAutomationRule: (name: string, trigger: string, action: string) => void;
+  deleteAutomationRule: (ruleId: string) => void;
   runAutomationRule: (ruleId: string) => void;
 
   resetDemoData: () => void;

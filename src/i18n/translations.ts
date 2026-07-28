@@ -27,6 +27,9 @@ export const translations: Record<Language, Record<string, string>> = {
     selectToPlan: 'Select work to plan',
     chooseSprint: 'Choose sprint',
     planSelected: 'Plan selected',
+    deleteAutomationRule: 'Delete automation rule',
+    deleteAutomationRuleConfirm: 'Delete this automation rule? This cannot be undone.',
+    automationRuleDeleted: 'Automation rule deleted',
     board: 'Kanban Board',
     backlog: 'Backlog & Sprints',
     roadmap: 'Timeline Roadmap',
@@ -347,6 +350,9 @@ export const translations: Record<Language, Record<string, string>> = {
     selectToPlan: '계획할 작업 선택',
     chooseSprint: '스프린트 선택',
     planSelected: '선택 항목 계획',
+    deleteAutomationRule: '자동화 규칙 삭제',
+    deleteAutomationRuleConfirm: '이 자동화 규칙을 삭제할까요? 삭제 후에는 되돌릴 수 없습니다.',
+    automationRuleDeleted: '자동화 규칙을 삭제했습니다',
     board: '칸반 보드',
     backlog: '백로그 & 스프린트',
     roadmap: '타임라인 로드맵',
@@ -643,6 +649,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
   ja: {
     // Navigation & Views
+    deleteAutomationRule: '自動化ルールを削除',
+    deleteAutomationRuleConfirm: 'この自動化ルールを削除しますか？この操作は元に戻せません。',
+    automationRuleDeleted: '自動化ルールを削除しました',
     myWork: '自分の作業',
     myWorkGreeting: '集中する時間です',
     myWorkSubtitle: '進行中の作業と次に始める作業を確認します。',
@@ -873,6 +882,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
   zh: {
     // Navigation & Views
+    deleteAutomationRule: '删除自动化规则',
+    deleteAutomationRuleConfirm: '要删除此自动化规则吗？此操作无法撤销。',
+    automationRuleDeleted: '已删除自动化规则',
     myWork: '我的工作',
     myWorkGreeting: '专注时间',
     myWorkSubtitle: '查看正在进行和接下来要开始的工作。',

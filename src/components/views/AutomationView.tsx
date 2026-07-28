@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconAutomation, IconPlay, IconPlus, IconCheck } from '../common/Icons';
+import { IconAutomation, IconPlay, IconPlus, IconCheck, IconX } from '../common/Icons';
 
 export const AutomationView: React.FC = () => {
   const {
@@ -8,6 +8,7 @@ export const AutomationView: React.FC = () => {
     automationAuditLogs,
     toggleAutomationRule,
     addAutomationRule,
+    deleteAutomationRule,
     runAutomationRule,
     t
   } = useAether();
@@ -33,6 +34,13 @@ export const AutomationView: React.FC = () => {
     setRuleName('');
     setIsCreatingRule(false);
     setTestNotification(`✨ ${t('createdAutomationRule')}: "${ruleName.trim()}"`);
+    setTimeout(() => setTestNotification(null), 4000);
+  };
+
+  const handleDeleteRule = (ruleId: string, ruleName: string) => {
+    if (!window.confirm(`${t('deleteAutomationRuleConfirm')}\n\n${ruleName}`)) return;
+    deleteAutomationRule(ruleId);
+    setTestNotification(`${t('automationRuleDeleted')}: "${ruleName}"`);
     setTimeout(() => setTestNotification(null), 4000);
   };
 
@@ -140,6 +148,14 @@ export const AutomationView: React.FC = () => {
                     />
                     <span className="slider"></span>
                   </label>
+                  <button
+                    className="btn-delete-rule"
+                    onClick={() => handleDeleteRule(rule.id, rule.name)}
+                    title={t('deleteAutomationRule')}
+                    aria-label={`${t('deleteAutomationRule')}: ${rule.name}`}
+                  >
+                    <IconX size={15} />
+                  </button>
                 </div>
               </div>
             ))}
