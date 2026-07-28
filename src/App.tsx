@@ -1,6 +1,8 @@
 import React, { useEffect, useEffectEvent, useState } from 'react';
 import { AetherProvider } from './context/AetherContext';
 import { useAether } from './context/AetherContextValue';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { ModalProvider, ModalManager } from './components/common/ModalManager';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { KanbanBoard } from './components/views/KanbanBoard';
@@ -117,15 +119,21 @@ const MainLayout: React.FC = () => {
   return (
     <div className="app-container">
       {/* Atlassian Top Navigation Header */}
-      <Header />
+      <ErrorBoundary fallbackTitle="Header failed to load">
+        <Header />
+      </ErrorBoundary>
 
       <div className="app-main-layout">
         {/* Atlassian Sidebar */}
-        <Sidebar />
+        <ErrorBoundary fallbackTitle="Sidebar failed to load">
+          <Sidebar />
+        </ErrorBoundary>
 
         {/* Dynamic Main Workspace Content View */}
         <main className="app-content-area animate-fade-in">
-          {renderCurrentView()}
+          <ErrorBoundary fallbackTitle="This view encountered an error">
+            {renderCurrentView()}
+          </ErrorBoundary>
         </main>
       </div>
 
@@ -138,6 +146,9 @@ const MainLayout: React.FC = () => {
         onClose={() => setIsShortcutsModalOpen(false)}
       />
       <AICopilotPanel />
+
+      {/* Centralized Modal Manager — renders only the active tool modal */}
+      <ModalManager />
     </div>
   );
 };
@@ -145,7 +156,11 @@ const MainLayout: React.FC = () => {
 export default function App() {
   return (
     <AetherProvider>
-      <MainLayout />
+      <ModalProvider>
+        <ErrorBoundary fallbackTitle="Application crashed — please refresh">
+          <MainLayout />
+        </ErrorBoundary>
+      </ModalProvider>
     </AetherProvider>
   );
 }
