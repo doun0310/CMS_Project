@@ -38,7 +38,8 @@ export const BacklogView: React.FC = () => {
     setSelectedIssueId,
     searchQuery,
     onlyMyIssues,
-    selectedType
+    selectedType,
+    t
   } = useAether();
 
   const [isCreatingSprint, setIsCreatingSprint] = useState(false);
@@ -138,7 +139,7 @@ export const BacklogView: React.FC = () => {
           )}
 
           <span className={`status-badge status-${issue.status}`}>
-            {issue.status.replace('_', ' ').toUpperCase()}
+            {t(issue.status)}
           </span>
 
           <span className="row-priority" title={issue.priority}>
@@ -163,7 +164,7 @@ export const BacklogView: React.FC = () => {
               updateIssue(issue.id, { sprintId: val === 'backlog' ? null : val });
             }}
           >
-            <option value="backlog">Backlog</option>
+            <option value="backlog">{t('backlogLabel')}</option>
             {sprints.map((s: Sprint) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -189,30 +190,28 @@ export const BacklogView: React.FC = () => {
             <span className="sprint-date-info">
               <IconCalendar size={14} /> {sprint.startDate} ~ {sprint.endDate}
             </span>
-            <span className="sprint-points-summary">
-              {donePoints} / {totalPoints} Story Points Done
-            </span>
+            <span className="sprint-points-summary">{donePoints} / {totalPoints} {t('storyPointsDone')}</span>
           </div>
 
           <div className="sprint-actions">
             {sprint.status === 'future' && (
               <button className="btn-success-sm" onClick={() => startSprint(sprint.id)}>
-                <IconPlay size={14} /> Start Sprint
+                <IconPlay size={14} /> {t('startSprint')}
               </button>
             )}
             {sprint.status === 'active' && (
               <button className="btn-primary-sm" onClick={() => handleCompleteSprint(sprint)}>
-                <IconCheck size={14} /> Complete Sprint
+                <IconCheck size={14} /> {t('completeSprint')}
               </button>
             )}
           </div>
         </div>
 
-        {sprint.goal && <div className="sprint-goal-text">Goal: {sprint.goal}</div>}
+        {sprint.goal && <div className="sprint-goal-text">{t('goalPrefix')}: {sprint.goal}</div>}
 
         <div className="sprint-issues-list">
           {sprintIssues.length === 0 ? (
-            <div className="empty-sprint-msg">No issues assigned to this sprint yet. Drag or select items below.</div>
+            <div className="empty-sprint-msg">{t('sprintEmpty')}</div>
           ) : (
             sprintIssues.map(renderIssueRow)
           )}
@@ -223,17 +222,17 @@ export const BacklogView: React.FC = () => {
               <input
                 type="text"
                 autoFocus
-                placeholder="Issue summary..."
+                placeholder={t('summary')}
                 value={quickSummary}
                 onChange={e => setQuickSummary(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleQuickAdd(sprint.id)}
               />
-              <button className="btn-primary-sm" onClick={() => handleQuickAdd(sprint.id)}>Add</button>
-              <button className="btn-ghost-sm" onClick={() => setAddingToSprintId(null)}>Cancel</button>
+              <button className="btn-primary-sm" onClick={() => handleQuickAdd(sprint.id)}>{t('add')}</button>
+              <button className="btn-ghost-sm" onClick={() => setAddingToSprintId(null)}>{t('cancel')}</button>
             </div>
           ) : (
             <button className="btn-add-issue-row" onClick={() => setAddingToSprintId(sprint.id)}>
-              <IconPlus size={14} /> Create issue in {sprint.name}
+              <IconPlus size={14} /> {t('createIssueIn')} {sprint.name}
             </button>
           )}
         </div>
@@ -251,12 +250,12 @@ export const BacklogView: React.FC = () => {
 
       <div className="view-header-bar">
         <div>
-          <h1 className="view-title">Backlog & Sprint Management</h1>
-          <p className="view-subtitle">Organize sprint commitments and refine long-term feature backlog</p>
+          <h1 className="view-title">{t('backlogViewTitle')}</h1>
+          <p className="view-subtitle">{t('backlogViewSubtitle')}</p>
         </div>
 
         <button className="btn-primary" onClick={() => setIsCreatingSprint(true)}>
-          <IconPlus size={16} /> Create Sprint
+          <IconPlus size={16} /> {t('createSprint')}
         </button>
       </div>
 
@@ -264,29 +263,29 @@ export const BacklogView: React.FC = () => {
       {isCreatingSprint && (
         <div className="modal-backdrop-center animate-fade-in">
           <div className="modal-box">
-            <h2>Create New Sprint</h2>
+            <h2>{t('createSprintTitle')}</h2>
             <form onSubmit={handleCreateSprintSubmit}>
               <div className="form-group">
-                <label>Sprint Name</label>
+                <label>{t('sprintName')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. CLOUD Sprint 26"
+                  placeholder={t('sprintNamePlaceholder')}
                   value={newSprintName}
                   onChange={e => setNewSprintName(e.target.value)}
                 />
               </div>
               <div className="form-group">
-                <label>Sprint Goal</label>
+                <label>{t('sprintGoal')}</label>
                 <textarea
-                  placeholder="Describe sprint objective..."
+                  placeholder={t('sprintGoalPlaceholder')}
                   value={newSprintGoal}
                   onChange={e => setNewSprintGoal(e.target.value)}
                 />
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-ghost" onClick={() => setIsCreatingSprint(false)}>Cancel</button>
-                <button type="submit" className="btn-primary">Create Sprint</button>
+                <button type="button" className="btn-ghost" onClick={() => setIsCreatingSprint(false)}>{t('cancel')}</button>
+                <button type="submit" className="btn-primary">{t('createSprint')}</button>
               </div>
             </form>
           </div>
@@ -302,14 +301,14 @@ export const BacklogView: React.FC = () => {
       <div className="sprint-block backlog-block">
         <div className="sprint-header">
           <div className="sprint-title-group">
-            <span className="sprint-name-text">Backlog</span>
-            <span className="sprint-points-summary">({backlogIssues.length} issues • {backlogPoints} Story Points)</span>
+            <span className="sprint-name-text">{t('backlogLabel')}</span>
+            <span className="sprint-points-summary">({backlogIssues.length} {t('issues')} • {backlogPoints} SP)</span>
           </div>
         </div>
 
         <div className="sprint-issues-list">
           {backlogIssues.length === 0 ? (
-            <div className="empty-sprint-msg">Your backlog is clear! All items assigned to sprints.</div>
+            <div className="empty-sprint-msg">{t('backlogEmpty')}</div>
           ) : (
             backlogIssues.map(renderIssueRow)
           )}
@@ -319,17 +318,17 @@ export const BacklogView: React.FC = () => {
               <input
                 type="text"
                 autoFocus
-                placeholder="What needs to be done?"
+                placeholder={t('quickAddPlaceholder')}
                 value={quickSummary}
                 onChange={e => setQuickSummary(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleQuickAdd(null)}
               />
-              <button className="btn-primary-sm" onClick={() => handleQuickAdd(null)}>Add</button>
-              <button className="btn-ghost-sm" onClick={() => setAddingToSprintId(null)}>Cancel</button>
+              <button className="btn-primary-sm" onClick={() => handleQuickAdd(null)}>{t('add')}</button>
+              <button className="btn-ghost-sm" onClick={() => setAddingToSprintId(null)}>{t('cancel')}</button>
             </div>
           ) : (
             <button className="btn-add-issue-row" onClick={() => setAddingToSprintId('backlog')}>
-              <IconPlus size={14} /> Create issue in Backlog
+              <IconPlus size={14} /> {t('createIssueIn')} {t('backlogLabel')}
             </button>
           )}
         </div>

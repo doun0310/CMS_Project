@@ -9,7 +9,7 @@ interface ProjectSwitchModalProps {
 }
 
 export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, setCurrentProject, createProject, projects, issues } = useAether();
+  const { currentProject, setCurrentProject, createProject, projects, issues, t } = useAether();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newKey, setNewKey] = useState('');
@@ -32,7 +32,7 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
       name: newName.trim(),
       category: 'Software Engineering',
       avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80',
-      description: newDesc.trim() || 'Custom Enterprise Project'
+      description: newDesc.trim() || t('projectDescriptionDefault')
     });
     setIsCreating(false);
     setNewKey('');
@@ -47,7 +47,7 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
         <div className="modal-header-bar">
           <div className="title-with-icon">
             <span>💼</span>
-            <h3>Enterprise Project Workspaces</h3>
+            <h3>{t('workspacesTitle')}</h3>
           </div>
           <button className="btn-icon-close" onClick={onClose}>
             <IconX size={20} />
@@ -73,13 +73,13 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                         <span className="proj-key">{proj.key}</span>
                         <h4 className="proj-name">{proj.name}</h4>
                       </div>
-                      {isSelected && <span className="active-badge"><IconCheck size={14} /> Active</span>}
+                      {isSelected && <span className="active-badge"><IconCheck size={14} /> {t('active')}</span>}
                     </div>
                     <p className="proj-desc">{proj.description}</p>
 
                     <div className="proj-meta-footer">
                       <span className="meta-item">📁 {proj.category}</span>
-                      <span className="meta-item">🎟️ {projIssues.length} Active Issues</span>
+                      <span className="meta-item">🎟️ {projIssues.length} {t('activeIssues')}</span>
                     </div>
                   </div>
                 );
@@ -88,17 +88,17 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
 
             <div className="modal-footer-actions">
               <button className="btn-primary" onClick={() => setIsCreating(true)}>
-                <IconPlus size={16} /> Create New Workspace
+                <IconPlus size={16} /> {t('createWorkspace')}
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleCreateSubmit} className="create-project-form">
             <div className="form-group">
-              <label>Project Key (e.g., CLOUD, MOBI) *</label>
+              <label>{t('projectKeyHint')}</label>
               <input
                 type="text"
-                placeholder="PROJ"
+                placeholder={t('projectKeyPlaceholder')}
                 maxLength={6}
                 value={newKey}
                 onChange={e => setNewKey(e.target.value)}
@@ -106,31 +106,29 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
               />
             </div>
             <div className="form-group">
-              <label>Project Name *</label>
+              <label>{t('projectNameField')}</label>
               <input
                 type="text"
-                placeholder="AetherPulse Mobile App"
+                placeholder={t('projectNamePlaceholder')}
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
                 required
               />
             </div>
             <div className="form-group">
-              <label>Description</label>
+              <label>{t('descriptionField')}</label>
               <textarea
                 rows={2}
-                placeholder="Project goals and technical scope..."
+                placeholder={t('projectDescriptionPlaceholder')}
                 value={newDesc}
                 onChange={e => setNewDesc(e.target.value)}
               />
             </div>
 
             <div className="form-actions-row">
-              <button type="button" className="btn-secondary" onClick={() => setIsCreating(false)}>
-                Cancel
-              </button>
+              <button type="button" className="btn-secondary" onClick={() => setIsCreating(false)}>{t('cancel')}</button>
               <button type="submit" className="btn-primary">
-                Create & Switch Workspace
+                {t('createSwitchWorkspace')}
               </button>
             </div>
           </form>

@@ -185,6 +185,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **4대 CI/CD 게이트 검증 스코어보드**: Security Gate Score(0~100), Test Coverage(%), Code Smells 수량 및 Vulnerability zero-defect 자동 검사.
 - **🛡️ 1-Click 승인 & 이슈 뱃지 바인딩 (`Approve & Attach Audit Badge`)**: QA/보안 승인 태그를 형성하고 이슈 티켓 설명란에 마크다운 이력 뱃지 즉시 첨부.
 
+### 📅 42. Interactive Sprint Capacity & Team Holiday Calendar Integrator (`CapacityCalendarModal.tsx`)
+- **엔지니어 PTO / 휴가 등록 관리자**: 팀원별 PTO, 컨퍼런스, 휴가 일정을 입력하고 1인당 4 SP 차감 공식을 실시간 자동 적용.
+- **순 가용 용량 자동 계산 (`Net Available Capacity`)**: Gross Capacity 대비 PTO 차감액을 계산하여 실제 달성 가능한 순 목표 커밋 포인트(Net SP) 자동 동기화.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

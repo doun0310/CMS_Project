@@ -22,6 +22,7 @@ import { CodeImpactModal } from '../modals/CodeImpactModal';
 import { RetroReportModal } from '../modals/RetroReportModal';
 import { AutomationRuleModal } from '../modals/AutomationRuleModal';
 import { PrAuditModal } from '../modals/PrAuditModal';
+import { CapacityCalendarModal } from '../modals/CapacityCalendarModal';
 
 export const Header: React.FC = () => {
   const {
@@ -60,6 +61,7 @@ export const Header: React.FC = () => {
   const [isRetroReportOpen, setIsRetroReportOpen] = useState(false);
   const [isAutoRuleOpen, setIsAutoRuleOpen] = useState(false);
   const [isPrAuditOpen, setIsPrAuditOpen] = useState(false);
+  const [isCapacityOpen, setIsCapacityOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +110,17 @@ export const Header: React.FC = () => {
     }
   ];
 
+  const typeLabels: Record<IssueType, string> = {
+    feature: t('typeFeature'),
+    story: t('typeFeature'),
+    workitem: t('typeWorkItem'),
+    task: t('typeWorkItem'),
+    bug: t('typeBug'),
+    initiative: t('typeInitiative'),
+    epic: t('typeInitiative'),
+    subtask: t('typeSubtask')
+  };
+
   return (
     <header className="app-header">
       {/* Left section: Logo & App title */}
@@ -138,7 +151,7 @@ export const Header: React.FC = () => {
           </button>
           {isProjectDropdownOpen && (
             <div className="dropdown-menu animate-fade-in">
-              <div className="dropdown-header">SWITCH PROJECT</div>
+              <div className="dropdown-header">{t('switchProject').toUpperCase()}</div>
               {projects.map((p: Project) => (
                 <div
                   key={p.id}
@@ -163,7 +176,7 @@ export const Header: React.FC = () => {
                   setIsProjectModalOpen(true);
                 }}
               >
-                Manage workspaces...
+                {t('manageWorkspaces')}
               </div>
             </div>
           )}
@@ -205,74 +218,81 @@ export const Header: React.FC = () => {
             onChange={e => setSelectedType(e.target.value as IssueType | 'all')}
           >
             <option value="all">{t('allTypes')}</option>
-            <option value="feature">Feature</option>
-            <option value="workitem">WorkItem</option>
-            <option value="bug">Bug</option>
-            <option value="initiative">Initiative</option>
-            <option value="subtask">SubTask</option>
+            <option value="feature">{typeLabels.feature}</option>
+            <option value="workitem">{typeLabels.workitem}</option>
+            <option value="bug">{typeLabels.bug}</option>
+            <option value="initiative">{typeLabels.initiative}</option>
+            <option value="subtask">{typeLabels.subtask}</option>
           </select>
           <button
             className="btn-standup-header"
             onClick={() => setIsStandupOpen(true)}
-            title="Open AI Daily Standup Digest"
+            title={t('openStandupTitle')}
           >
-            <span className="btn-standup-text">Standup</span>
+            <span className="btn-standup-text">{t('standup')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsReleaseOpen(true)}
-            title="Open AI Release Notes Generator"
+            title={t('openReleaseTitle')}
           >
-            <span className="btn-standup-text">Release</span>
+            <span className="btn-standup-text">{t('release')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsTestOpen(true)}
-            title="Open AI Test & AC Workbench"
+            title={t('openTestsTitle')}
           >
-            <span className="btn-standup-text">Tests</span>
+            <span className="btn-standup-text">{t('tests')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsCustomFieldOpen(true)}
-            title="Open Custom Fields & Enterprise Schema Workbench"
+            title={t('openCustomFieldsTitle')}
           >
-            <span className="btn-standup-text">Custom Fields</span>
+            <span className="btn-standup-text">{t('customFields')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsVelocityOpen(true)}
-            title="Open Sprint Velocity & What-If Capacity Simulator"
+            title={t('openSimulatorTitle')}
           >
-            <span className="btn-standup-text">Simulator</span>
+            <span className="btn-standup-text">{t('simulator')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsImpactOpen(true)}
-            title="Open AI Code Impact & Architecture Visualizer"
+            title={t('openCodeImpactTitle')}
           >
-            <span className="btn-standup-text">Code Impact</span>
+            <span className="btn-standup-text">{t('codeImpact')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsRetroReportOpen(true)}
-            title="Open Sprint Retrospective AI Executive Report & Exporter"
+            title={t('openRetroReportTitle')}
           >
-            <span className="btn-standup-text">Retro Report</span>
+            <span className="btn-standup-text">{t('retroReport')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsAutoRuleOpen(true)}
-            title="Open Visual Automation Rule Builder & Webhook Simulator"
+            title={t('openRuleBuilderTitle')}
           >
-            <span className="btn-standup-text">Rule Builder</span>
+            <span className="btn-standup-text">{t('ruleBuilder')}</span>
           </button>
           <button
             className="btn-standup-header"
             onClick={() => setIsPrAuditOpen(true)}
-            title="Open AI Pull Request Quality & Security Gate Audit"
+            title={t('openPrAuditTitle')}
           >
-            <span className="btn-standup-text">PR Audit</span>
+            <span className="btn-standup-text">{t('prAudit')}</span>
+          </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsCapacityOpen(true)}
+            title="Open Sprint Team Capacity & Holiday Calendar Integrator"
+          >
+            <span className="btn-standup-text">PTO Calendar</span>
           </button>
         </div>
       </div>
@@ -285,19 +305,19 @@ export const Header: React.FC = () => {
           className="lang-select-header"
           value={language}
           onChange={e => setLanguage(e.target.value as Language)}
-          title="Select Language"
+          title={t('selectLanguageTitle')}
         >
-          <option value="ko">🇰🇷 한국어</option>
-          <option value="en">🇺🇸 English</option>
-          <option value="ja">🇯🇵 日本語</option>
-          <option value="zh">🇨🇳 中文</option>
+          <option value="ko">🇰🇷 {t('languageKo')}</option>
+          <option value="en">🇺🇸 {t('languageEn')}</option>
+          <option value="ja">🇯🇵 {t('languageJa')}</option>
+          <option value="zh">🇨🇳 {t('languageZh')}</option>
         </select>
 
         {/* Notification Center */}
         <div className="dropdown-container" ref={notifDropdownRef}>
           <button
             className="header-action-icon notif-bell-btn"
-            title="Notification Center"
+            title={t('notificationCenter')}
             onClick={() => {
               setIsProjectDropdownOpen(false);
               setIsUserDropdownOpen(false);
@@ -312,8 +332,8 @@ export const Header: React.FC = () => {
           {isNotifOpen && (
             <div className="dropdown-menu right notif-dropdown animate-fade-in">
               <div className="dropdown-header notif-header-flex">
-                <span>TEAM ACTIVITY</span>
-                <span className="notif-clear-text" onClick={() => setUnreadNotifs(0)}>Mark as read</span>
+                <span>{t('teamActivity').toUpperCase()}</span>
+                <span className="notif-clear-text" onClick={() => setUnreadNotifs(0)}>{t('markAsRead')}</span>
               </div>
               <div className="notif-items-list">
                 {notifications.map(n => (
@@ -339,9 +359,9 @@ export const Header: React.FC = () => {
 
         <button
           className="header-action-icon"
-          title="Reset Demo Data"
+          title={t('resetData')}
           onClick={() => {
-            if (window.confirm('Reset sample issues and sprints to original default demo data?')) {
+            if (window.confirm(t('resetDemoDataConfirm'))) {
               resetDemoData();
             }
           }}
@@ -349,7 +369,7 @@ export const Header: React.FC = () => {
           <IconReset size={18} />
         </button>
 
-        <button className="header-action-icon" title="Toggle Theme" onClick={toggleTheme}>
+        <button className="header-action-icon" title={t('themeSetting')} onClick={toggleTheme}>
           {theme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
         </button>
 
@@ -369,7 +389,7 @@ export const Header: React.FC = () => {
           </button>
           {isUserDropdownOpen && (
             <div className="dropdown-menu right animate-fade-in">
-              <div className="dropdown-header">SWITCH CURRENT USER</div>
+              <div className="dropdown-header">{t('switchCurrentUser').toUpperCase()}</div>
               {users.map((u: User) => (
                 <div
                   key={u.id}
@@ -449,6 +469,12 @@ export const Header: React.FC = () => {
       <PrAuditModal
         isOpen={isPrAuditOpen}
         onClose={() => setIsPrAuditOpen(false)}
+      />
+
+      {/* Sprint Team Capacity & Holiday Calendar Integrator Modal */}
+      <CapacityCalendarModal
+        isOpen={isCapacityOpen}
+        onClose={() => setIsCapacityOpen(false)}
       />
     </header>
   );

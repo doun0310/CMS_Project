@@ -37,7 +37,7 @@ export const SettingsView: React.FC = () => {
     a.download = `aether-${currentProject.key.toLowerCase()}-backup.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setMsg({ text: 'Project data exported successfully as JSON!', type: 'success' });
+    setMsg({ text: t('exportSuccess'), type: 'success' });
   };
 
   const handleImportSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -45,10 +45,10 @@ export const SettingsView: React.FC = () => {
     if (!importText.trim()) return;
     const ok = importDataJSON(importText.trim());
     if (ok) {
-      setMsg({ text: 'Project data restored successfully from JSON!', type: 'success' });
+      setMsg({ text: t('importSuccess'), type: 'success' });
       setImportText('');
     } else {
-      setMsg({ text: 'Invalid JSON payload! Please verify the format.', type: 'error' });
+      setMsg({ text: t('importError'), type: 'error' });
     }
   };
 
@@ -57,7 +57,7 @@ export const SettingsView: React.FC = () => {
       <div className="view-header-bar">
         <div>
           <h2>⚙️ {t('settings')}</h2>
-          <p className="subtext">Configure system language, brand theme colors, project profiles, and data backups.</p>
+          <p className="subtext">{t('settingsSubtitle')}</p>
         </div>
       </div>
 
@@ -71,8 +71,8 @@ export const SettingsView: React.FC = () => {
         {/* Card 1: System Preferences & Theme */}
         <div className="settings-card">
           <div className="settings-card-header">
-            <h3>🌐 System Preferences & Theme</h3>
-            <span className="card-badge">Appearance</span>
+            <h3>🌐 {t('systemPreferencesTheme')}</h3>
+            <span className="card-badge">{t('appearance')}</span>
           </div>
 
           <div className="form-group">
@@ -82,10 +82,10 @@ export const SettingsView: React.FC = () => {
               onChange={e => setLanguage(e.target.value as Language)}
               className="settings-input-select"
             >
-              <option value="ko">🇰🇷 한국어 (Korean)</option>
-              <option value="en">🇺🇸 English (US)</option>
-              <option value="ja">🇯🇵 日本語 (Japanese)</option>
-              <option value="zh">🇨🇳 中文 (Chinese)</option>
+              <option value="ko">🇰🇷 {t('languageKo')}</option>
+              <option value="en">🇺🇸 {t('languageEn')}</option>
+              <option value="ja">🇯🇵 {t('languageJa')}</option>
+              <option value="zh">🇨🇳 {t('languageZh')}</option>
             </select>
           </div>
 
@@ -97,7 +97,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div className="form-group" style={{ marginTop: '14px' }}>
-            <label className="settings-label">🎨 Brand Accent Color Theme</label>
+            <label className="settings-label">🎨 {t('accentTheme')}</label>
             <div className="color-swatches-row">
               {colorOptions.map(c => (
                 <button
@@ -114,7 +114,7 @@ export const SettingsView: React.FC = () => {
               ))}
             </div>
             <span className="swatch-active-name">
-              Active Palette: <strong>{colorOptions.find(c => c.hex === accentColor)?.name || 'Custom'}</strong>
+              {t('activePalette')}: <strong>{colorOptions.find(c => c.hex === accentColor)?.name || t('customPalette')}</strong>
             </span>
           </div>
         </div>
@@ -122,28 +122,28 @@ export const SettingsView: React.FC = () => {
         {/* Card 2: Project Profile */}
         <div className="settings-card">
           <div className="settings-card-header">
-            <h3>📁 Active Project Profile</h3>
+            <h3>📁 {t('activeProjectProfile')}</h3>
             <span className="card-badge">{currentProject.key}</span>
           </div>
 
           <div className="settings-field-row">
             <div className="form-group flex-1">
-              <label className="settings-label">Project Name</label>
+              <label className="settings-label">{t('projectName')}</label>
               <input type="text" readOnly className="settings-input-readonly" value={currentProject.name} />
             </div>
             <div className="form-group flex-1">
-              <label className="settings-label">Project Key</label>
+              <label className="settings-label">{t('projectKey')}</label>
               <input type="text" readOnly className="settings-input-readonly" value={currentProject.key} />
             </div>
           </div>
 
           <div className="form-group" style={{ marginTop: '10px' }}>
-            <label className="settings-label">Category</label>
+            <label className="settings-label">{t('category')}</label>
             <input type="text" readOnly className="settings-input-readonly" value={currentProject.category} />
           </div>
 
           <div className="form-group" style={{ marginTop: '10px' }}>
-            <label className="settings-label">Description</label>
+            <label className="settings-label">{t('description')}</label>
             <textarea readOnly rows={3} className="settings-input-readonly" value={currentProject.description} />
           </div>
         </div>
@@ -151,42 +151,42 @@ export const SettingsView: React.FC = () => {
         {/* Card 3: Data Export & Import */}
         <div className="settings-card full-width-card">
           <div className="settings-card-header">
-            <h3>💾 Data Backup, Export & Import</h3>
-            <span className="card-badge">Persistence</span>
+            <h3>💾 {t('dataBackup')}</h3>
+            <span className="card-badge">{t('persistence')}</span>
           </div>
           <p className="card-desc">
-            Export your entire workspace (issues, sprints, epics, rules, and retrospective items) to a JSON file or restore from a previous backup.
+            {t('exportImportDescription')}
           </p>
 
           <div className="actions-row">
             <button className="btn-primary" onClick={handleExport}>
-              <IconDownload size={15} /> Export Project JSON
+              <IconDownload size={15} /> {t('exportData')}
             </button>
             <button
               className="btn-danger-outline"
               onClick={() => {
-                if (window.confirm('Reset all issues and sprints to initial default demo dataset?')) {
+                if (window.confirm(t('resetDataConfirm'))) {
                   resetDemoData();
-                  setMsg({ text: 'Demo dataset restored successfully!', type: 'success' });
+                  setMsg({ text: t('resetDataSuccess'), type: 'success' });
                 }
               }}
             >
-              <IconReset size={15} /> Reset Demo Data
+              <IconReset size={15} /> {t('resetData')}
             </button>
           </div>
 
           <form onSubmit={handleImportSubmit} className="import-form">
-            <label className="settings-label">Import Payload (JSON):</label>
+            <label className="settings-label">{t('importPayload')}</label>
             <textarea
               rows={4}
               className="import-textarea"
-              placeholder="Paste exported JSON payload here..."
+              placeholder={t('importPlaceholder')}
               value={importText}
               onChange={e => setImportText(e.target.value)}
             />
             <div className="import-submit-row">
               <button type="submit" className="btn-secondary-sm">
-                Restore Project Data
+                {t('restoreProjectData')}
               </button>
             </div>
           </form>

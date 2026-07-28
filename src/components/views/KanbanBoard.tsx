@@ -49,7 +49,8 @@ export const KanbanBoard: React.FC = () => {
     selectedType,
     selectedPriority,
     selectedLabel,
-    setSelectedLabel
+    setSelectedLabel,
+    t
   } = useAether();
 
   const [swimlaneBy, setSwimlaneBy] = useState<SwimlaneMode>('none');
@@ -96,22 +97,29 @@ export const KanbanBoard: React.FC = () => {
   const allLabels = Array.from(new Set(issues.flatMap(i => i.labels || [])));
 
   const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
-    { status: 'todo', title: 'TO DO', color: '#94a3b8' },
-    { status: 'in_progress', title: 'IN PROGRESS', color: '#6366f1', wipLimit: 4 },
-    { status: 'in_review', title: 'IN REVIEW', color: '#f59e0b', wipLimit: 3 },
-    { status: 'done', title: 'DONE', color: '#10b981' }
+    { status: 'todo', title: t('todo'), color: '#94a3b8' },
+    { status: 'in_progress', title: t('in_progress'), color: '#6366f1', wipLimit: 4 },
+    { status: 'in_review', title: t('in_review'), color: '#f59e0b', wipLimit: 3 },
+    { status: 'done', title: t('done'), color: '#10b981' }
   ];
 
   // Build swimlane groups dynamically based on mode
   const swimlaneGroups: SwimlaneGroup[] = [];
   if (swimlaneBy === 'assignee') {
     users.forEach(u => swimlaneGroups.push({ id: u.id, name: u.name }));
-    swimlaneGroups.push({ id: UNASSIGNED_GROUP_ID, name: 'Unassigned' });
+    swimlaneGroups.push({ id: UNASSIGNED_GROUP_ID, name: t('unassigned') });
   } else if (swimlaneBy === 'epic') {
     epics.forEach(e => swimlaneGroups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
-    swimlaneGroups.push({ id: NO_EPIC_GROUP_ID, name: 'Issues without Epic' });
+    swimlaneGroups.push({ id: NO_EPIC_GROUP_ID, name: t('issuesWithoutEpic') });
   } else if (swimlaneBy === 'priority') {
-    PRIORITY_GROUPS.forEach(p => swimlaneGroups.push({ id: p, name: `${p.toUpperCase()} Priority` }));
+    const priorityLabels: Record<Priority, string> = {
+      highest: t('highestPriority'),
+      high: t('highPriority'),
+      medium: t('mediumPriority'),
+      low: t('lowPriority'),
+      lowest: t('lowestPriority')
+    };
+    PRIORITY_GROUPS.forEach(p => swimlaneGroups.push({ id: p, name: priorityLabels[p] }));
   }
 
   // Drag and drop handlers
@@ -213,7 +221,7 @@ export const KanbanBoard: React.FC = () => {
               <span className="points-badge">{issue.storyPoints}</span>
             )}
             {(issue.subtasks || []).length > 0 && (
-              <span className="subtasks-badge" title={`${completedSubtasks}/${issue.subtasks.length} subtasks done`}>
+              <span className="subtasks-badge" title={`${completedSubtasks}/${issue.subtasks.length} ${t('subtasksDone')}`}>
                 <IconCheck size={12} /> {completedSubtasks}/{issue.subtasks.length}
               </span>
             )}
@@ -226,9 +234,9 @@ export const KanbanBoard: React.FC = () => {
 
           <div className="footer-right">
             {assignee ? (
-              <img src={assignee.avatar} alt={assignee.name} className="assignee-avatar" title={`Assignee: ${assignee.name}`} />
+              <img src={assignee.avatar} alt={assignee.name} className="assignee-avatar" title={`${t('assigneeLabel')}: ${assignee.name}`} />
             ) : (
-              <div className="unassigned-avatar" title="Unassigned"><IconUser size={14} /></div>
+              <div className="unassigned-avatar" title={t('unassigned')}><IconUser size={14} /></div>
             )}
           </div>
         </div>
@@ -245,37 +253,37 @@ export const KanbanBoard: React.FC = () => {
       <div className="board-header">
         <div>
           <h1 className="view-title">
-            {activeSprint ? activeSprint.name : 'Kanban Board'}
+            {activeSprint ? activeSprint.name : t('kanbanTitle')}
           </h1>
           <p className="view-subtitle">
-            {activeSprint ? `Goal: ${activeSprint.goal}` : 'All active tasks and backlog items'}
+            {activeSprint ? `${t('goalPrefix')}: ${activeSprint.goal}` : t('kanbanSubtitle')}
           </p>
         </div>
 
         {/* Swimlane controls */}
         <div className="board-controls">
-          <span className="control-label">Group by</span>
+          <span className="control-label">{t('groupBy')}</span>
           <select
             className="control-select"
             value={swimlaneBy}
             onChange={e => setSwimlaneBy(e.target.value as SwimlaneMode)}
           >
-            <option value="none">None</option>
-            <option value="assignee">By Assignee</option>
-            <option value="epic">By Epic</option>
-            <option value="priority">By Priority</option>
+            <option value="none">{t('groupNone')}</option>
+            <option value="assignee">{t('groupAssignee')}</option>
+            <option value="epic">{t('groupEpic')}</option>
+            <option value="priority">{t('groupPriority')}</option>
           </select>
         </div>
       </div>
 
       {/* Tag Filter Pills Bar */}
       <div className="tag-filter-pills-bar">
-        <span className="filter-label">Filter by tag</span>
+        <span className="filter-label">{t('filterByTag')}</span>
         <button
           className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
           onClick={() => setSelectedLabel(null)}
         >
-          All Tags
+          {t('groupNone')}
         </button>
         {allLabels.map(lbl => (
           <button
@@ -303,7 +311,7 @@ export const KanbanBoard: React.FC = () => {
                   key={col.status}
                   className="kanban-column collapsed-column"
                   onClick={() => toggleColumnCollapse(col.status)}
-                  title={`Expand ${col.title} column`}
+                  title={`${t('expandColumn')} ${col.title}`}
                 >
                   <div className="collapsed-header">
                     <span className="status-indicator" style={{ backgroundColor: col.color }}></span>
@@ -326,7 +334,7 @@ export const KanbanBoard: React.FC = () => {
                     <button
                       className="btn-collapse-col"
                       onClick={() => toggleColumnCollapse(col.status)}
-                      title="Collapse column"
+                      title={t('collapseColumn')}
                     >
                       <IconChevronDown size={14} />
                     </button>
@@ -334,7 +342,7 @@ export const KanbanBoard: React.FC = () => {
                     <span className="column-title">{col.title}</span>
                     <span className="column-count">{colIssues.length}</span>
                     {isWipExceeded && (
-                      <span className="wip-badge" title={`WIP limit exceeded (${col.wipLimit} max)`}>
+                      <span className="wip-badge" title={`${t('wipLimitExceeded')} (${col.wipLimit} max)`}>
                         WIP limit
                       </span>
                     )}
@@ -350,7 +358,7 @@ export const KanbanBoard: React.FC = () => {
                     <div className="quick-add-box animate-fade-in">
                       <textarea
                         autoFocus
-                        placeholder="What needs to be done?"
+                        placeholder={t('quickAddPlaceholder')}
                         value={quickSummary}
                         onChange={e => setQuickSummary(e.target.value)}
                         onKeyDown={e => {
@@ -362,16 +370,16 @@ export const KanbanBoard: React.FC = () => {
                       />
                       <div className="quick-add-actions">
                         <button className="btn-primary-sm" onClick={() => handleQuickAdd(col.status)}>
-                          Add Card
+                          {t('add')}
                         </button>
                         <button className="btn-ghost-sm" onClick={() => setAddingToStatus(null)}>
-                          Cancel
+                          {t('cancel')}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <button className="btn-add-card" onClick={() => setAddingToStatus(col.status)}>
-                      <IconPlus size={14} /> Add item
+                      <IconPlus size={14} /> {t('add')}
                     </button>
                   )}
                 </div>
@@ -399,7 +407,7 @@ export const KanbanBoard: React.FC = () => {
               <div key={group.id} className="swimlane-group">
                 <div className="swimlane-header">
                   <span>{group.name}</span>
-                  <span className="swimlane-count">({groupIssues.length} issues)</span>
+                  <span className="swimlane-count">({groupIssues.length} {t('issues')})</span>
                 </div>
                 <div className="kanban-grid">
                   {columns.map(col => {

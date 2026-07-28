@@ -9,7 +9,7 @@ interface DailyStandupModalProps {
 }
 
 export const DailyStandupModal: React.FC<DailyStandupModalProps> = ({ isOpen, onClose }) => {
-  const { sprints, issues, users } = useAether();
+  const { sprints, issues, users, t } = useAether();
   const activeSprint = sprints.find(s => s.status === 'active');
   const [copied, setCopied] = useState(false);
 
@@ -19,20 +19,21 @@ export const DailyStandupModal: React.FC<DailyStandupModalProps> = ({ isOpen, on
   const doneIssues = sprintIssues.filter(i => i.status === 'done');
   const inProgressIssues = sprintIssues.filter(i => i.status === 'in_progress' || i.status === 'in_review');
   const blockedIssues = sprintIssues.filter(i => (i.blockedBy || []).length > 0 && i.status !== 'done');
+  const unassignedLabel = t('unassigned');
 
   // Format Standup Text for Slack/Teams
   const standupText = `
-🚀 *AetherPulse Daily Standup Digest - ${activeSprint.name}*
+🚀 *${t('standupTitle')} - ${activeSprint.name}*
 📅 Date: ${new Date().toLocaleDateString()}
 
-🟢 *Completed Recently (${doneIssues.length})*:
-${doneIssues.map(i => `  • [${i.key}] ${i.summary} (${users.find(u => u.id === i.assigneeId)?.name || 'Unassigned'})`).join('\n') || '  • None yet'}
+🟢 *${t('completedRecently')} (${doneIssues.length})*:
+${doneIssues.map(i => `  • [${i.key}] ${i.summary} (${users.find(u => u.id === i.assigneeId)?.name || unassignedLabel})`).join('\n') || `  • ${t('none')}`}
 
-⚡ *In Progress Today (${inProgressIssues.length})*:
-${inProgressIssues.map(i => `  • [${i.key}] ${i.summary} (${users.find(u => u.id === i.assigneeId)?.name || 'Unassigned'})`).join('\n') || '  • None'}
+⚡ *${t('workingToday')} (${inProgressIssues.length})*:
+${inProgressIssues.map(i => `  • [${i.key}] ${i.summary} (${users.find(u => u.id === i.assigneeId)?.name || unassignedLabel})`).join('\n') || `  • ${t('none')}`}
 
-🛑 *Impediments & Blockers (${blockedIssues.length})*:
-${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisite tasks`).join('\n') || '  • 0 Blockers! Smooth sailing 🚀'}
+🛑 *${t('blockersImpediments')} (${blockedIssues.length})*:
+${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers')}`).join('\n') || `  • ${t('noBlockers')}`}
 `.trim();
 
   const handleCopy = () => {
@@ -48,8 +49,8 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
           <div className="modal-title-with-icon">
             <span className="standup-icon">🤖</span>
             <div>
-              <h3>AI Daily Standup Digest</h3>
-              <span className="subtitle-text">Auto-generated daily standup summary for {activeSprint.name}</span>
+              <h3>{t('standupTitle')}</h3>
+              <span className="subtitle-text">{t('standupSubtitle')} {activeSprint.name}</span>
             </div>
           </div>
           <button className="btn-icon-close" onClick={onClose}>
@@ -62,17 +63,17 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
           <div className="standup-card-section done">
             <div className="section-title-row">
               <IconCheckCircle size={16} color="#22c55e" />
-              <h4>1. Completed Recently ({doneIssues.length})</h4>
+              <h4>1. {t('completedRecently')} ({doneIssues.length})</h4>
             </div>
             <div className="standup-items-list">
               {doneIssues.length === 0 ? (
-                <div className="empty-text">No items completed recently yet.</div>
+                <div className="empty-text">{t('noCompletedRecently')}</div>
               ) : (
                 doneIssues.map(issue => (
                   <div key={issue.id} className="standup-item-row">
                     <span className="item-key">{issue.key}</span>
                     <span className="item-summary">{issue.summary}</span>
-                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || 'Unassigned'}</span>
+                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || t('unassigned')}</span>
                   </div>
                 ))
               )}
@@ -83,17 +84,17 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
           <div className="standup-card-section progress">
             <div className="section-title-row">
               <IconZap size={16} color="#6366f1" />
-              <h4>2. Working On Today ({inProgressIssues.length})</h4>
+              <h4>2. {t('workingToday')} ({inProgressIssues.length})</h4>
             </div>
             <div className="standup-items-list">
               {inProgressIssues.length === 0 ? (
-                <div className="empty-text">No items currently in progress.</div>
+                <div className="empty-text">{t('noInProgress')}</div>
               ) : (
                 inProgressIssues.map(issue => (
                   <div key={issue.id} className="standup-item-row">
                     <span className="item-key">{issue.key}</span>
                     <span className="item-summary">{issue.summary}</span>
-                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || 'Unassigned'}</span>
+                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || t('unassigned')}</span>
                   </div>
                 ))
               )}
@@ -104,17 +105,17 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
           <div className="standup-card-section blocked">
             <div className="section-title-row">
               <span className="blocker-icon">🛑</span>
-              <h4>3. Blockers & Impediments ({blockedIssues.length})</h4>
+              <h4>3. {t('blockersImpediments')} ({blockedIssues.length})</h4>
             </div>
             <div className="standup-items-list">
               {blockedIssues.length === 0 ? (
-                <div className="empty-text ok">🎉 0 Blockers! Team momentum is strong.</div>
+                <div className="empty-text ok">🎉 {t('noBlockers')}</div>
               ) : (
                 blockedIssues.map(issue => (
                   <div key={issue.id} className="standup-item-row warning">
                     <span className="item-key">{issue.key}</span>
                     <span className="item-summary">{issue.summary}</span>
-                    <span className="item-reason">Waiting on blocker issues</span>
+                    <span className="item-reason">{t('waitingOnBlockers')}</span>
                   </div>
                 ))
               )}
@@ -124,7 +125,7 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - Blocked by prerequisit
 
         <div className="modal-footer-bar">
           <button className="btn-primary" onClick={handleCopy}>
-            <IconCopy size={16} /> {copied ? 'Copied to Clipboard! ✓' : 'Copy Standup Digest (Slack/Teams)'}
+            <IconCopy size={16} /> {copied ? t('copiedClipboard') : t('copyStandupDigest')}
           </button>
         </div>
       </div>
