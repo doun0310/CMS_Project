@@ -9,7 +9,7 @@ interface ProjectSwitchModalProps {
 }
 
 export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, setCurrentProject, projects, issues } = useAether();
+  const { currentProject, setCurrentProject, createProject, projects, issues } = useAether();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newKey, setNewKey] = useState('');
@@ -27,18 +27,17 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
     e.preventDefault();
     if (!newKey.trim() || !newName.trim()) return;
 
-    const createdProj: Project = {
-      id: 'proj_' + Date.now(),
+    createProject({
       key: newKey.trim().toUpperCase(),
       name: newName.trim(),
       category: 'Software Engineering',
       avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80',
       description: newDesc.trim() || 'Custom Enterprise Project'
-    };
-
-    projects.push(createdProj);
-    setCurrentProject(createdProj);
+    });
     setIsCreating(false);
+    setNewKey('');
+    setNewName('');
+    setNewDesc('');
     onClose();
   };
 

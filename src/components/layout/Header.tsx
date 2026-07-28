@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
 import type { IssueType, Project, User } from '../../types/Aether';
@@ -61,6 +61,28 @@ export const Header: React.FC = () => {
   const [isAutoRuleOpen, setIsAutoRuleOpen] = useState(false);
   const [isPrAuditOpen, setIsPrAuditOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
+  const projectDropdownRef = useRef<HTMLDivElement | null>(null);
+  const notifDropdownRef = useRef<HTMLDivElement | null>(null);
+  const userDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (projectDropdownRef.current && !projectDropdownRef.current.contains(target)) {
+        setIsProjectDropdownOpen(false);
+      }
+      if (notifDropdownRef.current && !notifDropdownRef.current.contains(target)) {
+        setIsNotifOpen(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(target)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    window.addEventListener('mousedown', handlePointerDown);
+    return () => window.removeEventListener('mousedown', handlePointerDown);
+  }, []);
 
   const notifications = [
     {
@@ -101,10 +123,14 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Project Selector */}
-        <div className="dropdown-container">
+        <div className="dropdown-container" ref={projectDropdownRef}>
           <button
             className="header-nav-btn"
-            onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
+            onClick={() => {
+              setIsNotifOpen(false);
+              setIsUserDropdownOpen(false);
+              setIsProjectDropdownOpen(prev => !prev);
+            }}
           >
             <span className="proj-avatar">{currentProject.avatar}</span>
             <span className="proj-name">{currentProject.name}</span>
@@ -268,12 +294,14 @@ export const Header: React.FC = () => {
         </select>
 
         {/* Notification Center */}
-        <div className="dropdown-container">
+        <div className="dropdown-container" ref={notifDropdownRef}>
           <button
             className="header-action-icon notif-bell-btn"
             title="Notification Center"
             onClick={() => {
-              setIsNotifOpen(!isNotifOpen);
+              setIsProjectDropdownOpen(false);
+              setIsUserDropdownOpen(false);
+              setIsNotifOpen(prev => !prev);
               if (unreadNotifs > 0) setUnreadNotifs(0);
             }}
           >
@@ -326,10 +354,14 @@ export const Header: React.FC = () => {
         </button>
 
         {/* User profile dropdown */}
-        <div className="dropdown-container">
+        <div className="dropdown-container" ref={userDropdownRef}>
           <button
             className="user-profile-btn"
-            onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+            onClick={() => {
+              setIsProjectDropdownOpen(false);
+              setIsNotifOpen(false);
+              setIsUserDropdownOpen(prev => !prev);
+            }}
           >
             <img src={currentUser.avatar} alt={currentUser.name} className="user-avatar-img" />
             <span className="user-name">{currentUser.name.split(' ')[0]}</span>

@@ -8,6 +8,7 @@ import type {
   IssueStatus,
   IssueType,
   Priority,
+  Project,
   SubTask,
   RetrospectiveItem,
   ViewMode
@@ -30,6 +31,7 @@ const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
 const PREVIOUS_STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
 
 interface PersistedState {
+  projects?: Project[];
   issues?: Issue[];
   sprints?: Sprint[];
   epics?: Epic[];
@@ -115,6 +117,28 @@ const normalizeIssueCollection = (value: unknown, fallbackIssues: Issue[]): Issu
     .filter((issue): issue is Issue => issue !== null);
 };
 
+const normalizeProjectCollection = (value: unknown): Project[] | undefined => {
+  if (!Array.isArray(value)) return undefined;
+
+  return value
+    .filter((entry): entry is Project => {
+      if (!entry || typeof entry !== 'object') return false;
+      const candidate = entry as Partial<Project>;
+      return (
+        typeof candidate.id === 'string' &&
+        typeof candidate.key === 'string' &&
+        typeof candidate.name === 'string' &&
+        typeof candidate.category === 'string' &&
+        typeof candidate.avatar === 'string' &&
+        typeof candidate.description === 'string'
+      );
+    })
+    .map(project => ({
+      ...project,
+      key: project.key.toUpperCase()
+    }));
+};
+
 const readPersistedState = (): PersistedState => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(PREVIOUS_STORAGE_KEY);
@@ -125,6 +149,7 @@ const readPersistedState = (): PersistedState => {
 
     const data = parsed as Record<string, unknown>;
     return {
+      projects: normalizeProjectCollection(data.projects),
       issues: normalizeIssueCollection(data.issues, initialIssues),
       sprints: Array.isArray(data.sprints) ? data.sprints as Sprint[] : undefined,
       epics: Array.isArray(data.epics) ? data.epics as Epic[] : undefined,
@@ -157,8 +182,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
     document.documentElement.style.setProperty('--border-focus', accentColor);
   }, [accentColor]);
-  const [projects] = useState(initialProjects);
-  const [currentProject, setCurrentProject] = useState(initialProjects[0]);
+  const [projects, setProjects] = useState<Project[]>(persistedState.projects ?? initialProjects);
+  const [currentProject, setCurrentProject] = useState<Project>(
+    (persistedState.projects ?? initialProjects)[0]
+  );
   const [users] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(initialUsers[2]);
   const [epics, setEpics] = useState(persistedState.epics ?? initialEpics);
@@ -193,6 +220,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     try {
       const stateToSave = {
+        projects,
         issues,
         sprints,
         epics,
@@ -208,7 +236,12 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } catch (error) {
       console.error('Failed to save to local storage:', error);
     }
-  }, [issues, sprints, epics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
+  }, [projects, issues, sprints, epics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
+
+  useEffect(() => {
+    if (projects.some(project => project.id === currentProject.id)) return;
+    setCurrentProject(projects[0] ?? initialProjects[0]);
+  }, [projects, currentProject.id]);
 
   // Apply Theme attribute to body
   useEffect(() => {
@@ -217,6 +250,17 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const createProject = (projectData: Omit<Project, 'id'>): Project => {
+    const createdProject: Project = {
+      ...projectData,
+      id: `proj_${Date.now()}`
+    };
+
+    setProjects(prev => [createdProject, ...prev]);
+    setCurrentProject(createdProject);
+    return createdProject;
   };
 
   const recordDoneStatusAutomation = () => {
@@ -451,6 +495,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const resetDemoData = () => {
     setIssues(initialIssues);
+    setProjects(initialProjects);
     setSprints(initialSprints);
     setEpics(initialEpics);
     setAutomationRules(initialAutomationRules);
@@ -461,7 +506,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const exportDataJSON = () => {
-    return JSON.stringify({ issues, sprints, epics, automationRules, retrospectiveItems }, null, 2);
+    return JSON.stringify({ projects, issues, sprints, epics, automationRules, retrospectiveItems }, null, 2);
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
@@ -471,6 +516,13 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
       const data = parsed as Record<string, unknown>;
       let importedSectionCount = 0;
+
+      const normalizedProjects = normalizeProjectCollection(data.projects);
+      if (normalizedProjects && normalizedProjects.length > 0) {
+        setProjects(normalizedProjects);
+        setCurrentProject(normalizedProjects[0]);
+        importedSectionCount += 1;
+      }
 
       const normalizedIssues = normalizeIssueCollection(data.issues, initialIssues);
       if (normalizedIssues && normalizedIssues.length > 0) {
@@ -518,6 +570,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         currentProject,
         setCurrentProject,
         projects,
+        createProject,
         users,
         epics,
         sprints,
