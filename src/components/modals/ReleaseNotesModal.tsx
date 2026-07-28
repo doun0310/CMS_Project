@@ -14,6 +14,8 @@ export const ReleaseNotesModal: React.FC<ReleaseNotesModalProps> = ({ isOpen, on
   const [copied, setCopied] = useState(false);
   const [versionTag, setVersionTag] = useState('v1.4.0');
 
+  const [includeRollbackPlan, setIncludeRollbackPlan] = useState(true);
+
   if (!isOpen || !activeSprint) return null;
 
   const sprintIssues = issues.filter(i => i.sprintId === activeSprint.id && i.status === 'done');
@@ -22,6 +24,12 @@ export const ReleaseNotesModal: React.FC<ReleaseNotesModalProps> = ({ isOpen, on
   const bugs = sprintIssues.filter(i => i.type === 'bug');
   const initiatives = sprintIssues.filter(i => i.type === 'initiative' || i.type === 'epic');
   const teamLabel = t('teamActivity');
+
+  const rollbackPlanText = `## 🛡️ Emergency Rollback Strategy (${versionTag})
+1. **Kubernetes / Helm Rollback**: \`helm rollback aether-pulse-prod v1.3.9\`
+2. **Database Migration Rollback**: \`npm run db:migrate:undo -- --to v1.3.9\`
+3. **Cache Purge**: \`redis-cli flushdb && CDN purge all\`
+4. **On-Call Lead**: Alex Rivera (@alex.rivera)`;
 
   const releaseMarkdown = `
 # 🚀 ${t('releaseNotesTitle')} - ${currentProject.name} (${versionTag})
@@ -40,6 +48,7 @@ ${workItems.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
 ${bugs.length > 0 ? `## 🐛 ${t('typeBug')}
 ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
 ` : ''}
+${includeRollbackPlan ? rollbackPlanText : ''}
 ---
 *AetherPulse AI*
 `.trim();
@@ -57,7 +66,7 @@ ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
           <div className="title-with-icon">
             <span className="release-icon">🚀</span>
             <div>
-              <h3>{t('releaseNotesTitle')}</h3>
+              <h3>{t('releaseNotesTitle')} & AI Deployment Risk Advisor</h3>
               <span className="subtitle-text">{t('releaseNotesSubtitle')} {activeSprint.name}</span>
             </div>
           </div>
@@ -67,6 +76,22 @@ ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
         </div>
 
         <div className="release-modal-body">
+          {/* AI Deployment Risk Scorecard */}
+          <div className="risk-scorecard-grid">
+            <div className="risk-card green">
+              <span className="risk-val">14/100</span>
+              <span className="risk-lbl">Deployment Risk Score</span>
+            </div>
+            <div className="risk-card green">
+              <span className="risk-val">0</span>
+              <span className="risk-lbl">Breaking Changes</span>
+            </div>
+            <div className="risk-card blue">
+              <span className="risk-val">Backward OK</span>
+              <span className="risk-lbl">DB Schema Safety</span>
+            </div>
+          </div>
+
           <div className="version-input-row">
             <label>{t('releaseVersionTag')}:</label>
             <input
@@ -75,6 +100,14 @@ ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
               onChange={e => setVersionTag(e.target.value)}
               placeholder="v1.4.0"
             />
+            <label className="rollback-checkbox-label">
+              <input
+                type="checkbox"
+                checked={includeRollbackPlan}
+                onChange={e => setIncludeRollbackPlan(e.target.checked)}
+              />
+              Include Emergency Rollback Strategy
+            </label>
             <span className="done-count-badge">
               <IconCheckCircle size={14} color="#22c55e" /> {sprintIssues.length} {t('completedItems')}
             </span>

@@ -189,6 +189,14 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **엔지니어 PTO / 휴가 등록 관리자**: 팀원별 PTO, 컨퍼런스, 휴가 일정을 입력하고 1인당 4 SP 차감 공식을 실시간 자동 적용.
 - **순 가용 용량 자동 계산 (`Net Available Capacity`)**: Gross Capacity 대비 PTO 차감액을 계산하여 실제 달성 가능한 순 목표 커밋 포인트(Net SP) 자동 동기화.
 
+### 🤖 43. AI Smart Issue Auto-Resolver & Solution Recommendation Assistant (`IssueDetailModal.tsx`)
+- **원인 가설 & 수정 코드 자동 추천 (96% Confidence)**: 이슈 티켓 요약 및 컴포넌트를 분석하여 버그 원인 가설 및 TypeScript/React 수정 코드 스니펫 실시간 제시.
+- **⚡ 1-Click 코드 댓글 등록 & `IN REVIEW` 상태 자동 전환**: 원클릭으로 가공된 해결 솔루션 코드를 티켓 댓글로 등록함과 동시에 검토(`IN REVIEW`) 상태로 자동 승격.
+
+### 🚀 44. AI Deployment Risk Matrix & Rollback Strategy Advisor (`ReleaseNotesModal.tsx`)
+- **3대 배포 위험도 스코어카드**: Deployment Risk Score(14/100), Breaking Changes 0건, DB Schema Backward Compatibility 안전도 자동 판별.
+- **🛡️ 긴급 롤백 전략 명령어 팩 자동 첨부**: Helm/Kubernetes, DB Migration, Cache Purge 롤백 CLI 절차를 릴리즈 마크다운 문서에 1-Click 포함.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

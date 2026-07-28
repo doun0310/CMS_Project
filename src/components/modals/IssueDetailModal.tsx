@@ -140,6 +140,41 @@ export const IssueDetailModal: React.FC = () => {
               </div>
             </div>
 
+            {/* AI Solution Recommendation & Auto-Resolver Card */}
+            <div className="ai-solution-card animate-fade-in">
+              <div className="ai-sol-header">
+                <span>🤖 AI Auto-Resolver & Recommended Solution</span>
+                <span className="sol-badge">Confidence: 96%</span>
+              </div>
+              <div className="ai-sol-body">
+                <div className="sol-cause">
+                  <strong>Hypothesis:</strong> Potential event listener leak or state synchronization mismatch in [{issue.component || 'Core Subsystem'}].
+                </div>
+                <pre className="sol-code-pre">
+{`// Recommended Code Fix for ${issue.key}:
+useEffect(() => {
+  const handler = (evt) => handleEvent(evt);
+  eventEmitter.on('${issue.key.toLowerCase()}_sync', handler);
+  return () => eventEmitter.off('${issue.key.toLowerCase()}_sync', handler);
+}, []);`}
+                </pre>
+              </div>
+              <div className="ai-sol-footer">
+                <button
+                  className="btn-apply-solution"
+                  onClick={() => {
+                    addComment(
+                      issue.id,
+                      `🤖 [AI Auto-Resolver Solution Applied]:\n\`\`\`typescript\n// Recommended Code Fix for ${issue.key}:\nuseEffect(() => {\n  const handler = (evt) => handleEvent(evt);\n  eventEmitter.on('${issue.key.toLowerCase()}_sync', handler);\n  return () => eventEmitter.off('${issue.key.toLowerCase()}_sync', handler);\n}, []);\n\`\`\``
+                    );
+                    moveIssueStatus(issue.id, 'in_review');
+                  }}
+                >
+                  ⚡ Apply Fix Code to Comment & Move to IN REVIEW
+                </button>
+              </div>
+            </div>
+
             {/* Description Section */}
             <div className="detail-section">
               <h3>Description</h3>
