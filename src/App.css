@@ -7854,3 +7854,512 @@ input:checked + .slider:before {
   padding: 2px 8px;
   border-radius: 12px;
 }
+/* SRE Incident Post-Mortem Modal Styles */
+.postmortem-modal {
+  width: 760px;
+  max-width: 95vw;
+}
+
+.postmortem-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pm-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pm-title-input {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+.pm-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pm-sev-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.pm-sev-badge.p1 {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.pm-time-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.pm-section {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pm-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.whys-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.why-item-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid #6366f1;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.why-q {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.why-a {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.pm-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pm-action-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+
+.pm-act-key {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.12);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.pm-act-desc {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pm-act-owner {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+/* Retro Action Kanban View Styles */
+.retro-kanban-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  height: 100%;
+}
+
+.retro-kanban-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.retro-k-icon {
+  font-size: 1.6rem;
+}
+
+.retro-k-metrics {
+  display: flex;
+  gap: 12px;
+}
+
+.k-metric-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.k-metric-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #6366f1;
+}
+
+.k-metric-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.retro-k-add-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.retro-k-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.retro-k-select {
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.retro-k-board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  flex: 1;
+
+  align-items: start;
+}
+
+.retro-k-col {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 400px;
+}
+
+.retro-k-col.identified { border-top: 4px solid #6366f1; }
+.retro-k-col.in-progress { border-top: 4px solid #f59e0b; }
+.retro-k-col.resolved { border-top: 4px solid #22c55e; }
+
+.k-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.k-count-chip {
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.k-col-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.retro-k-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.retro-k-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.k-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+}
+
+.k-card-author {
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+
+.k-card-votes {
+  font-weight: 800;
+  color: #f59e0b;
+}
+
+.k-card-text {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.k-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-convert-task {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #6366f1;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-convert-task:hover {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.in-progress-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.done-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+/* AI Tech Debt Workbench Modal Styles */
+.tech-debt-modal {
+  width: 740px;
+  max-width: 95vw;
+}
+
+.tech-debt-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debt-score-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.score-badge-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  border: 3px solid #22c55e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #22c55e;
+  line-height: 1;
+}
+
+.score-lbl {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.score-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.score-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.score-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.debt-items-section {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.debt-items-section h3 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.debt-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debt-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  gap: 12px;
+}
+
+.debt-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.debt-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debt-cat-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.debt-cat-tag.security { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+.debt-cat-tag.performance { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.debt-cat-tag.testing { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+.debt-cat-tag.codesmells { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+
+.debt-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.debt-snippet {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--text-tertiary);
+}
+
+.debt-card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debt-sp-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 10px;
+}

@@ -26,6 +26,8 @@ import { CapacityCalendarModal } from '../modals/CapacityCalendarModal';
 import { ReleaseGateModal } from '../modals/ReleaseGateModal';
 import { SkillMatrixModal } from '../modals/SkillMatrixModal';
 import { IssueTriageModal } from '../modals/IssueTriageModal';
+import { IncidentPostMortemModal } from '../modals/IncidentPostMortemModal';
+import { TechDebtScannerModal } from '../modals/TechDebtScannerModal';
 
 export const Header: React.FC = () => {
   const {
@@ -69,6 +71,8 @@ export const Header: React.FC = () => {
   const [isReleaseGateOpen, setIsReleaseGateOpen] = useState(false);
   const [isSkillMatrixOpen, setIsSkillMatrixOpen] = useState(false);
   const [isTriageOpen, setIsTriageOpen] = useState(false);
+  const [isPostMortemOpen, setIsPostMortemOpen] = useState(false);
+  const [isTechDebtOpen, setIsTechDebtOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -143,7 +147,9 @@ export const Header: React.FC = () => {
     { label: 'PTO Calendar', title: 'Open Sprint Team Capacity & Holiday Calendar Integrator', onClick: () => setIsCapacityOpen(true) },
     { label: 'Release Gate', title: 'Open Enterprise Release Go / No-Go Decision Gate', onClick: () => setIsReleaseGateOpen(true) },
     { label: 'Skill Matrix', title: 'Open AI Cross-Team Skill Matrix & Resource Load Balancer', onClick: () => setIsSkillMatrixOpen(true) },
-    { label: 'Auto Triage', title: 'Open AI Smart Issue Auto-Triage & Label Recommendation Assistant', onClick: () => setIsTriageOpen(true) }
+    { label: 'Auto Triage', title: 'Open AI Smart Issue Auto-Triage & Label Recommendation Assistant', onClick: () => setIsTriageOpen(true) },
+    { label: 'Post-Mortem', title: 'Open SRE Incident Post-Mortem & AI Root Cause Workbench', onClick: () => setIsPostMortemOpen(true) },
+    { label: 'Tech Debt', title: 'Open AI Technical Debt & Code Governance Workbench', onClick: () => setIsTechDebtOpen(true) }
   ];
 
   return (
@@ -498,6 +504,18 @@ export const Header: React.FC = () => {
       <IssueTriageModal
         isOpen={isTriageOpen}
         onClose={() => setIsTriageOpen(false)}
+      />
+
+      {/* SRE Incident Post-Mortem & AI Root Cause Workbench Modal */}
+      <IncidentPostMortemModal
+        isOpen={isPostMortemOpen}
+        onClose={() => setIsPostMortemOpen(false)}
+      />
+
+      {/* AI Technical Debt & Code Governance Workbench Modal */}
+      <TechDebtScannerModal
+        isOpen={isTechDebtOpen}
+        onClose={() => setIsTechDebtOpen(false)}
       />
     </header>
   );

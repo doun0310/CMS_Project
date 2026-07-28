@@ -213,6 +213,18 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **자동 분류 진단 엔진 (AI Auto-Triage Engine)**: 미분류 백로그 이슈의 적정 우선순위(Priority), 서브시스템(Component), 스토리 포인트 추정치(SP) 및 라벨 추천.
 - **⚡ 1-Click 분류 반영 & 백로그 자동 승격**: 버튼 원클릭으로 추천 우선순위 및 태그 라벨을 티켓에 반영하여 신속한 개발 백로그로 스케줄링.
 
+### 🚨 49. SRE Incident Post-Mortem & AI Root Cause Workbench (`IncidentPostMortemModal.tsx`)
+- **🤖 AI 5-Whys 근본 원인 체인 분석**: 프로덕션 장애 발생 시 API Gateway / DB 커넥션 풀 원인을 5단계 꼬리물기 질문 구조로 자동 진단.
+- **⚡ 1-Click 장애 방지 태스크 일괄 생성**: 예방적 액션 아이템(Action Items) 3건을 백로그 개발 태스크로 즉시 자동 변환 및 담당자 지정.
+
+### 🏆 50. [Golden Milestone] Interactive Sprint Retrospective Action Drag & Drop Kanban (`RetroKanbanView.tsx`)
+- **3대 액션 이행 전용 칸반 컬럼 보드**: Identified Action Items 📌 ➔ In Progress Fixes ⚡ ➔ Verified & Resolved ✅ 3단계 이행 상태 추적.
+- **⚡ 1-Click 회고 액션 ➔ 백로그 이슈 승격 & 이행 속도 지수 (Action Execution Rate 100%)**: 회고 액션 카드를 개발 이슈로 변환하고 이행 완료 비율을 실시간 집계.
+
+### 🧹 51. AI Technical Debt & Code Governance Workbench (`TechDebtScannerModal.tsx`)
+- **코드베이스 기술 부채 건강 지수 (Health Score 84/100)**: Security, Performance, Testing, Code Smells 4대 카테고리별 기술 부채 자동 감지.
+- **⚡ 1-Click 리팩토링 백로그 태스크 자동 발행**: 감지된 기술 부채 항목(15 SP)을 개발 백로그의 리팩토링 티켓으로 즉시 전환.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

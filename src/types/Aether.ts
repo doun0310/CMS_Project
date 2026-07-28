@@ -134,6 +134,6 @@ export interface AutomationAuditLog {
   status: 'SUCCESS' | 'WARNING' | 'FAILED';
 }
 
-export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio';
+export type ViewMode = 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban';
 
 

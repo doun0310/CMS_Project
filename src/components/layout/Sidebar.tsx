@@ -70,6 +70,11 @@ export const Sidebar: React.FC = () => {
       icon: <span>💼</span>,
     },
     {
+      id: 'retro-kanban',
+      label: 'Retro Action Kanban',
+      icon: <span>📌</span>,
+    },
+    {
       id: 'settings',
       label: t('settings'),
       icon: <IconSettings size={18} />
