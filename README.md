@@ -181,6 +181,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **멀티 워크스페이스 경영진 헬스 대시보드**: 4대 핵심 프로젝트(Core, Mobile, Infra, AI Engine) 벨로시티, 진척률 및 3단계 건강도(`🟢/🟡/🔴`) 통합 관리.
 - **전사 리소스 할당 히트맵 & AI 리더십 진단**: 개발자별 멀티 프로젝트 과중 할당(Overallocated) 상태 실시간 감지 및 원클릭 워크스페이스 전환 지원.
 
+### 🛡️ 41. AI Pull Request Quality & Security Gate Audit Workbench (`PrAuditModal.tsx`)
+- **4대 CI/CD 게이트 검증 스코어보드**: Security Gate Score(0~100), Test Coverage(%), Code Smells 수량 및 Vulnerability zero-defect 자동 검사.
+- **🛡️ 1-Click 승인 & 이슈 뱃지 바인딩 (`Approve & Attach Audit Badge`)**: QA/보안 승인 태그를 형성하고 이슈 티켓 설명란에 마크다운 이력 뱃지 즉시 첨부.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

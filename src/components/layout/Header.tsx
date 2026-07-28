@@ -21,6 +21,7 @@ import { VelocitySimulatorModal } from '../modals/VelocitySimulatorModal';
 import { CodeImpactModal } from '../modals/CodeImpactModal';
 import { RetroReportModal } from '../modals/RetroReportModal';
 import { AutomationRuleModal } from '../modals/AutomationRuleModal';
+import { PrAuditModal } from '../modals/PrAuditModal';
 
 export const Header: React.FC = () => {
   const {
@@ -58,6 +59,7 @@ export const Header: React.FC = () => {
   const [isImpactOpen, setIsImpactOpen] = useState(false);
   const [isRetroReportOpen, setIsRetroReportOpen] = useState(false);
   const [isAutoRuleOpen, setIsAutoRuleOpen] = useState(false);
+  const [isPrAuditOpen, setIsPrAuditOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
 
   const notifications = [
@@ -239,6 +241,13 @@ export const Header: React.FC = () => {
           >
             <span className="btn-standup-text">Rule Builder</span>
           </button>
+          <button
+            className="btn-standup-header"
+            onClick={() => setIsPrAuditOpen(true)}
+            title="Open AI Pull Request Quality & Security Gate Audit"
+          >
+            <span className="btn-standup-text">PR Audit</span>
+          </button>
         </div>
       </div>
 
@@ -402,6 +411,12 @@ export const Header: React.FC = () => {
       <AutomationRuleModal
         isOpen={isAutoRuleOpen}
         onClose={() => setIsAutoRuleOpen(false)}
+      />
+
+      {/* AI Pull Request Quality & Security Gate Audit Modal */}
+      <PrAuditModal
+        isOpen={isPrAuditOpen}
+        onClose={() => setIsPrAuditOpen(false)}
       />
     </header>
   );
