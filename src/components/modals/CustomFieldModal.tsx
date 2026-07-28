@@ -116,6 +116,57 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
         </div>
 
         <div className="modal-body cf-modal-body">
+          {/* AI Preset Schema Recommendations */}
+          <div className="ai-preset-card">
+            <div className="ai-preset-header">
+              <span>🤖 AI Enterprise Metadata Schema Presets</span>
+              <span className="preset-hint">Click preset to load recommended custom fields</span>
+            </div>
+            <div className="preset-buttons-row">
+              <button
+                type="button"
+                className="btn-preset-sm"
+                onClick={() => {
+                  setFields([
+                    { id: 'cf-env', name: 'Deployment Environment', type: 'select', options: ['Staging', 'Production', 'QA Cluster'], defaultValue: 'Production' },
+                    { id: 'cf-pr', name: 'GitHub PR Link', type: 'url', defaultValue: 'https://github.com/aether/pull/104' },
+                    { id: 'cf-artifact', name: 'Build Artifact Hash', type: 'text', defaultValue: 'sha256:a91f82' },
+                  ]);
+                }}
+              >
+                🚀 DevOps & Release Preset
+              </button>
+
+              <button
+                type="button"
+                className="btn-preset-sm"
+                onClick={() => {
+                  setFields([
+                    { id: 'cf-security', name: 'Security Audit Gate', type: 'select', options: ['Passed ✅', 'Pending Review ⏳', 'Exempt 🛡️'], defaultValue: 'Passed ✅' },
+                    { id: 'cf-privacy', name: 'Data Privacy Tag', type: 'badge', options: ['PII Sensitive', 'Internal Only', 'Public'], defaultValue: 'Internal Only' },
+                    { id: 'cf-soc2', name: 'SOC2 Scope', type: 'select', options: ['In-Scope', 'Out-of-Scope'], defaultValue: 'In-Scope' },
+                  ]);
+                }}
+              >
+                🛡️ Security & Compliance Preset
+              </button>
+
+              <button
+                type="button"
+                className="btn-preset-sm"
+                onClick={() => {
+                  setFields([
+                    { id: 'cf-tier', name: 'Customer Impact Tier', type: 'badge', options: ['VIP Enterprise', 'Growth', 'Free Tier'], defaultValue: 'VIP Enterprise' },
+                    { id: 'cf-arr', name: 'Affected ARR ($)', type: 'text', defaultValue: '$250,000' },
+                    { id: 'cf-sla', name: 'SLA Response Tier', type: 'badge', options: ['4h SLA', '24h SLA', '48h SLA'], defaultValue: '4h SLA' },
+                  ]);
+                }}
+              >
+                👑 Enterprise Customer Impact Preset
+              </button>
+            </div>
+          </div>
+
           {/* Section 1: Manage Field Definitions */}
           <div className="cf-section">
             <h3 className="cf-section-title">🛠️ Active Field Schema Definitions</h3>

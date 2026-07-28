@@ -197,6 +197,10 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **3대 배포 위험도 스코어카드**: Deployment Risk Score(14/100), Breaking Changes 0건, DB Schema Backward Compatibility 안전도 자동 판별.
 - **🛡️ 긴급 롤백 전략 명령어 팩 자동 첨부**: Helm/Kubernetes, DB Migration, Cache Purge 롤백 CLI 절차를 릴리즈 마크다운 문서에 1-Click 포함.
 
+### 🏷️ 45. AI Custom Field Presets & Metadata Schema Workbench (`CustomFieldModal.tsx`)
+- **3대 AI 메타데이터 프리셋 추천 팩**: DevOps & Release(환경, PR링크, 아티팩트 Hash), Security & Compliance(보안게이트, Privacy tag, SOC2), Enterprise Customer Impact(고객 Tier, ARR, SLA).
+- **1-Click 프로젝트 스키마 로딩**: 클릭 한 번으로 검증된 엔터프라이즈 커스텀 필드 구조를 프로젝트 전역 메타데이터 스키마로 즉시 로딩 및 값 할당.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)
