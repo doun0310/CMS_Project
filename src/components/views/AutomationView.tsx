@@ -8,7 +8,8 @@ export const AutomationView: React.FC = () => {
     automationAuditLogs,
     toggleAutomationRule,
     addAutomationRule,
-    runAutomationRule
+    runAutomationRule,
+    t
   } = useAether();
 
   const [testNotification, setTestNotification] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export const AutomationView: React.FC = () => {
 
   const handleRunRule = (ruleId: string, ruleName: string) => {
     runAutomationRule(ruleId);
-    setTestNotification(`⚡ Automation Triggered: "${ruleName}" executed successfully! Audit log recorded.`);
+    setTestNotification(`⚡ ${t('automationTriggered')}: "${ruleName}" ${t('executedSuccessfully')}`);
     setTimeout(() => setTestNotification(null), 4000);
   };
 
@@ -31,7 +32,7 @@ export const AutomationView: React.FC = () => {
     addAutomationRule(ruleName.trim(), triggerWhen, actionThen);
     setRuleName('');
     setIsCreatingRule(false);
-    setTestNotification(`✨ Created new automation rule: "${ruleName.trim()}"`);
+    setTestNotification(`✨ ${t('createdAutomationRule')}: "${ruleName.trim()}"`);
     setTimeout(() => setTestNotification(null), 4000);
   };
 
@@ -39,13 +40,11 @@ export const AutomationView: React.FC = () => {
     <div className="automation-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>⚡ Visual Automation Engine & Rule Simulator</h2>
-          <p className="subtext">
-            Build custom Trigger-Condition-Action workflows and simulate real-time automated execution.
-          </p>
+          <h2>⚡ {t('automationTitle')}</h2>
+          <p className="subtext">{t('automationSubtitle')}</p>
         </div>
         <button className="btn-primary" onClick={() => setIsCreatingRule(!isCreatingRule)}>
-          <IconPlus size={16} /> Create Automation Rule
+          <IconPlus size={16} /> {t('createAutomationRule')}
         </button>
       </div>
 
@@ -58,14 +57,14 @@ export const AutomationView: React.FC = () => {
       {/* Interactive New Rule Builder Form */}
       {isCreatingRule && (
         <form onSubmit={handleCreateRuleSubmit} className="automation-builder-card animate-fade-in">
-          <h3>🛠️ Custom Automation Rule Builder</h3>
+          <h3>🛠️ {t('customAutomationBuilder')}</h3>
 
           <div className="builder-grid">
             <div className="form-group">
-              <label>Rule Name:</label>
+              <label>{t('ruleName')}:</label>
               <input
                 type="text"
-                placeholder="e.g. Auto-tag High Priority Bugs"
+                placeholder={t('ruleNamePlaceholder')}
                 value={ruleName}
                 onChange={e => setRuleName(e.target.value)}
                 required
@@ -73,7 +72,7 @@ export const AutomationView: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>WHEN (Trigger Event):</label>
+              <label>{t('whenTriggerEvent')}:</label>
               <select value={triggerWhen} onChange={e => setTriggerWhen(e.target.value)}>
                 <option value="Status moves to IN REVIEW">Status moves to IN REVIEW</option>
                 <option value="Issue Created as BUG">Issue Created as BUG</option>
@@ -84,7 +83,7 @@ export const AutomationView: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>THEN (Action to Execute):</label>
+              <label>{t('thenActionExecute')}:</label>
               <select value={actionThen} onChange={e => setActionThen(e.target.value)}>
                 <option value="Auto-assign QA Engineer & Add #needs-qa tag">Auto-assign QA Engineer & Add #needs-qa tag</option>
                 <option value="Send High Priority Alert to Team Slack">Send High Priority Alert to Team Slack</option>
@@ -95,8 +94,8 @@ export const AutomationView: React.FC = () => {
           </div>
 
           <div className="builder-actions">
-            <button type="submit" className="btn-success-sm">Save & Enable Rule</button>
-            <button type="button" className="btn-ghost-sm" onClick={() => setIsCreatingRule(false)}>Cancel</button>
+            <button type="submit" className="btn-success-sm">{t('saveEnableRule')}</button>
+            <button type="button" className="btn-ghost-sm" onClick={() => setIsCreatingRule(false)}>{t('cancel')}</button>
           </div>
         </form>
       )}
@@ -104,7 +103,7 @@ export const AutomationView: React.FC = () => {
       <div className="automation-layout-grid">
         {/* Rules List */}
         <div className="rules-section">
-          <h3>Active Workflow Rules ({automationRules.length})</h3>
+          <h3>{t('activeWorkflowRules')} ({automationRules.length})</h3>
           <div className="rules-list">
             {automationRules.map(rule => (
               <div key={rule.id} className={`rule-card ${rule.enabled ? 'enabled' : 'disabled'}`}>
@@ -112,7 +111,7 @@ export const AutomationView: React.FC = () => {
                   <div className="rule-title-row">
                     <IconAutomation size={18} className="rule-icon" />
                     <span className="rule-name">{rule.name}</span>
-                    <span className="exec-count-badge">Runs: {rule.executionCount || 0}</span>
+                    <span className="exec-count-badge">{t('runs')}: {rule.executionCount || 0}</span>
                   </div>
 
                   <div className="rule-flow">
@@ -130,10 +129,10 @@ export const AutomationView: React.FC = () => {
 
                 <div className="rule-controls">
                   <button className="btn-test-rule" onClick={() => handleRunRule(rule.id, rule.name)}>
-                    <IconPlay size={14} /> Run Rule
+                    <IconPlay size={14} /> {t('runRule')}
                   </button>
 
-                  <label className="toggle-switch" title={rule.enabled ? 'Enabled' : 'Disabled'}>
+                  <label className="toggle-switch" title={rule.enabled ? t('enabled') : t('disabled')}>
                     <input
                       type="checkbox"
                       checked={rule.enabled}
@@ -149,7 +148,7 @@ export const AutomationView: React.FC = () => {
 
         {/* Live Execution Audit Log Panel */}
         <div className="audit-logs-section">
-          <h3>📜 Live Execution Audit Logs</h3>
+          <h3>📜 {t('liveExecutionLogs')}</h3>
           <div className="audit-logs-list">
             {automationAuditLogs.map(log => (
               <div key={log.id} className="audit-log-card animate-fade-in">
@@ -158,7 +157,7 @@ export const AutomationView: React.FC = () => {
                   <span className="log-time">{log.triggeredAt}</span>
                 </div>
                 <div className="log-rule-name">{log.ruleName}</div>
-                <div className="log-target">Target Issue: <span className="issue-badge">{log.targetIssueKey}</span></div>
+                <div className="log-target">{t('targetIssue')}: <span className="issue-badge">{log.targetIssueKey}</span></div>
                 <div className="log-action">{log.actionTaken}</div>
               </div>
             ))}

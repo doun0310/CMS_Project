@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { IconTarget, IconClock, IconCheckCircle, IconZap } from './Icons';
 
 export const SprintGoalBanner: React.FC = () => {
-  const { sprints, issues } = useAether();
+  const { sprints, issues, t } = useAether();
   const activeSprint = sprints.find(s => s.status === 'active');
 
   if (!activeSprint) return null;
@@ -30,12 +30,12 @@ export const SprintGoalBanner: React.FC = () => {
   const today = new Date();
   const diffTime = endDate.getTime() - today.getTime();
   const daysLeft = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-  const deadlineLabel = daysLeft === 0 ? 'Due today' : `${daysLeft}d left`;
+  const deadlineLabel = daysLeft === 0 ? t('dueToday') : `${daysLeft}${t('daysLeft')}`;
 
   return (
     <section
       className="sprint-goal-banner animate-fade-in"
-      aria-label={`${activeSprint.name} sprint goal and progress`}
+      aria-label={`${activeSprint.name} ${t('goalPrefix')} progress`}
       aria-live="polite"
     >
       <div className="goal-summary">
@@ -43,20 +43,20 @@ export const SprintGoalBanner: React.FC = () => {
           <span className="sprint-badge-label">
             <IconTarget size={13} /> {activeSprint.name}
           </span>
-          <span className="days-left-chip" title={`${daysLeft} days remaining`}>
+          <span className="days-left-chip" title={`${daysLeft} ${t('daysRemaining')}`}>
             <span className="status-dot-active" />
             <IconClock size={11} /> {deadlineLabel}
           </span>
         </div>
         <p className="goal-statement-text" title={activeSprint.goal}>
-          <span className="goal-prefix">Goal</span>
+          <span className="goal-prefix">{t('goalPrefix')}</span>
           {activeSprint.goal}
         </p>
       </div>
 
       <div className="sprint-progress-summary">
         <div className="progress-header-meta">
-          <span className="completion-label"><strong>{completionPct}%</strong> complete</span>
+          <span className="completion-label"><strong>{completionPct}%</strong> {t('completeLabel')}</span>
           <span className="meta-numbers">
             <strong>{donePoints}</strong> / {totalPoints} pts
           </span>
@@ -64,7 +64,7 @@ export const SprintGoalBanner: React.FC = () => {
 
         <div
           className="visual-progress-track"
-          title={`Done ${donePoints} pts, in progress ${inProgressPoints} pts, to do ${todoPoints} pts`}
+          title={`${t('completed')} ${donePoints} pts, ${t('activeLabel').toLowerCase()} ${inProgressPoints} pts, ${t('notStarted').toLowerCase()} ${todoPoints} pts`}
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
@@ -75,14 +75,14 @@ export const SprintGoalBanner: React.FC = () => {
         </div>
 
         <div className="stat-pills-row">
-          <span className="pill-item done-pill" title="Completed story points">
-            <IconCheckCircle size={11} /> Done <strong>{donePoints}</strong>
+          <span className="pill-item done-pill" title={t('storyPointsDone')}>
+            <IconCheckCircle size={11} /> {t('completed')} <strong>{donePoints}</strong>
           </span>
-          <span className="pill-item progress-pill" title="Story points in progress or review">
-            <IconZap size={11} /> Active <strong>{inProgressPoints}</strong>
+          <span className="pill-item progress-pill" title={t('in_progress')}>
+            <IconZap size={11} /> {t('activeLabel')} <strong>{inProgressPoints}</strong>
           </span>
-          <span className="pill-item todo-pill" title="Story points not started">
-            <IconClock size={11} /> To do <strong>{todoPoints}</strong>
+          <span className="pill-item todo-pill" title={t('todo')}>
+            <IconClock size={11} /> {t('notStarted')} <strong>{todoPoints}</strong>
           </span>
         </div>
       </div>

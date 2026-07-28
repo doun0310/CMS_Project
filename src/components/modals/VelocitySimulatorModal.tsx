@@ -11,7 +11,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { sprints, issues, updateIssue } = useAether();
+  const { sprints, issues, updateIssue, t } = useAether();
 
   const activeSprint = useMemo(() => {
     return sprints.find((s) => s.status === 'active') || sprints[0] || null;
@@ -52,7 +52,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
     const targetIssue = issues.find((i) => i.id === selectedIssueIdToDefer);
     if (targetIssue) {
       updateIssue(targetIssue.id, { sprintId: null }); // Move back to backlog
-      setAppliedMessage(`Moved [${targetIssue.key}] back to Backlog to relieve sprint pressure.`);
+      setAppliedMessage(`[${targetIssue.key}] ${t('movedBackToBacklog')}`);
       setSelectedIssueIdToDefer('');
       setTimeout(() => setAppliedMessage(null), 3000);
     }
@@ -68,10 +68,8 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
           <div className="modal-title-group">
             <span className="release-icon">⚡</span>
             <div>
-              <h2 className="modal-title">Sprint Velocity & What-If Capacity Simulator</h2>
-              <p className="modal-subtitle">
-                Simulate team availability, scope creep, and risk multipliers in real-time
-              </p>
+              <h2 className="modal-title">{t('velocityTitle')}</h2>
+              <p className="modal-subtitle">{t('velocitySubtitle')}</p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>
@@ -82,10 +80,10 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
         <div className="modal-body vel-modal-body">
           {/* Active Sprint Context Banner */}
           <div className="vel-sprint-banner">
-            <span className="vel-sprint-badge">ACTIVE SPRINT</span>
+            <span className="vel-sprint-badge">{t('activeSprintLabel')}</span>
             <span className="vel-sprint-name">{activeSprint.name}</span>
             <span className="vel-sprint-sp">
-              Total Scope: <strong>{currentTotalSp} SP</strong> ({activeIssues.length} issues)
+              {t('totalScope')}: <strong>{currentTotalSp} SP</strong> ({activeIssues.length} {t('issues')})
             </span>
           </div>
 
@@ -93,12 +91,12 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
           <div className="vel-sim-grid">
             {/* Left Controls */}
             <div className="vel-controls-col">
-              <h3 className="vel-col-title">🎛️ Simulation Parameters</h3>
+              <h3 className="vel-col-title">🎛️ {t('simulationParameters')}</h3>
 
               {/* Slider 1: Team Capacity */}
               <div className="vel-slider-group">
                 <div className="vel-slider-label">
-                  <span>👥 Team Available Capacity:</span>
+                  <span>👥 {t('teamCapacity')}:</span>
                   <strong>{teamCapacityPct}% ({adjustedCapacitySp} SP)</strong>
                 </div>
                 <input
@@ -110,13 +108,13 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
                   onChange={(e) => setTeamCapacityPct(Number(e.target.value))}
                   className="vel-slider"
                 />
-                <span className="slider-hint">Simulate vacations, PTO, or holiday shifts</span>
+                <span className="slider-hint">{t('simulateVacations')}</span>
               </div>
 
               {/* Slider 2: Added Mid-Sprint Scope */}
               <div className="vel-slider-group">
                 <div className="vel-slider-label">
-                  <span>➕ Mid-Sprint Added Scope:</span>
+                  <span>➕ {t('addedScope')}:</span>
                   <strong>+{addedScopeSp} SP</strong>
                 </div>
                 <input
@@ -128,13 +126,13 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
                   onChange={(e) => setAddedScopeSp(Number(e.target.value))}
                   className="vel-slider"
                 />
-                <span className="slider-hint">Simulate unplanned emergency requests or scope creep</span>
+                <span className="slider-hint">{t('simulateScopeCreep')}</span>
               </div>
 
               {/* Slider 3: Tech Debt / Complexity Factor */}
               <div className="vel-slider-group">
                 <div className="vel-slider-label">
-                  <span>🧱 Risk / Complexity Multiplier:</span>
+                  <span>🧱 {t('complexityMultiplier')}:</span>
                   <strong>{complexityFactor.toFixed(2)}x</strong>
                 </div>
                 <input
@@ -146,25 +144,25 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
                   onChange={(e) => setComplexityFactor(Number(e.target.value))}
                   className="vel-slider"
                 />
-                <span className="slider-hint">Legacy codebase debt, unknown APIs, or third-party blockers</span>
+                <span className="slider-hint">{t('simulateLegacyRisk')}</span>
               </div>
             </div>
 
             {/* Right Gauge & Probability Results */}
             <div className="vel-results-col">
-              <h3 className="vel-col-title">📊 Simulated Delivery Probability</h3>
+              <h3 className="vel-col-title">📊 {t('simulatedDelivery')}</h3>
 
               <div className={`prob-card ${riskTier}`}>
                 <div className="prob-value">{probability}%</div>
                 <div className="prob-title">
                   {probability >= 80
-                    ? '🟢 High Completion Confidence'
+                    ? `🟢 ${t('highConfidence')}`
                     : probability >= 50
-                    ? '🟡 Moderate Overflow Risk'
-                    : '🔴 High Delivery Delay Danger'}
+                    ? `🟡 ${t('moderateRisk')}`
+                    : `🔴 ${t('highDelayRisk')}`}
                 </div>
                 <p className="prob-desc">
-                  Based on Monte Carlo velocity distribution modeling for {effectiveSp} effective SP versus {adjustedCapacitySp} SP available capacity.
+                  {t('probabilityDesc')} {effectiveSp} SP / {adjustedCapacitySp} SP.
                 </p>
               </div>
 
@@ -172,12 +170,12 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
               <div className="vel-ai-recommendation">
                 <div className="vel-ai-header">
                   <IconZap size={16} color="#6366f1" />
-                  <span>AI Workload Mitigation Recommendation:</span>
+                  <span>{t('mitigationRecommendation')}:</span>
                 </div>
                 <p className="vel-ai-text">
                   {probability >= 80
-                    ? 'The current sprint parameters indicate optimal health. No scope reduction required.'
-                    : `Deferring 1-2 non-critical issues back to Backlog will restore completion confidence above 85%.`}
+                    ? t('noScopeReduction')
+                    : t('deferRecommendation')}
                 </p>
 
                 {probability < 80 && (
@@ -187,7 +185,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
                       onChange={(e) => setSelectedIssueIdToDefer(e.target.value)}
                       className="vel-issue-dropdown"
                     >
-                      <option value="">-- Select Issue to Defer to Backlog --</option>
+                      <option value="">-- {t('selectIssueToDefer')} --</option>
                       {activeIssues.map((i) => (
                         <option key={i.id} value={i.id}>
                           [{i.key}] {i.summary} ({i.storyPoints || 1} SP)
@@ -199,7 +197,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
                       onClick={handleDeferIssue}
                       disabled={!selectedIssueIdToDefer}
                     >
-                      Defer Issue
+                      {t('deferIssue')}
                     </button>
                   </div>
                 )}
@@ -216,10 +214,10 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close Simulator
+            {t('closeSimulator')}
           </button>
           <button className="btn-primary" onClick={onClose}>
-            Apply Scenario Baseline
+            {t('applyScenarioBaseline')}
           </button>
         </div>
       </div>
