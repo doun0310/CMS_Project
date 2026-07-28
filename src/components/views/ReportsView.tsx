@@ -14,6 +14,7 @@ export const ReportsView: React.FC = () => {
   );
 
   const [chartView, setChartView] = useState<'burndown' | 'cfd'>('burndown');
+  const [showInsights, setShowInsights] = useState(false);
 
   const activeSprint = sprints.find((s: Sprint) => s.id === selectedSprintId) || sprints[0];
   const sprintIssues = issues.filter((i: Issue) => i.sprintId === activeSprint?.id);
@@ -84,20 +85,19 @@ export const ReportsView: React.FC = () => {
     <div className="reports-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>📊 Advanced Agile Analytics & Manager Capacity Matrix</h2>
+          <h2>📊 Sprint Analytics</h2>
           <p className="subtext">
-            Sprint burndown trends, team workload matrix, and AI-powered velocity completion forecasts.
+            Track delivery progress, team capacity, and sprint trends in one place.
           </p>
         </div>
 
-        {/* Sprint Selector & Export Controls */}
-        <div className="sprint-select-wrap">
-          <label>Select Sprint: </label>
+        <div className="sprint-select-wrap reports-controls">
+          <label htmlFor="report-sprint">Sprint</label>
           <select
+            id="report-sprint"
             value={selectedSprintId}
             onChange={e => setSelectedSprintId(e.target.value)}
             className="settings-select"
-            style={{ width: '200px', display: 'inline-block' }}
           >
             {sprints.map((s: Sprint) => (
               <option key={s.id} value={s.id}>
@@ -106,17 +106,11 @@ export const ReportsView: React.FC = () => {
             ))}
           </select>
 
-          <button className="btn-primary-sm" onClick={handleExportCSV} title="Export CSV Report" style={{ marginLeft: '10px' }}>
+          <button className="btn-ghost-sm report-export-button" onClick={handleExportCSV} title="Export CSV Report">
             <IconDownload size={14} /> Export CSV
           </button>
         </div>
       </div>
-
-      {/* AI Multi-Factor Sprint Risk Matrix & Automated Mitigation Recommender */}
-      <SprintRiskMatrixCard />
-
-      {/* AI Team Health Pulse & Developer Burnout Risk Diagnostics */}
-      <TeamHealthPulseCard />
 
       {/* Analytics Summary Stats Cards */}
       <div className="reports-stats-grid">
@@ -139,7 +133,6 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Velocity Forecasting Banner */}
       <div className="ai-forecast-card animate-fade-in">
         <div className="forecast-header">
           <h3>🤖 AI Sprint Completion & Capacity Forecast</h3>
@@ -164,7 +157,6 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* SVG Sprint Burndown / CFD Chart & Team Workload */}
       <div className="charts-grid">
         {/* Chart Box */}
         <div className="chart-box">
@@ -290,21 +282,10 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Enterprise SLA Diagnostics Card */}
-      <div style={{ marginTop: '20px' }}>
-        <SlaAnalyticsCard />
-      </div>
-
-      {/* Team Knowledge Silo & Bus Factor Card */}
-      <div style={{ marginTop: '20px' }}>
-        <KnowledgeSiloCard />
-      </div>
-
-      {/* Manager Resource & Capacity Allocation Matrix Table */}
       <div className="manager-matrix-section animate-fade-in">
         <div className="section-title-group">
-          <h3>👨‍💼 Manager Team Resource & Capacity Matrix</h3>
-          <span className="section-subtitle">Real-time team load balancing & capacity status for Managers</span>
+          <h3>Team Capacity</h3>
+          <span className="section-subtitle">Current workload distribution across the team</span>
         </div>
 
         <div className="matrix-table-wrap">
@@ -316,7 +297,6 @@ export const ReportsView: React.FC = () => {
                 <th>Assigned Tasks</th>
                 <th>Story Points (Done / Total)</th>
                 <th>Capacity Health</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -336,17 +316,35 @@ export const ReportsView: React.FC = () => {
                   <td>
                     <span className={`capacity-badge ${item.statusClass}`}>{item.statusLabel}</span>
                   </td>
-                  <td>
-                    <button className="btn-ghost-sm" title="Manage workload">
-                      View Tasks
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      <section className="report-insights-section">
+        <div>
+          <h3>Advanced insights</h3>
+          <p>Risk signals, team health, SLA status, and knowledge coverage.</p>
+        </div>
+        <button
+          className="btn-ghost-sm report-insights-toggle"
+          onClick={() => setShowInsights(current => !current)}
+          aria-expanded={showInsights}
+        >
+          {showInsights ? 'Hide insights' : 'View insights'}
+        </button>
+      </section>
+
+      {showInsights && (
+        <div className="report-insights animate-fade-in">
+          <SprintRiskMatrixCard />
+          <TeamHealthPulseCard />
+          <SlaAnalyticsCard />
+          <KnowledgeSiloCard />
+        </div>
+      )}
     </div>
   );
 };

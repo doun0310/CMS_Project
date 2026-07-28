@@ -201,7 +201,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     persistedState.retrospectiveItems ?? initialRetrospectiveItems
   );
 
-  const [viewMode, setViewMode] = useState<ViewMode>('board');
+  const [viewMode, setViewMode] = useState<ViewMode>('my-work');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onlyMyIssues, setOnlyMyIssues] = useState<boolean>(false);
   const [selectedEpicId, setSelectedEpicId] = useState<string | null>(null);

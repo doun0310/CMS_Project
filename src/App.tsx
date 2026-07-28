@@ -13,6 +13,7 @@ import { RetrospectiveView } from './components/views/RetrospectiveView';
 import { ArchitectureView } from './components/views/ArchitectureView';
 import { PortfolioView } from './components/views/PortfolioView';
 import { RetroKanbanView } from './components/views/RetroKanbanView';
+import { MyWorkView } from './components/views/MyWorkView';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
@@ -49,13 +50,13 @@ const MainLayout: React.FC = () => {
     }
 
     const viewMap: Record<string, ViewMode> = {
-      '1': 'board',
-      '2': 'backlog',
-      '3': 'roadmap',
-      '4': 'reports',
-      '5': 'retrospective',
-      '6': 'automation',
-      '7': 'settings'
+      '1': 'my-work',
+      '2': 'board',
+      '3': 'backlog',
+      '4': 'roadmap',
+      '5': 'reports',
+      '6': 'retrospective',
+      '7': 'automation'
     };
 
     if (viewMap[e.key]) {
@@ -86,6 +87,8 @@ const MainLayout: React.FC = () => {
 
   const renderCurrentView = () => {
     switch (viewMode) {
+      case 'my-work':
+        return <MyWorkView />;
       case 'board':
         return <KanbanBoard />;
       case 'backlog':
@@ -107,7 +110,7 @@ const MainLayout: React.FC = () => {
       case 'retro-kanban':
         return <RetroKanbanView />;
       default:
-        return <KanbanBoard />;
+        return <MyWorkView />;
     }
   };
 

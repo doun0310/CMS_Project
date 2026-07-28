@@ -23,6 +23,7 @@ import { SprintGoalBanner } from '../common/SprintGoalBanner';
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
 
 type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
+type CardDensity = 'compact' | 'standard';
 
 interface SwimlaneGroup {
   id: string;
@@ -57,6 +58,7 @@ export const KanbanBoard: React.FC = () => {
   const [draggedIssueId, setDraggedIssueId] = useState<string | null>(null);
   const [addingToStatus, setAddingToStatus] = useState<IssueStatus | null>(null);
   const [quickSummary, setQuickSummary] = useState<string>('');
+  const [cardDensity, setCardDensity] = useState<CardDensity>('compact');
 
   // Column collapse state
   const [collapsedColumns, setCollapsedColumns] = useState<Record<string, boolean>>({
@@ -188,7 +190,7 @@ export const KanbanBoard: React.FC = () => {
     return (
       <div
         key={issue.id}
-        className={`kanban-card ${draggedIssueId === issue.id ? 'dragging' : ''}`}
+        className={`kanban-card ${cardDensity === 'compact' ? 'compact-card' : ''} ${draggedIssueId === issue.id ? 'dragging' : ''}`}
         draggable
         onDragStart={e => handleDragStart(e, issue.id)}
         onClick={() => setSelectedIssueId(issue.id)}
@@ -272,6 +274,15 @@ export const KanbanBoard: React.FC = () => {
             <option value="assignee">{t('groupAssignee')}</option>
             <option value="epic">{t('groupEpic')}</option>
             <option value="priority">{t('groupPriority')}</option>
+          </select>
+          <select
+            className="control-select density-select"
+            value={cardDensity}
+            onChange={e => setCardDensity(e.target.value as CardDensity)}
+            aria-label={t('cardDensity')}
+          >
+            <option value="compact">{t('compactView')}</option>
+            <option value="standard">{t('standardView')}</option>
           </select>
         </div>
       </div>

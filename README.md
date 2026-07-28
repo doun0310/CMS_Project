@@ -225,6 +225,18 @@ AetherPulse는 소프트웨어 개발 팀, 제품 관리자(PO/PM), QA 엔지니
 - **코드베이스 기술 부채 건강 지수 (Health Score 84/100)**: Security, Performance, Testing, Code Smells 4대 카테고리별 기술 부채 자동 감지.
 - **⚡ 1-Click 리팩토링 백로그 태스크 자동 발행**: 감지된 기술 부채 항목(15 SP)을 개발 백로그의 리팩토링 티켓으로 즉시 전환.
 
+### 🕸️ 52. AI Intelligent Dependency Graph & Blast Radius Simulator (`DependencyGraphModal.tsx`)
+- **서브시스템 폭발 반경 분석 (Blast Radius Index 68%)**: 상류(Upstream) 서비스 변경 시 하류(Downstream) 마이크로서비스 및 티켓 영향 범위 시각화.
+- **⚡ 1-Click 영향도 마크다운 뱃지 이슈 첨부**: 카나리 배포 추천 및 연관 노드 매핑 뱃지를 이슈 티켓 설명란에 원클릭 바인딩.
+
+### 🎲 53. AI Monte Carlo Sprint Completion & Velocity Forecaster (`MonteCarloSimulatorModal.tsx`)
+- **1,000회 통계 몬테카를로 시뮬레이션 엔진**: 팀의 과거 벨로시티 정규분포 데이터를 기반으로 50%, 85%, 95% 달성 가능 확률 구간 연산.
+- **⚡ 1-Click 85% 고신뢰 목표 동기화**: 85% 확률 추천 스토리 포인트 목표(36 SP)를 활성 스프린트 목표 커밋 포인트로 1-Click 자동 연동.
+
+### 🛡️ 54. Enterprise Release Risk & Regulatory Compliance Matrix (`ComplianceMatrixModal.tsx`)
+- **4대 엔터프라이즈 규제 준수 감사 팩**: SOC2 Type II, GDPR, ISO 27001, HIPAA 보안 요구사항 자동 판별 (Audit Score 99.2%).
+- **1-Click 공식 컴플라이언스 감사 인증서 추출**: 감사용 마크다운 규제 준수 인증서를 1-Click 다운로드/복사.
+
 ---
 
 ## 🛠️ 기술 스택 (Tech Stack)

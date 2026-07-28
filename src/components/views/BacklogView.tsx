@@ -49,6 +49,10 @@ export const BacklogView: React.FC = () => {
   const [addingToSprintId, setAddingToSprintId] = useState<string | null | 'backlog'>(null);
   const [quickSummary, setQuickSummary] = useState('');
   const [celebratingSprint, setCelebratingSprint] = useState<Sprint | null>(null);
+  const [selectedBacklogIssueIds, setSelectedBacklogIssueIds] = useState<string[]>([]);
+  const [planningSprintId, setPlanningSprintId] = useState<string>(
+    sprints.find(sprint => sprint.status === 'active')?.id || sprints.find(sprint => sprint.status === 'future')?.id || ''
+  );
 
   const handleCompleteSprint = (sprint: Sprint) => {
     completeSprint(sprint.id);
@@ -115,7 +119,7 @@ export const BacklogView: React.FC = () => {
     setAddingToSprintId(null);
   };
 
-  const renderIssueRow = (issue: Issue) => {
+  const renderIssueRow = (issue: Issue, isBacklog = false) => {
     const epic = epics.find((e: Epic) => e.id === issue.epicId);
     const assignee = users.find((u: User) => u.id === issue.assigneeId);
 
@@ -126,6 +130,18 @@ export const BacklogView: React.FC = () => {
         onClick={() => setSelectedIssueId(issue.id)}
       >
         <div className="row-left">
+          {isBacklog && (
+            <input
+              className="backlog-row-check"
+              type="checkbox"
+              checked={selectedBacklogIssueIds.includes(issue.id)}
+              onClick={event => event.stopPropagation()}
+              onChange={() => setSelectedBacklogIssueIds(current =>
+                current.includes(issue.id) ? current.filter(id => id !== issue.id) : [...current, issue.id]
+              )}
+              aria-label={`${t('selectIssue')} ${issue.key}`}
+            />
+          )}
           <span className="row-type" title={issue.type}>{renderTypeIcon(issue.type)}</span>
           <span className="row-key">{issue.key}</span>
           <span className="row-summary">{issue.summary}</span>
@@ -213,7 +229,7 @@ export const BacklogView: React.FC = () => {
           {sprintIssues.length === 0 ? (
             <div className="empty-sprint-msg">{t('sprintEmpty')}</div>
           ) : (
-            sprintIssues.map(renderIssueRow)
+            sprintIssues.map(issue => renderIssueRow(issue))
           )}
 
           {/* Quick inline issue add */}
@@ -242,6 +258,12 @@ export const BacklogView: React.FC = () => {
 
   const backlogIssues = filteredIssues.filter((i: Issue) => !i.sprintId);
   const backlogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
+
+  const handleBulkPlan = () => {
+    if (!planningSprintId || selectedBacklogIssueIds.length === 0) return;
+    selectedBacklogIssueIds.forEach(issueId => updateIssue(issueId, { sprintId: planningSprintId }));
+    setSelectedBacklogIssueIds([]);
+  };
 
   return (
     <div className="backlog-view">
@@ -304,13 +326,27 @@ export const BacklogView: React.FC = () => {
             <span className="sprint-name-text">{t('backlogLabel')}</span>
             <span className="sprint-points-summary">({backlogIssues.length} {t('issues')} • {backlogPoints} SP)</span>
           </div>
+          {backlogIssues.length > 0 && (
+            <div className="backlog-plan-controls">
+              <span>{selectedBacklogIssueIds.length ? `${selectedBacklogIssueIds.length} ${t('selected')}` : t('selectToPlan')}</span>
+              <select value={planningSprintId} onChange={event => setPlanningSprintId(event.target.value)}>
+                <option value="">{t('chooseSprint')}</option>
+                {sprints.filter(sprint => sprint.status !== 'completed').map(sprint => (
+                  <option key={sprint.id} value={sprint.id}>{sprint.name}</option>
+                ))}
+              </select>
+              <button className="btn-primary-sm" onClick={handleBulkPlan} disabled={!planningSprintId || selectedBacklogIssueIds.length === 0}>
+                {t('planSelected')}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="sprint-issues-list">
           {backlogIssues.length === 0 ? (
             <div className="empty-sprint-msg">{t('backlogEmpty')}</div>
           ) : (
-            backlogIssues.map(renderIssueRow)
+            backlogIssues.map(issue => renderIssueRow(issue, true))
           )}
 
           {addingToSprintId === 'backlog' ? (

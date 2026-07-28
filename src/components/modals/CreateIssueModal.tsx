@@ -12,6 +12,7 @@ export const CreateIssueModal: React.FC = () => {
     epics,
     sprints,
     currentProject,
+    currentUser,
     t
   } = useAether();
 
@@ -38,12 +39,13 @@ export const CreateIssueModal: React.FC = () => {
   const [summary, setSummary] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
-  const [assigneeId, setAssigneeId] = useState<string>(users[0]?.id || '');
+  const [assigneeId, setAssigneeId] = useState<string>(currentUser.id);
   const [epicId, setEpicId] = useState<string>('');
   const [sprintId, setSprintId] = useState<string>(sprints.find(s => s.status === 'active')?.id || '');
   const [storyPoints, setStoryPoints] = useState<number>(3);
   const [component] = useState<string>('Core Engine');
   const [dueDate, setDueDate] = useState<string>(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
+  const [showDetails, setShowDetails] = useState(false);
 
   if (!isCreateModalOpen) return null;
 
@@ -67,6 +69,7 @@ export const CreateIssueModal: React.FC = () => {
     // Reset and close
     setSummary('');
     setDescription('');
+    setShowDetails(false);
     setIsCreateModalOpen(false);
   };
 
@@ -81,7 +84,7 @@ export const CreateIssueModal: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="create-form">
-          <div className="form-grid-2">
+          <div className="form-grid-2 create-essential-fields">
             <div className="form-group">
               <label>{t('issueType')} *</label>
               <select value={type} onChange={e => setType(e.target.value as IssueType)}>
@@ -93,13 +96,12 @@ export const CreateIssueModal: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>{t('priority')}</label>
-              <select value={priority} onChange={e => setPriority(e.target.value as Priority)}>
-                <option value="highest">{priorityLabels.highest}</option>
-                <option value="high">{priorityLabels.high}</option>
-                <option value="medium">{priorityLabels.medium}</option>
-                <option value="low">{priorityLabels.low}</option>
-                <option value="lowest">{priorityLabels.lowest}</option>
+              <label>{t('assignee')}</label>
+              <select value={assigneeId} onChange={e => setAssigneeId(e.target.value)}>
+                <option value="">{t('unassigned')}</option>
+                {users.map(u => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -116,68 +118,73 @@ export const CreateIssueModal: React.FC = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>{t('description')}</label>
-            <textarea
-              rows={4}
-              placeholder={t('descriptionPlaceholder')}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-            />
-          </div>
+          <button
+            type="button"
+            className="create-details-toggle"
+            onClick={() => setShowDetails(current => !current)}
+            aria-expanded={showDetails}
+          >
+            {showDetails ? t('hideDetails') : t('showDetails')}
+          </button>
 
-          <div className="form-grid-2">
-            <div className="form-group">
-              <label>{t('assignee')}</label>
-              <select value={assigneeId} onChange={e => setAssigneeId(e.target.value)}>
-                <option value="">{t('unassigned')}</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
-            </div>
+          {showDetails && (
+            <div className="create-details animate-fade-in">
+              <div className="form-group">
+                <label>{t('description')}</label>
+                <textarea
+                  rows={3}
+                  placeholder={t('descriptionPlaceholder')}
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                />
+              </div>
 
-            <div className="form-group">
-              <label>{t('epicLink')}</label>
-              <select value={epicId} onChange={e => setEpicId(e.target.value)}>
-                <option value="">{t('none')}</option>
-                {epics.map(ep => (
-                  <option key={ep.id} value={ep.id}>{ep.summary}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+              <div className="form-grid-2">
+                <div className="form-group">
+                  <label>{t('priority')}</label>
+                  <select value={priority} onChange={e => setPriority(e.target.value as Priority)}>
+                    <option value="highest">{priorityLabels.highest}</option>
+                    <option value="high">{priorityLabels.high}</option>
+                    <option value="medium">{priorityLabels.medium}</option>
+                    <option value="low">{priorityLabels.low}</option>
+                    <option value="lowest">{priorityLabels.lowest}</option>
+                  </select>
+                </div>
 
-          <div className="form-grid-3">
-            <div className="form-group">
-              <label>{t('sprint')}</label>
-              <select value={sprintId} onChange={e => setSprintId(e.target.value)}>
-                <option value="">{t('backlogLabel')}</option>
-                {sprints.map(sp => (
-                  <option key={sp.id} value={sp.id}>{sp.name}</option>
-                ))}
-              </select>
-            </div>
+                <div className="form-group">
+                  <label>{t('epicLink')}</label>
+                  <select value={epicId} onChange={e => setEpicId(e.target.value)}>
+                    <option value="">{t('none')}</option>
+                    {epics.map(ep => (
+                      <option key={ep.id} value={ep.id}>{ep.summary}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-            <div className="form-group">
-              <label>Story Points</label>
-              <input
-                type="number"
-                min={0}
-                value={storyPoints}
-                onChange={e => setStoryPoints(Number(e.target.value))}
-              />
-            </div>
+              <div className="form-grid-3">
+                <div className="form-group">
+                  <label>{t('sprint')}</label>
+                  <select value={sprintId} onChange={e => setSprintId(e.target.value)}>
+                    <option value="">{t('backlogLabel')}</option>
+                    {sprints.map(sp => (
+                      <option key={sp.id} value={sp.id}>{sp.name}</option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="form-group">
-              <label>Due Date</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-              />
+                <div className="form-group">
+                  <label>{t('storyPoints')}</label>
+                  <input type="number" min={0} value={storyPoints} onChange={e => setStoryPoints(Number(e.target.value))} />
+                </div>
+
+                <div className="form-group">
+                  <label>{t('dueDate')}</label>
+                  <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="modal-actions-bar">
             <button type="button" className="btn-ghost" onClick={() => setIsCreateModalOpen(false)}>

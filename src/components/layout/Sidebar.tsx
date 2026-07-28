@@ -27,6 +27,11 @@ export const Sidebar: React.FC = () => {
 
   const navItems: NavItem[] = [
     {
+      id: 'my-work',
+      label: t('myWork'),
+      icon: <span>✓</span>
+    },
+    {
       id: 'board',
       label: t('board'),
       icon: <IconBoard size={18} />,

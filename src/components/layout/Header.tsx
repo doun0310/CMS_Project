@@ -28,6 +28,9 @@ import { SkillMatrixModal } from '../modals/SkillMatrixModal';
 import { IssueTriageModal } from '../modals/IssueTriageModal';
 import { IncidentPostMortemModal } from '../modals/IncidentPostMortemModal';
 import { TechDebtScannerModal } from '../modals/TechDebtScannerModal';
+import { DependencyGraphModal } from '../modals/DependencyGraphModal';
+import { MonteCarloSimulatorModal } from '../modals/MonteCarloSimulatorModal';
+import { ComplianceMatrixModal } from '../modals/ComplianceMatrixModal';
 
 export const Header: React.FC = () => {
   const {
@@ -73,6 +76,9 @@ export const Header: React.FC = () => {
   const [isTriageOpen, setIsTriageOpen] = useState(false);
   const [isPostMortemOpen, setIsPostMortemOpen] = useState(false);
   const [isTechDebtOpen, setIsTechDebtOpen] = useState(false);
+  const [isDepGraphOpen, setIsDepGraphOpen] = useState(false);
+  const [isMonteCarloOpen, setIsMonteCarloOpen] = useState(false);
+  const [isComplianceOpen, setIsComplianceOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(3);
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -149,7 +155,10 @@ export const Header: React.FC = () => {
     { label: 'Skill Matrix', title: 'Open AI Cross-Team Skill Matrix & Resource Load Balancer', onClick: () => setIsSkillMatrixOpen(true) },
     { label: 'Auto Triage', title: 'Open AI Smart Issue Auto-Triage & Label Recommendation Assistant', onClick: () => setIsTriageOpen(true) },
     { label: 'Post-Mortem', title: 'Open SRE Incident Post-Mortem & AI Root Cause Workbench', onClick: () => setIsPostMortemOpen(true) },
-    { label: 'Tech Debt', title: 'Open AI Technical Debt & Code Governance Workbench', onClick: () => setIsTechDebtOpen(true) }
+    { label: 'Tech Debt', title: 'Open AI Technical Debt & Code Governance Workbench', onClick: () => setIsTechDebtOpen(true) },
+    { label: 'Dependency Graph', title: 'Open AI Dependency Graph & Blast Radius Simulator', onClick: () => setIsDepGraphOpen(true) },
+    { label: 'Monte Carlo', title: 'Open AI Monte Carlo Velocity & Sprint Completion Forecaster', onClick: () => setIsMonteCarloOpen(true) },
+    { label: 'Compliance Matrix', title: 'Open Enterprise Release Risk & Regulatory Compliance Matrix', onClick: () => setIsComplianceOpen(true) }
   ];
 
   return (
@@ -516,6 +525,24 @@ export const Header: React.FC = () => {
       <TechDebtScannerModal
         isOpen={isTechDebtOpen}
         onClose={() => setIsTechDebtOpen(false)}
+      />
+
+      {/* AI Dependency Graph & Blast Radius Simulator Modal */}
+      <DependencyGraphModal
+        isOpen={isDepGraphOpen}
+        onClose={() => setIsDepGraphOpen(false)}
+      />
+
+      {/* AI Monte Carlo Velocity & Sprint Completion Forecaster Modal */}
+      <MonteCarloSimulatorModal
+        isOpen={isMonteCarloOpen}
+        onClose={() => setIsMonteCarloOpen(false)}
+      />
+
+      {/* Enterprise Release Risk & Regulatory Compliance Matrix Modal */}
+      <ComplianceMatrixModal
+        isOpen={isComplianceOpen}
+        onClose={() => setIsComplianceOpen(false)}
       />
     </header>
   );
