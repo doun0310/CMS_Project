@@ -4,7 +4,7 @@ import { IconCheckCircle, IconPlus } from '../common/Icons';
 import type { RetrospectiveItem } from '../../types/Aether';
 
 export const RetroKanbanView: React.FC = () => {
-  const { currentProject, sprints, retrospectiveItems, addRetroItem, createIssue, users } = useAether();
+  const { currentProject, sprints, retrospectiveItems, addRetroItem, createIssue, users, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
 
@@ -26,12 +26,12 @@ export const RetroKanbanView: React.FC = () => {
 
   const handleConvertToTask = (itemId: string, content: string) => {
     createIssue({
-      summary: `[Retro Action] ${content}`,
+      summary: `[${t('retroAction')}] ${content}`,
       type: 'task',
       priority: 'high',
       status: 'todo',
       storyPoints: 3,
-      description: `Action item generated from ${activeSprint?.name || 'Sprint'} retrospective.`,
+      description: `${t('retroTaskDescription')} ${activeSprint?.name || t('sprint')}.`,
     });
 
     setConvertedMap((prev) => ({ ...prev, [itemId]: true }));
@@ -45,9 +45,9 @@ export const RetroKanbanView: React.FC = () => {
           <div className="flex-align-gap">
             <span className="retro-k-icon">📌</span>
             <div>
-              <h2>Interactive Sprint Retrospective Action Kanban</h2>
+              <h2>{t('retroKanbanTitle')}</h2>
               <p className="subtitle-text">
-                Track, execute & convert retrospective action items into backlog tasks for [{currentProject.key}]
+                {t('retroKanbanSubtitle')} [{currentProject.key}]
               </p>
             </div>
           </div>
@@ -57,11 +57,11 @@ export const RetroKanbanView: React.FC = () => {
         <div className="retro-k-metrics flex-align-gap">
           <div className="k-metric-card">
             <span className="k-metric-val">{executionRate}%</span>
-            <span className="k-metric-lbl">Action Execution Rate</span>
+            <span className="k-metric-lbl">{t('actionExecutionRate')}</span>
           </div>
           <div className="k-metric-card">
             <span className="k-metric-val">{actionCards.length}</span>
-            <span className="k-metric-lbl">Total Action Items</span>
+            <span className="k-metric-lbl">{t('totalActionItems')}</span>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ export const RetroKanbanView: React.FC = () => {
       <form onSubmit={handleAddAction} className="retro-k-add-bar">
         <input
           type="text"
-          placeholder="Enter new Retrospective Action Item (e.g. Upgrade CI Docker image to v2.4)..."
+          placeholder={t('retroActionPlaceholder')}
           value={newActionText}
           onChange={(e) => setNewActionText(e.target.value)}
           className="retro-k-input"
@@ -81,12 +81,12 @@ export const RetroKanbanView: React.FC = () => {
           onChange={(e) => setNewCategory(e.target.value as any)}
           className="retro-k-select"
         >
-          <option value="action_item">🎯 Action Item</option>
-          <option value="to_improve">⚠️ To Improve</option>
-          <option value="went_well">🌟 Went Well</option>
+          <option value="action_item">🎯 {t('actionItems')}</option>
+          <option value="to_improve">⚠️ {t('toImprove')}</option>
+          <option value="went_well">🌟 {t('wentWell')}</option>
         </select>
         <button type="submit" className="btn-primary">
-          <IconPlus size={16} /> Add Action Item
+          <IconPlus size={16} /> {t('addActionItem')}
         </button>
       </form>
 
@@ -95,7 +95,7 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 1: Identified Actions */}
         <div className="retro-k-col identified">
           <div className="k-col-header">
-            <span>📌 Identified Action Items</span>
+            <span>📌 {t('identifiedActionItems')}</span>
             <span className="k-count-chip">{actionCards.length}</span>
           </div>
           <div className="k-col-cards">
@@ -103,7 +103,7 @@ export const RetroKanbanView: React.FC = () => {
               <div key={item.id} className="retro-k-card">
                 <div className="k-card-top">
                   <span className="k-card-author">@{users.find((u) => u.id === item.authorId)?.name || 'Alex Rivera'}</span>
-                  <span className="k-card-votes">👍 {item.votes} Votes</span>
+                  <span className="k-card-votes">👍 {item.votes} {t('votes')}</span>
                 </div>
                 <p className="k-card-text">{item.content}</p>
                 <div className="k-card-footer">
@@ -114,11 +114,11 @@ export const RetroKanbanView: React.FC = () => {
                   >
                     {convertedMap[item.id] ? (
                       <>
-                        <IconCheckCircle size={14} /> Converted to Backlog!
+                        <IconCheckCircle size={14} /> {t('convertedToBacklog')}
                       </>
                     ) : (
                       <>
-                        ⚡ Convert to Backlog Task →
+                        ⚡ {t('convertToBacklogTask')} →
                       </>
                     )}
                   </button>
@@ -131,29 +131,29 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 2: In Progress Fixes */}
         <div className="retro-k-col in-progress">
           <div className="k-col-header">
-            <span>⚡ In Progress Fixes</span>
+            <span>⚡ {t('inProgressFixes')}</span>
             <span className="k-count-chip">2</span>
           </div>
           <div className="k-col-cards">
             <div className="retro-k-card active-fix">
               <div className="k-card-top">
                 <span className="k-card-author">@Marcus Vance</span>
-                <span className="k-card-votes">👍 4 Votes</span>
+                <span className="k-card-votes">👍 4 {t('votes')}</span>
               </div>
-              <p className="k-card-text">Automate DB schema migration rollback tests on staging PRs</p>
+              <p className="k-card-text">{t('retroSampleMigration')}</p>
               <div className="k-card-footer">
-                <span className="in-progress-pill">IN PROGRESS (75%)</span>
+                <span className="in-progress-pill">{t('inProgressLabel')} (75%)</span>
               </div>
             </div>
 
             <div className="retro-k-card active-fix">
               <div className="k-card-top">
                 <span className="k-card-author">@Sarah Chen</span>
-                <span className="k-card-votes">👍 3 Votes</span>
+                <span className="k-card-votes">👍 3 {t('votes')}</span>
               </div>
-              <p className="k-card-text">Configure Redis connection circuit breaker for high-traffic spikes</p>
+              <p className="k-card-text">{t('retroSampleRedis')}</p>
               <div className="k-card-footer">
-                <span className="in-progress-pill">IN PROGRESS (50%)</span>
+                <span className="in-progress-pill">{t('inProgressLabel')} (50%)</span>
               </div>
             </div>
           </div>
@@ -162,18 +162,18 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 3: Verified & Resolved */}
         <div className="retro-k-col resolved">
           <div className="k-col-header">
-            <span>✅ Verified & Resolved</span>
+            <span>✅ {t('verifiedResolved')}</span>
             <span className="k-count-chip">3</span>
           </div>
           <div className="k-col-cards">
             <div className="retro-k-card done-card">
               <div className="k-card-top">
                 <span className="k-card-author">@Alex Rivera</span>
-                <span className="k-card-votes">👍 5 Votes</span>
+                <span className="k-card-votes">👍 5 {t('votes')}</span>
               </div>
-              <p className="k-card-text">Set up daily Slack automated standup digest bot</p>
+              <p className="k-card-text">{t('retroSampleStandup')}</p>
               <div className="k-card-footer">
-                <span className="done-pill">RESOLVED ✅</span>
+                <span className="done-pill">{t('resolved')} ✅</span>
               </div>
             </div>
           </div>

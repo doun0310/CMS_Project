@@ -203,6 +203,9 @@ export const Header: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <button className="clear-btn" onClick={() => setSearchQuery('')} aria-label={t('clearFilters')}>×</button>
+          )}
         </div>
 
         <div className="quick-filters">

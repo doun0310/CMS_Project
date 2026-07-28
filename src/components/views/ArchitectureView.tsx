@@ -3,15 +3,19 @@ import { useAether } from '../../context/AetherContextValue';
 import { IconZap } from '../common/Icons';
 
 export const ArchitectureView: React.FC = () => {
-  const { issues, users, currentProject } = useAether();
+  const { issues, users, currentProject, t } = useAether();
 
   const [selectedSubsystem, setSelectedSubsystem] = useState<string | null>(null);
+  const typeLabels: Record<string, string> = {
+    feature: t('typeFeature'), story: t('typeFeature'), workitem: t('typeWorkItem'), task: t('typeWorkItem'),
+    bug: t('typeBug'), initiative: t('typeInitiative'), epic: t('typeInitiative'), subtask: t('typeSubtask')
+  };
 
   // Microservices & Subsystem Architecture Nodes
   const subsystems = [
     {
       id: 'sub-fe',
-      name: 'Frontend UI & Layout',
+      name: t('archFrontend'),
       tech: 'React 19 / TypeScript / Vite',
       ownerId: users[0]?.id,
       health: 'healthy',
@@ -19,7 +23,7 @@ export const ArchitectureView: React.FC = () => {
     },
     {
       id: 'sub-auth',
-      name: 'Auth & IAM Service',
+      name: t('archAuth'),
       tech: 'Node.js / JWT / OAuth 2.0',
       ownerId: users[1]?.id || users[0]?.id,
       health: 'healthy',
@@ -27,7 +31,7 @@ export const ArchitectureView: React.FC = () => {
     },
     {
       id: 'sub-db',
-      name: 'Database & Cache Cluster',
+      name: t('archDatabase'),
       tech: 'PostgreSQL 16 / Redis 7',
       ownerId: users[2]?.id || users[0]?.id,
       health: 'degraded',
@@ -35,7 +39,7 @@ export const ArchitectureView: React.FC = () => {
     },
     {
       id: 'sub-gw',
-      name: 'REST & GraphQL Gateway',
+      name: t('archGateway'),
       tech: 'Express / NGINX / Gateway',
       ownerId: users[0]?.id,
       health: 'healthy',
@@ -43,7 +47,7 @@ export const ArchitectureView: React.FC = () => {
     },
     {
       id: 'sub-pay',
-      name: 'Payment & Billing Engine',
+      name: t('archPayment'),
       tech: 'Stripe API / Webhook Handler',
       ownerId: users[1]?.id || users[0]?.id,
       health: 'warning',
@@ -51,7 +55,7 @@ export const ArchitectureView: React.FC = () => {
     },
     {
       id: 'sub-ai',
-      name: 'AI Inference & Analytics Engine',
+      name: t('archAiEngine'),
       tech: 'Python FastAPI / Gemini SDK',
       ownerId: users[2]?.id || users[0]?.id,
       health: 'healthy',
@@ -89,9 +93,9 @@ export const ArchitectureView: React.FC = () => {
     <div className="view-container architecture-view animate-fade-in">
       <div className="view-header-row">
         <div>
-          <h1 className="view-title">📐 System Architecture & Subsystems Visualizer</h1>
+          <h1 className="view-title">📐 {t('architectureTitle')}</h1>
           <p className="view-subtitle">
-            Live microservice dependency mapping & component health diagnostics for [{currentProject.key}]
+            {t('architectureSubtitle')} [{currentProject.key}]
           </p>
         </div>
       </div>
@@ -109,15 +113,15 @@ export const ArchitectureView: React.FC = () => {
               <div className="arch-node-header">
                 <span className="arch-node-name">{node.name}</span>
                 <span className={`arch-health-badge ${node.health}`}>
-                  {node.health === 'healthy' ? '🟢 Healthy' : node.health === 'warning' ? '🟡 Heavy Load' : '🔴 Degraded'}
+                  {node.health === 'healthy' ? `🟢 ${t('healthy')}` : node.health === 'warning' ? `🟡 ${t('heavyLoad')}` : `🔴 ${t('degraded')}`}
                 </span>
               </div>
 
               <div className="arch-node-tech">{node.tech}</div>
 
               <div className="arch-node-stats">
-                <span>Issues: <strong>{node.linkedIssues.length}</strong></span>
-                <span>Workload: <strong>{node.totalSp} SP</strong></span>
+                <span>{t('issues')}: <strong>{node.linkedIssues.length}</strong></span>
+                <span>{t('workload')}: <strong>{node.totalSp} {t('pointsShort')}</strong></span>
               </div>
 
               <div className="arch-node-footer">
@@ -126,7 +130,7 @@ export const ArchitectureView: React.FC = () => {
                   <span>{node.owner?.name}</span>
                 </div>
                 <span className="arch-click-hint">
-                  {isSelected ? 'Viewing Linked Issues' : 'Click to Filter'}
+                  {isSelected ? t('viewingLinkedIssues') : t('clickToFilter')}
                 </span>
               </div>
             </div>
@@ -138,11 +142,10 @@ export const ArchitectureView: React.FC = () => {
       <div className="arch-ai-banner">
         <div className="arch-ai-header">
           <IconZap size={18} color="#6366f1" />
-          <span>🤖 AI Subsystem Coupling & Risk Diagnostics</span>
+          <span>🤖 {t('archAiDiagnostics')}</span>
         </div>
         <p className="arch-ai-text">
-          Database & Cache Cluster currently has 1 degraded dependency risk due to query locks.
-          Frontend UI & AI Inference Engine maintain optimal decoupled contract isolation.
+          {t('archAiDescription')}
         </p>
       </div>
 
@@ -150,10 +153,10 @@ export const ArchitectureView: React.FC = () => {
       <div className="arch-issues-section">
         <div className="arch-issues-header">
           <h3>
-            📋 Linked Subsystem Issues ({filteredIssues.length})
+            📋 {t('linkedSubsystemIssues')} ({filteredIssues.length})
             {selectedSubsystem && (
               <span className="filter-tag">
-                Filtered by: {subsystemNodes.find((n) => n.id === selectedSubsystem)?.name}
+                {t('filteredBy')}: {subsystemNodes.find((n) => n.id === selectedSubsystem)?.name}
                 <button onClick={() => setSelectedSubsystem(null)} className="clear-filter">✕</button>
               </span>
             )}
@@ -164,13 +167,13 @@ export const ArchitectureView: React.FC = () => {
           <table className="arch-table">
             <thead>
               <tr>
-                <th>Key</th>
-                <th>Summary</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Assignee</th>
-                <th>Points</th>
+                <th>{t('issueKey')}</th>
+                <th>{t('summary')}</th>
+                <th>{t('issueType')}</th>
+                <th>{t('status')}</th>
+                <th>{t('priority')}</th>
+                <th>{t('assignee')}</th>
+                <th>{t('storyPoints')}</th>
               </tr>
             </thead>
             <tbody>
@@ -182,17 +185,17 @@ export const ArchitectureView: React.FC = () => {
                     <td className="font-semibold">{issue.summary}</td>
                     <td>
                       <span className={`issue-type-badge ${issue.type}`}>
-                        {issue.type.toUpperCase()}
+                        {typeLabels[issue.type] || issue.type}
                       </span>
                     </td>
                     <td>
                       <span className={`status-badge-sm ${issue.status}`}>
-                        {issue.status.toUpperCase()}
+                        {t(issue.status)}
                       </span>
                     </td>
                     <td>
                       <span className={`priority-pill-sm ${issue.priority}`}>
-                        {issue.priority.toUpperCase()}
+                        {t(`priority${issue.priority.charAt(0).toUpperCase()}${issue.priority.slice(1)}`)}
                       </span>
                     </td>
                     <td>
@@ -205,7 +208,7 @@ export const ArchitectureView: React.FC = () => {
                         <span className="text-tertiary">Unassigned</span>
                       )}
                     </td>
-                    <td className="font-bold">{issue.storyPoints || 1} SP</td>
+                    <td className="font-bold">{issue.storyPoints || 1} {t('pointsShort')}</td>
                   </tr>
                 );
               })}

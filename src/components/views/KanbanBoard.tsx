@@ -290,21 +290,25 @@ export const KanbanBoard: React.FC = () => {
       {/* Tag Filter Pills Bar */}
       <div className="tag-filter-pills-bar">
         <span className="filter-label">{t('filterByTag')}</span>
-        <button
-          className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
-          onClick={() => setSelectedLabel(null)}
-        >
-          {t('groupNone')}
-        </button>
-        {allLabels.map(lbl => (
+        <div className="tag-filter-list">
           <button
-            key={lbl}
-            className={`tag-pill ${selectedLabel === lbl ? 'active' : ''}`}
-            onClick={() => setSelectedLabel(selectedLabel === lbl ? null : lbl)}
+            className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
+            onClick={() => setSelectedLabel(null)}
+            aria-pressed={selectedLabel === null}
           >
-            #{lbl}
+            {t('groupNone')}
           </button>
-        ))}
+          {allLabels.map(lbl => (
+            <button
+              key={lbl}
+              className={`tag-pill ${selectedLabel === lbl ? 'active' : ''}`}
+              onClick={() => setSelectedLabel(selectedLabel === lbl ? null : lbl)}
+              aria-pressed={selectedLabel === lbl}
+            >
+              #{lbl}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Board Columns Grid */}

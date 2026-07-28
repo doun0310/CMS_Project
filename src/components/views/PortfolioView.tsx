@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { IconZap } from '../common/Icons';
 
 export const PortfolioView: React.FC = () => {
-  const { users, setCurrentProject, setViewMode } = useAether();
+  const { users, setCurrentProject, setViewMode, t } = useAether();
 
   const portfolioProjects = [
     {
@@ -12,9 +12,8 @@ export const PortfolioView: React.FC = () => {
       name: 'Aether Pulse Core',
       category: 'Software Architecture',
       avatar: '⚡',
-      lead: users[0]?.name || 'Lead Architect',
+      lead: users[0]?.name || t('leadArchitect'),
       status: 'on_track',
-      statusLabel: '🟢 On Track',
       completionPct: 85,
       activeIssues: 14,
       totalSp: 42,
@@ -26,9 +25,8 @@ export const PortfolioView: React.FC = () => {
       name: 'Apex Mobile Client',
       category: 'Mobile iOS / Android',
       avatar: '📱',
-      lead: users[1]?.name || 'Mobile Engineer',
+      lead: users[1]?.name || t('mobileEngineer'),
       status: 'warning',
-      statusLabel: '🟡 High Scope Addition',
       completionPct: 62,
       activeIssues: 22,
       totalSp: 68,
@@ -40,9 +38,8 @@ export const PortfolioView: React.FC = () => {
       name: 'Titan Infra & DB Cluster',
       category: 'DevOps & Database',
       avatar: '🛡️',
-      lead: users[2]?.name || 'DevOps Lead',
+      lead: users[2]?.name || t('devopsLead'),
       status: 'degraded',
-      statusLabel: '🔴 SLA Breached',
       completionPct: 40,
       activeIssues: 18,
       totalSp: 54,
@@ -54,9 +51,8 @@ export const PortfolioView: React.FC = () => {
       name: 'Cypher AI Engine',
       category: 'AI / Machine Learning',
       avatar: '🤖',
-      lead: users[0]?.name || 'AI Specialist',
+      lead: users[0]?.name || t('aiSpecialist'),
       status: 'on_track',
-      statusLabel: '🟢 On Track',
       completionPct: 92,
       activeIssues: 8,
       totalSp: 26,
@@ -95,7 +91,7 @@ export const PortfolioView: React.FC = () => {
       name: proj.name,
       category: proj.category,
       avatar: proj.avatar,
-      description: `Active portfolio project ${proj.name}`,
+      description: `${t('portfolioProjectDescription')} ${proj.name}`,
     });
     setViewMode('board');
   };
@@ -104,9 +100,9 @@ export const PortfolioView: React.FC = () => {
     <div className="portfolio-view animate-fade-in">
       <div className="view-header-row">
         <div>
-          <h1 className="view-title">💼 AI Executive Portfolio & Multi-Project Analytics</h1>
+          <h1 className="view-title">💼 {t('portfolioTitle')}</h1>
           <p className="view-subtitle">
-            Cross-workspace executive overview, project health indicators & global resource allocations
+            {t('portfolioSubtitle')}
           </p>
         </div>
       </div>
@@ -115,12 +111,10 @@ export const PortfolioView: React.FC = () => {
       <div className="portfolio-ai-card">
         <div className="ai-card-title">
           <IconZap size={18} color="#6366f1" />
-          <span>🤖 AI Executive Portfolio Digest</span>
+          <span>🤖 {t('portfolioAiDigest')}</span>
         </div>
         <p className="ai-card-text">
-          Portfolio velocity is tracking at <strong>102 SP/sprint</strong> across 4 active workspaces.
-          <strong>Titan Infra & DB Cluster</strong> requires executive escalation due to 2 SLA-breached blocker tickets.
-          Resource allocation heatmap detects 2 engineers overallocated across multi-project bounds.
+          {t('portfolioAiDescription')}
         </p>
       </div>
 
@@ -135,21 +129,21 @@ export const PortfolioView: React.FC = () => {
                 <span className="proj-key font-mono">[{proj.key}]</span>
               </div>
               <span className={`proj-status-badge ${proj.status}`}>
-                {proj.statusLabel}
+                {proj.status === 'on_track' ? `🟢 ${t('onTrack')}` : proj.status === 'warning' ? `🟡 ${t('scopeChange')}` : `🔴 ${t('slaBreached')}`}
               </span>
             </div>
 
             <div className="proj-stats-row">
               <div className="stat-item">
-                <span className="stat-label">Velocity</span>
-                <span className="stat-val">{proj.velocity} SP</span>
+                <span className="stat-label">{t('velocity')}</span>
+                <span className="stat-val">{proj.velocity} {t('pointsShort')}</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">Active Issues</span>
+                <span className="stat-label">{t('activeIssues')}</span>
                 <span className="stat-val">{proj.activeIssues}</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">Completion</span>
+                <span className="stat-label">{t('completion')}</span>
                 <span className="stat-val">{proj.completionPct}%</span>
               </div>
             </div>
@@ -159,9 +153,9 @@ export const PortfolioView: React.FC = () => {
             </div>
 
             <div className="proj-card-bottom">
-              <span className="proj-lead">Lead: {proj.lead}</span>
+              <span className="proj-lead">{t('lead')}: {proj.lead}</span>
               <button className="btn-switch-workspace" onClick={() => handleSelectProject(proj)}>
-                Switch Workspace ➔
+                {t('switchWorkspace')} ➔
               </button>
             </div>
           </div>
@@ -170,7 +164,7 @@ export const PortfolioView: React.FC = () => {
 
       {/* Global Resource Allocation Heatmap */}
       <div className="resource-allocation-section">
-        <h3>👥 Global Cross-Project Engineer Resource Heatmap</h3>
+        <h3>👥 {t('resourceHeatmap')}</h3>
 
         <div className="allocation-grid">
           {teamAllocations.map((alloc, idx) => (
@@ -182,7 +176,7 @@ export const PortfolioView: React.FC = () => {
                   <div className="alloc-projects">{alloc.assignedProjects.join(', ')}</div>
                 </div>
                 <span className={`alloc-badge ${alloc.status}`}>
-                  {alloc.status === 'overallocated' ? '🔴 Overallocated' : '🟢 Optimal'}
+                  {alloc.status === 'overallocated' ? `🔴 ${t('overallocated')}` : `🟢 ${t('optimal')}`}
                 </span>
               </div>
 
@@ -194,7 +188,7 @@ export const PortfolioView: React.FC = () => {
               </div>
 
               <div className="alloc-footer font-mono">
-                Workload: {alloc.totalSp} / {alloc.maxCap} SP ({Math.round((alloc.totalSp / alloc.maxCap) * 100)}%)
+                {t('workload')}: {alloc.totalSp} / {alloc.maxCap} {t('pointsShort')} ({Math.round((alloc.totalSp / alloc.maxCap) * 100)}%)
               </div>
             </div>
           ))}

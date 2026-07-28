@@ -335,18 +335,17 @@
 .header-center {
   display: flex;
   align-items: center;
-  align-content: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
-  flex: 1 1 420px;
-  max-width: 760px;
+  flex: 1 1 480px;
+  max-width: 820px;
   min-width: 180px;
 }
 
 .search-bar {
   position: relative;
-  flex: 1 1 220px;
-  min-width: 160px;
+  flex: 0 1 280px;
+  min-width: 190px;
   display: flex;
   align-items: center;
 }
@@ -356,7 +355,7 @@
   padding: 8px 12px 8px 34px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--text-header);
   font-size: 0.82rem;
   outline: none;
@@ -391,12 +390,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   min-width: 0;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 2px;
+  padding: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -3818,6 +3817,7 @@ input:checked + .slider:before {
     flex: 1 0 100%;
     max-width: none;
     min-width: 0;
+    flex-wrap: wrap;
   }
   .search-bar {
     flex-basis: 100%;
@@ -4115,10 +4115,12 @@ input:checked + .slider:before {
 .tag-filter-pills-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   margin-bottom: 12px;
-  overflow-x: auto;
-  padding: 4px 2px 8px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
 }
 
 .filter-label {
@@ -4127,7 +4129,20 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+}
+
+.tag-filter-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tag-filter-list::-webkit-scrollbar {
+  display: none;
 }
 
 .tag-pill {
@@ -4136,10 +4151,11 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   font-size: 0.7rem;
   font-weight: 600;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 0 auto;
   transition: all 0.15s ease;
 }
 .tag-pill:hover {

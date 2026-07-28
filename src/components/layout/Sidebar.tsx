@@ -66,17 +66,17 @@ export const Sidebar: React.FC = () => {
     },
     {
       id: 'architecture',
-      label: 'Architecture',
+      label: t('architecture'),
       icon: <span>📐</span>,
     },
     {
       id: 'portfolio',
-      label: 'Portfolio',
+      label: t('portfolio'),
       icon: <span>💼</span>,
     },
     {
       id: 'retro-kanban',
-      label: 'Retro Action Kanban',
+      label: t('retroKanban'),
       icon: <span>📌</span>,
     },
     {
@@ -118,7 +118,7 @@ export const Sidebar: React.FC = () => {
         <div className="sidebar-sprint-widget">
           <div className="widget-header">
             <span className="pulse-dot"></span>
-            <span className="widget-title">ACTIVE SPRINT</span>
+            <span className="widget-title">{t('activeSprint')}</span>
           </div>
           <div className="sprint-name">{activeSprint.name}</div>
           <div className="sprint-progress-bar">
@@ -138,8 +138,8 @@ export const Sidebar: React.FC = () => {
             ></div>
           </div>
           <div className="sprint-stats">
-            <span>{activeSprintIssues.filter(i => i.status === 'done').length}/{activeSprintIssues.length} done</span>
-            <span>{activeSprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0)} pts</span>
+            <span>{activeSprintIssues.filter(i => i.status === 'done').length}/{activeSprintIssues.length} {t('done')}</span>
+            <span>{activeSprintIssues.reduce((acc, curr) => acc + (curr.storyPoints || 0), 0)} {t('pointsShort')}</span>
           </div>
         </div>
       )}
