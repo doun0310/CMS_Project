@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconZap } from '../common/Icons';
+import { IconAiSpark, IconArchitecture } from '../common/Icons';
 
 export const ArchitectureView: React.FC = () => {
   const { issues, users, currentProject, t } = useAether();
@@ -93,7 +93,7 @@ export const ArchitectureView: React.FC = () => {
     <div className="view-container architecture-view animate-fade-in">
       <div className="view-header-row">
         <div>
-          <h1 className="view-title">📐 {t('architectureTitle')}</h1>
+          <h1 className="view-title view-title-with-icon"><IconArchitecture size={20} /> {t('architectureTitle')}</h1>
           <p className="view-subtitle">
             {t('architectureSubtitle')} [{currentProject.key}]
           </p>
@@ -141,8 +141,8 @@ export const ArchitectureView: React.FC = () => {
       {/* AI Architecture Health Audit Banner */}
       <div className="arch-ai-banner">
         <div className="arch-ai-header">
-          <IconZap size={18} color="#6366f1" />
-          <span>🤖 {t('archAiDiagnostics')}</span>
+          <IconAiSpark size={18} color="var(--color-in-progress, #6366f1)" />
+          <span>{t('archAiDiagnostics')}</span>
         </div>
         <p className="arch-ai-text">
           {t('archAiDescription')}
@@ -153,7 +153,7 @@ export const ArchitectureView: React.FC = () => {
       <div className="arch-issues-section">
         <div className="arch-issues-header">
           <h3>
-            📋 {t('linkedSubsystemIssues')} ({filteredIssues.length})
+            {t('linkedSubsystemIssues')} ({filteredIssues.length})
             {selectedSubsystem && (
               <span className="filter-tag">
                 {t('filteredBy')}: {subsystemNodes.find((n) => n.id === selectedSubsystem)?.name}

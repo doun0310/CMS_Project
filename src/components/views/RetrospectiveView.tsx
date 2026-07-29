@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { RetrospectiveItem, User } from '../../types/Aether';
-import { IconPlus, IconTrash, IconCheck } from '../common/Icons';
+import { IconAiSpark, IconCheck, IconPlus, IconRetro, IconRetroBoard, IconTarget, IconThumbUp, IconTrash } from '../common/Icons';
 
 export const RetrospectiveView: React.FC = () => {
   const { retrospectiveItems, addRetroItem, voteRetroItem, deleteRetroItem, createIssue, users, t } = useAether();
@@ -29,14 +29,14 @@ export const RetrospectiveView: React.FC = () => {
       labels: ['retro-action', 'team-improvement']
     });
     setConvertedIds(prev => ({ ...prev, [item.id]: newIssueKey }));
-    setNotification(`🎟️ ${t('convertToIssue')} [${newIssueKey}]: "${item.content.slice(0, 30)}..."`);
+    setNotification(`${t('convertToIssue')} [${newIssueKey}]: "${item.content.slice(0, 30)}..."`);
     setTimeout(() => setNotification(null), 4000);
   };
 
   const handleConvertAllActionItems = () => {
     const unconverted = actionItems.filter(item => !convertedIds[item.id]);
     unconverted.forEach(item => handleConvertToIssue(item));
-    setNotification(`⚡ ${t('convertAllBacklog')} ${unconverted.length} ${t('toBacklogTasks')}`);
+    setNotification(`${t('convertAllBacklog')} ${unconverted.length} ${t('toBacklogTasks')}`);
     setTimeout(() => setNotification(null), 4000);
   };
 
@@ -55,7 +55,7 @@ export const RetrospectiveView: React.FC = () => {
     title: string,
     type: 'went_well' | 'to_improve' | 'action_item',
     badgeClass: string,
-    emoji: string
+    icon: React.ReactNode
   ) => {
     const items = retrospectiveItems
       .filter((i: RetrospectiveItem) => i.type === type)
@@ -64,7 +64,7 @@ export const RetrospectiveView: React.FC = () => {
     return (
       <div className="retro-column">
         <div className={`retro-column-header ${badgeClass}`}>
-          <span>{emoji} {title}</span>
+          <span className="retro-column-title">{icon} {title}</span>
           <span className="retro-count-badge">{items.length}</span>
         </div>
 
@@ -109,7 +109,7 @@ export const RetrospectiveView: React.FC = () => {
                             <IconCheck size={12} /> {linkedKey}
                           </>
                         ) : (
-                          `🎟️ + ${t('createIssue')}`
+                          <><IconPlus size={12} /> {t('createIssue')}</>
                         )}
                       </button>
                     )}
@@ -119,7 +119,7 @@ export const RetrospectiveView: React.FC = () => {
                       onClick={() => voteRetroItem(item.id)}
                       title={t('upvoteItem')}
                     >
-                      👍 {item.votes}
+                      <IconThumbUp size={12} /> {item.votes}
                     </button>
                     <button
                       className="btn-delete-retro"
@@ -142,7 +142,7 @@ export const RetrospectiveView: React.FC = () => {
     <div className="retrospective-view animate-fade-in">
       <div className="view-header-bar flex-between">
         <div>
-          <h2>🔄 {t('retrospectiveTitle')}</h2>
+          <h2 className="view-title-with-icon"><IconRetro size={20} /> {t('retrospectiveTitle')}</h2>
           <p className="subtext">{t('retrospectiveSubtitle')}</p>
         </div>
 
@@ -152,13 +152,13 @@ export const RetrospectiveView: React.FC = () => {
             className={`retro-tab-btn ${retroSubTab === 'board' ? 'active' : ''}`}
             onClick={() => setRetroSubTab('board')}
           >
-            📌 {t('retrospectiveBoard')}
+            <IconRetroBoard size={15} /> {t('retrospectiveBoard')}
           </button>
           <button
             className={`retro-tab-btn ${retroSubTab === 'actions' ? 'active' : ''}`}
             onClick={() => setRetroSubTab('actions')}
           >
-            🎯 {t('actionExecution')} ({convertedCount}/{actionItems.length})
+            <IconTarget size={15} /> {t('actionExecution')} ({convertedCount}/{actionItems.length})
           </button>
         </div>
       </div>
@@ -172,7 +172,7 @@ export const RetrospectiveView: React.FC = () => {
       {/* AI Retrospective Executive Summary Card */}
       <div className="ai-retro-summary-card animate-fade-in">
         <div className="summary-header">
-          <h3>🤖 {t('retroDigest')}</h3>
+          <h3 className="section-title-with-icon"><IconAiSpark size={17} /> {t('retroDigest')}</h3>
           <span className="sentiment-badge">{sentimentPct}% {t('positiveSentiment')}</span>
         </div>
         <div className="summary-grid">
@@ -196,16 +196,16 @@ export const RetrospectiveView: React.FC = () => {
 
       {retroSubTab === 'board' ? (
         <div className="retro-grid">
-          {renderColumn(t('wentWell'), 'went_well', 'badge-went-well', '🟢')}
-          {renderColumn(t('toImprove'), 'to_improve', 'badge-to-improve', '🟠')}
-          {renderColumn(t('actionItems'), 'action_item', 'badge-action-item', '🔵')}
+          {renderColumn(t('retroWentWell'), 'went_well', 'badge-went-well', <IconCheck size={16} />)}
+          {renderColumn(t('retroToImprove'), 'to_improve', 'badge-to-improve', <IconAiSpark size={16} />)}
+          {renderColumn(t('retroActionItems'), 'action_item', 'badge-action-item', <IconTarget size={16} />)}
         </div>
       ) : (
         /* Action Items Execution & Backlog Conversion Tracker */
         <div className="action-items-tracker-card animate-fade-in">
           <div className="tracker-header">
             <div>
-              <h3>🎯 {t('actionExecutionMatrix')}</h3>
+              <h3 className="section-title-with-icon"><IconTarget size={17} /> {t('actionExecutionMatrix')}</h3>
               <p className="subtext">{t('actionExecutionSubtitle')}</p>
             </div>
             <button
@@ -213,7 +213,7 @@ export const RetrospectiveView: React.FC = () => {
               onClick={handleConvertAllActionItems}
               disabled={actionItems.length === 0 || convertedCount === actionItems.length}
             >
-              ⚡ {t('convertAllBacklog')} ({actionItems.length - convertedCount}) {t('toBacklogTasks')}
+              <IconTarget size={14} /> {t('convertAllBacklog')} ({actionItems.length - convertedCount}) {t('toBacklogTasks')}
             </button>
           </div>
 
@@ -241,7 +241,7 @@ export const RetrospectiveView: React.FC = () => {
                     return (
                       <tr key={item.id}>
                         <td className="font-semibold">{item.content}</td>
-                        <td><span className="vote-chip">👍 {item.votes}</span></td>
+                        <td><span className="vote-chip"><IconThumbUp size={12} /> {item.votes}</span></td>
                         <td>
                           {author ? (
                             <div className="user-info-flex">
@@ -254,9 +254,9 @@ export const RetrospectiveView: React.FC = () => {
                         </td>
                         <td>
                           {linkedKey ? (
-                            <span className="status-converted">✅ {t('convertedToTicket')}</span>
+                            <span className="status-converted"><IconCheck size={12} /> {t('convertedToTicket')}</span>
                           ) : (
-                            <span className="status-pending">⏳ {t('pendingConversion')}</span>
+                            <span className="status-pending">{t('pendingConversion')}</span>
                           )}
                         </td>
                         <td className="font-mono font-bold">{linkedKey || '-'}</td>
@@ -266,7 +266,7 @@ export const RetrospectiveView: React.FC = () => {
                               className="btn-primary-sm"
                               onClick={() => handleConvertToIssue(item)}
                             >
-                              🎟️ {t('convertToIssue')}
+                              <><IconPlus size={14} /> {t('convertToIssue')}</>
                             </button>
                           ) : (
                             <span className="text-tertiary">{t('completed')}</span>

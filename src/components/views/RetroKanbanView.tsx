@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconCheckCircle, IconPlus } from '../common/Icons';
+import { IconCheckCircle, IconPlus, IconRetroBoard } from '../common/Icons';
 import type { RetrospectiveItem } from '../../types/Aether';
 
 export const RetroKanbanView: React.FC = () => {
@@ -43,7 +43,7 @@ export const RetroKanbanView: React.FC = () => {
       <div className="retro-kanban-header">
         <div className="header-info">
           <div className="flex-align-gap">
-            <span className="retro-k-icon">📌</span>
+            <span className="retro-k-icon"><IconRetroBoard size={22} /></span>
             <div>
               <h2>{t('retroKanbanTitle')}</h2>
               <p className="subtitle-text">
@@ -95,7 +95,7 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 1: Identified Actions */}
         <div className="retro-k-col identified">
           <div className="k-col-header">
-            <span>📌 {t('identifiedActionItems')}</span>
+            <span>{t('identifiedActionItems')}</span>
             <span className="k-count-chip">{actionCards.length}</span>
           </div>
           <div className="k-col-cards">
@@ -131,7 +131,7 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 2: In Progress Fixes */}
         <div className="retro-k-col in-progress">
           <div className="k-col-header">
-            <span>⚡ {t('inProgressFixes')}</span>
+            <span>{t('inProgressFixes')}</span>
             <span className="k-count-chip">2</span>
           </div>
           <div className="k-col-cards">
@@ -162,7 +162,7 @@ export const RetroKanbanView: React.FC = () => {
         {/* Column 3: Verified & Resolved */}
         <div className="retro-k-col resolved">
           <div className="k-col-header">
-            <span>✅ {t('verifiedResolved')}</span>
+            <span>{t('verifiedResolved')}</span>
             <span className="k-count-chip">3</span>
           </div>
           <div className="k-col-cards">

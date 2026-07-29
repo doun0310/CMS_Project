@@ -260,6 +260,9 @@ export const translations: Record<Language, Record<string, string>> = {
     retrospectiveTitle: 'Active Sprint Retrospective',
     retrospectiveSubtitle: 'Reflect on sprint progress, highlight wins, diagnose bottlenecks, and commit to action items.',
     retrospectiveBoard: 'Retrospective Board',
+    retroWentWell: 'Went Well',
+    retroToImprove: 'To Improve',
+    retroActionItems: 'Action Items',
     actionExecution: 'Action Item Execution',
     teamMember: 'Team Member',
     convertActionToBacklog: 'Convert action item to Backlog Task',
@@ -601,6 +604,9 @@ export const translations: Record<Language, Record<string, string>> = {
     retrospectiveTitle: '활성 스프린트 회고',
     retrospectiveSubtitle: '스프린트 진행을 돌아보고, 잘된 점과 병목을 정리하고, 실행 과제를 확정합니다.',
     retrospectiveBoard: '회고 보드',
+    retroWentWell: '잘한 점',
+    retroToImprove: '개선할 점',
+    retroActionItems: '실행 과제',
     actionExecution: '실행 과제 추적',
     teamMember: '팀원',
     convertActionToBacklog: '액션 아이템을 백로그 작업으로 전환',
@@ -820,6 +826,9 @@ export const translations: Record<Language, Record<string, string>> = {
     wentWell: '🟢 良かった点 (Went Well)',
     toImprove: '🟠 改善すべき点 (To Improve)',
     actionItems: '🔵 アクションアイテム (Action Items)',
+    retroWentWell: '良かった点',
+    retroToImprove: '改善点',
+    retroActionItems: 'アクション項目',
     addToColumn: 'アイテムを追加...',
 
     // Settings
@@ -1061,6 +1070,9 @@ export const translations: Record<Language, Record<string, string>> = {
     wentWell: '🟢 做得好的地方 (Went Well)',
     toImprove: '🟠 需要改进的地方 (To Improve)',
     actionItems: '🔵 行动项 (Action Items)',
+    retroWentWell: '做得好的地方',
+    retroToImprove: '需要改进的地方',
+    retroActionItems: '行动项',
     addToColumn: '添加记录...',
 
     // Settings

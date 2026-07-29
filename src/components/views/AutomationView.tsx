@@ -48,7 +48,7 @@ export const AutomationView: React.FC = () => {
     <div className="automation-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>⚡ {t('automationTitle')}</h2>
+          <h2 className="view-title-with-icon"><IconAutomation size={20} /> {t('automationTitle')}</h2>
           <p className="subtext">{t('automationSubtitle')}</p>
         </div>
         <button className="btn-primary" onClick={() => setIsCreatingRule(!isCreatingRule)}>

@@ -779,6 +779,29 @@
   font-weight: 800;
   letter-spacing: -0.03em;
 }
+
+.view-title-with-icon,
+.section-title-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-title-with-icon {
+  color: var(--text-primary);
+}
+
+.view-title-with-icon svg,
+.section-title-with-icon svg,
+.retro-k-icon svg {
+  color: var(--color-in-progress, #6366f1);
+  flex: 0 0 auto;
+}
+
+.section-title-with-icon {
+  margin: 0;
+  font-size: inherit;
+}
 .view-subtitle {
   margin-top: 4px;
   font-size: 0.82rem;
@@ -2625,6 +2648,7 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 /* AI Retrospective Executive Summary Card */
@@ -2640,6 +2664,7 @@ input:checked + .slider:before {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  gap: 10px;
 }
 
 .summary-header h3 {
@@ -2659,7 +2684,7 @@ input:checked + .slider:before {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -2668,6 +2693,7 @@ input:checked + .slider:before {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
+  min-width: 0;
 }
 
 .s-label {
@@ -2718,7 +2744,7 @@ input:checked + .slider:before {
 
 .retro-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -2731,6 +2757,7 @@ input:checked + .slider:before {
   flex-direction: column;
   gap: 12px;
   min-height: 500px;
+  min-width: 0;
 }
 
 .retro-column-header {
@@ -2741,6 +2768,22 @@ input:checked + .slider:before {
   font-size: 0.95rem;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
+}
+
+.retro-column-title,
+.retro-tab-btn,
+.summary-header h3,
+.tracker-header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.retro-column-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .badge-went-well { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
@@ -2761,6 +2804,7 @@ input:checked + .slider:before {
 
 .retro-input-box input {
   flex: 1;
+  min-width: 0;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -2801,12 +2845,14 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 .retro-card-body {
   font-size: 0.88rem;
   color: var(--text-primary);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .retro-card-footer {
@@ -2815,6 +2861,8 @@ input:checked + .slider:before {
   align-items: center;
   font-size: 0.75rem;
   color: var(--text-secondary);
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn-vote {
@@ -2829,6 +2877,14 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.retro-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 .btn-vote:hover {
   background: var(--bg-hover);
@@ -6772,6 +6828,7 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .tracker-header {
@@ -6779,6 +6836,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .tracker-header h3 {
@@ -6799,6 +6857,7 @@ input:checked + .slider:before {
   border-collapse: collapse;
   font-size: 0.8rem;
   text-align: left;
+  min-width: 620px;
 }
 
 .action-items-table th {
@@ -6834,6 +6893,9 @@ input:checked + .slider:before {
   color: #22c55e;
   font-weight: 700;
   font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-pending {

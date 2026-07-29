@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue, Sprint, User } from '../../types/Aether';
-import { IconDownload } from '../common/Icons';
+import { IconAiSpark, IconAnalytics, IconDownload } from '../common/Icons';
 import { SprintRiskMatrixCard } from '../common/SprintRiskMatrixCard';
 import { TeamHealthPulseCard } from '../common/TeamHealthPulseCard';
 import { SlaAnalyticsCard } from '../common/SlaAnalyticsCard';
@@ -85,7 +85,7 @@ export const ReportsView: React.FC = () => {
     <div className="reports-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>📊 {t('sprintAnalytics')}</h2>
+          <h2 className="view-title-with-icon"><IconAnalytics size={20} /> {t('sprintAnalytics')}</h2>
           <p className="subtext">
             {t('sprintAnalyticsSubtitle')}
           </p>
@@ -135,7 +135,7 @@ export const ReportsView: React.FC = () => {
 
       <div className="ai-forecast-card animate-fade-in">
         <div className="forecast-header">
-          <h3>🤖 {t('forecastTitle')}</h3>
+          <h3 className="section-title-with-icon"><IconAiSpark size={17} /> {t('forecastTitle')}</h3>
           <span className="ai-forecast-badge">{t('predictiveAccuracy')} 94%</span>
         </div>
         <div className="forecast-grid">

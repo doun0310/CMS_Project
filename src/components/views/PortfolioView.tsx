@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconZap } from '../common/Icons';
+import { IconAiSpark, IconPortfolio, IconUsers } from '../common/Icons';
 
 export const PortfolioView: React.FC = () => {
   const { users, setCurrentProject, setViewMode, t } = useAether();
@@ -100,7 +100,7 @@ export const PortfolioView: React.FC = () => {
     <div className="portfolio-view animate-fade-in">
       <div className="view-header-row">
         <div>
-          <h1 className="view-title">💼 {t('portfolioTitle')}</h1>
+          <h1 className="view-title view-title-with-icon"><IconPortfolio size={20} /> {t('portfolioTitle')}</h1>
           <p className="view-subtitle">
             {t('portfolioSubtitle')}
           </p>
@@ -110,8 +110,8 @@ export const PortfolioView: React.FC = () => {
       {/* AI Portfolio Executive Digest Banner */}
       <div className="portfolio-ai-card">
         <div className="ai-card-title">
-          <IconZap size={18} color="#6366f1" />
-          <span>🤖 {t('portfolioAiDigest')}</span>
+          <IconAiSpark size={18} color="var(--color-in-progress, #6366f1)" />
+          <span>{t('portfolioAiDigest')}</span>
         </div>
         <p className="ai-card-text">
           {t('portfolioAiDescription')}
@@ -164,7 +164,7 @@ export const PortfolioView: React.FC = () => {
 
       {/* Global Resource Allocation Heatmap */}
       <div className="resource-allocation-section">
-        <h3>👥 {t('resourceHeatmap')}</h3>
+        <h3 className="section-title-with-icon"><IconUsers size={17} /> {t('resourceHeatmap')}</h3>
 
         <div className="allocation-grid">
           {teamAllocations.map((alloc, idx) => (

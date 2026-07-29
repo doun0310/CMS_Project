@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue } from '../../types/Aether';
-import { IconEpic, IconChevronRight, IconChevronDown } from '../common/Icons';
+import { IconEpic, IconChevronRight, IconChevronDown, IconRoadmap } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
   const { epics, issues, setSelectedIssueId, t, language } = useAether();
@@ -41,7 +41,7 @@ export const RoadmapView: React.FC = () => {
     <div className="roadmap-view animate-fade-in">
       <div className="view-header-bar flex-between">
         <div>
-          <h2>🗺️ {t('roadmapTitle')}</h2>
+          <h2 className="view-title-with-icon"><IconRoadmap size={20} /> {t('roadmapTitle')}</h2>
           <p className="subtext">
             {t('roadmapSubtitle')}
           </p>
@@ -53,16 +53,16 @@ export const RoadmapView: React.FC = () => {
             onClick={() => setCriticalPathOnly(!criticalPathOnly)}
             title={t('criticalPathTitle')}
           >
-            🔴 {criticalPathOnly ? t('criticalPathOn') : t('highlightCriticalPath')}
+            {criticalPathOnly ? t('criticalPathOn') : t('highlightCriticalPath')}
           </button>
           <select
             value={selectedMilestone}
             onChange={(e) => setSelectedMilestone(e.target.value)}
             className="milestone-select"
           >
-            <option value="all">🚩 {t('allReleaseMilestones')}</option>
-            <option value="m1">🚩 {t('milestoneBeta')}</option>
-            <option value="m2">🚩 {t('milestoneGa')}</option>
+            <option value="all">{t('allReleaseMilestones')}</option>
+            <option value="m1">{t('milestoneBeta')}</option>
+            <option value="m2">{t('milestoneGa')}</option>
           </select>
         </div>
       </div>
@@ -144,10 +144,10 @@ export const RoadmapView: React.FC = () => {
             {/* Milestone Vertical Flags Overlay */}
             <div className="gantt-milestones-overlay">
               <div className="milestone-line m1" style={{ left: '25%' }} title={t('milestoneBeta')}>
-                <span className="milestone-flag">🚩 {t('milestoneBetaShort')}</span>
+                <span className="milestone-flag">{t('milestoneBetaShort')}</span>
               </div>
               <div className="milestone-line m2" style={{ left: '75%' }} title={t('milestoneGa')}>
-                <span className="milestone-flag">🚩 {t('milestoneGaShort')}</span>
+                <span className="milestone-flag">{t('milestoneGaShort')}</span>
               </div>
             </div>
 
@@ -176,7 +176,7 @@ export const RoadmapView: React.FC = () => {
                       title={`${epic.summary}: ${pointsPct}% ${t('completed').toLowerCase()} (${donePoints}/${totalPoints} ${t('pointsShort')})`}
                     >
                       <span className="bar-label">
-                        {isCritical && `🔴 ${t('critical')}: `}
+                        {isCritical && `${t('critical')}: `}
                         {epic.summary} ({pointsPct}% {t('completed')})
                       </span>
                       <div className="bar-progress" style={{ width: `${pointsPct}%` }}></div>

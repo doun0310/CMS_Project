@@ -8,7 +8,11 @@ import {
   IconReports,
   IconAutomation,
   IconRetro,
-  IconSettings
+  IconSettings,
+  IconMyWork,
+  IconArchitecture,
+  IconPortfolio,
+  IconRetroBoard
 } from '../common/Icons';
 
 interface NavItem {
@@ -29,7 +33,7 @@ export const Sidebar: React.FC = () => {
     {
       id: 'my-work',
       label: t('myWork'),
-      icon: <span>✓</span>
+      icon: <IconMyWork size={18} />
     },
     {
       id: 'board',
@@ -67,17 +71,17 @@ export const Sidebar: React.FC = () => {
     {
       id: 'architecture',
       label: t('architecture'),
-      icon: <span>📐</span>,
+      icon: <IconArchitecture size={18} />,
     },
     {
       id: 'portfolio',
       label: t('portfolio'),
-      icon: <span>💼</span>,
+      icon: <IconPortfolio size={18} />,
     },
     {
       id: 'retro-kanban',
       label: t('retroKanban'),
-      icon: <span>📌</span>,
+      icon: <IconRetroBoard size={18} />,
     },
     {
       id: 'settings',

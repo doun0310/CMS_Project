@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconReset, IconCheck } from '../common/Icons';
+import { IconDownload, IconReset, IconCheck, IconSettings } from '../common/Icons';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -56,7 +56,7 @@ export const SettingsView: React.FC = () => {
     <div className="settings-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2>⚙️ {t('settings')}</h2>
+          <h2 className="view-title-with-icon"><IconSettings size={20} /> {t('settings')}</h2>
           <p className="subtext">{t('settingsSubtitle')}</p>
         </div>
       </div>
