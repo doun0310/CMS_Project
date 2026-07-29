@@ -59,6 +59,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: 'Search issues (Press Cmd+K)...',
     createIssue: 'Create Issue',
+    addEpic: 'Add Epic', epicName: 'Epic name',
     aiCopilot: 'Aether AI Copilot',
     standup: 'Standup',
     release: 'Release',
@@ -193,6 +194,7 @@ export const translations: Record<Language, Record<string, string>> = {
     storyPoints: 'Story Points',
     dueDate: 'Due Date',
     timeTracking: 'Time Tracking',
+    originalEstimate: 'Original estimate', timeLogged: 'Time logged', logged: 'logged', used: 'used', remaining: 'remaining', auditHistory: 'Audit history', noAuditHistory: 'No audit history recorded yet.', mention: 'Mention',
     comments: 'Comments',
     subtasks: 'Sub-tasks',
     addComment: 'Add a comment...',
@@ -407,6 +409,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '이슈 검색 (Cmd+K)...',
     createIssue: '이슈 생성',
+    addEpic: '에픽 추가', epicName: '에픽 이름',
     aiCopilot: 'Aether AI 코파일럿',
     standup: '스탠드업',
     release: '릴리즈',
@@ -541,6 +544,7 @@ export const translations: Record<Language, Record<string, string>> = {
     storyPoints: '스토리 포인트',
     dueDate: '마감일',
     timeTracking: '시간 추적',
+    originalEstimate: '최초 예상 시간', timeLogged: '기록 시간', logged: '기록됨', used: '사용', remaining: '남음', auditHistory: '변경 이력', noAuditHistory: '아직 기록된 변경 이력이 없습니다.', mention: '멘션',
     comments: '댓글 목록',
     subtasks: '서브태스크',
     addComment: '댓글 작성...',
@@ -745,6 +749,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '課題を検索 (Cmd+K)...',
     createIssue: '課題を作成',
+    addEpic: 'エピックを追加', epicName: 'エピック名',
     aiCopilot: 'Aether AIコパイロット',
     standup: 'スタンドアップ',
     release: 'リリース',
@@ -882,6 +887,7 @@ export const translations: Record<Language, Record<string, string>> = {
     storyPoints: 'ストーリーポイント',
     dueDate: '期限',
     timeTracking: '時間トラッキング',
+    originalEstimate: '当初見積もり', timeLogged: '記録時間', logged: '記録済み', used: '使用', remaining: '残り', auditHistory: '変更履歴', noAuditHistory: '変更履歴はまだありません。', mention: 'メンション',
     comments: 'コメント',
     subtasks: 'サブタスク',
     addComment: 'コメントを入力...',
@@ -993,6 +999,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '搜索事项 (Cmd+K)...',
     createIssue: '新建事项',
+    addEpic: '添加史诗', epicName: '史诗名称',
     aiCopilot: 'Aether AI 助手',
     standup: '站会',
     release: '发布',
@@ -1130,6 +1137,7 @@ export const translations: Record<Language, Record<string, string>> = {
     storyPoints: '故事点',
     dueDate: '到期日',
     timeTracking: '时间跟踪',
+    originalEstimate: '初始预估', timeLogged: '已记录时间', logged: '已记录', used: '已用', remaining: '剩余', auditHistory: '变更记录', noAuditHistory: '暂时没有变更记录。', mention: '提及',
     comments: '评论列表',
     subtasks: '子任务',
     addComment: '添加评论...',

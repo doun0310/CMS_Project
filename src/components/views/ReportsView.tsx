@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue, Sprint, User } from '../../types/Aether';
 import { IconAiSpark, IconAnalytics, IconDownload } from '../common/Icons';
@@ -8,7 +8,7 @@ import { SlaAnalyticsCard } from '../common/SlaAnalyticsCard';
 import { KnowledgeSiloCard } from '../common/KnowledgeSiloCard';
 
 export const ReportsView: React.FC = () => {
-  const { issues, sprints, users, t } = useAether();
+  const { issues, sprints, users, t, language } = useAether();
   const [selectedSprintId, setSelectedSprintId] = useState<string>(
     sprints.find((s: Sprint) => s.status === 'active')?.id || sprints[0]?.id || ''
   );
@@ -60,6 +60,67 @@ export const ReportsView: React.FC = () => {
   const totalBacklogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
   const estimatedSprintsNeeded = Math.ceil(totalBacklogPoints / historicalAvgVelocity);
   const completionPercentage = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0;
+
+  // Status changes are not stored as a separate event stream yet.  Use each completed
+  // issue's last update as the best available completion timestamp, so the chart always
+  // reflects this sprint's work instead of a decorative fixed data set.
+  const chartDates = useMemo(() => {
+    const start = activeSprint?.startDate ? new Date(`${activeSprint.startDate}T00:00:00`) : new Date();
+    const requestedEnd = activeSprint?.endDate ? new Date(`${activeSprint.endDate}T00:00:00`) : new Date();
+    const end = requestedEnd >= start ? requestedEnd : new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const checkpoints = 6;
+
+    return Array.from({ length: checkpoints }, (_, index) => {
+      const ratio = index / (checkpoints - 1);
+      return new Date(start.getTime() + (end.getTime() - start.getTime()) * ratio);
+    });
+  }, [activeSprint?.endDate, activeSprint?.startDate]);
+
+  const burndownSeries = useMemo(() => chartDates.map((date, index) => {
+    const completedByDate = sprintIssues
+      .filter(issue => issue.status === 'done' && new Date(issue.updatedAt || issue.createdAt) <= date)
+      .reduce((sum, issue) => sum + (issue.storyPoints || 0), 0);
+    const completed = index === chartDates.length - 1 ? donePoints : Math.min(donePoints, completedByDate);
+
+    return {
+      date,
+      actual: Math.max(0, totalPoints - completed),
+      ideal: Math.round(totalPoints * (1 - index / Math.max(chartDates.length - 1, 1)))
+    };
+  }), [chartDates, donePoints, sprintIssues, totalPoints]);
+
+  const cumulativeFlowSeries = useMemo(() => chartDates.map((date, index) => {
+    const availableIssues = sprintIssues.filter(issue => new Date(issue.createdAt) <= date);
+    const bucketPoints = (status: Issue['status']) => availableIssues
+      .filter(issue => issue.status === status)
+      .reduce((sum, issue) => sum + (issue.storyPoints || 0), 0);
+    const done = availableIssues
+      .filter(issue => issue.status === 'done' && new Date(issue.updatedAt || issue.createdAt) <= date)
+      .reduce((sum, issue) => sum + (issue.storyPoints || 0), 0);
+    const inProgress = bucketPoints('in_progress');
+    const inReview = bucketPoints('in_review');
+    const availablePoints = availableIssues.reduce((sum, issue) => sum + (issue.storyPoints || 0), 0);
+
+    return {
+      date,
+      done: index === chartDates.length - 1 ? donePoints : done,
+      inReview,
+      inProgress,
+      todo: Math.max(0, availablePoints - done - inReview - inProgress)
+    };
+  }), [chartDates, donePoints, sprintIssues]);
+
+  const maxChartValue = Math.max(totalPoints, 1);
+  const chartWidth = 520;
+  const chartHeight = 220;
+  const chartPadding = { left: 42, right: 16, top: 18, bottom: 34 };
+  const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
+  const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+  const chartX = (index: number) => chartPadding.left + (plotWidth * index) / Math.max(chartDates.length - 1, 1);
+  const chartY = (value: number) => chartPadding.top + plotHeight - (Math.min(value, maxChartValue) / maxChartValue) * plotHeight;
+  const actualPath = burndownSeries.map((point, index) => `${index === 0 ? 'M' : 'L'} ${chartX(index)} ${chartY(point.actual)}`).join(' ');
+  const idealPath = burndownSeries.map((point, index) => `${index === 0 ? 'M' : 'L'} ${chartX(index)} ${chartY(point.ideal)}`).join(' ');
+  const formatChartDate = (date: Date) => new Intl.DateTimeFormat(language === 'ko' ? 'ko-KR' : language, { month: 'numeric', day: 'numeric' }).format(date);
 
   // CSV Report Generator
   const handleExportCSV = () => {
@@ -180,49 +241,55 @@ export const ReportsView: React.FC = () => {
 
           <div className="svg-chart-container">
             {chartView === 'burndown' ? (
-              <svg viewBox="0 0 500 200" className="burndown-svg">
-                {/* Grid Lines */}
-                <line x1="40" y1="20" x2="480" y2="20" stroke="var(--border-color)" strokeDasharray="3 3" />
-                <line x1="40" y1="70" x2="480" y2="70" stroke="var(--border-color)" strokeDasharray="3 3" />
-                <line x1="40" y1="120" x2="480" y2="120" stroke="var(--border-color)" strokeDasharray="3 3" />
-                <line x1="40" y1="170" x2="480" y2="170" stroke="var(--border-color)" strokeDasharray="3 3" />
-
-                {/* Y Axis Labels */}
-                <text x="10" y="25" fill="var(--text-secondary)" fontSize="11">{totalPoints} {t('pointsShort')}</text>
-                <text x="10" y="75" fill="var(--text-secondary)" fontSize="11">{Math.round(totalPoints * 0.75)}</text>
-                <text x="10" y="125" fill="var(--text-secondary)" fontSize="11">{Math.round(totalPoints * 0.5)}</text>
-                <text x="10" y="175" fill="var(--text-secondary)" fontSize="11">0</text>
-
-                {/* Ideal Burndown Line */}
-                <line x1="40" y1="20" x2="460" y2="170" stroke="#94a3b8" strokeWidth="2" strokeDasharray="5 5" />
-
-                {/* Actual Burndown Polyline */}
-                <polyline
-                  fill="none"
-                  stroke="#6366f1"
-                  strokeWidth="3.5"
-                  points="40,20 120,35 200,60 280,75 360,110 440,140"
-                />
-
-                {/* Data points */}
-                <circle cx="40" cy="20" r="4" fill="#6366f1" />
-                <circle cx="120" cy="35" r="4" fill="#6366f1" />
-                <circle cx="200" cy="60" r="4" fill="#6366f1" />
-                <circle cx="280" cy="75" r="4" fill="#6366f1" />
-                <circle cx="360" cy="110" r="4" fill="#6366f1" />
-                <circle cx="440" cy="140" r="5" fill="#10b981" stroke="#fff" strokeWidth="2" />
-              </svg>
+              <>
+                <div className="chart-kpi-row">
+                  <div><span>{t('remainingWork')}</span><strong>{remainingPoints} {t('pointsShort')}</strong></div>
+                  <div><span>{t('goalCompleted')}</span><strong>{completionPercentage}%</strong></div>
+                </div>
+                <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="burndown-svg" role="img" aria-label={t('burndownChart')}>
+                  {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
+                    const value = Math.round(maxChartValue * (1 - ratio));
+                    const y = chartY(value);
+                    return <g key={ratio}>
+                      <line x1={chartPadding.left} y1={y} x2={chartWidth - chartPadding.right} y2={y} className="report-chart-gridline" />
+                      <text x={chartPadding.left - 8} y={y + 4} className="report-chart-y-label">{value}</text>
+                    </g>;
+                  })}
+                  <path d={idealPath} className="report-ideal-path" />
+                  <path d={actualPath} className="report-actual-path" />
+                  {burndownSeries.map((point, index) => (
+                    <g key={point.date.toISOString()}>
+                      <circle cx={chartX(index)} cy={chartY(point.actual)} r={index === burndownSeries.length - 1 ? 4.5 : 3.5} className="report-actual-point" />
+                      <text x={chartX(index)} y={chartHeight - 10} textAnchor="middle" className="report-chart-x-label">{formatChartDate(point.date)}</text>
+                    </g>
+                  ))}
+                </svg>
+              </>
             ) : (
-              /* CFD Area Chart SVG */
-              <svg viewBox="0 0 500 200" className="burndown-svg">
-                <polygon points="40,170 120,150 200,120 280,100 360,70 440,40 440,170 40,170" fill="rgba(16, 185, 129, 0.4)" />
-                <polygon points="40,150 120,130 200,100 280,80 360,50 440,30 440,40 360,70 280,100 200,120 120,150 40,170" fill="rgba(245, 158, 11, 0.4)" />
-                <polygon points="40,100 120,80 200,60 280,40 360,30 440,20 440,30 360,50 280,80 200,100 120,130 40,150" fill="rgba(99, 102, 241, 0.4)" />
-
-                <text x="50" y="160" fill="#10b981" fontSize="10" fontWeight="bold">{t('done')}</text>
-                <text x="180" y="110" fill="#f59e0b" fontSize="10" fontWeight="bold">{t('in_review')}</text>
-                <text x="300" y="55" fill="#6366f1" fontSize="10" fontWeight="bold">{t('in_progress')}</text>
-              </svg>
+              <>
+                <div className="chart-kpi-row">
+                  <div><span>WIP</span><strong>{statusCounts.in_progress + statusCounts.in_review} {t('tasks')}</strong></div>
+                  <div><span>{t('done')}</span><strong>{donePoints} {t('pointsShort')}</strong></div>
+                </div>
+                <div className="cfd-chart" role="img" aria-label={t('cumulativeFlow')}>
+                  <div className="cfd-scale"><span>{maxChartValue}</span><span>{Math.round(maxChartValue / 2)}</span><span>0</span></div>
+                  <div className="cfd-columns">
+                    {cumulativeFlowSeries.map(point => {
+                      const total = point.todo + point.inProgress + point.inReview + point.done;
+                      const asPercent = (value: number) => `${total ? (value / maxChartValue) * 100 : 0}%`;
+                      return <div className="cfd-column" key={point.date.toISOString()}>
+                        <div className="cfd-stack" title={`${formatChartDate(point.date)} · ${total} ${t('pointsShort')}`}>
+                          <span className="cfd-segment todo" style={{ height: asPercent(point.todo) }} />
+                          <span className="cfd-segment progress" style={{ height: asPercent(point.inProgress) }} />
+                          <span className="cfd-segment review" style={{ height: asPercent(point.inReview) }} />
+                          <span className="cfd-segment done" style={{ height: asPercent(point.done) }} />
+                        </div>
+                        <span className="cfd-date-label">{formatChartDate(point.date)}</span>
+                      </div>;
+                    })}
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="chart-legend">
@@ -236,6 +303,7 @@ export const ReportsView: React.FC = () => {
                   <span className="legend-item"><span className="dot" style={{ backgroundColor: '#10b981' }}></span> {t('done')}</span>
                   <span className="legend-item"><span className="dot" style={{ backgroundColor: '#f59e0b' }}></span> {t('in_review')}</span>
                   <span className="legend-item"><span className="dot" style={{ backgroundColor: '#6366f1' }}></span> {t('in_progress')}</span>
+                  <span className="legend-item"><span className="dot" style={{ backgroundColor: '#94a3b8' }}></span> {t('todo')}</span>
                 </>
               )}
             </div>

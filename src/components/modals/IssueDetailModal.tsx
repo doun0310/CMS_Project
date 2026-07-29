@@ -16,7 +16,8 @@ export const IssueDetailModal: React.FC = () => {
     moveIssueStatus,
     users,
     epics,
-    sprints
+    sprints,
+    t
   } = useAether();
 
   const [newCommentText, setNewCommentText] = useState('');
@@ -97,9 +98,9 @@ export const IssueDetailModal: React.FC = () => {
           <div className="header-actions">
             <button
               className="btn-icon-danger"
-              title="Delete Issue"
+              title={t('deleteIssue')}
               onClick={() => {
-                if (window.confirm(`Delete issue ${issue.key}?`)) {
+                if (window.confirm(`${t('deleteIssue')} ${issue.key}?`)) {
                   deleteIssue(issue.id);
                 }
               }}
@@ -126,16 +127,16 @@ export const IssueDetailModal: React.FC = () => {
 
             {/* Workflow status Bar */}
             <div className="status-workflow-bar">
-              <label>Status: </label>
+              <label>{t('status')}: </label>
               <select
                 className={`status-select ${issue.status}`}
                 value={issue.status}
                 onChange={e => moveIssueStatus(issue.id, e.target.value as IssueStatus)}
               >
-                <option value="todo">TO DO</option>
-                <option value="in_progress">IN PROGRESS</option>
-                <option value="in_review">IN REVIEW</option>
-                <option value="done">DONE</option>
+                <option value="todo">{t('todo')}</option>
+                <option value="in_progress">{t('in_progress')}</option>
+                <option value="in_review">{t('in_review')}</option>
+                <option value="done">{t('done')}</option>
               </select>
 
               {/* AI Security & PR Readiness Audit Badge */}
@@ -187,13 +188,13 @@ useEffect(() => {
 
             {/* Description Section */}
             <div className="detail-section">
-              <h3>Description</h3>
+              <h3>{t('description')}</h3>
               <textarea
                 className="description-textarea"
                 rows={4}
                 value={issue.description}
                 onChange={e => updateIssue(issue.id, { description: e.target.value })}
-                placeholder="Add a detailed description..."
+                placeholder={t('descriptionPlaceholder')}
               />
             </div>
 
@@ -299,7 +300,7 @@ useEffect(() => {
 
             {/* Subtasks Section */}
             <div className="detail-section">
-              <h3>Sub-tasks ({completedSubtasks}/{issue.subtasks.length})</h3>
+              <h3>{t('subtasks')} ({completedSubtasks}/{issue.subtasks.length})</h3>
               <div className="subtask-progress-bar">
                 <div className="fill" style={{ width: `${subtaskProgressPct}%` }}></div>
               </div>
@@ -320,32 +321,32 @@ useEffect(() => {
               <form onSubmit={handleAddSubtaskSubmit} className="add-subtask-form">
                 <input
                   type="text"
-                  placeholder="Add a subtask..."
+                  placeholder={t('addSubtask')}
                   value={newSubtaskTitle}
                   onChange={e => setNewSubtaskTitle(e.target.value)}
                 />
-                <button type="submit" className="btn-primary-sm">Add</button>
+                <button type="submit" className="btn-primary-sm">{t('add')}</button>
               </form>
             </div>
 
             {/* Time Tracking */}
             <section className="detail-section time-tracking-section">
               <div className="time-tracking-heading">
-                <h3><IconClock size={16} /> Time Tracking</h3>
-                <span>{timeLogged}h logged</span>
+                <h3><IconClock size={16} /> {t('timeTracking')}</h3>
+                <span>{timeLogged}h {t('logged')}</span>
               </div>
               <div className="time-tracking-panel">
                 <div className="time-progress-summary">
-                  <div className="time-progress-labels"><span>{trackedTimePct}% used</span><span>{remainingTime}h remaining</span></div>
+                  <div className="time-progress-labels"><span>{trackedTimePct}% {t('used')}</span><span>{remainingTime}h {t('remaining')}</span></div>
                   <div className="time-progress-track"><span style={{ width: `${trackedTimePct}%` }} /></div>
                 </div>
                 <div className="time-tracking-fields">
                   <label>
-                    <span>Original estimate</span>
+                    <span>{t('originalEstimate')}</span>
                     <div className="time-input-wrap"><input type="number" min={0} value={issue.originalEstimate} onChange={e => updateIssue(issue.id, { originalEstimate: Number(e.target.value) })} /><em>h</em></div>
                   </label>
                   <label>
-                    <span>Time logged</span>
+                    <span>{t('timeLogged')}</span>
                     <div className="time-input-wrap"><input type="number" min={0} value={issue.timeLogged} onChange={e => updateIssue(issue.id, { timeLogged: Number(e.target.value) })} /><em>h</em></div>
                   </label>
                 </div>
@@ -359,13 +360,13 @@ useEffect(() => {
                   className={`activity-tab-btn ${activityTab === 'comments' ? 'active' : ''}`}
                   onClick={() => setActivityTab('comments')}
                 >
-                  Comments ({issue.comments.length})
+                  {t('comments')} ({issue.comments.length})
                 </button>
                 <button
                   className={`activity-tab-btn ${activityTab === 'history' ? 'active' : ''}`}
                   onClick={() => setActivityTab('history')}
                 >
-                  Audit History ({(issue.history || []).length})
+                  {t('auditHistory')} ({(issue.history || []).length})
                 </button>
               </div>
 
@@ -375,13 +376,13 @@ useEffect(() => {
                     <div className="comment-composer">
                       <textarea
                         rows={2}
-                        placeholder="Add a comment... (Type @ to mention team members)"
+                        placeholder={t('addComment')}
                         value={newCommentText}
                         onChange={e => setNewCommentText(e.target.value)}
                       />
                       {/* @Mention Quick Member Selection Bar */}
                       <div className="mention-quick-bar">
-                        <span className="mention-label">Mention</span>
+                        <span className="mention-label">{t('mention')}</span>
                         {users.map(u => (
                           <button
                             key={u.id}
@@ -397,7 +398,7 @@ useEffect(() => {
                         ))}
                       </div>
                     </div>
-                    <button type="submit" className="btn-primary-sm">Save Comment</button>
+                    <button type="submit" className="btn-primary-sm">{t('save')}</button>
                   </form>
 
                   <div className="comments-list">
@@ -438,7 +439,7 @@ useEffect(() => {
               ) : (
                 <div className="audit-timeline-list">
                   {(issue.history || []).length === 0 ? (
-                    <div className="no-deps-text">No activity audit history recorded yet.</div>
+                    <div className="no-deps-text">{t('noAuditHistory')}</div>
                   ) : (
                     (issue.history || []).map(h => {
                       const author = users.find(u => u.id === h.authorId);
@@ -464,39 +465,39 @@ useEffect(() => {
           {/* Right Sidebar Metadata Fields */}
           <div className="detail-sidebar-col">
             <div className="field-group">
-              <label>Issue Type</label>
+              <label>{t('issueType')}</label>
               <select
                 value={issue.type}
                 onChange={e => updateIssue(issue.id, { type: e.target.value as IssueType })}
               >
-                <option value="feature">Feature</option>
-                <option value="workitem">WorkItem</option>
-                <option value="bug">Bug</option>
-                <option value="initiative">Initiative</option>
+                <option value="feature">{t('typeFeature')}</option>
+                <option value="workitem">{t('typeWorkItem')}</option>
+                <option value="bug">{t('typeBug')}</option>
+                <option value="initiative">{t('typeInitiative')}</option>
               </select>
             </div>
 
             <div className="field-group">
-              <label>Priority</label>
+              <label>{t('priority')}</label>
               <select
                 value={issue.priority}
                 onChange={e => updateIssue(issue.id, { priority: e.target.value as Priority })}
               >
-                <option value="highest">Highest</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-                <option value="lowest">Lowest</option>
+                <option value="highest">{t('priorityHighest')}</option>
+                <option value="high">{t('priorityHigh')}</option>
+                <option value="medium">{t('priorityMedium')}</option>
+                <option value="low">{t('priorityLow')}</option>
+                <option value="lowest">{t('priorityLowest')}</option>
               </select>
             </div>
 
             <div className="field-group">
-              <label>Assignee</label>
+              <label>{t('assignee')}</label>
               <select
                 value={issue.assigneeId || ''}
                 onChange={e => updateIssue(issue.id, { assigneeId: e.target.value || null })}
               >
-                <option value="">Unassigned</option>
+                <option value="">{t('unassigned')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.name}</option>
                 ))}
@@ -504,7 +505,7 @@ useEffect(() => {
             </div>
 
             <div className="field-group">
-              <label>Reporter</label>
+              <label>{t('reporter')}</label>
               <div className="user-read-only">
                 <img src={reporter?.avatar} alt="" className="avatar-xs" />
                 <span>{reporter?.name}</span>
@@ -512,12 +513,12 @@ useEffect(() => {
             </div>
 
             <div className="field-group">
-              <label>Epic</label>
+              <label>{t('typeInitiative')}</label>
               <select
                 value={issue.epicId || ''}
                 onChange={e => updateIssue(issue.id, { epicId: e.target.value || null })}
               >
-                <option value="">None</option>
+                <option value="">{t('none')}</option>
                 {epics.map(ep => (
                   <option key={ep.id} value={ep.id}>{ep.summary}</option>
                 ))}
@@ -525,12 +526,12 @@ useEffect(() => {
             </div>
 
             <div className="field-group">
-              <label>Sprint</label>
+              <label>{t('sprint')}</label>
               <select
                 value={issue.sprintId || ''}
                 onChange={e => updateIssue(issue.id, { sprintId: e.target.value || null })}
               >
-                <option value="">Backlog</option>
+                <option value="">{t('backlogLabel')}</option>
                 {sprints.map(sp => (
                   <option key={sp.id} value={sp.id}>{sp.name}</option>
                 ))}
@@ -538,7 +539,7 @@ useEffect(() => {
             </div>
 
             <div className="field-group">
-              <label>Story Points</label>
+              <label>{t('storyPoints')}</label>
               <input
                 type="number"
                 min={0}

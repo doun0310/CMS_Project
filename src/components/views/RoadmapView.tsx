@@ -24,6 +24,11 @@ export const RoadmapView: React.FC = () => {
 
   // Build the timeline from actual issue start and due dates.
   const toCalendarDate = (value: string) => new Date(`${value.slice(0, 10)}T00:00:00`);
+  const toDateKey = (date: Date) => [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
   const developmentDates = issues.flatMap(issue => [toCalendarDate(issue.createdAt), toCalendarDate(issue.dueDate)])
     .filter(date => !Number.isNaN(date.getTime()));
   const fallbackDate = new Date();
@@ -33,8 +38,10 @@ export const RoadmapView: React.FC = () => {
   const latestDevelopmentDate = developmentDates.length
     ? new Date(Math.max(...developmentDates.map(date => date.getTime())))
     : fallbackDate;
+  const m1TargetDate = toCalendarDate('2026-08-10');
+  const m2TargetDate = toCalendarDate('2026-08-30');
   const timelineStart = new Date(earliestDevelopmentDate);
-  const timelineEnd = new Date(latestDevelopmentDate);
+  const timelineEnd = new Date(Math.max(latestDevelopmentDate.getTime(), m2TargetDate.getTime()));
   const oneDay = 24 * 60 * 60 * 1000;
   const dayCount = Math.max(14, Math.round((timelineEnd.getTime() - timelineStart.getTime()) / oneDay) + 1);
   const days = Array.from({ length: dayCount }, (_, index) => {
@@ -42,6 +49,7 @@ export const RoadmapView: React.FC = () => {
     day.setDate(day.getDate() + index);
     return day;
   });
+  const timelineMinWidth = Math.max(680, days.length * 44);
 
   const getPositionPercent = (dateStr: string) => {
     const d = new Date(`${dateStr}T00:00:00`);
@@ -53,11 +61,10 @@ export const RoadmapView: React.FC = () => {
     return Math.round(((current - start) / (end - start)) * 100);
   };
 
-  const midpoint = new Date((timelineStart.getTime() + timelineEnd.getTime()) / 2);
   const formatMilestoneDate = (date: Date) => date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' });
   const milestones = [
-    { id: 'm1', date: midpoint.toISOString().slice(0, 10), label: `M1 · ${formatMilestoneDate(midpoint)}`, title: `M1 · ${formatMilestoneDate(midpoint)}` },
-    { id: 'm2', date: timelineEnd.toISOString().slice(0, 10), label: `M2 · ${formatMilestoneDate(timelineEnd)}`, title: `M2 · ${formatMilestoneDate(timelineEnd)}` },
+    { id: 'm1', date: toDateKey(m1TargetDate), label: `M1 · ${formatMilestoneDate(m1TargetDate)}`, title: `M1 · ${formatMilestoneDate(m1TargetDate)}` },
+    { id: 'm2', date: toDateKey(m2TargetDate), label: `M2 · ${formatMilestoneDate(m2TargetDate)}`, title: `M2 · ${formatMilestoneDate(m2TargetDate)}` },
   ].map(milestone => ({ ...milestone, position: getPositionPercent(milestone.date) }));
   const visibleMilestones = selectedMilestone === 'all'
     ? milestones
@@ -98,10 +105,10 @@ export const RoadmapView: React.FC = () => {
                 autoFocus
                 value={newEpicSummary}
                 onChange={event => setNewEpicSummary(event.target.value)}
-                placeholder="Epic name"
-                aria-label="Epic name"
+                placeholder={t('epicName')}
+                aria-label={t('epicName')}
               />
-              <button className="btn-primary-sm" type="submit">Add</button>
+              <button className="btn-primary-sm" type="submit">{t('add')}</button>
               <button
                 className="btn-ghost-sm"
                 type="button"
@@ -115,7 +122,7 @@ export const RoadmapView: React.FC = () => {
             </form>
           ) : (
             <button className="btn-primary-sm" type="button" onClick={() => setIsCreatingEpic(true)}>
-              <IconPlus size={14} /> Add Epic
+              <IconPlus size={14} /> {t('addEpic')}
             </button>
           )}
           <button
@@ -186,7 +193,7 @@ export const RoadmapView: React.FC = () => {
                           autoFocus
                           value={editingEpicSummary}
                           onChange={event => setEditingEpicSummary(event.target.value)}
-                          aria-label="Epic name"
+                          aria-label={t('epicName')}
                         />
                         <button className="btn-primary-sm" type="submit">{t('save')}</button>
                         <button
@@ -236,9 +243,9 @@ export const RoadmapView: React.FC = () => {
 
         {/* RIGHT PANE: Timeline Gantt Grid */}
         <div className="gantt-right-pane">
-          <div className="gantt-right-header">
+          <div className="gantt-right-header" style={{ minWidth: timelineMinWidth }}>
             {days.map((day, idx) => {
-              const isToday = day.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
+              const isToday = toDateKey(day) === toDateKey(new Date());
               return (
                 <div key={idx} className={`gantt-day-cell ${isToday ? 'today' : ''}`}>
                   <span className="day-name">
@@ -260,7 +267,7 @@ export const RoadmapView: React.FC = () => {
             ))}
           </div>
 
-          <div className="gantt-right-body">
+          <div className="gantt-right-body" style={{ minWidth: timelineMinWidth }}>
             {/* Milestone Vertical Flags Overlay */}
             <div className="gantt-milestones-overlay">
               {visibleMilestones.map(milestone => (
