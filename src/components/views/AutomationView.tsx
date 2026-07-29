@@ -64,7 +64,7 @@ export const AutomationView: React.FC = () => {
       {/* 1-Click Preset Templates */}
       <div className="ai-preset-card animate-fade-in" style={{ marginBottom: '20px' }}>
         <div className="ai-preset-header">
-          <span>⚡ 1-Click Enterprise Automation Presets</span>
+          <span>1-Click Enterprise Automation Presets</span>
           <span className="preset-hint">Click a preset to quickly add Jira & Shortcut style automation rules</span>
         </div>
         <div className="preset-buttons-row" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -73,7 +73,7 @@ export const AutomationView: React.FC = () => {
             className="btn-preset-sm"
             onClick={() => {
               addAutomationRule(
-                '🐙 GitHub PR Merge -> Auto Move to DONE',
+                'GitHub PR Merge -> Auto Move to DONE',
                 'GitHub PR Merged Event',
                 'Move Issue Status to DONE automatically'
               );
@@ -81,7 +81,7 @@ export const AutomationView: React.FC = () => {
               setTimeout(() => setTestNotification(null), 3000);
             }}
           >
-            🐙 GitHub PR Merge Auto-Done
+            GitHub PR Merge Auto-Done
           </button>
 
           <button
@@ -89,7 +89,7 @@ export const AutomationView: React.FC = () => {
             className="btn-preset-sm"
             onClick={() => {
               addAutomationRule(
-                '🚨 High Priority Bug -> Auto Assign Lead & Slack Alert',
+                'High Priority Bug -> Auto Assign Lead & Slack Alert',
                 'Issue Created as BUG with Priority HIGHEST',
                 'Send High Priority Alert to Team Slack & Assign Lead'
               );
@@ -97,7 +97,7 @@ export const AutomationView: React.FC = () => {
               setTimeout(() => setTestNotification(null), 3000);
             }}
           >
-            🚨 High Bug Escalation
+            High Bug Escalation
           </button>
 
           <button
@@ -105,7 +105,7 @@ export const AutomationView: React.FC = () => {
             className="btn-preset-sm"
             onClick={() => {
               addAutomationRule(
-                '✅ All Subtasks Done -> Auto Resolve Parent Task',
+                'All Subtasks Done -> Auto Resolve Parent Task',
                 'All Subtasks Completed',
                 'Move Issue Status to DONE automatically'
               );
@@ -113,7 +113,7 @@ export const AutomationView: React.FC = () => {
               setTimeout(() => setTestNotification(null), 3000);
             }}
           >
-            ✅ Subtask Completion Sync
+            Subtask Completion Sync
           </button>
         </div>
       </div>

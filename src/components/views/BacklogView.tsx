@@ -212,6 +212,7 @@ export const BacklogView: React.FC = () => {
     const donePoints = sprintIssues
       .filter((i: Issue) => i.status === 'done')
       .reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
+    const completionPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0;
 
     return (
       <div key={sprint.id} className={`sprint-block ${sprint.status}`}>
@@ -242,6 +243,11 @@ export const BacklogView: React.FC = () => {
         </div>
 
         {sprint.goal && <div className="sprint-goal-text">{t('goalPrefix')}: {sprint.goal}</div>}
+
+        <div className="sprint-progress-overview" aria-label={`${sprint.name} ${completionPct}% ${t('completed')}`}>
+          <div className="sprint-progress-copy"><span>{t('completion')}</span><strong>{completionPct}%</strong></div>
+          <div className="sprint-progress-track"><span style={{ width: `${completionPct}%` }} /></div>
+        </div>
 
         <div className="sprint-issues-list">
           {sprintIssues.length === 0 ? (
@@ -276,6 +282,10 @@ export const BacklogView: React.FC = () => {
 
   const backlogIssues = filteredIssues.filter((i: Issue) => !i.sprintId);
   const backlogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
+  const activeSprint = sprints.find(sprint => sprint.status === 'active');
+  const activeSprintIssues = activeSprint ? filteredIssues.filter(issue => issue.sprintId === activeSprint.id) : [];
+  const activeSprintDone = activeSprintIssues.filter(issue => issue.status === 'done').length;
+  const futureSprintCount = sprints.filter(sprint => sprint.status === 'future').length;
 
   const handleBulkPlan = () => {
     if (!planningSprintId || selectedBacklogIssueIds.length === 0) return;
@@ -297,6 +307,24 @@ export const BacklogView: React.FC = () => {
           <IconPlus size={16} /> {t('createSprint')}
         </button>
       </div>
+
+      <section className="backlog-overview" aria-label={t('backlogViewTitle')}>
+        <div className="backlog-overview-card active">
+          <span>{t('activeSprint')}</span>
+          <strong>{activeSprint?.name || t('notStarted')}</strong>
+          <small>{activeSprint ? `${activeSprintDone}/${activeSprintIssues.length} ${t('completed')}` : t('createSprint')}</small>
+        </div>
+        <div className="backlog-overview-card">
+          <span>{t('backlogLabel')}</span>
+          <strong>{backlogIssues.length} {t('issues')}</strong>
+          <small>{backlogPoints} {t('pointsShort')}</small>
+        </div>
+        <div className="backlog-overview-card">
+          <span>{t('sprints')}</span>
+          <strong>{futureSprintCount}</strong>
+          <small>{t('notStarted')}</small>
+        </div>
+      </section>
 
       {/* Create Sprint Modal */}
       {isCreatingSprint && (
@@ -333,7 +361,9 @@ export const BacklogView: React.FC = () => {
 
       {/* Sprints Sections */}
       <div className="sprints-container">
-        {sprints.map(renderSprintSection)}
+        {[...sprints]
+          .sort((a, b) => ({ active: 0, future: 1, completed: 2 }[a.status] - { active: 0, future: 1, completed: 2 }[b.status]))
+          .map(renderSprintSection)}
       </div>
 
       {/* Backlog Section */}

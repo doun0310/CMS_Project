@@ -269,10 +269,10 @@ export const Header: React.FC = () => {
               }
             }}
           >
-            <option value="">⚡ JQL Presets</option>
+            <option value="">JQL Presets</option>
             {SAVED_JQL_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.query}>
-                {preset.icon} {preset.name}
+                {preset.name}
               </option>
             ))}
           </select>

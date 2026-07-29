@@ -18,10 +18,10 @@ export interface SavedFilterPreset {
 }
 
 export const SAVED_JQL_PRESETS: SavedFilterPreset[] = [
-  { id: 'f-1', name: '🔥 My In-Progress Tasks', query: 'assignee:me status:in_progress,in_review', icon: '🔥' },
-  { id: 'f-2', name: '🐛 Critical Bugs & Security', query: 'type:bug priority:highest,high', icon: '🐛' },
-  { id: 'f-3', name: '🚀 Active Sprint Backlog', query: 'sprint:active status:todo', icon: '🚀' },
-  { id: 'f-4', name: '🏷️ Core Framework Tasks', query: 'label:agile,framework', icon: '🏷️' },
+  { id: 'f-1', name: 'My In-Progress Tasks', query: 'assignee:me status:in_progress,in_review', icon: '' },
+  { id: 'f-2', name: 'Critical Bugs & Security', query: 'type:bug priority:highest,high', icon: '' },
+  { id: 'f-3', name: 'Active Sprint Backlog', query: 'sprint:active status:todo', icon: '' },
+  { id: 'f-4', name: 'Core Framework Tasks', query: 'label:agile,framework', icon: '' },
 ];
 
 /**

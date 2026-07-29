@@ -359,13 +359,13 @@ useEffect(() => {
                   className={`activity-tab-btn ${activityTab === 'comments' ? 'active' : ''}`}
                   onClick={() => setActivityTab('comments')}
                 >
-                  💬 Comments ({issue.comments.length})
+                  Comments ({issue.comments.length})
                 </button>
                 <button
                   className={`activity-tab-btn ${activityTab === 'history' ? 'active' : ''}`}
                   onClick={() => setActivityTab('history')}
                 >
-                  📜 Audit History ({(issue.history || []).length})
+                  Audit History ({(issue.history || []).length})
                 </button>
               </div>
 
@@ -413,7 +413,7 @@ useEffect(() => {
                               <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
                               {hasMention && (
                                 <span className="status-badge-sm in_progress" style={{ fontSize: '0.65rem', padding: '1px 5px', marginLeft: '6px' }}>
-                                  💬 MENTION NOTIFIED
+                                  MENTION NOTIFIED
                                 </span>
                               )}
                             </div>
@@ -558,12 +558,12 @@ useEffect(() => {
 
             {/* Custom Fields Section */}
             <div className="field-group custom-fields-sidebar-group">
-              <label className="cf-sidebar-title">🏷️ Custom Fields & Metadata</label>
+              <label className="cf-sidebar-title">Custom Fields & Metadata</label>
               <div className="cf-sidebar-list">
                 {Object.entries(issue.customFields || {
                   'Deployment Environment': 'Production',
                   'Customer Impact Tier': 'VIP Enterprise',
-                  'Security Audit Gate': 'Passed ✅',
+                  'Security Audit Gate': 'Passed',
                 }).map(([key, val]) => (
                   <div key={key} className="cf-sidebar-item">
                     <span className="cf-sidebar-key">{key}:</span>
@@ -575,7 +575,7 @@ useEffect(() => {
 
             {/* GitHub & CI/CD Integration Panel */}
             <div className="field-group custom-fields-sidebar-group" style={{ marginTop: '16px', background: 'rgba(99, 102, 241, 0.05)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-              <label className="cf-sidebar-title" style={{ color: '#818cf8', fontWeight: 700 }}>🐙 GitHub & CI/CD Pipeline</label>
+              <label className="cf-sidebar-title" style={{ color: '#818cf8', fontWeight: 700 }}>GitHub & CI/CD Pipeline</label>
               
               <div style={{ fontSize: '0.8rem', marginTop: '6px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -645,7 +645,7 @@ useEffect(() => {
                       });
                     }}
                   >
-                    ⚡ Simulate GitHub Commit Push
+                    Simulate GitHub Commit Push
                   </button>
 
                   <button
@@ -678,7 +678,7 @@ useEffect(() => {
                       });
                     }}
                   >
-                    🚀 Simulate GitHub PR Merge (Auto Done)
+                    Simulate GitHub PR Merge (Auto Done)
                   </button>
                 </div>
               </div>
