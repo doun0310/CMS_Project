@@ -37,14 +37,17 @@ export interface AetherContextValue {
   deleteEpic: (epicId: string) => void;
   sprints: Sprint[];
   issues: Issue[];
+  portfolioIssues: Issue[];
   automationRules: AutomationRule[];
   automationAuditLogs: AutomationAuditLog[];
   retrospectiveItems: RetrospectiveItem[];
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
 
-  addRetroItem: (type: RetrospectiveItem['type'], content: string) => void;
+  addRetroItem: (type: RetrospectiveItem['type'], content: string, assigneeId?: string | null) => void;
   voteRetroItem: (id: string) => void;
+  updateRetroItem: (id: string, updates: Partial<Omit<RetrospectiveItem, 'id' | 'authorId' | 'createdAt'>>) => void;
+  addRetroComment: (id: string, text: string) => void;
   deleteRetroItem: (id: string) => void;
 
   searchQuery: string;

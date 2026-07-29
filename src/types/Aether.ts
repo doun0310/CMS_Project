@@ -51,6 +51,17 @@ export interface RetrospectiveItem {
   votes: number;
   authorId: string;
   createdAt: string;
+  status?: 'planned' | 'in_progress' | 'done';
+  assigneeId?: string | null;
+  comments?: RetroComment[];
+  voterIds?: string[];
+}
+
+export interface RetroComment {
+  id: string;
+  authorId: string;
+  text: string;
+  createdAt: string;
 }
 
 export interface WorkloadSuggestion {
@@ -149,6 +160,9 @@ export interface Project {
   boardTitle?: string;
   customFieldDefs?: CustomFieldDef[];
   workflowStates?: WorkflowState[];
+  leadUserId?: string | null;
+  architectureOwners?: Record<string, string>;
+  architectureHealth?: Record<string, 'healthy' | 'warning' | 'degraded'>;
 }
 
 export interface AutomationRule {

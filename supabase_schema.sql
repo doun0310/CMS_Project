@@ -98,8 +98,18 @@ CREATE TABLE IF NOT EXISTS public.retrospective_items (
   category TEXT NOT NULL CHECK (category IN ('good', 'improve', 'action')),
   content TEXT NOT NULL,
   upvotes INT DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'in_progress', 'done')),
+  assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  comments JSONB NOT NULL DEFAULT '[]'::jsonb,
+  voter_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.retrospective_items
+ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'in_progress', 'done')),
+ADD COLUMN IF NOT EXISTS assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS comments JSONB NOT NULL DEFAULT '[]'::jsonb,
+ADD COLUMN IF NOT EXISTS voter_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 -- 9. GitHub Integration & CI/CD Linkage Columns
 ALTER TABLE public.issues 

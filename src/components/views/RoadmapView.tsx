@@ -14,6 +14,8 @@ export const RoadmapView: React.FC = () => {
   const [selectedMilestone, setSelectedMilestone] = useState<string>('all');
   const [isCreatingEpic, setIsCreatingEpic] = useState(false);
   const [newEpicSummary, setNewEpicSummary] = useState('');
+  const [editingEpicId, setEditingEpicId] = useState<string | null>(null);
+  const [editingEpicSummary, setEditingEpicSummary] = useState('');
   const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language];
 
   const toggleEpic = (id: string) => {
@@ -47,7 +49,7 @@ export const RoadmapView: React.FC = () => {
     ? milestones
     : milestones.filter(milestone => milestone.id === selectedMilestone);
 
-  const handleCreateEpic = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateEpic = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const summary = newEpicSummary.trim();
     if (!summary) return;
@@ -56,6 +58,16 @@ export const RoadmapView: React.FC = () => {
     setExpandedEpics(previous => ({ ...previous, [epic.id]: true }));
     setNewEpicSummary('');
     setIsCreatingEpic(false);
+  };
+
+  const handleUpdateEpic = (event: React.SubmitEvent<HTMLFormElement>, epicId: string) => {
+    event.preventDefault();
+    const summary = editingEpicSummary.trim();
+    if (!summary) return;
+
+    updateEpic(epicId, { summary });
+    setEditingEpicId(null);
+    setEditingEpicSummary('');
   };
 
   return (
@@ -149,10 +161,47 @@ export const RoadmapView: React.FC = () => {
                     </span>
                     <IconEpic size={16} color={epic.color} />
                     <span className="epic-key">{epic.key}</span>
-                    <span className="epic-title" title={epic.summary}>{epic.summary}</span>
+                    {editingEpicId === epic.id ? (
+                      <form
+                        className="roadmap-epic-edit"
+                        onClick={event => event.stopPropagation()}
+                        onSubmit={event => handleUpdateEpic(event, epic.id)}
+                      >
+                        <input
+                          autoFocus
+                          value={editingEpicSummary}
+                          onChange={event => setEditingEpicSummary(event.target.value)}
+                          aria-label="Epic name"
+                        />
+                        <button className="btn-primary-sm" type="submit">{t('save')}</button>
+                        <button
+                          className="btn-ghost-sm"
+                          type="button"
+                          onClick={() => {
+                            setEditingEpicId(null);
+                            setEditingEpicSummary('');
+                          }}
+                        >
+                          {t('cancel')}
+                        </button>
+                      </form>
+                    ) : (
+                      <span className="epic-title" title={epic.summary}>{epic.summary}</span>
+                    )}
                     <span className="epic-points-badge">{donePoints}/{totalPoints} {t('pointsShort')}</span>
                     <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
-                    <button className="roadmap-epic-action" onClick={event => { event.stopPropagation(); const summary = window.prompt('Epic name', epic.summary); if (summary?.trim()) updateEpic(epic.id, { summary: summary.trim() }); }} title="Edit epic"><IconSettings size={13} /></button>
+                    <button
+                      className="roadmap-epic-action"
+                      onClick={event => {
+                        event.stopPropagation();
+                        setEditingEpicId(epic.id);
+                        setEditingEpicSummary(epic.summary);
+                      }}
+                      title="Edit epic"
+                      aria-label={`Edit ${epic.summary}`}
+                    >
+                      <IconSettings size={13} />
+                    </button>
                     <button className="roadmap-epic-action danger" onClick={event => { event.stopPropagation(); if (window.confirm(`Delete ${epic.summary}?`)) deleteEpic(epic.id); }} title="Delete epic"><IconTrash size={13} /></button>
                   </div>
 

@@ -120,18 +120,26 @@ export async function fetchRetroFromSupabase(): Promise<RetrospectiveItem[]> {
   try {
     const { data, error } = await supabase.from('retrospective_items').select('*');
     if (error || !data) return [];
-    return data.map((row: any) => ({
-      id: row.id,
-      type: row.category === 'good' ? 'went_well' : row.category === 'improve' ? 'to_improve' : 'action_item',
-      content: row.content || '',
-      authorId: row.author_id || 'usr_1',
-      votes: row.upvotes || 0,
-      createdAt: row.created_at || new Date().toISOString(),
-    }));
+    return data.map(mapDbToRetroItem);
   } catch (err) {
     console.error('Failed to fetch retro items from Supabase:', err);
     return [];
   }
+}
+
+export function mapDbToRetroItem(row: any): RetrospectiveItem {
+  return {
+    id: row.id,
+    type: row.category === 'good' ? 'went_well' : row.category === 'improve' ? 'to_improve' : 'action_item',
+    content: row.content || '',
+    authorId: row.author_id || 'usr_1',
+    votes: row.upvotes || 0,
+    createdAt: row.created_at || new Date().toISOString(),
+    status: row.status || 'planned',
+    assigneeId: row.assignee_id || null,
+    comments: Array.isArray(row.comments) ? row.comments : [],
+    voterIds: Array.isArray(row.voter_ids) ? row.voter_ids : [],
+  };
 }
 
 /**
@@ -148,6 +156,10 @@ export async function syncRetroToSupabase(item: RetrospectiveItem, projectId: st
       category: item.type === 'went_well' ? 'good' : item.type === 'to_improve' ? 'improve' : 'action',
       content: item.content,
       upvotes: item.votes,
+      status: item.status || 'planned',
+      assignee_id: item.assigneeId || null,
+      comments: item.comments || [],
+      voter_ids: item.voterIds || [],
     };
     await supabase.from('retrospective_items').upsert(dbRow);
   } catch (err) {

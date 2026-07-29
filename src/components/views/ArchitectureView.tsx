@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { IconAiSpark, IconArchitecture } from '../common/Icons';
 
 export const ArchitectureView: React.FC = () => {
-  const { issues, users, t } = useAether();
+  const { issues, users, currentProject, updateProject, t } = useAether();
 
   const [selectedSubsystem, setSelectedSubsystem] = useState<string | null>(null);
   const typeLabels: Record<string, string> = {
@@ -17,48 +17,48 @@ export const ArchitectureView: React.FC = () => {
       id: 'sub-fe',
       name: t('archFrontend'),
       tech: 'React 19 / TypeScript / Vite',
-      ownerId: users[0]?.id,
-      health: 'healthy',
+      ownerId: currentProject.architectureOwners?.['sub-fe'] || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-fe'] || 'healthy',
       keywords: ['frontend', 'ui', 'core', 'header', 'board'],
     },
     {
       id: 'sub-auth',
       name: t('archAuth'),
       tech: 'Node.js / JWT / OAuth 2.0',
-      ownerId: users[1]?.id || users[0]?.id,
-      health: 'healthy',
+      ownerId: currentProject.architectureOwners?.['sub-auth'] || users[1]?.id || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-auth'] || 'healthy',
       keywords: ['auth', 'security', 'login', 'token'],
     },
     {
       id: 'sub-db',
       name: t('archDatabase'),
       tech: 'PostgreSQL 16 / Redis 7',
-      ownerId: users[2]?.id || users[0]?.id,
-      health: 'degraded',
+      ownerId: currentProject.architectureOwners?.['sub-db'] || users[2]?.id || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-db'] || 'degraded',
       keywords: ['database', 'schema', 'query', 'redis', 'cache'],
     },
     {
       id: 'sub-gw',
       name: t('archGateway'),
       tech: 'Express / NGINX / Gateway',
-      ownerId: users[0]?.id,
-      health: 'healthy',
+      ownerId: currentProject.architectureOwners?.['sub-gw'] || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-gw'] || 'healthy',
       keywords: ['api', 'gateway', 'rest', 'graphql'],
     },
     {
       id: 'sub-pay',
       name: t('archPayment'),
       tech: 'Stripe API / Webhook Handler',
-      ownerId: users[1]?.id || users[0]?.id,
-      health: 'warning',
+      ownerId: currentProject.architectureOwners?.['sub-pay'] || users[1]?.id || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-pay'] || 'warning',
       keywords: ['payment', 'billing', 'stripe'],
     },
     {
       id: 'sub-ai',
       name: t('archAiEngine'),
       tech: 'Python FastAPI / Gemini SDK',
-      ownerId: users[2]?.id || users[0]?.id,
-      health: 'healthy',
+      ownerId: currentProject.architectureOwners?.['sub-ai'] || users[2]?.id || users[0]?.id,
+      health: currentProject.architectureHealth?.['sub-ai'] || 'healthy',
       keywords: ['ai', 'copilot', 'analytics', 'inference'],
     },
   ];
@@ -82,6 +82,13 @@ export const ArchitectureView: React.FC = () => {
       };
     });
   }, [issues, users, subsystems]);
+
+  const updateSubsystem = (subsystemId: string, updates: { ownerId?: string; health?: 'healthy' | 'warning' | 'degraded' }) => {
+    updateProject(currentProject.id, {
+      architectureOwners: updates.ownerId ? { ...currentProject.architectureOwners, [subsystemId]: updates.ownerId } : currentProject.architectureOwners,
+      architectureHealth: updates.health ? { ...currentProject.architectureHealth, [subsystemId]: updates.health } : currentProject.architectureHealth,
+    });
+  };
 
   const filteredIssues = useMemo(() => {
     if (!selectedSubsystem) return issues;
@@ -130,6 +137,24 @@ export const ArchitectureView: React.FC = () => {
                   {isSelected ? t('viewingLinkedIssues') : t('clickToFilter')}
                 </span>
               </div>
+              {isSelected && (
+                <div className="arch-collab-controls" onClick={event => event.stopPropagation()}>
+                  <label>
+                    {t('assignee')}
+                    <select value={node.ownerId || ''} onChange={event => updateSubsystem(node.id, { ownerId: event.target.value })}>
+                      {users.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    {t('status')}
+                    <select value={node.health} onChange={event => updateSubsystem(node.id, { health: event.target.value as 'healthy' | 'warning' | 'degraded' })}>
+                      <option value="healthy">{t('healthy')}</option>
+                      <option value="warning">{t('attention')}</option>
+                      <option value="degraded">{t('degraded')}</option>
+                    </select>
+                  </label>
+                </div>
+              )}
             </div>
           );
         })}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
 import { IconX, IconTrash, IconClock, IconLink } from '../common/Icons';
@@ -23,6 +23,12 @@ export const IssueDetailModal: React.FC = () => {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [selectedBlockerId, setSelectedBlockerId] = useState('');
   const [activityTab, setActivityTab] = useState<'comments' | 'history'>('comments');
+  const detailMainRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!selectedIssueId) return;
+    detailMainRef.current?.scrollTo({ top: 0 });
+  }, [selectedIssueId]);
 
   if (!selectedIssueId) return null;
 
@@ -33,6 +39,10 @@ export const IssueDetailModal: React.FC = () => {
 
   const completedSubtasks = issue.subtasks.filter(s => s.completed).length;
   const subtaskProgressPct = issue.subtasks.length > 0 ? Math.round((completedSubtasks / issue.subtasks.length) * 100) : 0;
+  const originalEstimate = Math.max(issue.originalEstimate || 0, 0);
+  const timeLogged = Math.max(issue.timeLogged || 0, 0);
+  const trackedTimePct = originalEstimate > 0 ? Math.min(100, Math.round((timeLogged / originalEstimate) * 100)) : 0;
+  const remainingTime = Math.max(0, originalEstimate - timeLogged);
 
   // Resolve Linked Blocker Issues
   const blockedByIssues = (issue.blockedBy || [])
@@ -105,7 +115,7 @@ export const IssueDetailModal: React.FC = () => {
         {/* Drawer Content Body: Left main details & Right metadata sidebar */}
         <div className="drawer-body">
           {/* Main Left Details */}
-          <div className="detail-main-col">
+          <div className="detail-main-col" ref={detailMainRef}>
             {/* Title Input */}
             <input
               type="text"
@@ -319,32 +329,28 @@ useEffect(() => {
             </div>
 
             {/* Time Tracking */}
-            <div className="detail-section">
-              <h3>Time Tracking</h3>
-              <div className="time-tracking-box">
-                <IconClock size={20} className="clock-icon" />
-                <div className="tracking-fields">
-                  <div className="field-row">
-                    <span>Original Estimate (hrs):</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={issue.originalEstimate}
-                      onChange={e => updateIssue(issue.id, { originalEstimate: Number(e.target.value) })}
-                    />
-                  </div>
-                  <div className="field-row">
-                    <span>Time Logged (hrs):</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={issue.timeLogged}
-                      onChange={e => updateIssue(issue.id, { timeLogged: Number(e.target.value) })}
-                    />
-                  </div>
+            <section className="detail-section time-tracking-section">
+              <div className="time-tracking-heading">
+                <h3><IconClock size={16} /> Time Tracking</h3>
+                <span>{timeLogged}h logged</span>
+              </div>
+              <div className="time-tracking-panel">
+                <div className="time-progress-summary">
+                  <div className="time-progress-labels"><span>{trackedTimePct}% used</span><span>{remainingTime}h remaining</span></div>
+                  <div className="time-progress-track"><span style={{ width: `${trackedTimePct}%` }} /></div>
+                </div>
+                <div className="time-tracking-fields">
+                  <label>
+                    <span>Original estimate</span>
+                    <div className="time-input-wrap"><input type="number" min={0} value={issue.originalEstimate} onChange={e => updateIssue(issue.id, { originalEstimate: Number(e.target.value) })} /><em>h</em></div>
+                  </label>
+                  <label>
+                    <span>Time logged</span>
+                    <div className="time-input-wrap"><input type="number" min={0} value={issue.timeLogged} onChange={e => updateIssue(issue.id, { timeLogged: Number(e.target.value) })} /><em>h</em></div>
+                  </label>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Comments & Activity Audit History */}
             <div className="detail-section">
@@ -366,7 +372,7 @@ useEffect(() => {
               {activityTab === 'comments' ? (
                 <>
                   <form onSubmit={handleAddCommentSubmit} className="comment-form">
-                    <div style={{ position: 'relative' }}>
+                    <div className="comment-composer">
                       <textarea
                         rows={2}
                         placeholder="Add a comment... (Type @ to mention team members)"
@@ -374,25 +380,24 @@ useEffect(() => {
                         onChange={e => setNewCommentText(e.target.value)}
                       />
                       {/* @Mention Quick Member Selection Bar */}
-                      <div className="mention-quick-bar" style={{ display: 'flex', gap: '6px', alignItems: 'center', margin: '4px 0 8px 0', overflowX: 'auto', padding: '2px 0' }}>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', fontWeight: 600 }}>Mention:</span>
+                      <div className="mention-quick-bar">
+                        <span className="mention-label">Mention</span>
                         {users.map(u => (
                           <button
                             key={u.id}
                             type="button"
-                            className="btn-preset-sm"
-                            style={{ padding: '2px 6px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            className="mention-member-chip"
                             onClick={() => {
                               setNewCommentText(prev => `${prev.trim()} @${u.name} `);
                             }}
                           >
-                            <img src={u.avatar} alt="" style={{ width: '14px', height: '14px', borderRadius: '50%' }} />
+                            <img src={u.avatar} alt="" />
                             @{u.name.split(' ')[0]}
                           </button>
                         ))}
                       </div>
                     </div>
-                    <button type="submit" className="btn-primary-sm" style={{ marginTop: '4px' }}>Save Comment</button>
+                    <button type="submit" className="btn-primary-sm">Save Comment</button>
                   </form>
 
                   <div className="comments-list">

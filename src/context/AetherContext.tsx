@@ -32,7 +32,8 @@ import {
   deleteIssueFromSupabase,
   fetchRetroFromSupabase,
   syncRetroToSupabase,
-  mapDbToIssue
+  mapDbToIssue,
+  mapDbToRetroItem
 } from '../services/supabaseSync';
 
 const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
@@ -222,7 +223,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [automationAuditLogs, setAutomationAuditLogs] = useState(
     persistedState.automationAuditLogs ?? initialAutomationAuditLogs
   );
-  const [retrospectiveItems, setRetrospectiveItems] = useState(
+  const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(
     persistedState.retrospectiveItems ?? initialRetrospectiveItems
   );
 
@@ -315,8 +316,25 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     });
 
+    const unsubscribeRetro = subscribeToTable('retrospective_items', (payload) => {
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedItem = mapDbToRetroItem(payload.new);
+        setRetrospectiveItems(previous => {
+          const index = previous.findIndex(item => item.id === updatedItem.id);
+          if (index < 0) return [updatedItem, ...previous];
+          const next = [...previous];
+          next[index] = updatedItem;
+          return next;
+        });
+      } else if (payload.eventType === 'DELETE') {
+        const deletedId = payload.old?.id;
+        if (deletedId) setRetrospectiveItems(previous => previous.filter(item => item.id !== deletedId));
+      }
+    });
+
     return () => {
       unsubscribeIssues();
+      unsubscribeRetro();
     };
   }, [currentProject.id]);
 
@@ -327,7 +345,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const createProject = (projectData: Omit<Project, 'id'>): Project => {
     const createdProject: Project = {
       ...projectData,
-      id: `proj_${Date.now()}`
+      id: `proj_${Date.now()}`,
+      boardTitle: projectData.boardTitle?.trim() || `${projectData.name} (Active)`
     };
 
     setProjects(prev => [createdProject, ...prev]);
@@ -606,7 +625,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   };
 
-  const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string) => {
+  const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string, assigneeId: string | null = null) => {
     const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
     const newItem: RetrospectiveItem = {
       id: `retro-${Date.now()}`,
@@ -614,7 +633,11 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       content,
       votes: 1,
       authorId: currentUser.id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      status: type === 'action_item' ? 'planned' : undefined,
+      assigneeId,
+      comments: [],
+      voterIds: [currentUser.id]
     };
     setRetrospectiveItems(prev => [newItem, ...prev]);
     syncRetroToSupabase(newItem, currentProject.id, activeSprint?.id || 'sprint-1');
@@ -625,13 +648,42 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRetrospectiveItems(prev =>
       prev.map(item => {
         if (item.id === id) {
-          const updated = { ...item, votes: item.votes + 1 };
+          if ((item.voterIds || []).includes(currentUser.id)) return item;
+          const updated = { ...item, votes: item.votes + 1, voterIds: [...(item.voterIds || []), currentUser.id] };
           syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
           return updated;
         }
         return item;
       })
     );
+  };
+
+  const updateRetroItem = (id: string, updates: Partial<Omit<RetrospectiveItem, 'id' | 'authorId' | 'createdAt'>>) => {
+    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
+    setRetrospectiveItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const updated = { ...item, ...updates };
+      syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
+      return updated;
+    }));
+  };
+
+  const addRetroComment = (id: string, text: string) => {
+    const cleanText = text.trim();
+    if (!cleanText) return;
+    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
+    setRetrospectiveItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const updated: RetrospectiveItem = {
+        ...item,
+        comments: [
+          ...(item.comments || []),
+          { id: `retro-comment-${Date.now()}`, authorId: currentUser.id, text: cleanText, createdAt: new Date().toISOString() }
+        ]
+      };
+      syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
+      return updated;
+    }));
   };
 
   const deleteRetroItem = (id: string) => {
@@ -725,6 +777,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         deleteEpic,
         sprints,
         issues,
+        portfolioIssues: allIssues,
         automationRules,
         automationAuditLogs,
         retrospectiveItems,
@@ -732,6 +785,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setViewMode,
         addRetroItem,
         voteRetroItem,
+        updateRetroItem,
+        addRetroComment,
         deleteRetroItem,
         searchQuery,
         setSearchQuery,
