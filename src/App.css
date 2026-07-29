@@ -10150,6 +10150,61 @@ input:checked + .slider:before {
   .backlog-overview-card { padding: var(--space-3); }
 }
 
+/* Keep board columns and card metadata from colliding at narrower workspace widths. */
+.kanban-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.kanban-column { min-width: 0; }
+.column-header { align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+.header-title-group { min-width: 0; flex: 1 1 145px; flex-wrap: wrap; row-gap: 5px; }
+.column-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.column-points { margin-left: auto; white-space: nowrap; }
+.column-cards-list { min-width: 0; }
+.kanban-card { min-width: 0; overflow: hidden; }
+.card-footer { gap: var(--space-2); }
+.footer-left { min-width: 0; flex-wrap: wrap; row-gap: 4px; }
+.footer-right { flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  .kanban-grid { grid-template-columns: minmax(0, 1fr); }
+  .header-title-group { flex-basis: 100%; }
+  .column-points { margin-left: 0; }
+}
+
+/* Board-specific responsive guardrails: every control can wrap before it overlaps. */
+.kanban-view,
+.kanban-grid,
+.kanban-column,
+.board-header > *,
+.tag-filter-pills-bar { min-width: 0; }
+.tag-filter-pills-bar { flex-wrap: wrap; }
+.tag-filter-list { min-width: 0; max-width: 100%; overflow-x: auto; }
+.card-summary { overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .board-header { align-items: flex-start; flex-direction: column; }
+  .board-controls { width: 100%; flex-wrap: wrap; }
+  .board-title-row { flex-wrap: wrap; }
+  .board-title-editor { max-width: 100%; flex-wrap: wrap; }
+  .board-title-editor input { min-width: 0; flex: 1 1 180px; }
+  .tag-filter-pills-bar { align-items: flex-start; gap: var(--space-2); }
+  .tag-filter-list { flex: 1 1 200px; }
+}
+
+@media (max-width: 560px) {
+  .board-controls { gap: var(--space-1); }
+  .control-label { flex-basis: 100%; }
+  .control-select { min-width: 0; flex: 1 1 120px; }
+  .density-select { min-width: 0; }
+  .tag-filter-list { flex-basis: 100%; }
+  .kanban-column { width: 100%; max-width: 100%; }
+  .column-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .header-title-group { min-width: 0; }
+  .column-points { align-self: center; }
+  .card-footer { align-items: flex-start; flex-wrap: wrap; }
+  .footer-right { margin-left: auto; }
+  .quick-add-actions { flex-wrap: wrap; }
+  .quick-add-actions button { flex: 1 1 auto; }
+}
+
 @media (max-width: 560px) {
   .arch-collab-controls { grid-template-columns: 1fr; }
   .time-tracking-fields { grid-template-columns: 1fr; }
