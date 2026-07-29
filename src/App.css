@@ -569,6 +569,20 @@
 .tools-dropdown {
   min-width: 220px;
 }
+.tool-action-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-in-progress, #6366f1);
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 12%, transparent);
+  flex: 0 0 auto;
+}
+.tools-dropdown .dropdown-action:hover .tool-action-icon {
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 20%, transparent);
+}
 .tools-dropdown-portal {
   position: fixed;
   left: auto;
@@ -1459,6 +1473,40 @@
   flex: 0 0 auto;
 }
 
+.modal-content .modal-footer .btn-primary,
+.modal-content .modal-footer .btn-secondary {
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.modal-content .modal-footer .btn-secondary {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.modal-content .modal-footer .btn-secondary:hover {
+  background: color-mix(in srgb, var(--bg-primary) 78%, var(--text-primary));
+}
+
+.modal-content .modal-footer .btn-primary:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.modal-content .modal-footer button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
 @media (max-width: 560px) {
   .modal-overlay { padding: 10px; align-items: flex-start; }
   .modal-content { max-height: calc(100dvh - 20px); }
@@ -1624,6 +1672,37 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
+}
+
+/* Shared close control for Standup, Release, and every workspace tool modal. */
+.btn-icon-close,
+.modal-content .close-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-icon-close:hover,
+.modal-content .close-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.btn-icon-close:focus-visible,
+.modal-content .close-btn:focus-visible {
+  outline: 2px solid var(--color-in-progress, #6366f1);
+  outline-offset: 2px;
 }
 
 .drawer-body {

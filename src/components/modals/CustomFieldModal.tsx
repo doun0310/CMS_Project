@@ -31,7 +31,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
       id: 'cf-pr',
       name: 'GitHub PR Link',
       type: 'url',
-      defaultValue: 'https://github.com/aether/pull/104',
+      defaultValue: 'https://github.com/doun0310/CMS_Project',
     },
     {
       id: 'cf-security',
@@ -53,7 +53,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
     return selectedIssue?.customFields || {
       'Deployment Environment': 'Production',
       'Customer Impact Tier': 'VIP Enterprise',
-      'GitHub PR Link': 'https://github.com/aether/pull/104',
+      'GitHub PR Link': 'https://github.com/doun0310/CMS_Project',
       'Security Audit Gate': 'Passed ✅',
     };
   });
@@ -129,7 +129,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                 onClick={() => {
                   setFields([
                     { id: 'cf-env', name: 'Deployment Environment', type: 'select', options: ['Staging', 'Production', 'QA Cluster'], defaultValue: 'Production' },
-                    { id: 'cf-pr', name: 'GitHub PR Link', type: 'url', defaultValue: 'https://github.com/aether/pull/104' },
+                    { id: 'cf-pr', name: 'GitHub PR Link', type: 'url', defaultValue: 'https://github.com/doun0310/CMS_Project' },
                     { id: 'cf-artifact', name: 'Build Artifact Hash', type: 'text', defaultValue: 'sha256:a91f82' },
                   ]);
                 }}

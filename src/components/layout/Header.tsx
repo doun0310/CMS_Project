@@ -11,7 +11,19 @@ import {
   IconMoon,
   IconChevronDown,
   IconReset,
-  IconBell
+  IconBell,
+  IconAiSpark,
+  IconAnalytics,
+  IconArchitecture,
+  IconAutomation,
+  IconCalendar,
+  IconCheckCircle,
+  IconLink,
+  IconReports,
+  IconRetro,
+  IconSettings,
+  IconTarget,
+  IconUsers,
 } from '../common/Icons';
 
 export const Header: React.FC = () => {
@@ -141,22 +153,22 @@ export const Header: React.FC = () => {
   };
 
   const toolActions = [
-    { label: t('tests'), title: t('openTestsTitle'), onClick: () => openModal('testGenerator') },
-    { label: t('customFields'), title: t('openCustomFieldsTitle'), onClick: () => openModal('customField') },
-    { label: t('simulator'), title: t('openSimulatorTitle'), onClick: () => openModal('velocitySimulator') },
-    { label: t('codeImpact'), title: t('openCodeImpactTitle'), onClick: () => openModal('codeImpact') },
-    { label: t('retroReport'), title: t('openRetroReportTitle'), onClick: () => openModal('retroReport') },
-    { label: t('ruleBuilder'), title: t('openRuleBuilderTitle'), onClick: () => openModal('automationRule') },
-    { label: t('prAudit'), title: t('openPrAuditTitle'), onClick: () => openModal('prAudit') },
-    { label: t('ptoCalendar'), title: t('openPtoCalendarTitle'), onClick: () => openModal('capacityCalendar') },
-    { label: t('releaseGate'), title: t('openReleaseGateTitle'), onClick: () => openModal('releaseGate') },
-    { label: t('skillMatrix'), title: t('openSkillMatrixTitle'), onClick: () => openModal('skillMatrix') },
-    { label: t('autoTriage'), title: t('openAutoTriageTitle'), onClick: () => openModal('issueTriage') },
-    { label: t('postMortem'), title: t('openPostMortemTitle'), onClick: () => openModal('incidentPostMortem') },
-    { label: t('techDebt'), title: t('openTechDebtTitle'), onClick: () => openModal('techDebtScanner') },
-    { label: t('dependencyGraph'), title: t('openDependencyGraphTitle'), onClick: () => openModal('dependencyGraph') },
-    { label: t('monteCarlo'), title: t('openMonteCarloTitle'), onClick: () => openModal('monteCarlo') },
-    { label: t('complianceMatrix'), title: t('openComplianceMatrixTitle'), onClick: () => openModal('complianceMatrix') }
+    { label: t('tests'), title: t('openTestsTitle'), icon: <IconCheckCircle size={16} />, onClick: () => openModal('testGenerator') },
+    { label: t('customFields'), title: t('openCustomFieldsTitle'), icon: <IconSettings size={16} />, onClick: () => openModal('customField') },
+    { label: t('simulator'), title: t('openSimulatorTitle'), icon: <IconAnalytics size={16} />, onClick: () => openModal('velocitySimulator') },
+    { label: t('codeImpact'), title: t('openCodeImpactTitle'), icon: <IconArchitecture size={16} />, onClick: () => openModal('codeImpact') },
+    { label: t('retroReport'), title: t('openRetroReportTitle'), icon: <IconRetro size={16} />, onClick: () => openModal('retroReport') },
+    { label: t('ruleBuilder'), title: t('openRuleBuilderTitle'), icon: <IconAutomation size={16} />, onClick: () => openModal('automationRule') },
+    { label: t('prAudit'), title: t('openPrAuditTitle'), icon: <IconCheckCircle size={16} />, onClick: () => openModal('prAudit') },
+    { label: t('ptoCalendar'), title: t('openPtoCalendarTitle'), icon: <IconCalendar size={16} />, onClick: () => openModal('capacityCalendar') },
+    { label: t('releaseGate'), title: t('openReleaseGateTitle'), icon: <IconTarget size={16} />, onClick: () => openModal('releaseGate') },
+    { label: t('skillMatrix'), title: t('openSkillMatrixTitle'), icon: <IconUsers size={16} />, onClick: () => openModal('skillMatrix') },
+    { label: t('autoTriage'), title: t('openAutoTriageTitle'), icon: <IconAiSpark size={16} />, onClick: () => openModal('issueTriage') },
+    { label: t('postMortem'), title: t('openPostMortemTitle'), icon: <IconReports size={16} />, onClick: () => openModal('incidentPostMortem') },
+    { label: t('techDebt'), title: t('openTechDebtTitle'), icon: <IconSettings size={16} />, onClick: () => openModal('techDebtScanner') },
+    { label: t('dependencyGraph'), title: t('openDependencyGraphTitle'), icon: <IconLink size={16} />, onClick: () => openModal('dependencyGraph') },
+    { label: t('monteCarlo'), title: t('openMonteCarloTitle'), icon: <IconAnalytics size={16} />, onClick: () => openModal('monteCarlo') },
+    { label: t('complianceMatrix'), title: t('openComplianceMatrixTitle'), icon: <IconCheckCircle size={16} />, onClick: () => openModal('complianceMatrix') }
   ];
 
   return (
@@ -297,6 +309,7 @@ export const Header: React.FC = () => {
                       setIsToolsOpen(false);
                     }}
                   >
+                    <span className="tool-action-icon">{action.icon}</span>
                     <span className="dropdown-title">{action.label}</span>
                   </button>
                 ))}
