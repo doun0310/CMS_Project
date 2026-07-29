@@ -516,6 +516,39 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setSprints(prev => [...prev, newSprint]);
   };
 
+  const updateSprint = (sprintId: string, updates: Partial<Omit<Sprint, 'id' | 'projectId'>>) => {
+    setSprints(previousSprints => previousSprints.map(sprint => (
+      sprint.id === sprintId ? { ...sprint, ...updates } : sprint
+    )));
+  };
+
+  const deleteSprint = (sprintId: string) => {
+    setSprints(previousSprints => previousSprints.filter(sprint => sprint.id !== sprintId));
+    setIssues(previousIssues => previousIssues.map(issue => (
+      issue.sprintId === sprintId ? { ...issue, sprintId: null } : issue
+    )));
+  };
+
+  const createEpic = (summary: string) => {
+    const nextNumber = epics.reduce((max, epic) => Math.max(max, Number(epic.key.split('E')[1]) || 0), 0) + 1;
+    setEpics(previousEpics => [...previousEpics, {
+      id: `epic_${Date.now()}`,
+      projectId: currentProject.id,
+      key: `${currentProject.key}-E${nextNumber}`,
+      summary,
+      color: '#6366f1',
+    }]);
+  };
+
+  const updateEpic = (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => {
+    setEpics(previousEpics => previousEpics.map(epic => epic.id === epicId ? { ...epic, ...updates } : epic));
+  };
+
+  const deleteEpic = (epicId: string) => {
+    setEpics(previousEpics => previousEpics.filter(epic => epic.id !== epicId));
+    setIssues(previousIssues => previousIssues.map(issue => issue.epicId === epicId ? { ...issue, epicId: null } : issue));
+  };
+
   const toggleAutomationRule = (ruleId: string) => {
     setAutomationRules(prev =>
       prev.map(r => (r.id === ruleId ? { ...r, enabled: !r.enabled } : r))
@@ -685,6 +718,9 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         deleteProject,
         users,
         epics,
+        createEpic,
+        updateEpic,
+        deleteEpic,
         sprints,
         issues,
         automationRules,
@@ -723,6 +759,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         startSprint,
         completeSprint,
         createSprint,
+        updateSprint,
+        deleteSprint,
         toggleAutomationRule,
         addAutomationRule,
         deleteAutomationRule,

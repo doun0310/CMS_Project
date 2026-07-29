@@ -366,18 +366,39 @@ useEffect(() => {
               {activityTab === 'comments' ? (
                 <>
                   <form onSubmit={handleAddCommentSubmit} className="comment-form">
-                    <textarea
-                      rows={2}
-                      placeholder="Add a comment..."
-                      value={newCommentText}
-                      onChange={e => setNewCommentText(e.target.value)}
-                    />
-                    <button type="submit" className="btn-primary-sm">Save Comment</button>
+                    <div style={{ position: 'relative' }}>
+                      <textarea
+                        rows={2}
+                        placeholder="Add a comment... (Type @ to mention team members)"
+                        value={newCommentText}
+                        onChange={e => setNewCommentText(e.target.value)}
+                      />
+                      {/* @Mention Quick Member Selection Bar */}
+                      <div className="mention-quick-bar" style={{ display: 'flex', gap: '6px', alignItems: 'center', margin: '4px 0 8px 0', overflowX: 'auto', padding: '2px 0' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', fontWeight: 600 }}>Mention:</span>
+                        {users.map(u => (
+                          <button
+                            key={u.id}
+                            type="button"
+                            className="btn-preset-sm"
+                            style={{ padding: '2px 6px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => {
+                              setNewCommentText(prev => `${prev.trim()} @${u.name} `);
+                            }}
+                          >
+                            <img src={u.avatar} alt="" style={{ width: '14px', height: '14px', borderRadius: '50%' }} />
+                            @{u.name.split(' ')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button type="submit" className="btn-primary-sm" style={{ marginTop: '4px' }}>Save Comment</button>
                   </form>
 
                   <div className="comments-list">
                     {issue.comments.map(c => {
                       const author = users.find(u => u.id === c.authorId);
+                      const hasMention = c.text.includes('@');
                       return (
                         <div key={c.id} className="comment-item">
                           <img src={author?.avatar} alt={author?.name} className="comment-avatar" />
@@ -385,8 +406,24 @@ useEffect(() => {
                             <div className="comment-meta">
                               <span className="author-name">{author?.name}</span>
                               <span className="comment-time">{new Date(c.createdAt).toLocaleString()}</span>
+                              {hasMention && (
+                                <span className="status-badge-sm in_progress" style={{ fontSize: '0.65rem', padding: '1px 5px', marginLeft: '6px' }}>
+                                  💬 MENTION NOTIFIED
+                                </span>
+                              )}
                             </div>
-                            <div className="comment-text">{c.text}</div>
+                            <div className="comment-text">
+                              {c.text.split(/(@[A-Za-z0-9_]+)/g).map((part, idx) => {
+                                if (part.startsWith('@')) {
+                                  return (
+                                    <span key={idx} style={{ color: '#6366f1', fontWeight: 700, background: 'rgba(99,102,241,0.1)', padding: '1px 4px', borderRadius: '4px' }}>
+                                      {part}
+                                    </span>
+                                  );
+                                }
+                                return part;
+                              })}
+                            </div>
                           </div>
                         </div>
                       );
@@ -528,6 +565,117 @@ useEffect(() => {
                     <span className="cf-sidebar-val">{val}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* GitHub & CI/CD Integration Panel */}
+            <div className="field-group custom-fields-sidebar-group" style={{ marginTop: '16px', background: 'rgba(99, 102, 241, 0.05)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+              <label className="cf-sidebar-title" style={{ color: '#818cf8', fontWeight: 700 }}>🐙 GitHub & CI/CD Pipeline</label>
+              
+              <div style={{ fontSize: '0.8rem', marginTop: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Branch:</span>
+                  <code style={{ background: 'var(--bg-tertiary)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                    {issue.githubBranch || `feature/${issue.key.toLowerCase()}`}
+                  </code>
+                </div>
+
+                <div style={{ marginTop: '8px' }}>
+                  <span style={{ fontWeight: 600, display: 'block', marginBottom: '4px' }}>Pull Requests ({(issue.linkedPRs || []).length}):</span>
+                  {(issue.linkedPRs || []).length === 0 ? (
+                    <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>No linked PRs yet</span>
+                  ) : (
+                    (issue.linkedPRs || []).map(pr => (
+                      <div key={pr.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', fontSize: '0.75rem', background: 'var(--bg-secondary)', padding: '4px 6px', borderRadius: '4px' }}>
+                        <a href={pr.url} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600 }}>
+                          #{pr.number} {pr.title}
+                        </a>
+                        <span className={`status-badge-sm ${pr.status === 'merged' ? 'done' : pr.status === 'open' ? 'in_progress' : 'todo'}`}>
+                          {pr.status.toUpperCase()}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div style={{ marginTop: '10px' }}>
+                  <span style={{ fontWeight: 600, display: 'block', marginBottom: '4px' }}>Commits ({(issue.linkedCommits || []).length}):</span>
+                  {(issue.linkedCommits || []).length === 0 ? (
+                    <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>No linked commits yet</span>
+                  ) : (
+                    (issue.linkedCommits || []).slice(-3).map(c => (
+                      <div key={c.hash} style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
+                        <code style={{ color: '#a78bfa' }}>{c.hash}</code> - {c.message} ({c.author})
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Simulated Webhook Trigger Buttons */}
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <button
+                    className="btn-secondary-sm"
+                    style={{ fontSize: '0.73rem', padding: '4px 8px' }}
+                    onClick={() => {
+                      const mockCommit = {
+                        hash: Math.random().toString(36).substring(2, 9),
+                        message: `feat(${issue.key}): Implement core logic for ${issue.summary}`,
+                        url: `https://github.com/aether/repo/commit/${Math.random().toString(36).substring(2, 9)}`,
+                        author: 'dev-engineer',
+                        timestamp: new Date().toISOString()
+                      };
+                      const existing = issue.linkedCommits || [];
+                      updateIssue(issue.id, {
+                        status: issue.status === 'todo' ? 'in_progress' : issue.status,
+                        linkedCommits: [...existing, mockCommit],
+                        history: [
+                          ...(issue.history || []),
+                          {
+                            id: `hist_${Date.now()}`,
+                            authorId: 'system_github',
+                            action: `Simulated GitHub Push Commit [${mockCommit.hash}] by ${mockCommit.author}`,
+                            timestamp: new Date().toISOString()
+                          }
+                        ]
+                      });
+                    }}
+                  >
+                    ⚡ Simulate GitHub Commit Push
+                  </button>
+
+                  <button
+                    className="btn-primary-sm"
+                    style={{ fontSize: '0.73rem', padding: '4px 8px' }}
+                    onClick={() => {
+                      const mockPR = {
+                        id: `pr_${Date.now()}`,
+                        number: Math.floor(100 + Math.random() * 900),
+                        title: `fix(${issue.key}): Resolve ${issue.summary}`,
+                        url: `https://github.com/aether/repo/pull/${Math.floor(100 + Math.random() * 900)}`,
+                        status: 'merged' as const,
+                        author: 'lead-dev',
+                        createdAt: new Date().toISOString()
+                      };
+                      const existingPRs = issue.linkedPRs || [];
+                      updateIssue(issue.id, {
+                        status: 'done',
+                        githubBranch: `feature/${issue.key.toLowerCase()}`,
+                        linkedPRs: [...existingPRs, mockPR],
+                        history: [
+                          ...(issue.history || []),
+                          {
+                            id: `hist_${Date.now()}`,
+                            authorId: 'system_github',
+                            action: `Simulated GitHub PR #${mockPR.number} MERGED -> Status set to DONE`,
+                            timestamp: new Date().toISOString()
+                          }
+                        ]
+                      });
+                    }}
+                  >
+                    🚀 Simulate GitHub PR Merge (Auto Done)
+                  </button>
+                </div>
               </div>
             </div>
           </div>

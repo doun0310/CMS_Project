@@ -32,6 +32,9 @@ export interface AetherContextValue {
   deleteProject: (projectId: string) => boolean;
   users: User[];
   epics: Epic[];
+  createEpic: (summary: string) => void;
+  updateEpic: (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => void;
+  deleteEpic: (epicId: string) => void;
   sprints: Sprint[];
   issues: Issue[];
   automationRules: AutomationRule[];
@@ -75,6 +78,8 @@ export interface AetherContextValue {
   startSprint: (sprintId: string) => void;
   completeSprint: (sprintId: string) => void;
   createSprint: (name: string, goal: string) => void;
+  updateSprint: (sprintId: string, updates: Partial<Omit<Sprint, 'id' | 'projectId'>>) => void;
+  deleteSprint: (sprintId: string) => void;
 
   toggleAutomationRule: (ruleId: string) => void;
   addAutomationRule: (name: string, trigger: string, action: string) => void;

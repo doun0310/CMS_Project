@@ -28,6 +28,9 @@ export function mapDbToIssue(row: any): Issue {
     timeLogged: row.logged_hours || 0,
     createdAt: row.created_at || new Date().toISOString(),
     updatedAt: row.updated_at || new Date().toISOString(),
+    githubBranch: row.github_branch || undefined,
+    linkedPRs: row.linked_prs || [],
+    linkedCommits: row.linked_commits || [],
   };
 }
 
@@ -53,6 +56,9 @@ export function mapIssueToDb(issue: Issue, projectId: string) {
     original_estimate_hours: issue.originalEstimate,
     logged_hours: issue.timeLogged,
     labels: issue.labels,
+    github_branch: issue.githubBranch || null,
+    linked_prs: issue.linkedPRs || [],
+    linked_commits: issue.linkedCommits || [],
     updated_at: new Date().toISOString(),
   };
 }

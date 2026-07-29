@@ -12,7 +12,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
 
   const targetIssue = issues.find((i) => i.id === selectedIssueId) || issues[0];
 
-  const [prUrl, setPrUrl] = useState('https://github.com/aether-org/pulse-core/pull/142');
+  const [prUrl, setPrUrl] = useState('https://github.com/doun0310/CMS_Project/pull/142');
   const [copied, setCopied] = useState(false);
   const [auditAttached, setAuditAttached] = useState(false);
 

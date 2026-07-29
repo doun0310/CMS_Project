@@ -61,6 +61,63 @@ export const AutomationView: React.FC = () => {
         </div>
       )}
 
+      {/* 1-Click Preset Templates */}
+      <div className="ai-preset-card animate-fade-in" style={{ marginBottom: '20px' }}>
+        <div className="ai-preset-header">
+          <span>⚡ 1-Click Enterprise Automation Presets</span>
+          <span className="preset-hint">Click a preset to quickly add Jira & Shortcut style automation rules</span>
+        </div>
+        <div className="preset-buttons-row" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-preset-sm"
+            onClick={() => {
+              addAutomationRule(
+                '🐙 GitHub PR Merge -> Auto Move to DONE',
+                'GitHub PR Merged Event',
+                'Move Issue Status to DONE automatically'
+              );
+              setTestNotification('Added rule: GitHub PR Merge -> Auto Move to DONE');
+              setTimeout(() => setTestNotification(null), 3000);
+            }}
+          >
+            🐙 GitHub PR Merge Auto-Done
+          </button>
+
+          <button
+            type="button"
+            className="btn-preset-sm"
+            onClick={() => {
+              addAutomationRule(
+                '🚨 High Priority Bug -> Auto Assign Lead & Slack Alert',
+                'Issue Created as BUG with Priority HIGHEST',
+                'Send High Priority Alert to Team Slack & Assign Lead'
+              );
+              setTestNotification('Added rule: High Priority Bug -> Auto Assign Lead & Slack Alert');
+              setTimeout(() => setTestNotification(null), 3000);
+            }}
+          >
+            🚨 High Bug Escalation
+          </button>
+
+          <button
+            type="button"
+            className="btn-preset-sm"
+            onClick={() => {
+              addAutomationRule(
+                '✅ All Subtasks Done -> Auto Resolve Parent Task',
+                'All Subtasks Completed',
+                'Move Issue Status to DONE automatically'
+              );
+              setTestNotification('Added rule: All Subtasks Done -> Auto Resolve Parent Task');
+              setTimeout(() => setTestNotification(null), 3000);
+            }}
+          >
+            ✅ Subtask Completion Sync
+          </button>
+        </div>
+      </div>
+
       {/* Interactive New Rule Builder Form */}
       {isCreatingRule && (
         <form onSubmit={handleCreateRuleSubmit} className="automation-builder-card animate-fade-in">

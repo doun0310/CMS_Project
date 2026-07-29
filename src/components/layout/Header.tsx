@@ -25,6 +25,7 @@ import {
   IconTarget,
   IconUsers,
 } from '../common/Icons';
+import { SAVED_JQL_PRESETS } from '../../utils/jqlEngine';
 
 export const Header: React.FC = () => {
   const {
@@ -247,7 +248,7 @@ export const Header: React.FC = () => {
           <IconSearch size={16} className="search-icon" />
           <input
             type="text"
-            placeholder={t('searchPlaceholder')}
+            placeholder="JQL Search (e.g. status:in_progress type:bug)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -257,6 +258,25 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="quick-filters">
+          {/* JQL Filter Presets Dropdown */}
+          <select
+            className="filter-select"
+            style={{ fontWeight: 600, borderColor: 'var(--color-in-progress, #6366f1)' }}
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                setSearchQuery(e.target.value);
+              }
+            }}
+          >
+            <option value="">⚡ JQL Presets</option>
+            {SAVED_JQL_PRESETS.map((preset) => (
+              <option key={preset.id} value={preset.query}>
+                {preset.icon} {preset.name}
+              </option>
+            ))}
+          </select>
+
           <button className={`filter-chip ${onlyMyIssues ? 'active' : ''}`} onClick={() => setOnlyMyIssues(current => !current)}>
             {t('onlyMyIssues')}
           </button>

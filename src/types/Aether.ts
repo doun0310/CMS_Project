@@ -69,6 +69,25 @@ export interface ActivityLog {
   timestamp: string;
 }
 
+export interface LinkedPR {
+  id: string;
+  number: number;
+  title: string;
+  url: string;
+  status: 'open' | 'merged' | 'closed';
+  author: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface LinkedCommit {
+  hash: string;
+  message: string;
+  url: string;
+  author: string;
+  timestamp: string;
+}
+
 export interface Issue {
   id: string;
   projectId?: string;
@@ -98,6 +117,9 @@ export interface Issue {
   acceptanceCriteria?: string[];
   testScenarios?: { id: string; title: string; gherkin: string; codeSnippet: string }[];
   customFields?: Record<string, string>;
+  githubBranch?: string;
+  linkedPRs?: LinkedPR[];
+  linkedCommits?: LinkedCommit[];
 }
 
 export interface CustomFieldDef {
@@ -108,6 +130,15 @@ export interface CustomFieldDef {
   defaultValue?: string;
 }
 
+export interface WorkflowState {
+  id: string;
+  name: string;
+  category: 'todo' | 'in_progress' | 'done';
+  color: string;
+  wipLimit?: number;
+  position: number;
+}
+
 export interface Project {
   id: string;
   key: string;
@@ -115,7 +146,9 @@ export interface Project {
   category: string;
   avatar: string;
   description: string;
+  boardTitle?: string;
   customFieldDefs?: CustomFieldDef[];
+  workflowStates?: WorkflowState[];
 }
 
 export interface AutomationRule {

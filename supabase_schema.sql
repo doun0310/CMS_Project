@@ -101,17 +101,47 @@ CREATE TABLE IF NOT EXISTS public.retrospective_items (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 9. GitHub Integration & CI/CD Linkage Columns
+ALTER TABLE public.issues 
+ADD COLUMN IF NOT EXISTS github_branch TEXT,
+ADD COLUMN IF NOT EXISTS linked_prs JSONB DEFAULT '[]'::jsonb,
+ADD COLUMN IF NOT EXISTS linked_commits JSONB DEFAULT '[]'::jsonb;
+
+-- 10. Real-time Notifications Table
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipient_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  actor_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  type TEXT NOT NULL CHECK (type IN ('mention', 'assigned', 'comment', 'status_change', 'github_event')),
+  issue_id UUID REFERENCES public.issues(id) ON DELETE CASCADE,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. Workflow States Table
+CREATE TABLE IF NOT EXISTS public.workflow_states (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  category TEXT CHECK (category IN ('todo', 'in_progress', 'done')),
+  color TEXT DEFAULT '#6366F1',
+  position INT DEFAULT 0
+);
+
 -- Enable Realtime for key tables
 ALTER PUBLICATION supabase_realtime ADD TABLE public.issues;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.sprints;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.retrospective_items;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.issues ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- Allow Public Access Policy for Development (Restrict for Production)
 CREATE POLICY "Allow public read access" ON public.profiles FOR SELECT USING (true);
@@ -120,3 +150,4 @@ CREATE POLICY "Allow public read access" ON public.issues FOR SELECT USING (true
 CREATE POLICY "Allow public write access" ON public.issues FOR ALL USING (true);
 CREATE POLICY "Allow public read access" ON public.comments FOR SELECT USING (true);
 CREATE POLICY "Allow public write access" ON public.comments FOR ALL USING (true);
+CREATE POLICY "Allow public access" ON public.notifications FOR ALL USING (true);

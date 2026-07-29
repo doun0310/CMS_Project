@@ -17,10 +17,12 @@ import {
   IconUser,
   IconCheck,
   IconChevronRight,
-  IconChevronDown
+  IconChevronDown,
+  IconSettings
 } from '../common/Icons';
 import { SprintGoalBanner } from '../common/SprintGoalBanner';
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
+import { filterIssuesWithJQL } from '../../utils/jqlEngine';
 
 type SwimlaneMode = 'none' | 'assignee' | 'epic' | 'priority';
 type CardDensity = 'compact' | 'standard';
@@ -41,7 +43,9 @@ export const KanbanBoard: React.FC = () => {
     epics,
     users,
     currentUser,
+    currentProject,
     moveIssueStatus,
+    updateProject,
     setSelectedIssueId,
     createIssue,
     searchQuery,
@@ -59,6 +63,8 @@ export const KanbanBoard: React.FC = () => {
   const [addingToStatus, setAddingToStatus] = useState<IssueStatus | null>(null);
   const [quickSummary, setQuickSummary] = useState<string>('');
   const [cardDensity, setCardDensity] = useState<CardDensity>('compact');
+  const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
+  const [draftBoardTitle, setDraftBoardTitle] = useState('');
 
   // Column collapse state
   const [collapsedColumns, setCollapsedColumns] = useState<Record<string, boolean>>({
@@ -73,17 +79,23 @@ export const KanbanBoard: React.FC = () => {
   };
 
   const activeSprint = sprints.find((s: Sprint) => s.status === 'active');
+  const boardTitle = currentProject.boardTitle ?? activeSprint?.name ?? t('kanbanTitle');
 
-  // Filter issues for active sprint (or all issues if no active sprint)
-  const filteredIssues = issues.filter((issue: Issue) => {
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchKey = issue.key.toLowerCase().includes(q);
-      const matchSummary = issue.summary.toLowerCase().includes(q);
-      const matchDesc = (issue.description || '').toLowerCase().includes(q);
-      const matchLabel = (issue.labels || []).some((l: string) => l.toLowerCase().includes(q));
-      if (!matchKey && !matchSummary && !matchDesc && !matchLabel) return false;
-    }
+  const handleEditBoardTitle = () => {
+    setDraftBoardTitle(boardTitle);
+    setIsEditingBoardTitle(true);
+  };
+
+  const handleSaveBoardTitle = () => {
+    if (!draftBoardTitle.trim()) return;
+    updateProject(currentProject.id, { boardTitle: draftBoardTitle.trim() });
+    setIsEditingBoardTitle(false);
+  };
+
+  // Filter issues with JQL engine & active sprint filters
+  const jqlFiltered = filterIssuesWithJQL(issues, searchQuery, currentUser.id, activeSprint?.id);
+
+  const filteredIssues = jqlFiltered.filter((issue: Issue) => {
     if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
     if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
     if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
@@ -254,12 +266,29 @@ export const KanbanBoard: React.FC = () => {
       {/* Board Header Bar */}
       <div className="board-header">
         <div>
-          <h1 className="view-title">
-            {activeSprint ? activeSprint.name : t('kanbanTitle')}
-          </h1>
-          <p className="view-subtitle">
-            {activeSprint ? `${t('goalPrefix')}: ${activeSprint.goal}` : t('kanbanSubtitle')}
-          </p>
+          <div className="board-title-row">
+            {isEditingBoardTitle ? (
+              <div className="board-title-editor">
+                <input
+                  autoFocus
+                  value={draftBoardTitle}
+                  onChange={event => setDraftBoardTitle(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') handleSaveBoardTitle();
+                    if (event.key === 'Escape') setIsEditingBoardTitle(false);
+                  }}
+                  aria-label="Board title"
+                />
+                <button className="btn-primary-sm" onClick={handleSaveBoardTitle}>Save</button>
+                <button className="btn-ghost-sm" onClick={() => setIsEditingBoardTitle(false)}>Cancel</button>
+              </div>
+            ) : (
+              <>
+                <h1 className="view-title">{boardTitle}</h1>
+                <button className="board-title-edit" onClick={handleEditBoardTitle} title="Edit board title"><IconSettings size={15} /></button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Swimlane controls */}

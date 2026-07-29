@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue } from '../../types/Aether';
-import { IconEpic, IconChevronRight, IconChevronDown, IconRoadmap } from '../common/Icons';
+import { IconEpic, IconChevronRight, IconChevronDown, IconRoadmap, IconPlus, IconSettings, IconTrash } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
-  const { epics, issues, setSelectedIssueId, t, language } = useAether();
+  const { epics, issues, createEpic, updateEpic, deleteEpic, setSelectedIssueId, t, language } = useAether();
   const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>({
     'epic-1': true,
     'epic-2': true,
@@ -45,6 +45,11 @@ export const RoadmapView: React.FC = () => {
     ? milestones
     : milestones.filter(milestone => milestone.id === selectedMilestone);
 
+  const handleCreateEpic = () => {
+    const summary = window.prompt('Epic name');
+    if (summary?.trim()) createEpic(summary.trim());
+  };
+
   return (
     <div className="roadmap-view animate-fade-in">
       <div className="view-header-bar flex-between">
@@ -53,6 +58,7 @@ export const RoadmapView: React.FC = () => {
         </div>
 
         <div className="roadmap-controls">
+          <button className="btn-primary-sm" onClick={handleCreateEpic}><IconPlus size={14} /> Add Epic</button>
           <button
             className={`btn-cp-toggle ${criticalPathOnly ? 'active' : ''}`}
             onClick={() => setCriticalPathOnly(!criticalPathOnly)}
@@ -113,6 +119,8 @@ export const RoadmapView: React.FC = () => {
                     <span className="epic-title" title={epic.summary}>{epic.summary}</span>
                     <span className="epic-points-badge">{donePoints}/{totalPoints} {t('pointsShort')}</span>
                     <span className={`epic-health-badge ${healthClass}`}>{healthStatus}</span>
+                    <button className="roadmap-epic-action" onClick={event => { event.stopPropagation(); const summary = window.prompt('Epic name', epic.summary); if (summary?.trim()) updateEpic(epic.id, { summary: summary.trim() }); }} title="Edit epic"><IconSettings size={13} /></button>
+                    <button className="roadmap-epic-action danger" onClick={event => { event.stopPropagation(); if (window.confirm(`Delete ${epic.summary}?`)) deleteEpic(epic.id); }} title="Delete epic"><IconTrash size={13} /></button>
                   </div>
 
                   {/* Child Issues Left Rows */}

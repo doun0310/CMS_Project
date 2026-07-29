@@ -17,7 +17,9 @@ import {
   IconPlay,
   IconCheck,
   IconUser,
-  IconCalendar
+  IconCalendar,
+  IconSettings,
+  IconTrash
 } from '../common/Icons';
 
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
@@ -31,6 +33,8 @@ export const BacklogView: React.FC = () => {
     users,
     currentUser,
     createSprint,
+    updateSprint,
+    deleteSprint,
     startSprint,
     completeSprint,
     createIssue,
@@ -57,6 +61,18 @@ export const BacklogView: React.FC = () => {
   const handleCompleteSprint = (sprint: Sprint) => {
     completeSprint(sprint.id);
     setCelebratingSprint(sprint);
+  };
+
+  const handleEditSprint = (sprint: Sprint) => {
+    const name = window.prompt('Sprint name', sprint.name);
+    if (!name?.trim()) return;
+    const goal = window.prompt('Sprint goal', sprint.goal);
+    if (goal === null) return;
+    updateSprint(sprint.id, { name: name.trim(), goal: goal.trim() });
+  };
+
+  const handleDeleteSprint = (sprint: Sprint) => {
+    if (window.confirm(`Delete ${sprint.name}? Assigned issues will move to the backlog.`)) deleteSprint(sprint.id);
   };
 
   // Filter issues
@@ -210,6 +226,8 @@ export const BacklogView: React.FC = () => {
           </div>
 
           <div className="sprint-actions">
+            <button className="btn-ghost-sm" onClick={() => handleEditSprint(sprint)} title="Edit sprint"><IconSettings size={14} /></button>
+            <button className="btn-ghost-sm text-danger" onClick={() => handleDeleteSprint(sprint)} title="Delete sprint"><IconTrash size={14} /></button>
             {sprint.status === 'future' && (
               <button className="btn-success-sm" onClick={() => startSprint(sprint.id)}>
                 <IconPlay size={14} /> {t('startSprint')}
