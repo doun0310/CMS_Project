@@ -8,7 +8,7 @@ interface IssueTriageModalProps {
 }
 
 export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onClose }) => {
-  const { issues, updateIssue } = useAether();
+  const { issues, updateIssue, t } = useAether();
 
   const untriagedIssues = issues.filter((i) => i.status === 'todo' || i.priority === 'medium');
   const [selectedIssueId, setSelectedIssueId] = useState<string>(untriagedIssues[0]?.id || issues[0]?.id || '');
@@ -47,7 +47,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
           <div className="modal-title-group">
             <span className="release-icon">📥</span>
             <div>
-              <h2 className="modal-title">AI Smart Issue Auto-Triage & Label Recommendation Assistant</h2>
+              <h2 className="modal-title">{t('autoTriageModalTitle')}</h2>
               <p className="modal-subtitle">
                 Automated priority scoring, subsystem tagging & story point estimation for untriaged backlog
               </p>

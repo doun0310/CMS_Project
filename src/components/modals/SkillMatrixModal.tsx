@@ -8,7 +8,7 @@ interface SkillMatrixModalProps {
 }
 
 export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onClose }) => {
-  const { users, issues, updateIssue } = useAether();
+  const { users, issues, updateIssue, t } = useAether();
 
   const unassignedIssues = issues.filter((i) => !i.assigneeId || i.status !== 'done');
   const [selectedIssueId, setSelectedIssueId] = useState<string>(unassignedIssues[0]?.id || issues[0]?.id || '');
@@ -58,7 +58,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
           <div className="modal-title-group">
             <span className="release-icon">🧠</span>
             <div>
-              <h2 className="modal-title">AI Cross-Team Skill Matrix & Resource Load Balancer</h2>
+              <h2 className="modal-title">{t('skillMatrixModalTitle')}</h2>
               <p className="modal-subtitle">
                 Skill proficiency mapping & automated best-engineer task matching for [{targetIssue?.key}]
               </p>

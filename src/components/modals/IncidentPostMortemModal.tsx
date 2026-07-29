@@ -8,7 +8,7 @@ interface IncidentPostMortemModalProps {
 }
 
 export const IncidentPostMortemModal: React.FC<IncidentPostMortemModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, createIssue } = useAether();
+  const { currentProject, createIssue, t } = useAether();
 
   const [incidentTitle, setIncidentTitle] = useState('INC-402: API Gateway 504 Timeout Outage');
   const [severity] = useState<'P1' | 'P2' | 'P3'>('P1');
@@ -78,7 +78,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           <div className="modal-title-group">
             <span className="release-icon">🚨</span>
             <div>
-              <h2 className="modal-title">SRE Incident Post-Mortem & AI Root Cause Workbench</h2>
+              <h2 className="modal-title">{t('postMortemModalTitle')}</h2>
               <p className="modal-subtitle">
                 Structured 5-Whys diagnosis & preventive action item generator for [{currentProject.key}]
               </p>

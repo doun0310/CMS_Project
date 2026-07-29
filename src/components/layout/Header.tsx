@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { useModal } from '../common/ModalManager';
 import type { Language } from '../../i18n/translations';
@@ -50,6 +51,20 @@ export const Header: React.FC = () => {
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
   const userDropdownRef = useRef<HTMLDivElement | null>(null);
   const toolsDropdownRef = useRef<HTMLDivElement | null>(null);
+  const toolsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const toolsMenuRef = useRef<HTMLDivElement | null>(null);
+  const [toolsMenuPosition, setToolsMenuPosition] = useState({ top: 0, right: 0 });
+
+  const updateToolsMenuPosition = () => {
+    const button = toolsButtonRef.current;
+    if (!button) return;
+
+    const bounds = button.getBoundingClientRect();
+    setToolsMenuPosition({
+      top: bounds.bottom + 8,
+      right: Math.max(10, window.innerWidth - bounds.right),
+    });
+  };
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -64,7 +79,11 @@ export const Header: React.FC = () => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(target)) {
         setIsUserDropdownOpen(false);
       }
-      if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(target)) {
+      if (
+        toolsDropdownRef.current
+        && !toolsDropdownRef.current.contains(target)
+        && !toolsMenuRef.current?.contains(target)
+      ) {
         setIsToolsOpen(false);
       }
     };
@@ -72,6 +91,19 @@ export const Header: React.FC = () => {
     window.addEventListener('mousedown', handlePointerDown);
     return () => window.removeEventListener('mousedown', handlePointerDown);
   }, []);
+
+  useEffect(() => {
+    if (!isToolsOpen) return;
+
+    updateToolsMenuPosition();
+    window.addEventListener('resize', updateToolsMenuPosition);
+    window.addEventListener('scroll', updateToolsMenuPosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updateToolsMenuPosition);
+      window.removeEventListener('scroll', updateToolsMenuPosition, true);
+    };
+  }, [isToolsOpen]);
 
   const notifications = [
     {
@@ -116,15 +148,15 @@ export const Header: React.FC = () => {
     { label: t('retroReport'), title: t('openRetroReportTitle'), onClick: () => openModal('retroReport') },
     { label: t('ruleBuilder'), title: t('openRuleBuilderTitle'), onClick: () => openModal('automationRule') },
     { label: t('prAudit'), title: t('openPrAuditTitle'), onClick: () => openModal('prAudit') },
-    { label: 'PTO Calendar', title: 'Open Sprint Team Capacity & Holiday Calendar Integrator', onClick: () => openModal('capacityCalendar') },
-    { label: 'Release Gate', title: 'Open Enterprise Release Go / No-Go Decision Gate', onClick: () => openModal('releaseGate') },
-    { label: 'Skill Matrix', title: 'Open AI Cross-Team Skill Matrix & Resource Load Balancer', onClick: () => openModal('skillMatrix') },
-    { label: 'Auto Triage', title: 'Open AI Smart Issue Auto-Triage & Label Recommendation Assistant', onClick: () => openModal('issueTriage') },
-    { label: 'Post-Mortem', title: 'Open SRE Incident Post-Mortem & AI Root Cause Workbench', onClick: () => openModal('incidentPostMortem') },
-    { label: 'Tech Debt', title: 'Open AI Technical Debt & Code Governance Workbench', onClick: () => openModal('techDebtScanner') },
-    { label: 'Dependency Graph', title: 'Open AI Dependency Graph & Blast Radius Simulator', onClick: () => openModal('dependencyGraph') },
-    { label: 'Monte Carlo', title: 'Open AI Monte Carlo Velocity & Sprint Completion Forecaster', onClick: () => openModal('monteCarlo') },
-    { label: 'Compliance Matrix', title: 'Open Enterprise Release Risk & Regulatory Compliance Matrix', onClick: () => openModal('complianceMatrix') }
+    { label: t('ptoCalendar'), title: t('openPtoCalendarTitle'), onClick: () => openModal('capacityCalendar') },
+    { label: t('releaseGate'), title: t('openReleaseGateTitle'), onClick: () => openModal('releaseGate') },
+    { label: t('skillMatrix'), title: t('openSkillMatrixTitle'), onClick: () => openModal('skillMatrix') },
+    { label: t('autoTriage'), title: t('openAutoTriageTitle'), onClick: () => openModal('issueTriage') },
+    { label: t('postMortem'), title: t('openPostMortemTitle'), onClick: () => openModal('incidentPostMortem') },
+    { label: t('techDebt'), title: t('openTechDebtTitle'), onClick: () => openModal('techDebtScanner') },
+    { label: t('dependencyGraph'), title: t('openDependencyGraphTitle'), onClick: () => openModal('dependencyGraph') },
+    { label: t('monteCarlo'), title: t('openMonteCarloTitle'), onClick: () => openModal('monteCarlo') },
+    { label: t('complianceMatrix'), title: t('openComplianceMatrixTitle'), onClick: () => openModal('complianceMatrix') }
   ];
 
   return (
@@ -232,21 +264,29 @@ export const Header: React.FC = () => {
           </button>
           <div className="dropdown-container" ref={toolsDropdownRef}>
             <button
+              ref={toolsButtonRef}
               className="btn-tools-header"
               onClick={() => {
                 setIsProjectDropdownOpen(false);
                 setIsNotifOpen(false);
                 setIsUserDropdownOpen(false);
-                setIsToolsOpen(current => !current);
+                setIsToolsOpen(current => {
+                  if (!current) updateToolsMenuPosition();
+                  return !current;
+                });
               }}
-              title="Open workspace tools"
+              title={t('openWorkspaceTools')}
             >
-              <span className="btn-standup-text">Tools</span>
+              <span className="btn-standup-text">{t('tools')}</span>
               <IconChevronDown size={14} />
             </button>
-            {isToolsOpen && (
-              <div className="dropdown-menu tools-dropdown right animate-fade-in">
-                <div className="dropdown-header">WORKSPACE TOOLS</div>
+            {isToolsOpen && createPortal(
+              <div
+                ref={toolsMenuRef}
+                className="dropdown-menu tools-dropdown tools-dropdown-portal animate-fade-in"
+                style={{ top: toolsMenuPosition.top, right: toolsMenuPosition.right }}
+              >
+                <div className="dropdown-header">{t('workspaceTools').toUpperCase()}</div>
                 {toolActions.map(action => (
                   <button
                     key={action.label}
@@ -260,7 +300,8 @@ export const Header: React.FC = () => {
                     <span className="dropdown-title">{action.label}</span>
                   </button>
                 ))}
-              </div>
+              </div>,
+              document.body,
             )}
           </div>
         </div>

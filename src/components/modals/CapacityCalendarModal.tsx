@@ -8,7 +8,7 @@ interface CapacityCalendarModalProps {
 }
 
 export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ isOpen, onClose }) => {
-  const { users, sprints } = useAether();
+  const { users, sprints, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
 
@@ -57,7 +57,7 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
           <div className="modal-title-group">
             <span className="release-icon">📅</span>
             <div>
-              <h2 className="modal-title">Sprint Team Capacity & Holiday Calendar Integrator</h2>
+              <h2 className="modal-title">{t('ptoCalendarModalTitle')}</h2>
               <p className="modal-subtitle">
                 Manage PTO & holidays to calculate net committed capacity for [{activeSprint?.name || 'Active Sprint'}]
               </p>

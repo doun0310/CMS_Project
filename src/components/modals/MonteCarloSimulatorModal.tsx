@@ -8,7 +8,7 @@ interface MonteCarloSimulatorModalProps {
 }
 
 export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, sprints } = useAether();
+  const { currentProject, sprints, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
   const [simulationCount] = useState(1000);
@@ -39,7 +39,7 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
           <div className="modal-title-group">
             <span className="release-icon">🎲</span>
             <div>
-              <h2 className="modal-title">AI Monte Carlo Velocity & Sprint Completion Forecaster</h2>
+              <h2 className="modal-title">{t('monteCarloModalTitle')}</h2>
               <p className="modal-subtitle">
                 1,000 statistical trial simulation based on historical velocity for [{currentProject.key}] {activeSprint?.name}
               </p>

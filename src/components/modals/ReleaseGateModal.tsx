@@ -8,7 +8,7 @@ interface ReleaseGateModalProps {
 }
 
 export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, sprints, issues, users } = useAether();
+  const { currentProject, sprints, issues, users, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
   const sprintIssues = issues.filter((i) => i.sprintId === activeSprint?.id);
@@ -48,7 +48,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
           <div className="modal-title-group">
             <span className="release-icon">🛑</span>
             <div>
-              <h2 className="modal-title">Enterprise Release Go / No-Go Decision Gate</h2>
+              <h2 className="modal-title">{t('releaseGateModalTitle')}</h2>
               <p className="modal-subtitle">
                 Formal stakeholder signoff & compliance audit gate for [{currentProject.key}] {activeSprint?.name}
               </p>

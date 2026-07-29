@@ -8,7 +8,7 @@ interface DependencyGraphModalProps {
 }
 
 export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOpen, onClose }) => {
-  const { issues, updateIssue } = useAether();
+  const { issues, updateIssue, t } = useAether();
 
   const [selectedIssueId, setSelectedIssueId] = useState<string>(issues[0]?.id || '');
   const [attachedSuccess, setAttachedSuccess] = useState(false);
@@ -51,7 +51,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
           <div className="modal-title-group">
             <span className="release-icon">🕸️</span>
             <div>
-              <h2 className="modal-title">AI Dependency Graph & Blast Radius Simulator</h2>
+              <h2 className="modal-title">{t('dependencyGraphModalTitle')}</h2>
               <p className="modal-subtitle">
                 Subsystem coupling visualizer & downstream risk analysis for [{targetIssue?.key}]
               </p>

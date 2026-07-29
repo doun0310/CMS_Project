@@ -8,7 +8,7 @@ interface ComplianceMatrixModalProps {
 }
 
 export const ComplianceMatrixModal: React.FC<ComplianceMatrixModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, sprints } = useAether();
+  const { currentProject, sprints, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
   const [copied, setCopied] = useState(false);
@@ -51,7 +51,7 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
           <div className="modal-title-group">
             <span className="release-icon">🛡️</span>
             <div>
-              <h2 className="modal-title">Enterprise Release Risk & Regulatory Compliance Matrix</h2>
+              <h2 className="modal-title">{t('complianceMatrixModalTitle')}</h2>
               <p className="modal-subtitle">
                 Automated SOC2, GDPR, ISO 27001 & HIPAA compliance audit signoff for [{currentProject.key}]
               </p>
