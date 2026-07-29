@@ -273,7 +273,6 @@ export const BacklogView: React.FC = () => {
       <div className="view-header-bar">
         <div>
           <h1 className="view-title">{t('backlogViewTitle')}</h1>
-          <p className="view-subtitle">{t('backlogViewSubtitle')}</p>
         </div>
 
         <button className="btn-primary" onClick={() => setIsCreatingSprint(true)}>

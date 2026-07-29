@@ -21,6 +21,7 @@ export type ModalName =
   | 'dependencyGraph'
   | 'monteCarlo'
   | 'complianceMatrix'
+  | 'auth'
   | null;
 
 interface ModalContextValue {
@@ -77,6 +78,7 @@ const MODAL_REGISTRY: Record<string, () => Promise<{ default: ComponentType<{ is
   dependencyGraph: () => import('../modals/DependencyGraphModal').then(m => ({ default: m.DependencyGraphModal as unknown as ComponentType<{ isOpen: boolean; onClose: () => void }> })),
   monteCarlo: () => import('../modals/MonteCarloSimulatorModal').then(m => ({ default: m.MonteCarloSimulatorModal as unknown as ComponentType<{ isOpen: boolean; onClose: () => void }> })),
   complianceMatrix: () => import('../modals/ComplianceMatrixModal').then(m => ({ default: m.ComplianceMatrixModal as unknown as ComponentType<{ isOpen: boolean; onClose: () => void }> })),
+  auth: () => import('../modals/AuthModal').then(m => ({ default: m.AuthModal as unknown as ComponentType<{ isOpen: boolean; onClose: () => void }> })),
 };
 
 /**

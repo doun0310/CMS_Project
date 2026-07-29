@@ -42,9 +42,6 @@ export const RoadmapView: React.FC = () => {
       <div className="view-header-bar flex-between">
         <div>
           <h2 className="view-title-with-icon"><IconRoadmap size={20} /> {t('roadmapTitle')}</h2>
-          <p className="subtext">
-            {t('roadmapSubtitle')}
-          </p>
         </div>
 
         <div className="roadmap-controls">

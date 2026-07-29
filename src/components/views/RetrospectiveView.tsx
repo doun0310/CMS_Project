@@ -143,7 +143,6 @@ export const RetrospectiveView: React.FC = () => {
       <div className="view-header-bar flex-between">
         <div>
           <h2 className="view-title-with-icon"><IconRetro size={20} /> {t('retrospectiveTitle')}</h2>
-          <p className="subtext">{t('retrospectiveSubtitle')}</p>
         </div>
 
         {/* View Mode Sub-tabs */}
@@ -206,7 +205,6 @@ export const RetrospectiveView: React.FC = () => {
           <div className="tracker-header">
             <div>
               <h3 className="section-title-with-icon"><IconTarget size={17} /> {t('actionExecutionMatrix')}</h3>
-              <p className="subtext">{t('actionExecutionSubtitle')}</p>
             </div>
             <button
               className="btn-primary-sm"

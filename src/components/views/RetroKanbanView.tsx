@@ -4,7 +4,7 @@ import { IconCheckCircle, IconPlus, IconRetroBoard } from '../common/Icons';
 import type { RetrospectiveItem } from '../../types/Aether';
 
 export const RetroKanbanView: React.FC = () => {
-  const { currentProject, sprints, retrospectiveItems, addRetroItem, createIssue, users, t } = useAether();
+  const { sprints, retrospectiveItems, addRetroItem, createIssue, users, t } = useAether();
 
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
 
@@ -46,9 +46,6 @@ export const RetroKanbanView: React.FC = () => {
             <span className="retro-k-icon"><IconRetroBoard size={22} /></span>
             <div>
               <h2>{t('retroKanbanTitle')}</h2>
-              <p className="subtitle-text">
-                {t('retroKanbanSubtitle')} [{currentProject.key}]
-              </p>
             </div>
           </div>
         </div>

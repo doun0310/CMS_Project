@@ -101,9 +101,6 @@ export const PortfolioView: React.FC = () => {
       <div className="view-header-row">
         <div>
           <h1 className="view-title view-title-with-icon"><IconPortfolio size={20} /> {t('portfolioTitle')}</h1>
-          <p className="view-subtitle">
-            {t('portfolioSubtitle')}
-          </p>
         </div>
       </div>
 

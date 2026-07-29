@@ -86,9 +86,6 @@ export const ReportsView: React.FC = () => {
       <div className="view-header-bar">
         <div>
           <h2 className="view-title-with-icon"><IconAnalytics size={20} /> {t('sprintAnalytics')}</h2>
-          <p className="subtext">
-            {t('sprintAnalyticsSubtitle')}
-          </p>
         </div>
 
         <div className="sprint-select-wrap reports-controls">

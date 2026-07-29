@@ -57,7 +57,6 @@ export const SettingsView: React.FC = () => {
       <div className="view-header-bar">
         <div>
           <h2 className="view-title-with-icon"><IconSettings size={20} /> {t('settings')}</h2>
-          <p className="subtext">{t('settingsSubtitle')}</p>
         </div>
       </div>
 

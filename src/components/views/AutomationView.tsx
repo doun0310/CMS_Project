@@ -49,7 +49,6 @@ export const AutomationView: React.FC = () => {
       <div className="view-header-bar">
         <div>
           <h2 className="view-title-with-icon"><IconAutomation size={20} /> {t('automationTitle')}</h2>
-          <p className="subtext">{t('automationSubtitle')}</p>
         </div>
         <button className="btn-primary" onClick={() => setIsCreatingRule(!isCreatingRule)}>
           <IconPlus size={16} /> {t('createAutomationRule')}

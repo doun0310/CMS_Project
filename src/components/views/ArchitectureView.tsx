@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { IconAiSpark, IconArchitecture } from '../common/Icons';
 
 export const ArchitectureView: React.FC = () => {
-  const { issues, users, currentProject, t } = useAether();
+  const { issues, users, t } = useAether();
 
   const [selectedSubsystem, setSelectedSubsystem] = useState<string | null>(null);
   const typeLabels: Record<string, string> = {
@@ -94,9 +94,6 @@ export const ArchitectureView: React.FC = () => {
       <div className="view-header-row">
         <div>
           <h1 className="view-title view-title-with-icon"><IconArchitecture size={20} /> {t('architectureTitle')}</h1>
-          <p className="view-subtitle">
-            {t('architectureSubtitle')} [{currentProject.key}]
-          </p>
         </div>
       </div>
 

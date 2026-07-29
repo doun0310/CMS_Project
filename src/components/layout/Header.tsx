@@ -405,6 +405,16 @@ export const Header: React.FC = () => {
                   </div>
                 </div>
               ))}
+              <div className="dropdown-divider" />
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  setIsUserDropdownOpen(false);
+                  openModal('auth');
+                }}
+              >
+                <span className="dropdown-title">🔐 Supabase Sign In / Account</span>
+              </div>
             </div>
           )}
         </div>
