@@ -25,6 +25,15 @@ import {
 } from '../mock/AetherData';
 import { translations, type Language } from '../i18n/translations';
 import { AetherContext } from './AetherContextValue';
+import { isSupabaseConfigured, subscribeToTable } from '../services/supabase';
+import {
+  fetchIssuesFromSupabase,
+  syncIssueToSupabase,
+  deleteIssueFromSupabase,
+  fetchRetroFromSupabase,
+  syncRetroToSupabase,
+  mapDbToIssue
+} from '../services/supabaseSync';
 
 const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
 // Read the previous product key once so existing users keep their local workspace data.
@@ -248,6 +257,52 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // -- Supabase Integration: Initial Data Fetch & Real-time WebSockets Subscription --
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    // Fetch initial issues & retro items from Supabase
+    fetchIssuesFromSupabase().then((dbIssues) => {
+      if (dbIssues.length > 0) {
+        setIssues(dbIssues);
+      } else {
+        // If DB is empty, seed initial issues to Supabase
+        initialIssues.forEach((issue) => syncIssueToSupabase(issue, currentProject.id));
+      }
+    });
+
+    fetchRetroFromSupabase().then((dbRetro) => {
+      if (dbRetro.length > 0) {
+        setRetrospectiveItems(dbRetro);
+      }
+    });
+
+    // Real-time WebSockets Subscriptions
+    const unsubscribeIssues = subscribeToTable('issues', (payload) => {
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedIssue = mapDbToIssue(payload.new);
+        setIssues((prev) => {
+          const index = prev.findIndex((i) => i.id === updatedIssue.id);
+          if (index >= 0) {
+            const next = [...prev];
+            next[index] = { ...next[index], ...updatedIssue };
+            return next;
+          }
+          return [updatedIssue, ...prev];
+        });
+      } else if (payload.eventType === 'DELETE') {
+        const deletedId = payload.old?.id;
+        if (deletedId) {
+          setIssues((prev) => prev.filter((i) => i.id !== deletedId));
+        }
+      }
+    });
+
+    return () => {
+      unsubscribeIssues();
+    };
+  }, [currentProject.id]);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
@@ -278,26 +333,19 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!issue || issue.status === newStatus) return;
 
     const now = new Date().toISOString();
+    const updatedIssue = {
+      ...issue,
+      status: newStatus,
+      updatedAt: now
+    };
+
     setIssues(prev =>
       prev.map(item =>
-        item.id === issueId
-          ? {
-              ...item,
-              status: newStatus,
-              history: [
-                ...item.history,
-                {
-                  id: `h_${Date.now()}`,
-                  authorId: currentUser.id,
-                  action: `Status changed to ${newStatus.toUpperCase()}`,
-                  timestamp: now
-                }
-              ],
-              updatedAt: now
-            }
-          : item
+        item.id === issueId ? updatedIssue : item
       )
     );
+
+    syncIssueToSupabase(updatedIssue, currentProject.id);
 
     if (newStatus === 'done') recordDoneStatusAutomation();
   };
@@ -336,16 +384,25 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     setIssues(prev => [newIssue, ...prev]);
     setSelectedIssueId(newIssue.id);
+    syncIssueToSupabase(newIssue, currentProject.id);
   };
 
   const updateIssue = (id: string, updates: Partial<Issue>) => {
     setIssues(prev =>
-      prev.map(item => (item.id === id ? { ...item, ...updates, updatedAt: new Date().toISOString() } : item))
+      prev.map(item => {
+        if (item.id === id) {
+          const updated = { ...item, ...updates, updatedAt: new Date().toISOString() };
+          syncIssueToSupabase(updated, currentProject.id);
+          return updated;
+        }
+        return item;
+      })
     );
   };
 
   const deleteIssue = (id: string) => {
     setIssues(prev => prev.filter(item => item.id !== id));
+    deleteIssueFromSupabase(id);
     if (selectedIssueId === id) setSelectedIssueId(null);
   };
 
@@ -476,6 +533,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string) => {
+    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
     const newItem: RetrospectiveItem = {
       id: `retro-${Date.now()}`,
       type,
@@ -485,11 +543,20 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       createdAt: new Date().toISOString()
     };
     setRetrospectiveItems(prev => [newItem, ...prev]);
+    syncRetroToSupabase(newItem, currentProject.id, activeSprint?.id || 'sprint-1');
   };
 
   const voteRetroItem = (id: string) => {
+    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
     setRetrospectiveItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, votes: item.votes + 1 } : item))
+      prev.map(item => {
+        if (item.id === id) {
+          const updated = { ...item, votes: item.votes + 1 };
+          syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
+          return updated;
+        }
+        return item;
+      })
     );
   };
 
