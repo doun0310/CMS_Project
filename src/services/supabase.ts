@@ -9,9 +9,21 @@ export const isSupabaseConfigured =
   !supabaseUrl.includes('your-project-ref') &&
   !supabaseAnonKey.includes('your-anon-key');
 
+if (!isSupabaseConfigured) {
+  console.warn(
+    '[AetherPulse] Supabase is not configured. Running in local-only mode.\n' +
+    'To enable cloud sync, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
+  );
+}
+
+// Placeholder values are required by createClient() but will never reach the network
+// because every call site checks `isSupabaseConfigured` before making requests.
+const PLACEHOLDER_URL = 'https://placeholder.supabase.co';
+const PLACEHOLDER_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
 export const supabase = createClient(
-  isSupabaseConfigured ? supabaseUrl : 'https://supabase.com/dashboard/project/npumvyhwwijdreyhefqk',
-  isSupabaseConfigured ? supabaseAnonKey : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdW12eWh3d2lqZHJleWhlZnFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3ODYyNjAsImV4cCI6MjEwMDM2MjI2MH0.pMu17I54_NR8aoL_RCdcsmbaeNfhfIzfAz_ZtsA9d2s'
+  isSupabaseConfigured ? supabaseUrl : PLACEHOLDER_URL,
+  isSupabaseConfigured ? supabaseAnonKey : PLACEHOLDER_KEY,
 );
 
 /**

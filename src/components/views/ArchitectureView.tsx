@@ -12,7 +12,7 @@ export const ArchitectureView: React.FC = () => {
   };
 
   // Microservices & Subsystem Architecture Nodes
-  const subsystems = [
+  const subsystems = useMemo(() => [
     {
       id: 'sub-fe',
       name: t('archFrontend'),
@@ -61,7 +61,7 @@ export const ArchitectureView: React.FC = () => {
       health: currentProject.architectureHealth?.['sub-ai'] || 'healthy',
       keywords: ['ai', 'copilot', 'analytics', 'inference'],
     },
-  ];
+  ], [t, currentProject.architectureOwners, currentProject.architectureHealth, users]);
 
   // Map issues to subsystems
   const subsystemNodes = useMemo(() => {

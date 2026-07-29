@@ -5,11 +5,9 @@ import type {
   Issue,
   AutomationRule,
   AutomationAuditLog,
-  IssueStatus,
   IssueType,
   Priority,
   Project,
-  SubTask,
   RetrospectiveItem,
   ViewMode
 } from '../types/Aether';
@@ -29,16 +27,26 @@ import { isSupabaseConfigured, subscribeToTable } from '../services/supabase';
 import {
   fetchIssuesFromSupabase,
   syncIssueToSupabase,
-  deleteIssueFromSupabase,
   fetchRetroFromSupabase,
-  syncRetroToSupabase,
   mapDbToIssue,
   mapDbToRetroItem
 } from '../services/supabaseSync';
 
+// Domain-specific hooks — keep provider lean
+import { useIssueActions } from '../hooks/useIssueActions';
+import { useSprintActions } from '../hooks/useSprintActions';
+import { useEpicActions } from '../hooks/useEpicActions';
+import { useRetroActions } from '../hooks/useRetroActions';
+import { useAutomationActions } from '../hooks/useAutomationActions';
+import { useProjectActions } from '../hooks/useProjectActions';
+
+// ─── Persistence Helpers ──────────────────────────────────────────────
+
 const STORAGE_KEY = 'AETHER_PULSE_APP_DATA_V1';
 // Read the previous product key once so existing users keep their local workspace data.
 const PREVIOUS_STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
+
+import type { IssueStatus } from '../types/Aether';
 
 interface PersistedState {
   projects?: Project[];
@@ -63,7 +71,9 @@ const isPriority = (value: unknown): value is Priority =>
 const isLanguage = (value: unknown): value is Language =>
   value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
 
-const normalizeIssueType = (value: unknown): IssueType => {
+import type { IssueType as IssueTypeAlias, SubTask } from '../types/Aether';
+
+const normalizeIssueType = (value: unknown): IssueTypeAlias => {
   if (value === 'story') return 'feature';
   if (value === 'task') return 'workitem';
   if (value === 'epic') return 'initiative';
@@ -187,7 +197,10 @@ const readPersistedState = (): PersistedState => {
   }
 };
 
+// ─── Provider ─────────────────────────────────────────────────────────
+
 export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // ── Core State ────────────────────────────────────────────────────
   const [persistedState] = useState(readPersistedState);
   const [theme, setTheme] = useState<'light' | 'dark'>(persistedState.theme ?? 'dark');
   const [accentColor, setAccentColor] = useState(persistedState.accentColor ?? '#6366f1');
@@ -197,11 +210,13 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
     document.documentElement.style.setProperty('--border-focus', accentColor);
   }, [accentColor]);
+
   const initialProjectList = persistedState.projects ?? initialProjects;
   const initialIssueList = (persistedState.issues ?? initialIssues).map(issue => ({
     ...issue,
     projectId: issue.projectId || initialProjectList[0].id,
   }));
+
   const [projects, setProjects] = useState<Project[]>(initialProjectList);
   const [currentProject, setCurrentProject] = useState<Project>(
     initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
@@ -243,6 +258,54 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return langDict[key] || translations.en[key] || key;
   };
 
+  // ── Domain Hooks ──────────────────────────────────────────────────
+
+  const automationActions = useAutomationActions({
+    automationRules,
+    setAutomationRules,
+    setAutomationAuditLogs,
+    issues,
+  });
+
+  const issueActions = useIssueActions({
+    allIssues,
+    setIssues,
+    currentProject,
+    currentUser,
+    sprints,
+    selectedIssueId,
+    setSelectedIssueId,
+    onDoneStatusAutomation: automationActions.recordDoneStatusAutomation,
+  });
+
+  const sprintActions = useSprintActions({
+    setSprints,
+    setIssues,
+    currentProject,
+  });
+
+  const epicActions = useEpicActions({
+    epics: allEpics,
+    setEpics,
+    setIssues,
+    currentProject,
+  });
+
+  const retroActions = useRetroActions({
+    setRetrospectiveItems,
+    currentUser,
+    currentProject,
+    sprints,
+  });
+
+  const projectActions = useProjectActions({
+    projects,
+    setProjects,
+    setCurrentProject,
+  });
+
+  // ── Persistence ───────────────────────────────────────────────────
+
   useEffect(() => {
     try {
       const stateToSave = {
@@ -275,7 +338,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // -- Supabase Integration: Initial Data Fetch & Real-time WebSockets Subscription --
+  // ── Supabase Realtime ─────────────────────────────────────────────
+
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
@@ -338,356 +402,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
   }, [currentProject.id]);
 
+  // ── Misc Actions ──────────────────────────────────────────────────
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
-
-  const createProject = (projectData: Omit<Project, 'id'>): Project => {
-    const createdProject: Project = {
-      ...projectData,
-      id: `proj_${Date.now()}`,
-      boardTitle: projectData.boardTitle?.trim() || `${projectData.name} (Active)`
-    };
-
-    setProjects(prev => [createdProject, ...prev]);
-    setCurrentProject(createdProject);
-    return createdProject;
-  };
-
-  const updateProject = (projectId: string, updates: Partial<Omit<Project, 'id'>>) => {
-    setProjects(previousProjects => previousProjects.map(project => (
-      project.id === projectId ? { ...project, ...updates } : project
-    )));
-    setCurrentProject(previousProject => (
-      previousProject.id === projectId ? { ...previousProject, ...updates } : previousProject
-    ));
-  };
-
-  const deleteProject = (projectId: string): boolean => {
-    if (projects.length <= 1) return false;
-
-    const remainingProjects = projects.filter(project => project.id !== projectId);
-    setProjects(remainingProjects);
-    if (currentProject.id === projectId) {
-      setCurrentProject(remainingProjects[0]);
-    }
-    return true;
-  };
-
-  const recordDoneStatusAutomation = () => {
-    setAutomationRules(previousRules =>
-      previousRules.map(rule =>
-        rule.id === 'auto-1' && rule.enabled
-          ? { ...rule, lastExecuted: new Date().toLocaleTimeString() }
-          : rule
-      )
-    );
-  };
-
-  const moveIssueStatus = (issueId: string, newStatus: IssueStatus) => {
-    const issue = issues.find(item => item.id === issueId);
-    if (!issue || issue.status === newStatus) return;
-
-    const now = new Date().toISOString();
-    const updatedIssue = {
-      ...issue,
-      status: newStatus,
-      updatedAt: now
-    };
-
-    setIssues(prev =>
-      prev.map(item =>
-        item.id === issueId ? updatedIssue : item
-      )
-    );
-
-    syncIssueToSupabase(updatedIssue, currentProject.id);
-
-    if (newStatus === 'done') recordDoneStatusAutomation();
-  };
-
-  const createIssue = (issueData: Partial<Issue>) => {
-    const maxNum = issues.reduce((max, i) => Math.max(max, parseInt(i.key.split('-')[1]) || 0), 100);
-    const key = `${currentProject.key}-${maxNum + 1}`;
-    const now = new Date().toISOString();
-
-    const newIssue: Issue = {
-      id: 'issue_' + Date.now(),
-      projectId: currentProject.id,
-      key,
-      summary: issueData.summary ?? 'New Issue',
-      description: issueData.description ?? '',
-      type: issueData.type ?? 'feature',
-      status: issueData.status ?? 'todo',
-      priority: issueData.priority ?? 'medium',
-      assigneeId: issueData.assigneeId === undefined ? currentUser.id : issueData.assigneeId,
-      reporterId: currentUser.id,
-      epicId: issueData.epicId ?? null,
-      sprintId: issueData.sprintId === undefined
-        ? sprints.find(s => s.status === 'active')?.id ?? null
-        : issueData.sprintId,
-      storyPoints: issueData.storyPoints ?? 3,
-      subtasks: [],
-      comments: [],
-      history: [{ id: 'h_1', authorId: currentUser.id, action: 'Created issue', timestamp: now }],
-      labels: issueData.labels ?? ['agile'],
-      component: issueData.component ?? 'Core Engine',
-      dueDate: issueData.dueDate ?? new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      originalEstimate: issueData.originalEstimate ?? 8,
-      timeLogged: issueData.timeLogged ?? 0,
-      createdAt: now,
-      updatedAt: now
-    };
-
-    setIssues(prev => [newIssue, ...prev]);
-    setSelectedIssueId(newIssue.id);
-    syncIssueToSupabase(newIssue, currentProject.id);
-  };
-
-  const updateIssue = (id: string, updates: Partial<Issue>) => {
-    setIssues(prev =>
-      prev.map(item => {
-        if (item.id === id) {
-          const updated = { ...item, ...updates, updatedAt: new Date().toISOString() };
-          syncIssueToSupabase(updated, currentProject.id);
-          return updated;
-        }
-        return item;
-      })
-    );
-  };
-
-  const deleteIssue = (id: string) => {
-    setIssues(prev => prev.filter(item => item.id !== id));
-    deleteIssueFromSupabase(id);
-    if (selectedIssueId === id) setSelectedIssueId(null);
-  };
-
-  const addComment = (issueId: string, text: string) => {
-    if (!text.trim()) return;
-    const newComment = {
-      id: 'c_' + Date.now(),
-      authorId: currentUser.id,
-      text: text.trim(),
-      createdAt: new Date().toISOString()
-    };
-    setIssues(prev =>
-      prev.map(item =>
-        item.id === issueId ? { ...item, comments: [...item.comments, newComment] } : item
-      )
-    );
-  };
-
-  const toggleSubtask = (issueId: string, subtaskId: string) => {
-    setIssues(prev =>
-      prev.map(item => {
-        if (item.id === issueId) {
-          const updatedSubtasks = item.subtasks.map(st =>
-            st.id === subtaskId ? { ...st, completed: !st.completed } : st
-          );
-          return { ...item, subtasks: updatedSubtasks };
-        }
-        return item;
-      })
-    );
-  };
-
-  const addSubtask = (issueId: string, title: string) => {
-    if (!title.trim()) return;
-    const newSub: SubTask = { id: 'st_' + Date.now(), title: title.trim(), completed: false };
-    setIssues(prev =>
-      prev.map(item => (item.id === issueId ? { ...item, subtasks: [...item.subtasks, newSub] } : item))
-    );
-  };
-
-  const startSprint = (sprintId: string) => {
-    setSprints(prev =>
-      prev.map(sprint => {
-        if (sprint.id === sprintId) return { ...sprint, status: 'active' };
-        if (sprint.status === 'active') return { ...sprint, status: 'future' };
-        return sprint;
-      })
-    );
-  };
-
-  const completeSprint = (sprintId: string) => {
-    setSprints(prev =>
-      prev.map(s => (s.id === sprintId ? { ...s, status: 'completed' } : s))
-    );
-    // Move remaining non-done issues in sprint to Backlog (sprintId = null)
-    setIssues(prev =>
-      prev.map(item =>
-        item.sprintId === sprintId && item.status !== 'done' ? { ...item, sprintId: null } : item
-      )
-    );
-  };
-
-  const createSprint = (name: string, goal: string) => {
-    const newSprint: Sprint = {
-      id: 'sprint_' + Date.now(),
-      projectId: currentProject.id,
-      name,
-      goal,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-      status: 'future'
-    };
-    setSprints(prev => [...prev, newSprint]);
-  };
-
-  const updateSprint = (sprintId: string, updates: Partial<Omit<Sprint, 'id' | 'projectId'>>) => {
-    setSprints(previousSprints => previousSprints.map(sprint => (
-      sprint.id === sprintId ? { ...sprint, ...updates } : sprint
-    )));
-  };
-
-  const deleteSprint = (sprintId: string) => {
-    setSprints(previousSprints => previousSprints.filter(sprint => sprint.id !== sprintId));
-    setIssues(previousIssues => previousIssues.map(issue => (
-      issue.sprintId === sprintId ? { ...issue, sprintId: null } : issue
-    )));
-  };
-
-  const createEpic = (summary: string) => {
-    const nextNumber = epics.reduce((max, epic) => Math.max(max, Number(epic.key.split('E')[1]) || 0), 0) + 1;
-    const newEpic: Epic = {
-      id: `epic_${Date.now()}`,
-      projectId: currentProject.id,
-      key: `${currentProject.key}-E${nextNumber}`,
-      summary,
-      color: '#6366f1',
-    };
-    setEpics(previousEpics => [...previousEpics, newEpic]);
-    return newEpic;
-  };
-
-  const updateEpic = (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => {
-    setEpics(previousEpics => previousEpics.map(epic => epic.id === epicId ? { ...epic, ...updates } : epic));
-  };
-
-  const deleteEpic = (epicId: string) => {
-    setEpics(previousEpics => previousEpics.filter(epic => epic.id !== epicId));
-    setIssues(previousIssues => previousIssues.map(issue => issue.epicId === epicId ? { ...issue, epicId: null } : issue));
-  };
-
-  const toggleAutomationRule = (ruleId: string) => {
-    setAutomationRules(prev =>
-      prev.map(r => (r.id === ruleId ? { ...r, enabled: !r.enabled } : r))
-    );
-  };
-
-  const addAutomationRule = (name: string, trigger: string, action: string) => {
-    const newRule: AutomationRule = {
-      id: `rule-${Date.now()}`,
-      name,
-      trigger,
-      action,
-      enabled: true,
-      executionCount: 0
-    };
-    setAutomationRules(prev => [newRule, ...prev]);
-  };
-
-  const deleteAutomationRule = (ruleId: string) => {
-    setAutomationRules(prev => prev.filter(rule => rule.id !== ruleId));
-  };
-
-  const runAutomationRule = (ruleId: string) => {
-    const rule = automationRules.find(r => r.id === ruleId);
-    if (!rule) return;
-
-    // Execute rule simulation on issues
-    const targetIssue = issues[0] || { key: 'CLOUD-101' };
-    const nowStr = new Date().toLocaleString();
-
-    const newLog: AutomationAuditLog = {
-      id: `log-${Date.now()}`,
-      ruleName: rule.name,
-      triggeredAt: nowStr,
-      targetIssueKey: targetIssue.key,
-      actionTaken: rule.action,
-      status: 'SUCCESS'
-    };
-
-    setAutomationAuditLogs(prev => [newLog, ...prev]);
-
-    // Increment execution count and timestamp
-    setAutomationRules(prev =>
-      prev.map(r =>
-        r.id === ruleId
-          ? {
-              ...r,
-              lastExecuted: 'Just now',
-              executionCount: (r.executionCount || 0) + 1
-            }
-          : r
-      )
-    );
-  };
-
-  const addRetroItem = (type: 'went_well' | 'to_improve' | 'action_item', content: string, assigneeId: string | null = null) => {
-    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
-    const newItem: RetrospectiveItem = {
-      id: `retro-${Date.now()}`,
-      type,
-      content,
-      votes: 1,
-      authorId: currentUser.id,
-      createdAt: new Date().toISOString(),
-      status: type === 'action_item' ? 'planned' : undefined,
-      assigneeId,
-      comments: [],
-      voterIds: [currentUser.id]
-    };
-    setRetrospectiveItems(prev => [newItem, ...prev]);
-    syncRetroToSupabase(newItem, currentProject.id, activeSprint?.id || 'sprint-1');
-  };
-
-  const voteRetroItem = (id: string) => {
-    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
-    setRetrospectiveItems(prev =>
-      prev.map(item => {
-        if (item.id === id) {
-          if ((item.voterIds || []).includes(currentUser.id)) return item;
-          const updated = { ...item, votes: item.votes + 1, voterIds: [...(item.voterIds || []), currentUser.id] };
-          syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
-          return updated;
-        }
-        return item;
-      })
-    );
-  };
-
-  const updateRetroItem = (id: string, updates: Partial<Omit<RetrospectiveItem, 'id' | 'authorId' | 'createdAt'>>) => {
-    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
-    setRetrospectiveItems(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const updated = { ...item, ...updates };
-      syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
-      return updated;
-    }));
-  };
-
-  const addRetroComment = (id: string, text: string) => {
-    const cleanText = text.trim();
-    if (!cleanText) return;
-    const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
-    setRetrospectiveItems(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const updated: RetrospectiveItem = {
-        ...item,
-        comments: [
-          ...(item.comments || []),
-          { id: `retro-comment-${Date.now()}`, authorId: currentUser.id, text: cleanText, createdAt: new Date().toISOString() }
-        ]
-      };
-      syncRetroToSupabase(updated, currentProject.id, activeSprint?.id || 'sprint-1');
-      return updated;
-    }));
-  };
-
-  const deleteRetroItem = (id: string) => {
-    setRetrospectiveItems(prev => prev.filter(item => item.id !== id));
   };
 
   const resetDemoData = () => {
@@ -754,6 +472,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
+  // ── Context Value ─────────────────────────────────────────────────
+
   return (
     <AetherContext.Provider
       value={{
@@ -767,14 +487,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         currentProject,
         setCurrentProject,
         projects,
-        createProject,
-        updateProject,
-        deleteProject,
+        ...projectActions,
         users,
         epics,
-        createEpic,
-        updateEpic,
-        deleteEpic,
+        ...epicActions,
         sprints,
         issues,
         portfolioIssues: allIssues,
@@ -783,11 +499,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         retrospectiveItems,
         viewMode,
         setViewMode,
-        addRetroItem,
-        voteRetroItem,
-        updateRetroItem,
-        addRetroComment,
-        deleteRetroItem,
+        ...retroActions,
         searchQuery,
         setSearchQuery,
         onlyMyIssues,
@@ -806,22 +518,12 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setSelectedIssueId,
         isCreateModalOpen,
         setIsCreateModalOpen,
-        createIssue,
-        updateIssue,
-        deleteIssue,
-        moveIssueStatus,
-        addComment,
-        toggleSubtask,
-        addSubtask,
-        startSprint,
-        completeSprint,
-        createSprint,
-        updateSprint,
-        deleteSprint,
-        toggleAutomationRule,
-        addAutomationRule,
-        deleteAutomationRule,
-        runAutomationRule,
+        ...issueActions,
+        ...sprintActions,
+        toggleAutomationRule: automationActions.toggleAutomationRule,
+        addAutomationRule: automationActions.addAutomationRule,
+        deleteAutomationRule: automationActions.deleteAutomationRule,
+        runAutomationRule: automationActions.runAutomationRule,
         resetDemoData,
         exportDataJSON,
         importDataJSON

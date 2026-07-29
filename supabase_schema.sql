@@ -146,18 +146,110 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.sprints;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.retrospective_items;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 
--- Enable Row Level Security (RLS)
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.issues ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+-- =============================================
+-- Row Level Security Policies (Production-Grade)
+-- =============================================
 
--- Allow Public Access Policy for Development (Restrict for Production)
-CREATE POLICY "Allow public read access" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Allow public read access" ON public.projects FOR SELECT USING (true);
-CREATE POLICY "Allow public read access" ON public.issues FOR SELECT USING (true);
-CREATE POLICY "Allow public write access" ON public.issues FOR ALL USING (true);
-CREATE POLICY "Allow public read access" ON public.comments FOR SELECT USING (true);
-CREATE POLICY "Allow public write access" ON public.comments FOR ALL USING (true);
-CREATE POLICY "Allow public access" ON public.notifications FOR ALL USING (true);
+-- Enable RLS on remaining tables
+ALTER TABLE public.project_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.epics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sprints ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.retrospective_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.workflow_states ENABLE ROW LEVEL SECURITY;
+
+-- ---- Profiles ----
+-- Anyone can read profiles; users can only modify their own.
+CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "profiles_insert" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "profiles_update" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- ---- Projects ----
+-- Members and owners can read; only owners can modify.
+CREATE POLICY "projects_select" ON public.projects FOR SELECT USING (
+  owner_id = auth.uid()
+  OR EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "projects_insert" ON public.projects FOR INSERT WITH CHECK (owner_id = auth.uid());
+CREATE POLICY "projects_update" ON public.projects FOR UPDATE USING (owner_id = auth.uid());
+CREATE POLICY "projects_delete" ON public.projects FOR DELETE USING (owner_id = auth.uid());
+
+-- ---- Project Members ----
+-- Members can read membership; owners manage membership.
+CREATE POLICY "project_members_select" ON public.project_members FOR SELECT USING (
+  user_id = auth.uid()
+  OR EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
+);
+CREATE POLICY "project_members_insert" ON public.project_members FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
+);
+CREATE POLICY "project_members_delete" ON public.project_members FOR DELETE USING (
+  EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
+);
+
+-- ---- Issues ----
+-- Project members can CRUD issues within their projects.
+CREATE POLICY "issues_select" ON public.issues FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "issues_insert" ON public.issues FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "issues_update" ON public.issues FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "issues_delete" ON public.issues FOR DELETE USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
+);
+
+-- ---- Comments ----
+-- Project members can read; authors can write their own.
+CREATE POLICY "comments_select" ON public.comments FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.issues i
+    JOIN public.project_members pm ON pm.project_id = i.project_id
+    WHERE i.id = public.comments.issue_id AND pm.user_id = auth.uid()
+  )
+);
+CREATE POLICY "comments_insert" ON public.comments FOR INSERT WITH CHECK (author_id = auth.uid());
+CREATE POLICY "comments_update" ON public.comments FOR UPDATE USING (author_id = auth.uid());
+CREATE POLICY "comments_delete" ON public.comments FOR DELETE USING (author_id = auth.uid());
+
+-- ---- Notifications ----
+-- Users can only see and manage their own notifications.
+CREATE POLICY "notifications_select" ON public.notifications FOR SELECT USING (recipient_id = auth.uid());
+CREATE POLICY "notifications_insert" ON public.notifications FOR INSERT WITH CHECK (true);
+CREATE POLICY "notifications_update" ON public.notifications FOR UPDATE USING (recipient_id = auth.uid());
+CREATE POLICY "notifications_delete" ON public.notifications FOR DELETE USING (recipient_id = auth.uid());
+
+-- ---- Epics ----
+CREATE POLICY "epics_select" ON public.epics FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.epics.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "epics_modify" ON public.epics FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.epics.project_id AND pm.user_id = auth.uid())
+);
+
+-- ---- Sprints ----
+CREATE POLICY "sprints_select" ON public.sprints FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.sprints.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "sprints_modify" ON public.sprints FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.sprints.project_id AND pm.user_id = auth.uid())
+);
+
+-- ---- Retrospective Items ----
+CREATE POLICY "retro_select" ON public.retrospective_items FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.retrospective_items.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "retro_modify" ON public.retrospective_items FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.retrospective_items.project_id AND pm.user_id = auth.uid())
+);
+
+-- ---- Workflow States ----
+CREATE POLICY "workflow_states_select" ON public.workflow_states FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.workflow_states.project_id AND pm.user_id = auth.uid())
+);
+CREATE POLICY "workflow_states_modify" ON public.workflow_states FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.workflow_states.project_id AND pm.user_id = auth.uid())
+);
+

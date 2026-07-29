@@ -7,14 +7,6 @@ export const SlaAnalyticsCard: React.FC = () => {
   const [escalated, setEscalated] = useState(false);
 
   // SLA Threshold rules (in hours) based on priority
-  const slaThresholds: Record<string, number> = {
-    highest: 4,
-    high: 24,
-    medium: 48,
-    low: 72,
-    lowest: 120,
-  };
-
   const activeIssues = useMemo(() => {
     return issues.filter((i) => i.status !== 'done');
   }, [issues]);
@@ -22,11 +14,18 @@ export const SlaAnalyticsCard: React.FC = () => {
   // Calculate SLA status for each active issue
   const slaDiagnostics = useMemo(() => {
     const now = new Date().getTime();
+    const thresholds: Record<string, number> = {
+      highest: 4,
+      high: 24,
+      medium: 48,
+      low: 72,
+      lowest: 120,
+    };
 
     return activeIssues.map((issue) => {
       const createdTime = new Date(issue.createdAt || Date.now()).getTime();
       const elapsedHours = Math.max(1, Math.round((now - createdTime) / (1000 * 60 * 60)));
-      const maxAllowedHours = slaThresholds[issue.priority] || 48;
+      const maxAllowedHours = thresholds[issue.priority] || 48;
       const hoursRemaining = maxAllowedHours - elapsedHours;
 
       let status: 'ok' | 'at_risk' | 'breached';

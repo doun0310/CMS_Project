@@ -1,26 +1,27 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { Issue, RetrospectiveItem } from '../types/Aether';
+import type { SupabaseIssueRow, SupabaseRetroRow } from '../types/SupabaseTypes';
 
 /**
  * Maps a Supabase DB row to an AetherPulse Issue object
  */
-export function mapDbToIssue(row: any): Issue {
+export function mapDbToIssue(row: SupabaseIssueRow): Issue {
   return {
     id: row.id,
     key: row.key || 'TASK-1',
     summary: row.summary || '',
     description: row.description || '',
-    type: row.type || 'task',
-    status: row.status || 'todo',
-    priority: row.priority || 'medium',
+    type: row.type as Issue['type'] || 'task',
+    status: row.status as Issue['status'] || 'todo',
+    priority: row.priority as Issue['priority'] || 'medium',
     assigneeId: row.assignee_id || null,
     reporterId: row.reporter_id || 'usr_1',
     epicId: row.epic_id || null,
     sprintId: row.sprint_id || null,
     storyPoints: row.story_points ?? 1,
-    subtasks: row.subtasks || [],
-    comments: row.comments || [],
-    history: row.history || [],
+    subtasks: (row.subtasks || []) as Issue['subtasks'],
+    comments: (row.comments || []) as Issue['comments'],
+    history: (row.history || []) as Issue['history'],
     labels: row.labels || ['agile'],
     component: row.component || 'Core Framework',
     dueDate: row.due_date || new Date().toISOString().split('T')[0],
@@ -29,15 +30,15 @@ export function mapDbToIssue(row: any): Issue {
     createdAt: row.created_at || new Date().toISOString(),
     updatedAt: row.updated_at || new Date().toISOString(),
     githubBranch: row.github_branch || undefined,
-    linkedPRs: row.linked_prs || [],
-    linkedCommits: row.linked_commits || [],
+    linkedPRs: (row.linked_prs || []) as Issue['linkedPRs'],
+    linkedCommits: (row.linked_commits || []) as Issue['linkedCommits'],
   };
 }
 
 /**
  * Maps an AetherPulse Issue object to a Supabase DB row
  */
-export function mapIssueToDb(issue: Issue, projectId: string) {
+export function mapIssueToDb(issue: Issue, projectId: string): SupabaseIssueRow & { project_id: string } {
   return {
     id: issue.id,
     project_id: projectId,
@@ -74,7 +75,7 @@ export async function fetchIssuesFromSupabase(): Promise<Issue[]> {
       console.warn('Supabase fetch error:', error?.message);
       return [];
     }
-    return data.map(mapDbToIssue);
+    return (data as SupabaseIssueRow[]).map(mapDbToIssue);
   } catch (err) {
     console.error('Failed to fetch issues from Supabase:', err);
     return [];
@@ -120,14 +121,14 @@ export async function fetchRetroFromSupabase(): Promise<RetrospectiveItem[]> {
   try {
     const { data, error } = await supabase.from('retrospective_items').select('*');
     if (error || !data) return [];
-    return data.map(mapDbToRetroItem);
+    return (data as SupabaseRetroRow[]).map(mapDbToRetroItem);
   } catch (err) {
     console.error('Failed to fetch retro items from Supabase:', err);
     return [];
   }
 }
 
-export function mapDbToRetroItem(row: any): RetrospectiveItem {
+export function mapDbToRetroItem(row: SupabaseRetroRow): RetrospectiveItem {
   return {
     id: row.id,
     type: row.category === 'good' ? 'went_well' : row.category === 'improve' ? 'to_improve' : 'action_item',
@@ -137,8 +138,8 @@ export function mapDbToRetroItem(row: any): RetrospectiveItem {
     createdAt: row.created_at || new Date().toISOString(),
     status: row.status || 'planned',
     assigneeId: row.assignee_id || null,
-    comments: Array.isArray(row.comments) ? row.comments : [],
-    voterIds: Array.isArray(row.voter_ids) ? row.voter_ids : [],
+    comments: Array.isArray(row.comments) ? row.comments as RetrospectiveItem['comments'] : [],
+    voterIds: Array.isArray(row.voter_ids) ? row.voter_ids as string[] : [],
   };
 }
 
