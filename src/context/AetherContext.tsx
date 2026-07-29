@@ -531,13 +531,15 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const createEpic = (summary: string) => {
     const nextNumber = epics.reduce((max, epic) => Math.max(max, Number(epic.key.split('E')[1]) || 0), 0) + 1;
-    setEpics(previousEpics => [...previousEpics, {
+    const newEpic: Epic = {
       id: `epic_${Date.now()}`,
       projectId: currentProject.id,
       key: `${currentProject.key}-E${nextNumber}`,
       summary,
       color: '#6366f1',
-    }]);
+    };
+    setEpics(previousEpics => [...previousEpics, newEpic]);
+    return newEpic;
   };
 
   const updateEpic = (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => {

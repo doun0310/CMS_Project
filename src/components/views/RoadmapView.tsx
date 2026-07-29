@@ -12,6 +12,8 @@ export const RoadmapView: React.FC = () => {
   });
   const [criticalPathOnly, setCriticalPathOnly] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<string>('all');
+  const [isCreatingEpic, setIsCreatingEpic] = useState(false);
+  const [newEpicSummary, setNewEpicSummary] = useState('');
   const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language];
 
   const toggleEpic = (id: string) => {
@@ -45,9 +47,15 @@ export const RoadmapView: React.FC = () => {
     ? milestones
     : milestones.filter(milestone => milestone.id === selectedMilestone);
 
-  const handleCreateEpic = () => {
-    const summary = window.prompt('Epic name');
-    if (summary?.trim()) createEpic(summary.trim());
+  const handleCreateEpic = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const summary = newEpicSummary.trim();
+    if (!summary) return;
+
+    const epic = createEpic(summary);
+    setExpandedEpics(previous => ({ ...previous, [epic.id]: true }));
+    setNewEpicSummary('');
+    setIsCreatingEpic(false);
   };
 
   return (
@@ -58,7 +66,32 @@ export const RoadmapView: React.FC = () => {
         </div>
 
         <div className="roadmap-controls">
-          <button className="btn-primary-sm" onClick={handleCreateEpic}><IconPlus size={14} /> Add Epic</button>
+          {isCreatingEpic ? (
+            <form className="roadmap-epic-create" onSubmit={handleCreateEpic}>
+              <input
+                autoFocus
+                value={newEpicSummary}
+                onChange={event => setNewEpicSummary(event.target.value)}
+                placeholder="Epic name"
+                aria-label="Epic name"
+              />
+              <button className="btn-primary-sm" type="submit">Add</button>
+              <button
+                className="btn-ghost-sm"
+                type="button"
+                onClick={() => {
+                  setNewEpicSummary('');
+                  setIsCreatingEpic(false);
+                }}
+              >
+                {t('cancel')}
+              </button>
+            </form>
+          ) : (
+            <button className="btn-primary-sm" type="button" onClick={() => setIsCreatingEpic(true)}>
+              <IconPlus size={14} /> Add Epic
+            </button>
+          )}
           <button
             className={`btn-cp-toggle ${criticalPathOnly ? 'active' : ''}`}
             onClick={() => setCriticalPathOnly(!criticalPathOnly)}

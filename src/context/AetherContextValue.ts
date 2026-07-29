@@ -32,7 +32,7 @@ export interface AetherContextValue {
   deleteProject: (projectId: string) => boolean;
   users: User[];
   epics: Epic[];
-  createEpic: (summary: string) => void;
+  createEpic: (summary: string) => Epic;
   updateEpic: (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => void;
   deleteEpic: (epicId: string) => void;
   sprints: Sprint[];

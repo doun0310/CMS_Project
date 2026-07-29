@@ -6,10 +6,7 @@
   height: 100dvh;
   width: 100vw;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(196, 139, 79, 0.05), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 14%),
-    var(--bg-primary);
+  background: var(--bg-primary);
   color: var(--text-primary);
 
   /* z-index Token System */
@@ -9658,4 +9655,333 @@ input:checked + .slider:before {
   width: 18px;
   height: 18px;
   border-radius: 50%;
+}
+
+/* Visual density pass: keep workspace chrome quiet so the work itself stands out. */
+.app-header {
+  height: 58px;
+  min-height: 58px;
+  max-height: 58px;
+  flex-basis: 58px;
+  padding: 0 16px;
+  gap: 14px;
+  box-shadow: none;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.brand-logo,
+.header-nav-btn,
+.header-action-icon,
+.user-profile-btn {
+  border-radius: 8px;
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 0;
+}
+
+.brand-logo svg { width: 22px; height: 22px; }
+.brand { gap: 6px; font-size: 0.92rem; }
+.header-nav-btn { padding: 5px 7px; background: transparent; border-color: transparent; }
+.header-nav-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.btn-create { padding: 7px 10px; border-radius: 8px; background: #2563eb; border-color: #2563eb; }
+.btn-create:hover { background: #1d4ed8; }
+
+.header-center { gap: 6px; max-width: 760px; }
+.search-bar { flex-basis: 250px; min-width: 180px; }
+.search-bar input {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.quick-filters { gap: 4px; }
+.filter-chip,
+.filter-select,
+.btn-standup-header,
+.btn-tools-header {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: transparent;
+  border-color: transparent;
+  color: rgba(248, 250, 252, 0.74);
+  font-weight: 600;
+}
+.filter-chip:hover,
+.filter-chip.active,
+.filter-select:hover,
+.btn-standup-header:hover,
+.btn-tools-header:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-header);
+}
+
+.header-action-icon { width: 32px; height: 32px; background: transparent; border-color: transparent; }
+.header-action-icon:hover { background: rgba(255, 255, 255, 0.1); }
+.user-profile-btn { padding: 3px; background: transparent; border-color: transparent; }
+.user-profile-btn > :not(.user-avatar-img) { display: none; }
+.user-avatar-img { width: 26px; height: 26px; }
+
+.app-sidebar {
+  width: 212px;
+  min-width: 212px;
+  flex-basis: 212px;
+  padding: 12px 10px;
+  border-right-color: rgba(255, 255, 255, 0.07);
+}
+.sidebar-project-card {
+  padding: 8px 9px;
+  margin-bottom: 8px;
+  background: transparent;
+  border-color: transparent;
+  border-radius: 8px;
+}
+.project-icon { width: 30px; height: 30px; font-size: 1rem; border-radius: 8px; }
+.sidebar-nav { gap: 2px; }
+.sidebar-link { gap: 10px; padding: 8px 10px; border-radius: 7px; }
+.sidebar-link.active { box-shadow: none; }
+.sidebar-sprint-widget { padding: 10px; border-radius: 8px; }
+
+.app-content-area { padding: clamp(16px, 2vw, 24px); }
+.board-header {
+  margin-bottom: 12px;
+  padding: 4px 2px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: none;
+}
+.view-subtitle { font-size: 0.78rem; }
+.control-select { padding: 7px 9px; border-radius: 8px; background: var(--bg-secondary); border-color: var(--border-color); }
+.kanban-grid { gap: 12px; }
+.kanban-column {
+  padding: 9px;
+  background: var(--bg-tertiary);
+  border-color: transparent;
+  border-radius: 10px;
+  backdrop-filter: none;
+}
+.kanban-card { padding: 11px; border-radius: 8px; box-shadow: var(--card-shadow); }
+.kanban-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-1px); }
+.card-epic-tag { margin-bottom: 6px; }
+.card-summary { margin-bottom: 7px; font-size: 0.82rem; }
+.card-labels { margin-bottom: 8px; gap: 4px; }
+.label-badge, .points-badge, .column-count { padding: 2px 6px; }
+.card-footer { padding-top: 5px; }
+
+.my-work-header,
+.my-work-section,
+.my-work-summary,
+.sprint-block,
+.settings-card,
+.chart-box,
+.automation-builder-card,
+.retro-column {
+  box-shadow: none;
+}
+
+@media (max-width: 1100px) {
+  .app-header { height: auto; min-height: 90px; max-height: none; flex-basis: auto; }
+  .header-center { gap: 4px; }
+  .search-bar { flex-basis: 100%; }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar { width: 60px; min-width: 60px; flex-basis: 60px; }
+  .app-header { min-height: 92px; }
+  .quick-filters { padding-bottom: 1px; }
+}
+
+/* Consistent component sizing and whitespace across the workspace. */
+.header-left { gap: var(--space-2); }
+.header-right { gap: var(--space-1); }
+.header-nav-btn,
+.btn-create,
+.filter-chip,
+.filter-select,
+.btn-standup-header,
+.btn-tools-header { min-height: 32px; }
+.header-action-icon,
+.user-profile-btn { flex: 0 0 32px; }
+
+.my-work-view { gap: var(--space-4); }
+.my-work-header { gap: var(--space-5); padding: var(--space-5); }
+.my-work-summary > div { min-height: 56px; padding: var(--space-3) var(--space-4); }
+.my-work-grid { gap: var(--space-3); }
+.my-work-section { padding: var(--space-4); }
+.my-work-list { gap: var(--space-1); }
+.my-work-issue { min-height: 48px; padding: var(--space-2); gap: var(--space-2); }
+.my-work-section-heading { margin-bottom: var(--space-2); }
+
+.kanban-view { gap: 0; }
+.board-header { min-height: 54px; }
+.board-controls { gap: var(--space-2); }
+.kanban-column { gap: var(--space-1); }
+.column-header { min-height: 28px; margin-bottom: var(--space-1); }
+.column-cards-list { gap: var(--space-2); padding-right: 2px; }
+.kanban-card { min-height: 76px; }
+.kanban-card.compact-card { min-height: 64px; padding: var(--space-2) var(--space-3); }
+.compact-card .card-footer { min-height: 22px; }
+.footer-left { gap: 5px; }
+.btn-add-card { min-height: 34px; margin-top: var(--space-1); }
+
+.backlog-view { gap: var(--space-4); }
+.sprint-block { padding: var(--space-4); }
+.sprint-header { gap: var(--space-3); margin-bottom: var(--space-2); }
+.sprint-goal-text { margin-bottom: var(--space-3); padding: var(--space-2) var(--space-3); }
+.backlog-issue-row { min-height: 48px; margin-bottom: var(--space-1); padding: var(--space-2) var(--space-3); }
+.row-left { gap: var(--space-2); }
+.row-right { gap: var(--space-2); }
+
+.dropdown-menu { padding: var(--space-1) 0; }
+.dropdown-item { min-height: 40px; padding: var(--space-2) var(--space-3); }
+.dropdown-header { padding: var(--space-2) var(--space-3); }
+
+@media (max-width: 1100px) {
+  .app-header { padding: var(--space-1) var(--space-3) var(--space-2); }
+  .header-center { margin-top: 1px; }
+  .quick-filters { gap: var(--space-1); }
+}
+
+@media (max-width: 768px) {
+  .app-content-area { padding: var(--space-3); }
+  .board-header { min-height: auto; padding-bottom: var(--space-3); }
+  .kanban-grid { gap: var(--space-3); }
+  .kanban-column { padding: var(--space-2); }
+  .my-work-header { padding: var(--space-4); }
+  .my-work-section { padding: var(--space-3); }
+  .sprint-block { padding: var(--space-3); }
+}
+
+@media (max-width: 420px) {
+  .app-content-area { padding: var(--space-2); }
+  .header-nav-btn,
+  .btn-create,
+  .filter-chip,
+  .filter-select,
+  .btn-standup-header,
+  .btn-tools-header { min-height: 30px; }
+  .my-work-summary > div { min-height: 50px; padding: var(--space-2); }
+  .backlog-issue-row { padding: var(--space-2); }
+}
+
+/* Automation rules: separate the rule summary, flow, and controls into clear groups. */
+.rules-section > h3 {
+  margin-bottom: var(--space-3);
+}
+
+.rules-list {
+  gap: var(--space-3);
+}
+
+.rule-card {
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.rule-info {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.rule-title-row {
+  min-height: 28px;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.exec-count-badge {
+  margin-left: var(--space-2);
+  padding: 3px 7px;
+}
+
+.rule-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.rule-flow .flow-step {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-2);
+  border-radius: 8px;
+}
+
+.rule-flow .step-badge {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  color: inherit;
+}
+
+.rule-flow .flow-arrow {
+  padding: 0 var(--space-1);
+}
+
+.rule-controls {
+  align-self: stretch;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border-color);
+}
+
+.btn-test-rule {
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+  .rule-card { gap: var(--space-3); }
+  .rule-flow { grid-template-columns: 1fr; gap: var(--space-2); }
+  .rule-flow .flow-arrow { justify-self: center; padding: 0; transform: rotate(90deg); }
+}
+
+@media (max-width: 768px) {
+  .rule-card { padding: var(--space-3); }
+  .rule-controls {
+    align-self: auto;
+    justify-content: flex-start;
+    padding: var(--space-3) 0 0;
+    border-top: 1px solid var(--border-color);
+    border-left: 0;
+  }
+}
+
+/* Inline epic creation keeps the action reliable and gives immediate feedback in the roadmap. */
+.roadmap-epic-create {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.roadmap-epic-create input {
+  width: min(220px, 28vw);
+  min-width: 150px;
+  min-height: 32px;
+  padding: 6px var(--space-2);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-focus);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.78rem;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .roadmap-controls { align-items: flex-start; flex-wrap: wrap; }
+  .roadmap-epic-create { width: 100%; }
+  .roadmap-epic-create input { flex: 1 1 150px; width: auto; }
 }
