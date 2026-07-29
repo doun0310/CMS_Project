@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconPlus, IconCheck } from '../common/Icons';
+import { IconX, IconPlus, IconCheck, IconTrash, IconSettings } from '../common/Icons';
 import type { Project } from '../../types/Aether';
 
 interface ProjectSwitchModalProps {
@@ -9,17 +9,21 @@ interface ProjectSwitchModalProps {
 }
 
 export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, setCurrentProject, createProject, projects, issues, t } = useAether();
+  const { currentProject, setCurrentProject, setViewMode, setSearchQuery, setSelectedIssueId, createProject, updateProject, deleteProject, projects, issues, t } = useAether();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newKey, setNewKey] = useState('');
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   if (!isOpen) return null;
 
   const handleSelectProject = (proj: Project) => {
     setCurrentProject(proj);
+    setViewMode('board');
+    setSearchQuery('');
+    setSelectedIssueId(null);
     onClose();
   };
 
@@ -27,18 +31,42 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
     e.preventDefault();
     if (!newKey.trim() || !newName.trim()) return;
 
-    createProject({
-      key: newKey.trim().toUpperCase(),
-      name: newName.trim(),
-      category: 'Software Engineering',
-      avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80',
-      description: newDesc.trim() || t('projectDescriptionDefault')
-    });
+    if (editingProject) {
+      updateProject(editingProject.id, {
+        key: newKey.trim().toUpperCase(),
+        name: newName.trim(),
+        description: newDesc.trim() || t('projectDescriptionDefault'),
+      });
+    } else {
+      createProject({
+        key: newKey.trim().toUpperCase(),
+        name: newName.trim(),
+        category: 'Software Engineering',
+        avatar: '✦',
+        description: newDesc.trim() || t('projectDescriptionDefault')
+      });
+    }
     setIsCreating(false);
+    setEditingProject(null);
     setNewKey('');
     setNewName('');
     setNewDesc('');
     onClose();
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setNewKey(project.key);
+    setNewName(project.name);
+    setNewDesc(project.description);
+    setIsCreating(true);
+  };
+
+  const handleDeleteProject = (project: Project) => {
+    if (!window.confirm(`Delete ${project.name}? This cannot be undone.`)) return;
+    if (!deleteProject(project.id)) {
+      window.alert('At least one workspace must remain.');
+    }
   };
 
   return (
@@ -68,7 +96,9 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                     onClick={() => handleSelectProject(proj)}
                   >
                     <div className="card-top">
-                      <img src={proj.avatar} alt={proj.name} className="project-avatar-lg" />
+                      <span className="project-avatar-lg project-avatar-symbol" aria-hidden="true">
+                        {proj.avatar.startsWith('http') || proj.avatar.startsWith('data:image') ? '✦' : proj.avatar}
+                      </span>
                       <div className="proj-info">
                         <span className="proj-key">{proj.key}</span>
                         <h4 className="proj-name">{proj.name}</h4>
@@ -81,13 +111,21 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                       <span className="meta-item">📁 {proj.category}</span>
                       <span className="meta-item">🎟️ {projIssues.length} {t('activeIssues')}</span>
                     </div>
+                    <div className="project-card-actions">
+                      <button type="button" className="project-card-action" onClick={event => { event.stopPropagation(); handleEditProject(proj); }}>
+                        <IconSettings size={14} /> Edit
+                      </button>
+                      <button type="button" className="project-card-action danger" onClick={event => { event.stopPropagation(); handleDeleteProject(proj); }}>
+                        <IconTrash size={14} /> Delete
+                      </button>
+                    </div>
                   </div>
                 );
               })}
             </div>
 
             <div className="modal-footer-actions">
-              <button className="btn-primary" onClick={() => setIsCreating(true)}>
+              <button className="btn-primary" onClick={() => { setEditingProject(null); setNewKey(''); setNewName(''); setNewDesc(''); setIsCreating(true); }}>
                 <IconPlus size={16} /> {t('createWorkspace')}
               </button>
             </div>
@@ -126,9 +164,9 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
             </div>
 
             <div className="form-actions-row">
-              <button type="button" className="btn-secondary" onClick={() => setIsCreating(false)}>{t('cancel')}</button>
+              <button type="button" className="btn-secondary" onClick={() => { setIsCreating(false); setEditingProject(null); }}>{t('cancel')}</button>
               <button type="submit" className="btn-primary">
-                {t('createSwitchWorkspace')}
+                {editingProject ? 'Save Changes' : t('createSwitchWorkspace')}
               </button>
             </div>
           </form>

@@ -28,6 +28,8 @@ export interface AetherContextValue {
   setCurrentProject: (project: Project) => void;
   projects: Project[];
   createProject: (project: Omit<Project, 'id'>) => Project;
+  updateProject: (projectId: string, updates: Partial<Omit<Project, 'id'>>) => void;
+  deleteProject: (projectId: string) => boolean;
   users: User[];
   epics: Epic[];
   sprints: Sprint[];

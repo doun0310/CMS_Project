@@ -28,7 +28,7 @@ export const RoadmapView: React.FC = () => {
   }
 
   const getPositionPercent = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const d = new Date(`${dateStr}T00:00:00`);
     const start = days[0].getTime();
     const end = days[days.length - 1].getTime();
     const current = d.getTime();
@@ -36,6 +36,14 @@ export const RoadmapView: React.FC = () => {
     if (current >= end) return 95;
     return Math.round(((current - start) / (end - start)) * 100);
   };
+
+  const milestones = [
+    { id: 'm1', date: '2026-07-24', label: t('milestoneBetaShort'), title: t('milestoneBeta') },
+    { id: 'm2', date: '2026-08-02', label: t('milestoneGaShort'), title: t('milestoneGa') },
+  ].map(milestone => ({ ...milestone, position: getPositionPercent(milestone.date) }));
+  const visibleMilestones = selectedMilestone === 'all'
+    ? milestones
+    : milestones.filter(milestone => milestone.id === selectedMilestone);
 
   return (
     <div className="roadmap-view animate-fade-in">
@@ -135,17 +143,24 @@ export const RoadmapView: React.FC = () => {
                 </div>
               );
             })}
+            {visibleMilestones.map(milestone => (
+              <span
+                key={milestone.id}
+                className={`gantt-milestone-label ${milestone.id}`}
+                style={{ left: `${milestone.position}%` }}
+                title={milestone.title}
+              >
+                {milestone.label}
+              </span>
+            ))}
           </div>
 
           <div className="gantt-right-body">
             {/* Milestone Vertical Flags Overlay */}
             <div className="gantt-milestones-overlay">
-              <div className="milestone-line m1" style={{ left: '25%' }} title={t('milestoneBeta')}>
-                <span className="milestone-flag">{t('milestoneBetaShort')}</span>
-              </div>
-              <div className="milestone-line m2" style={{ left: '75%' }} title={t('milestoneGa')}>
-                <span className="milestone-flag">{t('milestoneGaShort')}</span>
-              </div>
+              {visibleMilestones.map(milestone => (
+                <div key={milestone.id} className="milestone-line" style={{ left: `${milestone.position}%` }} />
+              ))}
             </div>
 
             {epics.map((epic: Epic) => {

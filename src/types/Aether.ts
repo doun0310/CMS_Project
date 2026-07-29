@@ -14,6 +14,7 @@ export interface User {
 
 export interface Epic {
   id: string;
+  projectId?: string;
   key: string;
   summary: string;
   color: string;
@@ -22,6 +23,7 @@ export interface Epic {
 
 export interface Sprint {
   id: string;
+  projectId?: string;
   name: string;
   goal: string;
   startDate: string;
@@ -69,6 +71,7 @@ export interface ActivityLog {
 
 export interface Issue {
   id: string;
+  projectId?: string;
   key: string;
   summary: string;
   description: string;
@@ -135,4 +138,3 @@ export interface AutomationAuditLog {
 }
 
 export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban';
-

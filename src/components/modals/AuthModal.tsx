@@ -21,7 +21,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);

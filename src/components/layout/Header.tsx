@@ -35,6 +35,7 @@ export const Header: React.FC = () => {
     t,
     currentProject,
     setCurrentProject,
+    setViewMode,
     projects,
     users,
     currentUser,
@@ -208,6 +209,9 @@ export const Header: React.FC = () => {
                   className={`dropdown-item ${p.id === currentProject.id ? 'active' : ''}`}
                   onClick={() => {
                     setCurrentProject(p);
+                    setViewMode('board');
+                    setSearchQuery('');
+                    setSelectedIssueId(null);
                     setIsProjectDropdownOpen(false);
                   }}
                 >

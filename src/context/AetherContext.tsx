@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
   Epic,
   Sprint,
@@ -41,6 +41,7 @@ const PREVIOUS_STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
 
 interface PersistedState {
   projects?: Project[];
+  currentProjectId?: string;
   issues?: Issue[];
   sprints?: Sprint[];
   epics?: Epic[];
@@ -85,6 +86,7 @@ const normalizeIssue = (value: unknown, fallback: Issue): Issue | null => {
     ...fallback,
     ...candidate,
     id: candidate.id,
+    projectId: typeof candidate.projectId === 'string' ? candidate.projectId : 'p1',
     key: candidate.key,
     summary: candidate.summary,
     description: typeof candidate.description === 'string' ? candidate.description : fallback.description,
@@ -144,7 +146,9 @@ const normalizeProjectCollection = (value: unknown): Project[] | undefined => {
     })
     .map(project => ({
       ...project,
-      key: project.key.toUpperCase()
+      key: project.key.toUpperCase(),
+      // Project badges are local symbols, never remote image URLs.
+      avatar: project.avatar.startsWith('http') || project.avatar.startsWith('data:image') ? '✦' : project.avatar,
     }));
 };
 
@@ -159,6 +163,7 @@ const readPersistedState = (): PersistedState => {
     const data = parsed as Record<string, unknown>;
     return {
       projects: normalizeProjectCollection(data.projects),
+      currentProjectId: typeof data.currentProjectId === 'string' ? data.currentProjectId : undefined,
       issues: normalizeIssueCollection(data.issues, initialIssues),
       sprints: Array.isArray(data.sprints) ? data.sprints as Sprint[] : undefined,
       epics: Array.isArray(data.epics) ? data.epics as Epic[] : undefined,
@@ -191,15 +196,26 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
     document.documentElement.style.setProperty('--border-focus', accentColor);
   }, [accentColor]);
-  const [projects, setProjects] = useState<Project[]>(persistedState.projects ?? initialProjects);
+  const initialProjectList = persistedState.projects ?? initialProjects;
+  const initialIssueList = (persistedState.issues ?? initialIssues).map(issue => ({
+    ...issue,
+    projectId: issue.projectId || initialProjectList[0].id,
+  }));
+  const [projects, setProjects] = useState<Project[]>(initialProjectList);
   const [currentProject, setCurrentProject] = useState<Project>(
-    (persistedState.projects ?? initialProjects)[0]
+    initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
   );
   const [users] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(initialUsers[2]);
-  const [epics, setEpics] = useState(persistedState.epics ?? initialEpics);
-  const [sprints, setSprints] = useState(persistedState.sprints ?? initialSprints);
-  const [issues, setIssues] = useState(persistedState.issues ?? initialIssues);
+  const [allEpics, setEpics] = useState<Epic[]>((persistedState.epics ?? initialEpics).map(epic => ({ ...epic, projectId: epic.projectId || initialProjectList[0].id })));
+  const [allSprints, setSprints] = useState<Sprint[]>((persistedState.sprints ?? initialSprints).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
+  const epics = useMemo(() => allEpics.filter(epic => epic.projectId === currentProject.id), [allEpics, currentProject.id]);
+  const sprints = useMemo(() => allSprints.filter(sprint => sprint.projectId === currentProject.id), [allSprints, currentProject.id]);
+  const [allIssues, setIssues] = useState<Issue[]>(initialIssueList);
+  const issues = useMemo(
+    () => allIssues.filter(issue => issue.projectId === currentProject.id),
+    [allIssues, currentProject.id],
+  );
   const [automationRules, setAutomationRules] = useState(
     persistedState.automationRules ?? initialAutomationRules
   );
@@ -230,9 +246,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const stateToSave = {
         projects,
-        issues,
-        sprints,
-        epics,
+        currentProjectId: currentProject.id,
+        issues: allIssues,
+        sprints: allSprints,
+        epics: allEpics,
         automationRules,
         retrospectiveItems,
         automationAuditLogs,
@@ -245,7 +262,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } catch (error) {
       console.error('Failed to save to local storage:', error);
     }
-  }, [projects, issues, sprints, epics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
+  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
 
   useEffect(() => {
     if (projects.some(project => project.id === currentProject.id)) return;
@@ -264,7 +281,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // Fetch initial issues & retro items from Supabase
     fetchIssuesFromSupabase().then((dbIssues) => {
       if (dbIssues.length > 0) {
-        setIssues(dbIssues);
+        setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
       } else {
         // If DB is empty, seed initial issues to Supabase
         initialIssues.forEach((issue) => syncIssueToSupabase(issue, currentProject.id));
@@ -318,6 +335,26 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return createdProject;
   };
 
+  const updateProject = (projectId: string, updates: Partial<Omit<Project, 'id'>>) => {
+    setProjects(previousProjects => previousProjects.map(project => (
+      project.id === projectId ? { ...project, ...updates } : project
+    )));
+    setCurrentProject(previousProject => (
+      previousProject.id === projectId ? { ...previousProject, ...updates } : previousProject
+    ));
+  };
+
+  const deleteProject = (projectId: string): boolean => {
+    if (projects.length <= 1) return false;
+
+    const remainingProjects = projects.filter(project => project.id !== projectId);
+    setProjects(remainingProjects);
+    if (currentProject.id === projectId) {
+      setCurrentProject(remainingProjects[0]);
+    }
+    return true;
+  };
+
   const recordDoneStatusAutomation = () => {
     setAutomationRules(previousRules =>
       previousRules.map(rule =>
@@ -357,6 +394,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const newIssue: Issue = {
       id: 'issue_' + Date.now(),
+      projectId: currentProject.id,
       key,
       summary: issueData.summary ?? 'New Issue',
       description: issueData.description ?? '',
@@ -468,6 +506,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const createSprint = (name: string, goal: string) => {
     const newSprint: Sprint = {
       id: 'sprint_' + Date.now(),
+      projectId: currentProject.id,
       name,
       goal,
       startDate: new Date().toISOString().split('T')[0],
@@ -565,10 +604,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const resetDemoData = () => {
-    setIssues(initialIssues);
+    setIssues(initialIssues.map(issue => ({ ...issue, projectId: initialProjects[0].id })));
     setProjects(initialProjects);
-    setSprints(initialSprints);
-    setEpics(initialEpics);
+    setSprints(initialSprints.map(sprint => ({ ...sprint, projectId: initialProjects[0].id })));
+    setEpics(initialEpics.map(epic => ({ ...epic, projectId: initialProjects[0].id })));
     setAutomationRules(initialAutomationRules);
     setRetrospectiveItems(initialRetrospectiveItems);
     setAutomationAuditLogs(initialAutomationAuditLogs);
@@ -577,7 +616,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const exportDataJSON = () => {
-    return JSON.stringify({ projects, issues, sprints, epics, automationRules, retrospectiveItems }, null, 2);
+    return JSON.stringify({ projects, issues: allIssues, sprints: allSprints, epics: allEpics, automationRules, retrospectiveItems }, null, 2);
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
@@ -601,11 +640,11 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         importedSectionCount += 1;
       }
       if (Array.isArray(data.sprints)) {
-        setSprints(data.sprints as Sprint[]);
+        setSprints((data.sprints as Sprint[]).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
         importedSectionCount += 1;
       }
       if (Array.isArray(data.epics)) {
-        setEpics(data.epics as Epic[]);
+        setEpics((data.epics as Epic[]).map(epic => ({ ...epic, projectId: epic.projectId || initialProjectList[0].id })));
         importedSectionCount += 1;
       }
       if (Array.isArray(data.retrospectiveItems)) {
@@ -642,6 +681,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setCurrentProject,
         projects,
         createProject,
+        updateProject,
+        deleteProject,
         users,
         epics,
         sprints,

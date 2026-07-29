@@ -1879,7 +1879,7 @@
 
 .gantt-left-header {
   background: var(--bg-tertiary);
-  height: 38px;
+  height: 52px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -1956,15 +1956,18 @@
 
 .gantt-right-header {
   display: flex;
-  height: 38px;
+  height: 52px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-tertiary);
   min-width: 680px;
+  position: relative;
+  overflow: visible;
 }
 
 .gantt-right-body {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .gantt-right-row {
@@ -5299,6 +5302,31 @@ input:checked + .slider:before {
   background: rgba(196, 139, 79, 0.06);
 }
 
+.project-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.project-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.project-card-action:hover { color: var(--text-primary); background: var(--bg-hover); }
+.project-card-action.danger:hover { color: #dc2626; border-color: rgba(220, 38, 38, 0.35); }
+
 .card-top {
   display: flex;
   align-items: center;
@@ -5311,6 +5339,18 @@ input:checked + .slider:before {
   border-radius: 8px;
   object-fit: cover;
 }
+
+.project-avatar-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 14%, transparent);
+  color: var(--color-in-progress, #6366f1);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
 
 .proj-info {
   display: flex;
@@ -7117,7 +7157,7 @@ input:checked + .slider:before {
   right: 0;
   bottom: 0;
   pointer-events: none;
-  z-index: 10;
+  z-index: 3;
 }
 
 .milestone-line {
@@ -7137,16 +7177,24 @@ input:checked + .slider:before {
   align-items: center;
 }
 
-.milestone-flag {
+.gantt-milestone-label {
+  position: absolute;
+  top: 4px;
+  z-index: 4;
   font-size: 0.68rem;
   font-weight: 800;
   color: #ffffff;
   background: #6366f1;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 7px;
+  border-radius: 6px;
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  transform: translateY(4px);
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.gantt-milestone-label.m1 {
+  transform: translateX(0);
 }
 
 .critical-path-bar {

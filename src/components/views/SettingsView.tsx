@@ -20,6 +20,7 @@ export const SettingsView: React.FC = () => {
   const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+
   const colorOptions = [
     { name: 'Aether Indigo', hex: '#6366f1' },
     { name: 'Atlassian Blue', hex: '#0052cc' },
