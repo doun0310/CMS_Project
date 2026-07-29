@@ -22,14 +22,26 @@ export const RoadmapView: React.FC = () => {
     setExpandedEpics(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Timeline date columns (14-day window for visual clarity)
-  const today = new Date('2026-07-27');
-  const days: Date[] = [];
-  for (let i = -3; i < 11; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
-    days.push(d);
-  }
+  // Build the timeline from actual issue start and due dates.
+  const toCalendarDate = (value: string) => new Date(`${value.slice(0, 10)}T00:00:00`);
+  const developmentDates = issues.flatMap(issue => [toCalendarDate(issue.createdAt), toCalendarDate(issue.dueDate)])
+    .filter(date => !Number.isNaN(date.getTime()));
+  const fallbackDate = new Date();
+  const earliestDevelopmentDate = developmentDates.length
+    ? new Date(Math.min(...developmentDates.map(date => date.getTime())))
+    : fallbackDate;
+  const latestDevelopmentDate = developmentDates.length
+    ? new Date(Math.max(...developmentDates.map(date => date.getTime())))
+    : fallbackDate;
+  const timelineStart = new Date(earliestDevelopmentDate);
+  const timelineEnd = new Date(latestDevelopmentDate);
+  const oneDay = 24 * 60 * 60 * 1000;
+  const dayCount = Math.max(14, Math.round((timelineEnd.getTime() - timelineStart.getTime()) / oneDay) + 1);
+  const days = Array.from({ length: dayCount }, (_, index) => {
+    const day = new Date(timelineStart);
+    day.setDate(day.getDate() + index);
+    return day;
+  });
 
   const getPositionPercent = (dateStr: string) => {
     const d = new Date(`${dateStr}T00:00:00`);
@@ -41,9 +53,11 @@ export const RoadmapView: React.FC = () => {
     return Math.round(((current - start) / (end - start)) * 100);
   };
 
+  const midpoint = new Date((timelineStart.getTime() + timelineEnd.getTime()) / 2);
+  const formatMilestoneDate = (date: Date) => date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' });
   const milestones = [
-    { id: 'm1', date: '2026-07-24', label: t('milestoneBetaShort'), title: t('milestoneBeta') },
-    { id: 'm2', date: '2026-08-02', label: t('milestoneGaShort'), title: t('milestoneGa') },
+    { id: 'm1', date: midpoint.toISOString().slice(0, 10), label: `M1 · ${formatMilestoneDate(midpoint)}`, title: `M1 · ${formatMilestoneDate(midpoint)}` },
+    { id: 'm2', date: timelineEnd.toISOString().slice(0, 10), label: `M2 · ${formatMilestoneDate(timelineEnd)}`, title: `M2 · ${formatMilestoneDate(timelineEnd)}` },
   ].map(milestone => ({ ...milestone, position: getPositionPercent(milestone.date) }));
   const visibleMilestones = selectedMilestone === 'all'
     ? milestones
@@ -117,8 +131,9 @@ export const RoadmapView: React.FC = () => {
             className="milestone-select"
           >
             <option value="all">{t('allReleaseMilestones')}</option>
-            <option value="m1">{t('milestoneBeta')}</option>
-            <option value="m2">{t('milestoneGa')}</option>
+            {milestones.map(milestone => (
+              <option key={milestone.id} value={milestone.id}>{milestone.title}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -223,7 +238,7 @@ export const RoadmapView: React.FC = () => {
         <div className="gantt-right-pane">
           <div className="gantt-right-header">
             {days.map((day, idx) => {
-              const isToday = day.toISOString().split('T')[0] === '2026-07-27';
+              const isToday = day.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
               return (
                 <div key={idx} className={`gantt-day-cell ${isToday ? 'today' : ''}`}>
                   <span className="day-name">
