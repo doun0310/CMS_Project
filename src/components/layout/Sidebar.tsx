@@ -36,16 +36,16 @@ export const Sidebar: React.FC = () => {
       icon: <IconMyWork size={18} />
     },
     {
-      id: 'board',
-      label: t('board'),
-      icon: <IconBoard size={18} />,
-      badge: `${activeSprintIssues.length}`
-    },
-    {
       id: 'backlog',
       label: t('backlog'),
       icon: <IconBacklog size={18} />,
       badge: `${backlogIssues.length}`
+    },
+    {
+      id: 'board',
+      label: t('board'),
+      icon: <IconBoard size={18} />,
+      badge: `${activeSprintIssues.length}`
     },
     {
       id: 'roadmap',

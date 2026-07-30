@@ -277,7 +277,13 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   const [allEpics, setEpics] = useState<Epic[]>([]);
-  const [allSprints, setSprints] = useState<Sprint[]>((persistedState.sprints ?? initialSprints).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
+  const [allSprints, setSprints] = useState<Sprint[]>(() => {
+    const raw = persistedState.sprints ?? initialSprints;
+    return raw.map(sprint => {
+      const defaultProject = sprint.id.includes('mobile') ? 'p2' : sprint.id.includes('ops') ? 'p3' : 'p1';
+      return { ...sprint, projectId: sprint.projectId || defaultProject };
+    });
+  });
   const epics = useMemo(() => allEpics.filter(epic => epic.projectId === currentProject.id), [allEpics, currentProject.id]);
   const sprints = useMemo(() => allSprints.filter(sprint => sprint.projectId === currentProject.id), [allSprints, currentProject.id]);
   const [allIssues, setIssues] = useState<Issue[]>(initialIssueList);
@@ -492,12 +498,12 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const resetDemoData = () => {
-    setIssues(initialIssues.map(issue => ({ ...issue, projectId: initialProjects[0].id })));
+    setIssues(initialIssues);
     setProjects(initialProjects);
-    setSprints(initialSprints.map(sprint => ({ ...sprint, projectId: initialProjects[0].id })));
+    setSprints(initialSprints);
     setEpics([]);
     setAutomationRules(initialAutomationRules);
-    setRetrospectiveItems(initialRetrospectiveItems.map(item => ({ ...item, projectId: initialProjects[0].id })));
+    setRetrospectiveItems(initialRetrospectiveItems);
     setAutomationAuditLogs(initialAutomationAuditLogs);
     setNotifications([]);
     localStorage.removeItem(STORAGE_KEY);

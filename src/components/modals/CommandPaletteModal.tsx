@@ -32,8 +32,8 @@ export const CommandPaletteModal: React.FC = () => {
   if (!isOpen) return null;
 
   const views: { mode: ViewMode; label: string; icon: string }[] = [
-    { mode: 'board', label: 'Go to Kanban Board', icon: '📋' },
     { mode: 'backlog', label: 'Go to Backlog & Sprints', icon: '📑' },
+    { mode: 'board', label: 'Go to Kanban Board', icon: '📋' },
     { mode: 'roadmap', label: 'Go to Timeline Roadmap', icon: '🗺️' },
     { mode: 'reports', label: 'Go to Velocity & Analytics Reports', icon: '📊' },
     { mode: 'automation', label: 'Go to Visual Automation Engine', icon: '⚡' },

@@ -19,11 +19,14 @@ export function useSprintActions({
 }: UseSprintActionsParams) {
   const startSprint = (sprintId: string) => {
     const sprint = sprints.find(item => item.id === sprintId);
+    const targetProjectId = sprint?.projectId || currentProject.id;
     setSprints(prev =>
-      prev.map(sprint => {
-        if (sprint.id === sprintId) return { ...sprint, status: 'active' };
-        if (sprint.status === 'active') return { ...sprint, status: 'future' };
-        return sprint;
+      prev.map(item => {
+        if (item.id === sprintId) return { ...item, status: 'active' };
+        if ((item.projectId || currentProject.id) === targetProjectId && item.status === 'active') {
+          return { ...item, status: 'future' };
+        }
+        return item;
       })
     );
     if (sprint) notify({ kind: 'sprint', title: '스프린트 시작', text: `${sprint.name} 스프린트가 시작되었습니다.` });

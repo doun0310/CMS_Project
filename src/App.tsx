@@ -53,8 +53,8 @@ const MainLayout: React.FC = () => {
 
     const viewMap: Record<string, ViewMode> = {
       '1': 'my-work',
-      '2': 'board',
-      '3': 'backlog',
+      '2': 'backlog',
+      '3': 'board',
       '4': 'roadmap',
       '5': 'reports',
       '6': 'retrospective',
