@@ -131,6 +131,7 @@ export async function fetchRetroFromSupabase(): Promise<RetrospectiveItem[]> {
 export function mapDbToRetroItem(row: SupabaseRetroRow): RetrospectiveItem {
   return {
     id: row.id,
+    projectId: row.project_id,
     type: row.category === 'good' ? 'went_well' : row.category === 'improve' ? 'to_improve' : 'action_item',
     content: row.content || '',
     authorId: row.author_id || 'usr_1',

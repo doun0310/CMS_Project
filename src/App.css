@@ -2895,7 +2895,10 @@ input:checked + .slider:before {
   line-height: 1.55;
 }
 
-.ai-analysis-summary-text { color: var(--text-secondary); }
+.ai-analysis-summary-text {
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
 .ai-analysis-error { color: var(--color-danger, #dc2626); }
 
 .summary-grid {

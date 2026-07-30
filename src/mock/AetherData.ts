@@ -350,6 +350,7 @@ export const initialIssues: Issue[] = [
 export const initialRetrospectiveItems = [
   {
     id: 'retro-1',
+    projectId: 'p1',
     type: 'went_well' as const,
     content: 'Completed high-throughput WebSocket token stream implementation ahead of schedule with 0 memory leaks!',
     votes: 5,
@@ -358,6 +359,7 @@ export const initialRetrospectiveItems = [
   },
   {
     id: 'retro-2',
+    projectId: 'p1',
     type: 'to_improve' as const,
     content: 'API documentation for rate-limiting headers was missing during QA deployment, causing false positive alerts.',
     votes: 3,
@@ -366,6 +368,7 @@ export const initialRetrospectiveItems = [
   },
   {
     id: 'retro-3',
+    projectId: 'p1',
     type: 'action_item' as const,
     content: 'Automate OpenAPI Spec generation in GitHub Actions CI pipeline before merging PRs into release branch.',
     votes: 7,

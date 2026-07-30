@@ -235,7 +235,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [currentProject, setCurrentProject] = useState<Project>(
     initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
   );
-  const [users] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>(initialUsers);
   const [currentUser, setCurrentUser] = useState(initialUsers[2]);
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(isSupabaseConfigured);
@@ -253,6 +253,15 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const nextAuthUser = session ? toWorkspaceUser(session.user) : null;
       setAuthUser(nextAuthUser);
       setCurrentUser(nextAuthUser ?? initialUsers[2]);
+      if (nextAuthUser) {
+        setUsers(prev => {
+          const exists = prev.some(u => u.id === nextAuthUser.id || u.email === nextAuthUser.email);
+          if (exists) {
+            return prev.map(u => (u.id === nextAuthUser.id || u.email === nextAuthUser.email ? nextAuthUser : u));
+          }
+          return [...prev, nextAuthUser];
+        });
+      }
       setIsAuthLoading(false);
     };
 
@@ -299,8 +308,17 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const clearNotifications = () => setNotifications([]);
-  const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(
-    persistedState.retrospectiveItems ?? initialRetrospectiveItems
+  const [allRetrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(() => {
+    const raw = (persistedState.retrospectiveItems ?? initialRetrospectiveItems) as RetrospectiveItem[];
+    return raw.map(item => ({
+      ...item,
+      projectId: item.projectId || initialProjectList[0].id,
+    }));
+  });
+
+  const retrospectiveItems = useMemo(
+    () => allRetrospectiveItems.filter(item => item.projectId === currentProject.id),
+    [allRetrospectiveItems, currentProject.id]
   );
 
   const [viewMode, setViewMode] = useState<ViewMode>('my-work');
@@ -379,7 +397,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         sprints: allSprints,
         epics: allEpics,
         automationRules,
-        retrospectiveItems,
+        retrospectiveItems: allRetrospectiveItems,
         automationAuditLogs,
         notifications,
         theme,
@@ -391,7 +409,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } catch (error) {
       console.error('Failed to save to local storage:', error);
     }
-  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, retrospectiveItems, automationAuditLogs, notifications, theme, language, accentColor]);
+  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, allRetrospectiveItems, automationAuditLogs, notifications, theme, language, accentColor]);
 
   useEffect(() => {
     if (projects.some(project => project.id === currentProject.id)) return;
@@ -479,7 +497,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setSprints(initialSprints.map(sprint => ({ ...sprint, projectId: initialProjects[0].id })));
     setEpics([]);
     setAutomationRules(initialAutomationRules);
-    setRetrospectiveItems(initialRetrospectiveItems);
+    setRetrospectiveItems(initialRetrospectiveItems.map(item => ({ ...item, projectId: initialProjects[0].id })));
     setAutomationAuditLogs(initialAutomationAuditLogs);
     setNotifications([]);
     localStorage.removeItem(STORAGE_KEY);
@@ -487,7 +505,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const exportDataJSON = () => {
-    return JSON.stringify({ projects, issues: allIssues, sprints: allSprints, epics: allEpics, automationRules, retrospectiveItems }, null, 2);
+    return JSON.stringify({ projects, issues: allIssues, sprints: allSprints, epics: allEpics, automationRules, retrospectiveItems: allRetrospectiveItems }, null, 2);
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
@@ -515,7 +533,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         importedSectionCount += 1;
       }
       if (Array.isArray(data.retrospectiveItems)) {
-        setRetrospectiveItems(data.retrospectiveItems as RetrospectiveItem[]);
+        setRetrospectiveItems((data.retrospectiveItems as RetrospectiveItem[]).map(item => ({ ...item, projectId: item.projectId || initialProjectList[0].id })));
         importedSectionCount += 1;
       }
       if (Array.isArray(data.automationRules)) {

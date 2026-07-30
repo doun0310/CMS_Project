@@ -21,6 +21,7 @@ export function useRetroActions({
     const activeSprint = getActiveSprint();
     const newItem: RetrospectiveItem = {
       id: `retro-${Date.now()}`,
+      projectId: currentProject.id,
       type,
       content,
       votes: 1,

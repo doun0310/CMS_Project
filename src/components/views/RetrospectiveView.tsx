@@ -19,6 +19,7 @@ export const RetrospectiveView: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
+    setAiAnalysis(null);
     fetchLatestRetrospectiveAnalysis(currentProject.id, activeSprint?.id ?? null)
       .then(analysis => { if (isMounted) setAiAnalysis(analysis); })
       // An absent Supabase login or an undeployed function should not hide the board.
@@ -226,8 +227,12 @@ export const RetrospectiveView: React.FC = () => {
           </div>
           <div className="summary-box">
             <div className="s-label">{t('actionTicketConversion')}</div>
-            <div className="s-value">{conversionPct}% Converted ({convertedCount}/{actionItems.length})</div>
-            <div className="s-desc">{t('convertOneClick')}</div>
+            <div className="s-value">
+              {aiAnalysis?.actionExecutionRate != null
+                ? `${aiAnalysis.actionExecutionRate}% Action Execution (${convertedCount}/${actionItems.length})`
+                : `${conversionPct}% Converted (${convertedCount}/${actionItems.length})`}
+            </div>
+            <div className="s-desc">{aiAnalysis?.topFocusTopic ? `Top Topic: ${aiAnalysis.topFocusTopic}` : t('convertOneClick')}</div>
           </div>
         </div>
       </div>

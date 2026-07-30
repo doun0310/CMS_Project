@@ -58,6 +58,7 @@ export interface Comment {
 
 export interface RetrospectiveItem {
   id: string;
+  projectId?: string;
   type: 'went_well' | 'to_improve' | 'action_item';
   content: string;
   votes: number;
