@@ -49,7 +49,9 @@ export const Header: React.FC = () => {
     setSelectedType,
     setSelectedIssueId,
     setIsCreateModalOpen,
-    resetDemoData
+    resetDemoData,
+    notifications,
+    markNotificationsRead,
   } = useAether();
 
   const { openModal } = useModal();
@@ -59,7 +61,7 @@ export const Header: React.FC = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const [unreadNotifs, setUnreadNotifs] = useState(3);
+  const [toastNotificationId, setToastNotificationId] = useState<string | null>(null);
 
   const projectDropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -119,29 +121,24 @@ export const Header: React.FC = () => {
     };
   }, [isToolsOpen]);
 
-  const notifications = [
-    {
-      id: 'n1',
-      title: 'Workflow update: QA auto-assigned',
-      text: 'CLOUD-101 was automatically assigned to QA Engineer (David Park)',
-      time: '10m ago',
-      issueId: 'issue-1'
-    },
-    {
-      id: 'n2',
-      title: 'Capacity rebalance completed',
-      text: 'Rebalanced 3 story points from Alex Rivera to Maria Santos',
-      time: '1h ago',
-      issueId: 'issue-2'
-    },
-    {
-      id: 'n3',
-      title: 'New comment on CLOUD-103',
-      text: 'David Park: "GPU WebSocket token stream integration passed latency tests!"',
-      time: '3h ago',
-      issueId: 'issue-3'
-    }
-  ];
+  const unreadNotifs = notifications.filter(notification => !notification.read).length;
+  const latestUnreadId = notifications.find(notification => !notification.read)?.id;
+  const toastNotification = notifications.find(notification => notification.id === toastNotificationId);
+
+  useEffect(() => {
+    if (!latestUnreadId) return;
+    setToastNotificationId(latestUnreadId);
+    const timer = window.setTimeout(() => setToastNotificationId(null), 4500);
+    return () => window.clearTimeout(timer);
+  }, [latestUnreadId]);
+
+  const formatNotificationTime = (createdAt: string) => {
+    const elapsedMinutes = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000));
+    if (elapsedMinutes < 1) return t('justNow');
+    if (elapsedMinutes < 60) return `${elapsedMinutes}m`;
+    if (elapsedMinutes < 1440) return `${Math.floor(elapsedMinutes / 60)}h`;
+    return `${Math.floor(elapsedMinutes / 1440)}d`;
+  };
 
   const typeLabels: Record<IssueType, string> = {
     feature: t('typeFeature'),
@@ -361,7 +358,7 @@ export const Header: React.FC = () => {
               setIsUserDropdownOpen(false);
               setIsToolsOpen(false);
               setIsNotifOpen(current => !current);
-              if (unreadNotifs > 0) setUnreadNotifs(0);
+              if (unreadNotifs > 0) markNotificationsRead();
             }}
           >
             <IconBell size={18} />
@@ -371,15 +368,17 @@ export const Header: React.FC = () => {
             <div className="dropdown-menu right notif-dropdown animate-fade-in">
               <div className="dropdown-header notif-header-flex">
                 <span>{t('teamActivity').toUpperCase()}</span>
-                <span className="notif-clear-text" onClick={() => setUnreadNotifs(0)}>{t('markAsRead')}</span>
+                {notifications.length > 0 && <button type="button" className="notif-clear-text" onClick={markNotificationsRead}>{t('markAsRead')}</button>}
               </div>
               <div className="notif-items-list">
-                {notifications.map(notification => (
+                {notifications.length === 0 ? (
+                  <div className="notif-empty-state">새로운 알림이 없습니다.</div>
+                ) : notifications.map(notification => (
                   <div key={notification.id} className="notif-item" onClick={() => {
-                    setSelectedIssueId(notification.issueId);
+                    if (notification.issueId) setSelectedIssueId(notification.issueId);
                     setIsNotifOpen(false);
                   }}>
-                    <div className="notif-title-row"><span className="notif-title">{notification.title}</span><span className="notif-time">{notification.time}</span></div>
+                    <div className="notif-title-row"><span className="notif-title">{notification.title}</span><span className="notif-time">{formatNotificationTime(notification.createdAt)}</span></div>
                     <div className="notif-text">{notification.text}</div>
                   </div>
                 ))}
@@ -387,6 +386,16 @@ export const Header: React.FC = () => {
             </div>
           )}
         </div>
+
+        {toastNotification && (
+          <button className="live-notification-toast animate-fade-in" onClick={() => {
+            if (toastNotification.issueId) setSelectedIssueId(toastNotification.issueId);
+            setToastNotificationId(null);
+          }}>
+            <IconBell size={16} />
+            <span><strong>{toastNotification.title}</strong><small>{toastNotification.text}</small></span>
+          </button>
+        )}
 
         <button className="header-action-icon" title={t('resetData')} onClick={() => {
           if (window.confirm(t('resetDemoDataConfirm'))) resetDemoData();

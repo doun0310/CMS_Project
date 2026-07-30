@@ -1,4 +1,4 @@
-import type { Issue, IssueStatus, SubTask, Sprint, User, Project } from '../types/Aether';
+import type { AppNotification, Issue, IssueStatus, SubTask, Sprint, User, Project } from '../types/Aether';
 import { syncIssueToSupabase, deleteIssueFromSupabase } from '../services/supabaseSync';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -11,6 +11,7 @@ interface UseIssueActionsParams {
   selectedIssueId: string | null;
   setSelectedIssueId: (id: string | null) => void;
   onDoneStatusAutomation: () => void;
+  notify: (notification: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
 }
 
 export function useIssueActions({
@@ -22,6 +23,7 @@ export function useIssueActions({
   selectedIssueId,
   setSelectedIssueId,
   onDoneStatusAutomation,
+  notify,
 }: UseIssueActionsParams) {
   const issues = allIssues.filter(issue => issue.projectId === currentProject.id);
 
@@ -43,6 +45,12 @@ export function useIssueActions({
     );
 
     syncIssueToSupabase(updatedIssue, currentProject.id);
+    notify({
+      kind: 'issue',
+      title: '작업 상태 변경',
+      text: `${issue.key} · ${issue.summary} 작업의 상태가 변경되었습니다.`,
+      issueId: issue.id,
+    });
 
     if (newStatus === 'done') onDoneStatusAutomation();
   };
@@ -83,9 +91,11 @@ export function useIssueActions({
     setIssues(prev => [newIssue, ...prev]);
     setSelectedIssueId(newIssue.id);
     syncIssueToSupabase(newIssue, currentProject.id);
+    notify({ kind: 'issue', title: '새 작업 생성', text: `${newIssue.key} · ${newIssue.summary} 작업이 생성되었습니다.`, issueId: newIssue.id });
   };
 
   const updateIssue = (id: string, updates: Partial<Issue>) => {
+    const issue = issues.find(item => item.id === id);
     setIssues(prev =>
       prev.map(item => {
         if (item.id === id) {
@@ -96,6 +106,7 @@ export function useIssueActions({
         return item;
       })
     );
+    if (issue) notify({ kind: 'issue', title: '작업 변경', text: `${issue.key} · ${issue.summary} 작업의 정보가 변경되었습니다.`, issueId: id });
   };
 
   const deleteIssue = (id: string) => {
@@ -117,6 +128,8 @@ export function useIssueActions({
         item.id === issueId ? { ...item, comments: [...item.comments, newComment] } : item
       )
     );
+    const issue = issues.find(item => item.id === issueId);
+    if (issue) notify({ kind: 'comment', title: '새 댓글', text: `${issue.key} 작업에 새 댓글이 등록되었습니다.`, issueId });
   };
 
   const toggleSubtask = (issueId: string, subtaskId: string) => {

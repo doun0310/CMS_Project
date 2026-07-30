@@ -57,15 +57,23 @@ export const RoadmapView: React.FC = () => {
     const end = days[days.length - 1].getTime();
     const current = d.getTime();
     if (current <= start) return 0;
-    if (current >= end) return 95;
+    if (current >= end) return 100;
     return Math.round(((current - start) / (end - start)) * 100);
+  };
+
+  // Day columns represent a full calendar day. Milestones belong at the centre of
+  // their matching column, rather than at the boundary between two columns.
+  const getMilestonePositionPercent = (dateStr: string) => {
+    const date = toCalendarDate(dateStr);
+    const dayIndex = Math.max(0, Math.min(dayCount - 1, Math.round((date.getTime() - timelineStart.getTime()) / oneDay)));
+    return ((dayIndex + 0.5) / dayCount) * 100;
   };
 
   const formatMilestoneDate = (date: Date) => date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' });
   const milestones = [
     { id: 'm1', date: toDateKey(m1TargetDate), label: `M1 · ${formatMilestoneDate(m1TargetDate)}`, title: `M1 · ${formatMilestoneDate(m1TargetDate)}` },
     { id: 'm2', date: toDateKey(m2TargetDate), label: `M2 · ${formatMilestoneDate(m2TargetDate)}`, title: `M2 · ${formatMilestoneDate(m2TargetDate)}` },
-  ].map(milestone => ({ ...milestone, position: getPositionPercent(milestone.date) }));
+  ].map(milestone => ({ ...milestone, position: getMilestonePositionPercent(milestone.date) }));
   const visibleMilestones = selectedMilestone === 'all'
     ? milestones
     : milestones.filter(milestone => milestone.id === selectedMilestone);

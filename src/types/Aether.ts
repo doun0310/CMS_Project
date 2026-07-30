@@ -12,6 +12,18 @@ export interface User {
   role: string;
 }
 
+export type NotificationKind = 'sprint' | 'issue' | 'comment' | 'system';
+
+export interface AppNotification {
+  id: string;
+  kind: NotificationKind;
+  title: string;
+  text: string;
+  createdAt: string;
+  read: boolean;
+  issueId?: string;
+}
+
 export interface Epic {
   id: string;
   projectId?: string;

@@ -5,6 +5,7 @@ import type {
   Issue,
   AutomationRule,
   AutomationAuditLog,
+  AppNotification,
   IssueType,
   Priority,
   Project,
@@ -57,6 +58,7 @@ interface PersistedState {
   automationRules?: AutomationRule[];
   retrospectiveItems?: RetrospectiveItem[];
   automationAuditLogs?: AutomationAuditLog[];
+  notifications?: AppNotification[];
   theme?: 'light' | 'dark';
   language?: Language;
   accentColor?: string;
@@ -238,6 +240,23 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [automationAuditLogs, setAutomationAuditLogs] = useState(
     persistedState.automationAuditLogs ?? initialAutomationAuditLogs
   );
+  const [notifications, setNotifications] = useState<AppNotification[]>(persistedState.notifications ?? []);
+
+  const addNotification = (notification: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => {
+    const entry: AppNotification = {
+      ...notification,
+      id: `notification_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      createdAt: new Date().toISOString(),
+      read: false,
+    };
+    setNotifications(previous => [entry, ...previous].slice(0, 50));
+  };
+
+  const markNotificationsRead = () => {
+    setNotifications(previous => previous.map(notification => ({ ...notification, read: true })));
+  };
+
+  const clearNotifications = () => setNotifications([]);
   const [retrospectiveItems, setRetrospectiveItems] = useState<RetrospectiveItem[]>(
     persistedState.retrospectiveItems ?? initialRetrospectiveItems
   );
@@ -276,12 +295,15 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     selectedIssueId,
     setSelectedIssueId,
     onDoneStatusAutomation: automationActions.recordDoneStatusAutomation,
+    notify: addNotification,
   });
 
   const sprintActions = useSprintActions({
     setSprints,
     setIssues,
     currentProject,
+    sprints,
+    notify: addNotification,
   });
 
   const epicActions = useEpicActions({
@@ -317,6 +339,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         automationRules,
         retrospectiveItems,
         automationAuditLogs,
+        notifications,
         theme,
         language,
         accentColor
@@ -326,7 +349,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } catch (error) {
       console.error('Failed to save to local storage:', error);
     }
-  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, retrospectiveItems, automationAuditLogs, theme, language, accentColor]);
+  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, retrospectiveItems, automationAuditLogs, notifications, theme, language, accentColor]);
 
   useEffect(() => {
     if (projects.some(project => project.id === currentProject.id)) return;
@@ -416,6 +439,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setAutomationRules(initialAutomationRules);
     setRetrospectiveItems(initialRetrospectiveItems);
     setAutomationAuditLogs(initialAutomationAuditLogs);
+    setNotifications([]);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PREVIOUS_STORAGE_KEY);
   };
@@ -496,6 +520,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         portfolioIssues: allIssues,
         automationRules,
         automationAuditLogs,
+        notifications,
+        addNotification,
+        markNotificationsRead,
+        clearNotifications,
         retrospectiveItems,
         viewMode,
         setViewMode,

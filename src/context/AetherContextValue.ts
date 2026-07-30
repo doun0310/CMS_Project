@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { Language } from '../i18n/translations';
 import type {
   AutomationAuditLog,
+  AppNotification,
   AutomationRule,
   Epic,
   Issue,
@@ -40,6 +41,10 @@ export interface AetherContextValue {
   portfolioIssues: Issue[];
   automationRules: AutomationRule[];
   automationAuditLogs: AutomationAuditLog[];
+  notifications: AppNotification[];
+  addNotification: (notification: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
+  markNotificationsRead: () => void;
+  clearNotifications: () => void;
   retrospectiveItems: RetrospectiveItem[];
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
