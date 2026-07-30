@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCopy, IconCheckCircle, IconDownload } from '../common/Icons';
+import { IconX, IconCopy, IconCheckCircle, IconDownload, IconReports } from '../common/Icons';
 
 interface RetroReportModalProps {
   isOpen: boolean;
@@ -44,7 +44,7 @@ export const RetroReportModal: React.FC<RetroReportModalProps> = ({ isOpen, onCl
 
   if (!isOpen || !selectedSprint) return null;
 
-  const reportMarkdown = `### 📊 ${t('retroReportTitle')}
+  const reportMarkdown = `### ${t('retroReportTitle')}
 **${t('sprint')}:** ${selectedSprint.name}
 **${t('goalPrefix')}:** ${selectedSprint.goal || '-'}
 **${t('sentimentIndex')}:** ${sentimentScore}% ${t('positiveSentiment')}
@@ -52,13 +52,13 @@ export const RetroReportModal: React.FC<RetroReportModalProps> = ({ isOpen, onCl
 
 ---
 
-#### 🟢 ${t('wentWell')} (${wentWellItems.length})
+#### ${t('wentWell')} (${wentWellItems.length})
 ${wentWellItems.map((item) => `- **[+${item.votes} votes]** ${item.content}`).join('\n')}
 
-#### 🟡 ${t('toImprove')} (${toImproveItems.length})
+#### ${t('toImprove')} (${toImproveItems.length})
 ${toImproveItems.map((item) => `- **[+${item.votes} votes]** ${item.content}`).join('\n')}
 
-#### 🎯 ${t('actionItems')} (${actionItems.length})
+#### ${t('actionItems')} (${actionItems.length})
 ${actionItems.map((item) => `- [ ] **[+${item.votes} votes]** ${item.content}`).join('\n')}
 
 ---
@@ -89,7 +89,7 @@ ${actionItems.map((item) => `- [ ] **[+${item.votes} votes]** ${item.content}`).
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">📊</span>
+            <span className="release-icon"><IconReports size={20} /></span>
             <div>
               <h2 className="modal-title">{t('retroReportTitle')}</h2>
               <p className="modal-subtitle">{t('retroReportSubtitle')}</p>
@@ -130,19 +130,19 @@ ${actionItems.map((item) => `- [ ] **[+${item.votes} votes]** ${item.content}`).
           <div className="retro-metrics-grid">
             <div className="retro-metric-card green">
               <span className="retro-val">{wentWellItems.length}</span>
-              <span className="retro-lbl">🟢 {t('wentWell')}</span>
+              <span className="retro-lbl">{t('wentWell')}</span>
             </div>
             <div className="retro-metric-card yellow">
               <span className="retro-val">{toImproveItems.length}</span>
-              <span className="retro-lbl">🟡 {t('toImprove')}</span>
+              <span className="retro-lbl">{t('toImprove')}</span>
             </div>
             <div className="retro-metric-card blue">
               <span className="retro-val">{actionItems.length}</span>
-              <span className="retro-lbl">🎯 {t('actionItems')}</span>
+              <span className="retro-lbl">{t('actionItems')}</span>
             </div>
             <div className="retro-metric-card purple">
               <span className="retro-val">{totalVotes}</span>
-              <span className="retro-lbl">🗳️ {t('votesCast')}</span>
+              <span className="retro-lbl">{t('votesCast')}</span>
             </div>
           </div>
 

@@ -58,8 +58,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Header & Actions
     searchPlaceholder: 'Search issues (Press Cmd+K)...',
+    justNow: 'Just now', savedFilters: 'Saved filters',
     createIssue: 'Create Issue',
-    addEpic: 'Add Epic', epicName: 'Epic name',
+    addEpic: 'Add Epic', epicName: 'Epic name', addInitiative: 'Add Initiative', initiativeName: 'Initiative name', topLevelInitiative: 'Top-level planning item',
     aiCopilot: 'Aether AI Copilot',
     standup: 'Standup',
     release: 'Release',
@@ -74,6 +75,7 @@ export const translations: Record<Language, Record<string, string>> = {
     ptoCalendar: 'PTO Calendar', releaseGate: 'Release Gate', skillMatrix: 'Skill Matrix', autoTriage: 'Auto Triage', postMortem: 'Post-Mortem', techDebt: 'Tech Debt', dependencyGraph: 'Dependency Graph', monteCarlo: 'Monte Carlo', complianceMatrix: 'Compliance Matrix',
     openPtoCalendarTitle: 'Open team capacity calendar', openReleaseGateTitle: 'Open release decision gate', openSkillMatrixTitle: 'Open team skill matrix', openAutoTriageTitle: 'Open issue auto-triage', openPostMortemTitle: 'Open incident post-mortem', openTechDebtTitle: 'Open technical debt workbench', openDependencyGraphTitle: 'Open dependency graph', openMonteCarloTitle: 'Open Monte Carlo forecast', openComplianceMatrixTitle: 'Open compliance matrix',
     ptoCalendarModalTitle: 'Sprint Team Capacity & Holiday Calendar', releaseGateModalTitle: 'Enterprise Release Go / No-Go Decision Gate', skillMatrixModalTitle: 'AI Cross-Team Skill Matrix & Resource Load Balancer', autoTriageModalTitle: 'AI Smart Issue Auto-Triage & Label Recommendation', postMortemModalTitle: 'SRE Incident Post-Mortem & AI Root Cause Workbench', techDebtModalTitle: 'AI Technical Debt & Code Governance Workbench', dependencyGraphModalTitle: 'AI Dependency Graph & Blast Radius Simulator', monteCarloModalTitle: 'AI Monte Carlo Velocity & Sprint Completion Forecaster', complianceMatrixModalTitle: 'Enterprise Release Risk & Compliance Matrix',
+    testWorkbenchTitle: 'AI Acceptance Criteria & Test Workbench', testWorkbenchSubtitle: 'Automated BDD scenarios and QA test automation generator', noIssueDescription: 'No description provided for this issue.', acceptanceCriteria: 'Acceptance Criteria', gherkinFeature: 'Gherkin BDD Feature', automatedTestStubs: 'Automated Test Stubs', copyFeature: 'Copy Feature', testFramework: 'Framework', copySpec: 'Copy Spec',
     selectLanguageTitle: 'Select Language',
     notificationCenter: 'Notification Center',
     teamActivity: 'Team Activity',
@@ -408,8 +410,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Header & Actions
     searchPlaceholder: '이슈 검색 (Cmd+K)...',
+    justNow: '방금 전', savedFilters: '저장된 필터',
     createIssue: '이슈 생성',
-    addEpic: '에픽 추가', epicName: '에픽 이름',
+    addEpic: '에픽 추가', epicName: '에픽 이름', addInitiative: '이니셔티브 추가', initiativeName: '이니셔티브 이름', topLevelInitiative: '최상위 계획 항목',
     aiCopilot: 'Aether AI 코파일럿',
     standup: '스탠드업',
     release: '릴리즈',
@@ -424,6 +427,7 @@ export const translations: Record<Language, Record<string, string>> = {
     ptoCalendar: '휴가 캘린더', releaseGate: '릴리즈 게이트', skillMatrix: '역량 매트릭스', autoTriage: '자동 분류', postMortem: '사후 분석', techDebt: '기술 부채', dependencyGraph: '의존성 그래프', monteCarlo: '몬테카를로', complianceMatrix: '컴플라이언스 매트릭스',
     openPtoCalendarTitle: '팀 용량 캘린더 열기', openReleaseGateTitle: '릴리즈 의사결정 게이트 열기', openSkillMatrixTitle: '팀 역량 매트릭스 열기', openAutoTriageTitle: '이슈 자동 분류 열기', openPostMortemTitle: '장애 사후 분석 열기', openTechDebtTitle: '기술 부채 작업 공간 열기', openDependencyGraphTitle: '의존성 그래프 열기', openMonteCarloTitle: '몬테카를로 예측 열기', openComplianceMatrixTitle: '컴플라이언스 매트릭스 열기',
     ptoCalendarModalTitle: '스프린트 팀 용량 및 휴가 캘린더', releaseGateModalTitle: '엔터프라이즈 릴리즈 진행 / 중단 의사결정 게이트', skillMatrixModalTitle: 'AI 팀 간 역량 매트릭스 및 리소스 균형 조정', autoTriageModalTitle: 'AI 스마트 이슈 자동 분류 및 라벨 추천', postMortemModalTitle: 'SRE 장애 사후 분석 및 AI 근본 원인 작업 공간', techDebtModalTitle: 'AI 기술 부채 및 코드 거버넌스 작업 공간', dependencyGraphModalTitle: 'AI 의존성 그래프 및 영향 범위 시뮬레이터', monteCarloModalTitle: 'AI 몬테카를로 속도 및 스프린트 완료 예측', complianceMatrixModalTitle: '엔터프라이즈 릴리즈 위험 및 컴플라이언스 매트릭스',
+    testWorkbenchTitle: 'AI 인수 기준 및 테스트 작업 공간', testWorkbenchSubtitle: 'BDD 시나리오와 QA 테스트 자동화를 생성합니다.', noIssueDescription: '이 이슈에는 설명이 없습니다.', acceptanceCriteria: '인수 기준', gherkinFeature: 'Gherkin BDD 기능', automatedTestStubs: '자동화 테스트 스텁', copyFeature: '기능 복사', testFramework: '프레임워크', copySpec: '명세 복사',
     selectLanguageTitle: '언어 선택',
     notificationCenter: '알림 센터',
     teamActivity: '팀 활동',
@@ -748,8 +752,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Header & Actions
     searchPlaceholder: '課題を検索 (Cmd+K)...',
+    justNow: 'たった今', savedFilters: '保存したフィルター',
     createIssue: '課題を作成',
-    addEpic: 'エピックを追加', epicName: 'エピック名',
+    addEpic: 'エピックを追加', epicName: 'エピック名', addInitiative: 'イニシアチブを追加', initiativeName: 'イニシアチブ名', topLevelInitiative: '最上位の計画項目',
     aiCopilot: 'Aether AIコパイロット',
     standup: 'スタンドアップ',
     release: 'リリース',
@@ -764,6 +769,7 @@ export const translations: Record<Language, Record<string, string>> = {
     ptoCalendar: '休暇カレンダー', releaseGate: 'リリースゲート', skillMatrix: 'スキルマトリクス', autoTriage: '自動トリアージ', postMortem: '事後分析', techDebt: '技術的負債', dependencyGraph: '依存関係グラフ', monteCarlo: 'モンテカルロ', complianceMatrix: 'コンプライアンスマトリクス',
     openPtoCalendarTitle: 'チーム稼働カレンダーを開く', openReleaseGateTitle: 'リリース判定ゲートを開く', openSkillMatrixTitle: 'チームスキルマトリクスを開く', openAutoTriageTitle: '課題自動トリアージを開く', openPostMortemTitle: '障害事後分析を開く', openTechDebtTitle: '技術的負債ワークベンチを開く', openDependencyGraphTitle: '依存関係グラフを開く', openMonteCarloTitle: 'モンテカルロ予測を開く', openComplianceMatrixTitle: 'コンプライアンスマトリクスを開く',
     ptoCalendarModalTitle: 'スプリントチーム稼働・休暇カレンダー', releaseGateModalTitle: 'エンタープライズリリース Go / No-Go 判定ゲート', skillMatrixModalTitle: 'AI クロスチームスキルマトリクスとリソース調整', autoTriageModalTitle: 'AI スマート課題自動トリアージとラベル提案', postMortemModalTitle: 'SRE インシデント事後分析と AI 根本原因ワークベンチ', techDebtModalTitle: 'AI 技術的負債・コードガバナンスワークベンチ', dependencyGraphModalTitle: 'AI 依存関係グラフと影響範囲シミュレーター', monteCarloModalTitle: 'AI モンテカルロ速度・スプリント完了予測', complianceMatrixModalTitle: 'エンタープライズリリースリスク・コンプライアンスマトリクス',
+    testWorkbenchTitle: 'AI 受け入れ基準・テストワークベンチ', testWorkbenchSubtitle: 'BDD シナリオと QA テスト自動化を生成します。', noIssueDescription: 'この課題には説明がありません。', acceptanceCriteria: '受け入れ基準', gherkinFeature: 'Gherkin BDD 機能', automatedTestStubs: '自動テストスタブ', copyFeature: '機能をコピー', testFramework: 'フレームワーク', copySpec: '仕様をコピー',
     selectLanguageTitle: '言語を選択',
     notificationCenter: '通知センター',
     teamActivity: 'チームアクティビティ',
@@ -998,8 +1004,9 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Header & Actions
     searchPlaceholder: '搜索事项 (Cmd+K)...',
+    justNow: '刚刚', savedFilters: '已保存的筛选器',
     createIssue: '新建事项',
-    addEpic: '添加史诗', epicName: '史诗名称',
+    addEpic: '添加史诗', epicName: '史诗名称', addInitiative: '添加倡议', initiativeName: '倡议名称', topLevelInitiative: '顶层计划项目',
     aiCopilot: 'Aether AI 助手',
     standup: '站会',
     release: '发布',
@@ -1014,6 +1021,7 @@ export const translations: Record<Language, Record<string, string>> = {
     ptoCalendar: '休假日历', releaseGate: '发布闸门', skillMatrix: '技能矩阵', autoTriage: '自动分流', postMortem: '事后复盘', techDebt: '技术债务', dependencyGraph: '依赖关系图', monteCarlo: '蒙特卡洛', complianceMatrix: '合规矩阵',
     openPtoCalendarTitle: '打开团队容量日历', openReleaseGateTitle: '打开发布决策闸门', openSkillMatrixTitle: '打开团队技能矩阵', openAutoTriageTitle: '打开问题自动分流', openPostMortemTitle: '打开故障事后复盘', openTechDebtTitle: '打开技术债务工作台', openDependencyGraphTitle: '打开依赖关系图', openMonteCarloTitle: '打开蒙特卡洛预测', openComplianceMatrixTitle: '打开合规矩阵',
     ptoCalendarModalTitle: '冲刺团队容量与休假日历', releaseGateModalTitle: '企业发布通过 / 暂停决策闸门', skillMatrixModalTitle: 'AI 跨团队技能矩阵与资源均衡', autoTriageModalTitle: 'AI 智能问题自动分流与标签推荐', postMortemModalTitle: 'SRE 事故复盘与 AI 根因分析工作台', techDebtModalTitle: 'AI 技术债务与代码治理工作台', dependencyGraphModalTitle: 'AI 依赖关系图与影响范围模拟器', monteCarloModalTitle: 'AI 蒙特卡洛速度与冲刺完成预测', complianceMatrixModalTitle: '企业发布风险与合规矩阵',
+    testWorkbenchTitle: 'AI 验收标准与测试工作台', testWorkbenchSubtitle: '生成 BDD 场景和 QA 测试自动化。', noIssueDescription: '此问题没有说明。', acceptanceCriteria: '验收标准', gherkinFeature: 'Gherkin BDD 功能', automatedTestStubs: '自动化测试存根', copyFeature: '复制功能', testFramework: '框架', copySpec: '复制规范',
     selectLanguageTitle: '选择语言',
     notificationCenter: '通知中心',
     teamActivity: '团队动态',

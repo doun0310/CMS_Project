@@ -245,7 +245,7 @@ export const Header: React.FC = () => {
           <IconSearch size={16} className="search-icon" />
           <input
             type="text"
-            placeholder="JQL Search (e.g. status:in_progress type:bug)..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -266,7 +266,7 @@ export const Header: React.FC = () => {
               }
             }}
           >
-            <option value="">JQL Presets</option>
+            <option value="">{t('savedFilters')}</option>
             {SAVED_JQL_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.query}>
                 {preset.name}

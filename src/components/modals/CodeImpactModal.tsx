@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconCopy } from '../common/Icons';
+import { IconX, IconCheckCircle, IconCopy, IconArchitecture } from '../common/Icons';
 
 interface CodeImpactModalProps {
   isOpen: boolean;
@@ -57,15 +57,15 @@ export const CodeImpactModal: React.FC<CodeImpactModalProps> = ({ isOpen, onClos
   if (!isOpen || !selectedIssue || !impactAnalysis) return null;
 
   const handleCopyReport = () => {
-    const reportText = `### 🧬 AI Code Architecture & Impact Analysis Report
+    const reportText = `### AI Code Architecture & Impact Analysis Report
 **Issue:** [${selectedIssue.key}] ${selectedIssue.summary}
 **Blast Radius Score:** ${impactAnalysis.blastRadiusScore}/100 (${impactAnalysis.blastTier.toUpperCase()})
 **Recommended Reviewers:** ${impactAnalysis.recommendedReviewers.map(r => r.name).join(', ')}
 
-#### 📁 Impacted Modules:
+#### Impacted Modules:
 ${impactAnalysis.impactedModules.map(m => `- ${m.name} (${m.filesCount} files, ${m.linesChanged}) -> Risk: ${m.risk.toUpperCase()}`).join('\n')}
 
-#### 🛡️ PR Readiness Checklist:
+#### PR Readiness Checklist:
 ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.text}`).join('\n')}`;
 
     navigator.clipboard.writeText(reportText);
@@ -75,7 +75,7 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
 
   const handleAttachToIssue = () => {
     const existingDesc = selectedIssue.description || '';
-    const reportMarkdown = `\n\n### 🧬 AI Code Impact & Blast Radius Audit\n` +
+    const reportMarkdown = `\n\n### AI Code Impact & Blast Radius Audit\n` +
       `- **Blast Radius:** ${impactAnalysis.blastRadiusScore}/100 (${impactAnalysis.blastTier.toUpperCase()})\n` +
       `- **Reviewers:** ${impactAnalysis.recommendedReviewers.map(r => `@${r.name}`).join(' ')}\n` +
       `- **Modules:** ${impactAnalysis.impactedModules.map(m => m.name).join(', ')}`;
@@ -95,7 +95,7 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🧬</span>
+            <span className="release-icon"><IconArchitecture size={20} /></span>
             <div>
               <h2 className="modal-title">AI Code Impact & Blast Radius Visualizer</h2>
               <p className="modal-subtitle">
@@ -132,10 +132,10 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
               <span className="blast-score-val">{impactAnalysis.blastRadiusScore}</span>
               <span className="blast-score-title">
                 {impactAnalysis.blastTier === 'critical'
-                  ? '🔴 High Blast Radius'
+                  ? 'High Blast Radius'
                   : impactAnalysis.blastTier === 'warning'
-                  ? '🟡 Moderate Architecture Risk'
-                  : '🟢 Low Blast Radius'}
+                  ? 'Moderate Architecture Risk'
+                  : 'Low Blast Radius'}
               </span>
               <span className="blast-score-desc">
                 Calculated based on AST dependency depth, DB schema changes, and API boundary calls.
@@ -143,7 +143,7 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
             </div>
 
             <div className="reviewers-card">
-              <span className="reviewers-card-title">👥 Recommended Code Reviewers</span>
+              <span className="reviewers-card-title">Recommended Code Reviewers</span>
               <div className="reviewers-list">
                 {impactAnalysis.recommendedReviewers.map((rev) => (
                   <div key={rev.id} className="reviewer-item">
@@ -160,7 +160,7 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
 
           {/* Impacted Modules Table */}
           <div className="impact-modules-section">
-            <h3 className="impact-section-title">📁 Impacted Architecture Modules</h3>
+            <h3 className="impact-section-title">Impacted Architecture Modules</h3>
             <div className="modules-table-wrap">
               <table className="modules-table">
                 <thead>
@@ -191,12 +191,12 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
 
           {/* PR Readiness Checklist */}
           <div className="pr-checklist-section">
-            <h3 className="impact-section-title">🛡️ PR Readiness & Quality Gates</h3>
+            <h3 className="impact-section-title">PR Readiness & Quality Gates</h3>
             <div className="pr-checklist">
               {impactAnalysis.prReadinessChecklist.map((item, idx) => (
                 <div key={idx} className="pr-check-item">
                   <span className={`check-icon ${item.passed ? 'passed' : 'failed'}`}>
-                    {item.passed ? '✅' : '⚠️'}
+                    {item.passed ? 'Passed' : 'Review'}
                   </span>
                   <span className="check-text">{item.text}</span>
                 </div>
@@ -207,7 +207,7 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={handleAttachToIssue} disabled={attached}>
-            {attached ? '✅ Attached to Issue!' : '📌 Attach Report to Issue'}
+            {attached ? 'Attached to Issue' : 'Attach Report to Issue'}
           </button>
           <button className="btn-primary" onClick={handleCopyReport}>
             {copied ? (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap, IconCopy } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconCopy, IconAutomation } from '../common/Icons';
 
 interface AutomationRuleModalProps {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">⚡</span>
+            <span className="release-icon"><IconAutomation size={20} /></span>
             <div>
               <h2 className="modal-title">Visual Automation Rule Builder & Webhook Simulator</h2>
               <p className="modal-subtitle">
@@ -128,7 +128,7 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
           {/* Webhook Configuration & Payload Preview */}
           <div className="webhook-section">
             <div className="webhook-header">
-              <span>🌐 External Webhook Integration Payload:</span>
+              <span>External Webhook Integration Payload:</span>
               <button className="btn-copy-small" onClick={handleCopyWebhookJson}>
                 {copied ? <IconCheckCircle /> : <IconCopy />}
                 {copied ? ' Copied Payload!' : ' Copy JSON'}

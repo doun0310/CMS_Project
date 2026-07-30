@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCopy } from '../common/Icons';
+import { IconX, IconCopy, IconCheckCircle } from '../common/Icons';
 
 interface ComplianceMatrixModalProps {
   isOpen: boolean;
@@ -16,22 +16,22 @@ export const ComplianceMatrixModal: React.FC<ComplianceMatrixModalProps> = ({ is
   if (!isOpen) return null;
 
   const complianceStandards = [
-    { name: 'SOC2 Type II', domain: 'Access Control & Data Encryption', status: 'Passed ✅', score: '99.8%' },
-    { name: 'GDPR Data Privacy', domain: 'PII Anonymization & Data Erasure API', status: 'Passed ✅', score: '100%' },
-    { name: 'ISO 27001 Security', domain: 'Vulnerability Scan & Audit Logging', status: 'Passed ✅', score: '98.5%' },
-    { name: 'HIPAA Health Data Guard', domain: 'PHI Access Logging & TLS 1.3 Transit', status: 'Passed ✅', score: '98.5%' },
+    { name: 'SOC2 Type II', domain: 'Access Control & Data Encryption', status: 'Passed', score: '99.8%' },
+    { name: 'GDPR Data Privacy', domain: 'PII Anonymization & Data Erasure API', status: 'Passed', score: '100%' },
+    { name: 'ISO 27001 Security', domain: 'Vulnerability Scan & Audit Logging', status: 'Passed', score: '98.5%' },
+    { name: 'HIPAA Health Data Guard', domain: 'PHI Access Logging & TLS 1.3 Transit', status: 'Passed', score: '98.5%' },
   ];
 
   const overallAuditScore = 99.2;
 
   const auditCertificateMarkdown = `
-# 🛡️ Enterprise Regulatory Compliance Audit Certificate
+# Enterprise Regulatory Compliance Audit Certificate
 **Project:** ${currentProject.name} (${currentProject.key})
 **Sprint Target:** ${activeSprint?.name}
 **Overall Audit Score:** ${overallAuditScore}% (Compliance Certified)
 **Audit Date:** ${new Date().toLocaleDateString()}
 
-## 📋 Compliance Standards Audit Breakdown
+## Compliance Standards Audit Breakdown
 ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (Score: ${s.score})`).join('\n')}
 
 ---
@@ -49,7 +49,7 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
       <div className="modal-content compliance-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🛡️</span>
+            <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
               <h2 className="modal-title">{t('complianceMatrixModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -70,7 +70,7 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
               <span className="comp-lbl">Audit Score</span>
             </div>
             <div className="comp-meta">
-              <span className="comp-title">🟢 Compliance Certified for Production Release</span>
+              <span className="comp-title">Compliance Certified for Production Release</span>
               <p className="comp-desc">
                 All 4 enterprise regulatory compliance standards (SOC2, GDPR, ISO 27001, HIPAA) have passed automated security audit gates with 0 compliance violations.
               </p>
@@ -79,7 +79,7 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
 
           {/* Compliance Standards Table */}
           <div className="comp-standards-section">
-            <h3>📋 Enterprise Audit Standards Signoff</h3>
+            <h3>Enterprise Audit Standards Signoff</h3>
 
             <div className="comp-table-wrap">
               <table className="comp-table">

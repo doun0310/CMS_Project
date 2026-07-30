@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconAiSpark } from '../common/Icons';
 
 interface IssueTriageModalProps {
   isOpen: boolean;
@@ -45,7 +45,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
       <div className="modal-content triage-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">📥</span>
+            <span className="release-icon"><IconAiSpark size={20} /></span>
             <div>
               <h2 className="modal-title">{t('autoTriageModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -89,7 +89,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
             <div className="triage-card-header">
               <div className="flex-align-gap">
                 <IconZap size={18} color="#6366f1" />
-                <span className="font-bold">🤖 AI Auto-Triage Diagnosis</span>
+                <span className="font-bold">AI Auto-Triage Diagnosis</span>
               </div>
               <span className="triage-confidence">Confidence: {aiTriageRecommendation.confidenceScore}%</span>
             </div>
@@ -139,7 +139,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
               </>
             ) : (
               <>
-                ⚡ Apply AI Triage & Promote to Backlog
+                Apply AI Triage & Promote to Backlog
               </>
             )}
           </button>

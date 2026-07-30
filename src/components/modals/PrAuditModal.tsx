@@ -34,12 +34,12 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
     ],
   };
 
-  const formattedAuditMarkdown = `### 🛡️ AI Pull Request Quality & Security Audit Report [${auditResults.prNumber}]
+  const formattedAuditMarkdown = `### AI Pull Request Quality & Security Audit Report [${auditResults.prNumber}]
 - **Target Issue**: [${targetIssue?.key}] ${targetIssue?.summary}
-- **Security Score**: 🟢 ${auditResults.securityScore}/100 (Pass)
-- **Test Coverage**: 🟢 ${auditResults.coveragePct}% (Threshold: 80%)
+- **Security Score**: ${auditResults.securityScore}/100 (Pass)
+- **Test Coverage**: ${auditResults.coveragePct}% (Threshold: 80%)
 - **Static Code Analysis**: 0 Errors, ${auditResults.codeSmells} Warnings
-- **Status**: ✅ **READY FOR PROD MERGE**`;
+- **Status**: **READY FOR PROD MERGE**`;
 
   const handleCopyMarkdown = () => {
     navigator.clipboard.writeText(formattedAuditMarkdown);
@@ -60,7 +60,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
       <div className="modal-content pr-audit-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🛡️</span>
+            <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
               <h2 className="modal-title">AI Pull Request Quality & Security Gate Audit</h2>
               <p className="modal-subtitle">
@@ -107,7 +107,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
 
           {/* Detailed Security & Quality Checks List */}
           <div className="audit-checks-section">
-            <h3>📋 Automated CI/CD Quality Gate Checks</h3>
+            <h3>Automated CI/CD Quality Gate Checks</h3>
 
             <div className="checks-list">
               {auditResults.checks.map((check, idx) => (
@@ -126,7 +126,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
           {/* Audit Report Markdown Box */}
           <div className="audit-report-box">
             <div className="report-header">
-              <span>📝 Formatted PR Audit Badge Markdown:</span>
+              <span>Formatted PR Audit Badge Markdown:</span>
               <button className="btn-copy-small" onClick={handleCopyMarkdown}>
                 {copied ? <IconCheckCircle /> : <IconCopy />}
                 {copied ? ' Copied!' : ' Copy Markdown'}
@@ -147,7 +147,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
               </>
             ) : (
               <>
-                🛡️ Approve & Attach Audit Badge
+                Approve & Attach Audit Badge
               </>
             )}
           </button>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconAnalytics } from '../common/Icons';
 
 interface MonteCarloSimulatorModalProps {
   isOpen: boolean;
@@ -18,8 +18,8 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
 
   const simulationResults = [
     { probability: '50% (50/50 Chance)', sp: 42, date: 'Aug 12, 2026', risk: 'Medium Risk' },
-    { probability: '85% (High Confidence - Recommended)', sp: 36, date: 'Aug 15, 2026', risk: 'Low Risk 🟢' },
-    { probability: '95% (Guaranteed Safe Commitment)', sp: 30, date: 'Aug 18, 2026', risk: 'Ultra Safe 🛡️' },
+    { probability: '85% (High Confidence - Recommended)', sp: 36, date: 'Aug 15, 2026', risk: 'Low Risk' },
+    { probability: '95% (Guaranteed Safe Commitment)', sp: 30, date: 'Aug 18, 2026', risk: 'Ultra Safe' },
   ];
 
   const recommendedSp = 36;
@@ -37,7 +37,7 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
       <div className="modal-content mc-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🎲</span>
+            <span className="release-icon"><IconAnalytics size={20} /></span>
             <div>
               <h2 className="modal-title">{t('monteCarloModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -58,7 +58,7 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
               <span className="mc-lbl">Monte Carlo Trials</span>
             </div>
             <div className="mc-meta">
-              <span className="mc-title">🤖 85% High-Confidence Velocity Target: {recommendedSp} SP</span>
+              <span className="mc-title">85% High-Confidence Velocity Target: {recommendedSp} SP</span>
               <p className="mc-desc">
                 Based on 1,000 statistical trials, your team has an <strong>85% probability</strong> of completing <strong>{recommendedSp} Story Points</strong> without scope overflow.
               </p>
@@ -67,7 +67,7 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
 
           {/* Probability Percentile Table */}
           <div className="mc-percentiles-section">
-            <h3>📊 Statistical Completion Likelihood Percentiles</h3>
+            <h3>Statistical Completion Likelihood Percentiles</h3>
 
             <div className="mc-table-wrap">
               <table className="mc-table">

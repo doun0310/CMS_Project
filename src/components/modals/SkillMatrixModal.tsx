@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconUsers } from '../common/Icons';
 
 interface SkillMatrixModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
       <div className="modal-content skill-matrix-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🧠</span>
+            <span className="release-icon"><IconUsers size={20} /></span>
             <div>
               <h2 className="modal-title">{t('skillMatrixModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -90,7 +90,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
           <div className="ai-skill-recommendation-card">
             <div className="skill-rec-header">
               <IconZap size={18} color="#6366f1" />
-              <span>🤖 AI Recommended Best Engineer Match: {bestMatch.user.name} ({bestMatch.matchScore}% Match)</span>
+              <span>AI Recommended Best Engineer Match: {bestMatch.user.name} ({bestMatch.matchScore}% Match)</span>
             </div>
             <p className="skill-rec-text">
               Based on skill proficiency tags and current workload, <strong>{bestMatch.user.name}</strong> possesses the highest technical competency for [{targetIssue?.key}].
@@ -99,7 +99,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
 
           {/* Skill Proficiency Matrix Table */}
           <div className="skill-matrix-section">
-            <h3>👥 Team Technical Skill Competency Ratings (1-5 Scale)</h3>
+            <h3>Team Technical Skill Competency Ratings (1-5 Scale)</h3>
 
             <div className="skill-table-wrap">
               <table className="skill-table">
@@ -165,7 +165,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
               </>
             ) : (
               <>
-                ⚡ Auto-Assign Best Match ({bestMatch.user.name})
+                Auto-Assign Best Match ({bestMatch.user.name})
               </>
             )}
           </button>

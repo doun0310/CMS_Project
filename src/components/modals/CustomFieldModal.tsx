@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconPlus, IconCheckCircle } from '../common/Icons';
+import { IconX, IconPlus, IconCheckCircle, IconSettings } from '../common/Icons';
 import type { CustomFieldDef } from '../../types/Aether';
 
 interface CustomFieldModalProps {
@@ -37,8 +37,8 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
       id: 'cf-security',
       name: 'Security Audit Gate',
       type: 'select',
-      options: ['Passed ✅', 'Pending Review ⏳', 'Exempt 🛡️'],
-      defaultValue: 'Passed ✅',
+      options: ['Passed', 'Pending Review', 'Exempt'],
+      defaultValue: 'Passed',
     },
   ]);
 
@@ -54,7 +54,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
       'Deployment Environment': 'Production',
       'Customer Impact Tier': 'VIP Enterprise',
       'GitHub PR Link': 'https://github.com/doun0310/CMS_Project',
-      'Security Audit Gate': 'Passed ✅',
+      'Security Audit Gate': 'Passed',
     };
   });
 
@@ -102,7 +102,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🏷️</span>
+            <span className="release-icon"><IconSettings size={20} /></span>
             <div>
               <h2 className="modal-title">Custom Fields & Enterprise Schema Workbench</h2>
               <p className="modal-subtitle">
@@ -119,7 +119,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
           {/* AI Preset Schema Recommendations */}
           <div className="ai-preset-card">
             <div className="ai-preset-header">
-              <span>🤖 AI Enterprise Metadata Schema Presets</span>
+              <span>AI Enterprise Metadata Schema Presets</span>
               <span className="preset-hint">Click preset to load recommended custom fields</span>
             </div>
             <div className="preset-buttons-row">
@@ -134,7 +134,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   ]);
                 }}
               >
-                🚀 DevOps & Release Preset
+                DevOps & Release Preset
               </button>
 
               <button
@@ -142,13 +142,13 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                 className="btn-preset-sm"
                 onClick={() => {
                   setFields([
-                    { id: 'cf-security', name: 'Security Audit Gate', type: 'select', options: ['Passed ✅', 'Pending Review ⏳', 'Exempt 🛡️'], defaultValue: 'Passed ✅' },
+                    { id: 'cf-security', name: 'Security Audit Gate', type: 'select', options: ['Passed', 'Pending Review', 'Exempt'], defaultValue: 'Passed' },
                     { id: 'cf-privacy', name: 'Data Privacy Tag', type: 'badge', options: ['PII Sensitive', 'Internal Only', 'Public'], defaultValue: 'Internal Only' },
                     { id: 'cf-soc2', name: 'SOC2 Scope', type: 'select', options: ['In-Scope', 'Out-of-Scope'], defaultValue: 'In-Scope' },
                   ]);
                 }}
               >
-                🛡️ Security & Compliance Preset
+                Security & Compliance Preset
               </button>
 
               <button
@@ -162,14 +162,14 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   ]);
                 }}
               >
-                👑 Enterprise Customer Impact Preset
+                Enterprise Customer Impact Preset
               </button>
             </div>
           </div>
 
           {/* Section 1: Manage Field Definitions */}
           <div className="cf-section">
-            <h3 className="cf-section-title">🛠️ Active Field Schema Definitions</h3>
+            <h3 className="cf-section-title">Active Field Schema Definitions</h3>
             <div className="cf-schema-grid">
               {fields.map((field) => (
                 <div key={field.id} className="cf-schema-card">
@@ -236,7 +236,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
           {selectedIssue && (
             <div className="cf-section">
               <div className="cf-assign-header">
-                <h3 className="cf-section-title">📌 Assign Metadata Values to Target Issue</h3>
+                <h3 className="cf-section-title">Assign Metadata Values to Target Issue</h3>
                 <select
                   value={selectedIssue.id}
                   onChange={(e) => {

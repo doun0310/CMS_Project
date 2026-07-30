@@ -1992,6 +1992,8 @@
 .gantt-right-row:hover {
   background: var(--bg-hover);
 }
+.initiative-roadmap-row { background: color-mix(in srgb, var(--color-in-progress, #6366f1) 5%, var(--bg-secondary)); }
+.initiative-roadmap-bar { background-color: var(--color-in-progress, #6366f1) !important; }
 
 .gantt-timeline-grid {
   flex: 1;
@@ -2044,16 +2046,21 @@
   color: white;
   font-size: 0.74rem;
   font-weight: 600;
-  overflow: hidden;
+  /* 일정 기간이 짧아도 작업명을 끝까지 읽을 수 있도록 라벨은 바 밖으로 이어서 표시한다. */
+  overflow: visible;
   white-space: nowrap;
   text-overflow: ellipsis;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .bar-label {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .epic-bar {
@@ -5494,7 +5501,16 @@ input:checked + .slider:before {
 }
 
 .release-icon {
-  font-size: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  color: var(--color-in-progress, #6366f1);
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-in-progress, #6366f1) 22%, var(--border-color));
+  border-radius: 9px;
 }
 
 .release-modal-body {
@@ -5584,12 +5600,17 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
   font-size: 0.85rem;
   font-weight: 700;
 }
+.test-issue-select-row > label,
+.test-issue-select-row > .test-sp-badge,
+.test-issue-select-row > .test-status-badge { flex: 0 0 auto; white-space: nowrap; }
 
 .test-issue-dropdown {
-  flex: 1;
+  min-width: 0;
+  flex: 1 1 180px;
   padding: 7px 12px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -5607,6 +5628,38 @@ input:checked + .slider:before {
   border: 1px solid rgba(99, 102, 241, 0.3);
   padding: 4px 10px;
   border-radius: 12px;
+}
+.test-status-badge {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.initiative-level-value { padding: 8px 10px; color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; font-size: .8rem; font-weight: 700; }
+
+/* Keep localized issue selectors readable: labels and state badges stay inline while the selector absorbs available width. */
+.impact-issue-row,
+.skill-issue-select-bar,
+.triage-issue-select-row,
+.dep-issue-select-row,
+.cf-assign-header { min-width: 0; }
+.impact-issue-row label,
+.skill-issue-select-bar label,
+.triage-issue-select-row label,
+.dep-issue-select-row label { flex: 0 0 auto; white-space: nowrap; }
+.impact-issue-dropdown,
+.skill-select,
+.triage-select,
+.dep-select,
+.cf-issue-select { min-width: 0; }
+
+@media (max-width: 560px) {
+  .test-issue-select-row { align-items: flex-start; flex-wrap: wrap; }
+  .test-issue-dropdown { flex-basis: 100%; order: 2; }
 }
 
 .selected-issue-card {
@@ -7263,6 +7316,11 @@ input:checked + .slider:before {
   outline: 2px solid #ef4444 !important;
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.6) !important;
   animation: pulseCritical 1.5s infinite alternate ease-in-out;
+}
+
+.critical-path-initiative-row {
+  background: rgba(239, 68, 68, 0.08) !important;
+  box-shadow: inset 3px 0 0 #ef4444;
 }
 
 @keyframes pulseCritical {
@@ -10177,6 +10235,7 @@ input:checked + .slider:before {
 .sprint-progress-copy strong { color: var(--text-secondary); }
 .sprint-progress-track { height: 6px; overflow: hidden; background: var(--bg-tertiary); border-radius: 999px; }
 .sprint-progress-track > span { display: block; height: 100%; border-radius: inherit; background: var(--color-in-progress, #6366f1); transition: width var(--transition-fast); }
+
 
 @media (max-width: 640px) {
   .backlog-overview { grid-template-columns: 1fr; gap: var(--space-2); }

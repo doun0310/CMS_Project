@@ -15,7 +15,6 @@ import type {
 import {
   initialUsers,
   initialProjects,
-  initialEpics,
   initialSprints,
   initialIssues,
   initialAutomationRules,
@@ -217,6 +216,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const initialIssueList = (persistedState.issues ?? initialIssues).map(issue => ({
     ...issue,
     projectId: issue.projectId || initialProjectList[0].id,
+    epicId: null,
+    initiativeId: issue.initiativeId ?? null,
   }));
 
   const [projects, setProjects] = useState<Project[]>(initialProjectList);
@@ -225,7 +226,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
   const [users] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(initialUsers[2]);
-  const [allEpics, setEpics] = useState<Epic[]>((persistedState.epics ?? initialEpics).map(epic => ({ ...epic, projectId: epic.projectId || initialProjectList[0].id })));
+  const [allEpics, setEpics] = useState<Epic[]>([]);
   const [allSprints, setSprints] = useState<Sprint[]>((persistedState.sprints ?? initialSprints).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
   const epics = useMemo(() => allEpics.filter(epic => epic.projectId === currentProject.id), [allEpics, currentProject.id]);
   const sprints = useMemo(() => allSprints.filter(sprint => sprint.projectId === currentProject.id), [allSprints, currentProject.id]);
@@ -435,7 +436,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setIssues(initialIssues.map(issue => ({ ...issue, projectId: initialProjects[0].id })));
     setProjects(initialProjects);
     setSprints(initialSprints.map(sprint => ({ ...sprint, projectId: initialProjects[0].id })));
-    setEpics(initialEpics.map(epic => ({ ...epic, projectId: initialProjects[0].id })));
+    setEpics([]);
     setAutomationRules(initialAutomationRules);
     setRetrospectiveItems(initialRetrospectiveItems);
     setAutomationAuditLogs(initialAutomationAuditLogs);
@@ -470,10 +471,6 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
       if (Array.isArray(data.sprints)) {
         setSprints((data.sprints as Sprint[]).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
-        importedSectionCount += 1;
-      }
-      if (Array.isArray(data.epics)) {
-        setEpics((data.epics as Epic[]).map(epic => ({ ...epic, projectId: epic.projectId || initialProjectList[0].id })));
         importedSectionCount += 1;
       }
       if (Array.isArray(data.retrospectiveItems)) {

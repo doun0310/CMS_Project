@@ -15,7 +15,7 @@ export const TestGeneratorModal: React.FC<TestGeneratorModalProps> = ({
   onClose,
   initialIssueId,
 }) => {
-  const { issues, updateIssue } = useAether();
+  const { issues, updateIssue, t } = useAether();
   const [selectedIssueId, setSelectedIssueId] = useState<string>(
     initialIssueId || (issues.length > 0 ? issues[0].id : '')
   );
@@ -118,7 +118,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
 
   const handleAppendToIssue = () => {
     const existingDesc = selectedIssue.description || '';
-    const acFormatted = `\n\n### 🧪 AI Acceptance Criteria (BDD)\n` + generatedAC.map(ac => `- [ ] ${ac}`).join('\n');
+    const acFormatted = `\n\n### AI Acceptance Criteria (BDD)\n` + generatedAC.map(ac => `- [ ] ${ac}`).join('\n');
     updateIssue(selectedIssue.id, {
       description: existingDesc.includes('AI Acceptance Criteria') ? existingDesc : existingDesc + acFormatted,
       acceptanceCriteria: generatedAC,
@@ -135,11 +135,11 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🧪</span>
+            <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
-              <h2 className="modal-title">AI Acceptance Criteria & Test Workbench</h2>
+              <h2 className="modal-title">{t('testWorkbenchTitle')}</h2>
               <p className="modal-subtitle">
-                Automated BDD (Gherkin) Scenarios & QA Test Automation Generator
+                {t('testWorkbenchSubtitle')}
               </p>
             </div>
           </div>
@@ -151,7 +151,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
         <div className="modal-body test-modal-body">
           {/* Issue Selector & Context Header */}
           <div className="test-issue-select-row">
-            <label htmlFor="issue-select">Target Issue:</label>
+            <label htmlFor="issue-select">{t('targetIssue')}:</label>
             <select
               id="issue-select"
               value={selectedIssue.id}
@@ -164,7 +164,8 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
                 </option>
               ))}
             </select>
-            <span className="test-sp-badge">⚡ {selectedIssue.storyPoints || 1} SP</span>
+            <span className="test-sp-badge">{selectedIssue.storyPoints || 1} SP</span>
+            <span className={`test-status-badge status-${selectedIssue.status}`}>{t(selectedIssue.status)}</span>
           </div>
 
           {/* Selected Issue Meta Card */}
@@ -177,7 +178,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
               <span className="selected-issue-title">{selectedIssue.summary}</span>
             </div>
             <p className="selected-issue-desc">
-              {selectedIssue.description || 'No description provided for this issue.'}
+              {selectedIssue.description || t('noIssueDescription')}
             </p>
           </div>
 
@@ -187,19 +188,19 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
               className={`test-tab-btn ${activeTab === 'ac' ? 'active' : ''}`}
               onClick={() => setActiveTab('ac')}
             >
-              📋 Acceptance Criteria ({generatedAC.length})
+              {t('acceptanceCriteria')} ({generatedAC.length})
             </button>
             <button
               className={`test-tab-btn ${activeTab === 'gherkin' ? 'active' : ''}`}
               onClick={() => setActiveTab('gherkin')}
             >
-              🥒 Gherkin BDD Feature
+              {t('gherkinFeature')}
             </button>
             <button
               className={`test-tab-btn ${activeTab === 'code' ? 'active' : ''}`}
               onClick={() => setActiveTab('code')}
             >
-              ⚡ Automated Test Stubs
+              {t('automatedTestStubs')}
             </button>
           </div>
 
@@ -227,7 +228,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
                   onClick={() => handleCopy(gherkinText, 'gherkin')}
                 >
                   {copied === 'gherkin' ? <IconCheckCircle /> : <IconCopy />}
-                  {copied === 'gherkin' ? ' Copied!' : ' Copy Feature'}
+                  {copied === 'gherkin' ? ` ${t('copied')}` : ` ${t('copyFeature')}`}
                 </button>
               </div>
               <pre className="code-pre">{gherkinText}</pre>
@@ -238,7 +239,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
           {activeTab === 'code' && (
             <div className="code-container">
               <div className="framework-selector-row">
-                <label>Framework:</label>
+                <label>{t('testFramework')}:</label>
                 <div className="framework-buttons">
                   {(['playwright', 'cypress', 'vitest'] as const).map((fw) => (
                     <button
@@ -255,7 +256,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
                   onClick={() => handleCopy(getTestCode(), 'code')}
                 >
                   {copied === 'code' ? <IconCheckCircle /> : <IconCopy />}
-                  {copied === 'code' ? ' Copied!' : ' Copy Spec'}
+                  {copied === 'code' ? ` ${t('copied')}` : ` ${t('copySpec')}`}
                 </button>
               </div>
               <pre className="code-pre">{getTestCode()}</pre>
@@ -269,7 +270,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
             onClick={handleAppendToIssue}
             disabled={appended}
           >
-            {appended ? '✅ Appended to Issue!' : '➕ Append AC to Issue Description'}
+            {appended ? 'Appended to Issue' : 'Append AC to Issue Description'}
           </button>
           <button
             className="btn-primary"

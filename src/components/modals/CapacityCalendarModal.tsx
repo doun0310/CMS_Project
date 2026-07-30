@@ -55,7 +55,7 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
       <div className="modal-content capacity-calendar-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">📅</span>
+            <span className="release-icon"><IconCalendar size={20} /></span>
             <div>
               <h2 className="modal-title">{t('ptoCalendarModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -126,7 +126,7 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
 
           {/* PTO & Holidays Table */}
           <div className="pto-list-section">
-            <h3>🏖️ Active Sprint PTO & Out-of-Office Schedule</h3>
+            <h3>Active Sprint PTO & Out-of-Office Schedule</h3>
 
             <div className="pto-table-wrap">
               <table className="pto-table">

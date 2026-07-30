@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconAnalytics } from '../common/Icons';
 
 interface VelocitySimulatorModalProps {
   isOpen: boolean;
@@ -66,7 +66,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">⚡</span>
+            <span className="release-icon"><IconAnalytics size={20} /></span>
             <div>
               <h2 className="modal-title">{t('velocityTitle')}</h2>
               <p className="modal-subtitle">{t('velocitySubtitle')}</p>
@@ -91,12 +91,12 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
           <div className="vel-sim-grid">
             {/* Left Controls */}
             <div className="vel-controls-col">
-              <h3 className="vel-col-title">🎛️ {t('simulationParameters')}</h3>
+              <h3 className="vel-col-title">{t('simulationParameters')}</h3>
 
               {/* Slider 1: Team Capacity */}
               <div className="vel-slider-group">
                 <div className="vel-slider-label">
-                  <span>👥 {t('teamCapacity')}:</span>
+                  <span>{t('teamCapacity')}:</span>
                   <strong>{teamCapacityPct}% ({adjustedCapacitySp} SP)</strong>
                 </div>
                 <input
@@ -132,7 +132,7 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
               {/* Slider 3: Tech Debt / Complexity Factor */}
               <div className="vel-slider-group">
                 <div className="vel-slider-label">
-                  <span>🧱 {t('complexityMultiplier')}:</span>
+                  <span>{t('complexityMultiplier')}:</span>
                   <strong>{complexityFactor.toFixed(2)}x</strong>
                 </div>
                 <input
@@ -150,16 +150,16 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
 
             {/* Right Gauge & Probability Results */}
             <div className="vel-results-col">
-              <h3 className="vel-col-title">📊 {t('simulatedDelivery')}</h3>
+              <h3 className="vel-col-title">{t('simulatedDelivery')}</h3>
 
               <div className={`prob-card ${riskTier}`}>
                 <div className="prob-value">{probability}%</div>
                 <div className="prob-title">
                   {probability >= 80
-                    ? `🟢 ${t('highConfidence')}`
+                    ? t('highConfidence')
                     : probability >= 50
-                    ? `🟡 ${t('moderateRisk')}`
-                    : `🔴 ${t('highDelayRisk')}`}
+                    ? t('moderateRisk')
+                    : t('highDelayRisk')}
                 </div>
                 <p className="prob-desc">
                   {t('probabilityDesc')} {effectiveSp} SP / {adjustedCapacitySp} SP.

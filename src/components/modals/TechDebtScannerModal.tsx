@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconSettings } from '../common/Icons';
 
 interface TechDebtScannerModalProps {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
       <div className="modal-content tech-debt-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🧹</span>
+            <span className="release-icon"><IconSettings size={20} /></span>
             <div>
               <h2 className="modal-title">{t('techDebtModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -72,7 +72,7 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
 
           {/* Technical Debt Items List */}
           <div className="debt-items-section">
-            <h3>🔍 Detected Technical Debt & Code Smells</h3>
+            <h3>Detected Technical Debt & Code Smells</h3>
 
             <div className="debt-items-list">
               {debtItems.map((item) => (

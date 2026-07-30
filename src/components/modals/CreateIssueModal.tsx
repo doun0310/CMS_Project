@@ -8,13 +8,14 @@ export const CreateIssueModal: React.FC = () => {
     isCreateModalOpen,
     setIsCreateModalOpen,
     createIssue,
+    issues,
     users,
-    epics,
     sprints,
     currentProject,
     currentUser,
     t
   } = useAether();
+  const initiatives = issues.filter(issue => issue.type === 'initiative');
 
   const typeLabels: Record<IssueType, string> = {
     feature: t('typeFeature'),
@@ -59,7 +60,8 @@ export const CreateIssueModal: React.FC = () => {
       description: description.trim(),
       priority,
       assigneeId: assigneeId || null,
-      epicId: epicId || null,
+      epicId: null,
+      initiativeId: epicId || null,
       sprintId: sprintId || null,
       storyPoints,
       component,
@@ -152,11 +154,11 @@ export const CreateIssueModal: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>{t('epicLink')}</label>
+                  <label>{t('typeInitiative')}</label>
                   <select value={epicId} onChange={e => setEpicId(e.target.value)}>
                     <option value="">{t('none')}</option>
-                    {epics.map(ep => (
-                      <option key={ep.id} value={ep.id}>{ep.summary}</option>
+                    {initiatives.map(initiative => (
+                      <option key={initiative.id} value={initiative.id}>{initiative.summary}</option>
                     ))}
                   </select>
                 </div>

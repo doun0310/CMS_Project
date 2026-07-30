@@ -123,6 +123,7 @@ export interface Issue {
   assigneeId: string | null;
   reporterId: string;
   epicId: string | null;
+  initiativeId?: string | null;
   sprintId: string | null; // null = backlog
   storyPoints: number;
   subtasks: SubTask[];

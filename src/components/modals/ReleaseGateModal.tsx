@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle } from '../common/Icons';
+import { IconX, IconCheckCircle, IconTarget } from '../common/Icons';
 
 interface ReleaseGateModalProps {
   isOpen: boolean;
@@ -46,7 +46,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
       <div className="modal-content release-gate-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🛑</span>
+            <span className="release-icon"><IconTarget size={20} /></span>
             <div>
               <h2 className="modal-title">{t('releaseGateModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -63,9 +63,9 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
           {/* AI Decision Recommendation Banner */}
           <div className={`gate-recommendation-card ${decisionClass}`}>
             <div className="rec-header">
-              <span className="rec-title">🤖 AI Release Readiness Score: {readinessScore}%</span>
+              <span className="rec-title">AI Release Readiness Score: {readinessScore}%</span>
               <span className={`rec-badge ${decisionClass}`}>
-                {decisionClass === 'go' ? '🟢 GO FOR PRODUCTION RELEASE' : '🔴 NO-GO: HOLD RELEASE'}
+                {decisionClass === 'go' ? 'GO FOR PRODUCTION RELEASE' : 'NO-GO: HOLD RELEASE'}
               </span>
             </div>
             <p className="rec-text">
@@ -77,7 +77,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
 
           {/* Stakeholder Approval Checklist */}
           <div className="signoff-section">
-            <h3>👥 Stakeholder Approval Signoffs</h3>
+            <h3>Stakeholder Approval Signoffs</h3>
 
             <div className="signoff-grid">
               <div
@@ -87,7 +87,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 <div className="signoff-role">Engineering Lead</div>
                 <div className="signoff-user">{users[0]?.name || 'Alex Rivera'}</div>
                 <div className="signoff-status">
-                  {signoffs.engLead ? '✅ Approved' : '⏳ Pending Signoff'}
+                  {signoffs.engLead ? 'Approved' : 'Pending Signoff'}
                 </div>
               </div>
 
@@ -98,7 +98,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 <div className="signoff-role">QA & Test Manager</div>
                 <div className="signoff-user">{users[1]?.name || 'Sarah Chen'}</div>
                 <div className="signoff-status">
-                  {signoffs.qaLead ? '✅ Approved' : '⏳ Pending Signoff'}
+                  {signoffs.qaLead ? 'Approved' : 'Pending Signoff'}
                 </div>
               </div>
 
@@ -109,7 +109,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 <div className="signoff-role">Security & Compliance Officer</div>
                 <div className="signoff-user">{users[2]?.name || 'Marcus Vance'}</div>
                 <div className="signoff-status">
-                  {signoffs.securityOfficer ? '✅ Approved' : '⏳ Pending Signoff'}
+                  {signoffs.securityOfficer ? 'Approved' : 'Pending Signoff'}
                 </div>
               </div>
 
@@ -120,7 +120,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 <div className="signoff-role">Product Manager</div>
                 <div className="signoff-user">{users[0]?.name || 'Elena Rostova'}</div>
                 <div className="signoff-status">
-                  {signoffs.productManager ? '✅ Approved' : '⏳ Pending Signoff'}
+                  {signoffs.productManager ? 'Approved' : 'Pending Signoff'}
                 </div>
               </div>
             </div>
@@ -160,7 +160,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
               </>
             ) : (
               <>
-                🚀 Execute Official Production Signoff
+                Execute Official Production Signoff
               </>
             )}
           </button>

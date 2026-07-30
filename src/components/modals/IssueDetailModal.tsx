@@ -15,7 +15,6 @@ export const IssueDetailModal: React.FC = () => {
     addSubtask,
     moveIssueStatus,
     users,
-    epics,
     sprints,
     t
   } = useAether();
@@ -512,18 +511,25 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="field-group">
-              <label>{t('typeInitiative')}</label>
-              <select
-                value={issue.epicId || ''}
-                onChange={e => updateIssue(issue.id, { epicId: e.target.value || null })}
-              >
-                <option value="">{t('none')}</option>
-                {epics.map(ep => (
-                  <option key={ep.id} value={ep.id}>{ep.summary}</option>
-                ))}
-              </select>
-            </div>
+            {issue.type === 'initiative' ? (
+              <div className="field-group">
+                <label>{t('typeInitiative')}</label>
+                <div className="initiative-level-value">{t('topLevelInitiative')}</div>
+              </div>
+            ) : (
+              <div className="field-group">
+                <label>{t('typeInitiative')}</label>
+                <select
+                  value={issue.initiativeId || ''}
+                  onChange={e => updateIssue(issue.id, { initiativeId: e.target.value || null, epicId: null })}
+                >
+                  <option value="">{t('none')}</option>
+                  {issues.filter(candidate => candidate.type === 'initiative').map(initiative => (
+                    <option key={initiative.id} value={initiative.id}>{initiative.summary}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="field-group">
               <label>{t('sprint')}</label>
@@ -536,6 +542,15 @@ useEffect(() => {
                   <option key={sp.id} value={sp.id}>{sp.name}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="field-group">
+              <label>{t('dueDate')}</label>
+              <input
+                type="date"
+                value={issue.dueDate}
+                onChange={e => updateIssue(issue.id, { dueDate: e.target.value })}
+              />
             </div>
 
             <div className="field-group">

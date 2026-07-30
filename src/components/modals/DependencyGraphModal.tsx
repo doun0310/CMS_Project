@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconArchitecture } from '../common/Icons';
 
 interface DependencyGraphModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
   const handleAttachGraphBadge = () => {
     if (!targetIssue) return;
     const currentDesc = targetIssue.description || '';
-    const badgeMarkdown = `\n\n### 🕸️ AI Dependency & Blast Radius Diagnosis
+    const badgeMarkdown = `\n\n### AI Dependency & Blast Radius Diagnosis
 - **Upstream Subsystem:** Auth API Gateway
 - **Blast Radius Index:** 68% (High Subsystem Coupling)
 - **Affected Services:** Billing Engine, User Session DB, Mobile Push
@@ -49,7 +49,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
       <div className="modal-content dep-graph-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🕸️</span>
+            <span className="release-icon"><IconArchitecture size={20} /></span>
             <div>
               <h2 className="modal-title">{t('dependencyGraphModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -86,7 +86,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
               <span className="blast-lbl">Blast Radius Index</span>
             </div>
             <div className="blast-meta">
-              <span className="blast-title">🤖 High Subsystem Coupling Detected</span>
+              <span className="blast-title">High Subsystem Coupling Detected</span>
               <p className="blast-desc">
                 Modifying <strong>{targetIssue?.component || 'Auth API'}</strong> impacts 3 downstream microservices & 8 active sprint tickets. Canary deployment recommended.
               </p>
@@ -95,7 +95,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
 
           {/* Subsystem Dependency Nodes Grid */}
           <div className="dep-nodes-section">
-            <h3>🕸️ Linked Subsystem Nodes & Risk Scores</h3>
+            <h3>Linked Subsystem Nodes & Risk Scores</h3>
 
             <div className="dep-nodes-grid">
               {dependencyNodes.map((node) => (
@@ -105,7 +105,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
                     <span className={`node-type-badge ${node.type}`}>{node.type.toUpperCase()}</span>
                   </div>
                   <div className="node-bottom">
-                    <span className="node-health">Health: 🟢 {node.health}</span>
+                    <span className="node-health">Health: {node.health}</span>
                     <span className="node-blast">Impact Score: {node.blastScore}%</span>
                   </div>
                 </div>

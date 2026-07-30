@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap, IconCopy } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconCopy, IconAlertTriangle } from '../common/Icons';
 
 interface IncidentPostMortemModalProps {
   isOpen: boolean;
@@ -33,14 +33,14 @@ export const IncidentPostMortemModal: React.FC<IncidentPostMortemModalProps> = (
   ];
 
   const postMortemMarkdown = `
-# 🚨 Incident Post-Mortem Report - ${incidentTitle}
+# Incident Post-Mortem Report - ${incidentTitle}
 **Project:** ${currentProject.name} (${currentProject.key})
 **Severity:** ${severity} | **Duration:** ${durationMins} mins | **Date:** ${new Date().toLocaleDateString()}
 
-## 🔍 AI 5-Whys Root Cause Analysis
+## AI 5-Whys Root Cause Analysis
 ${fiveWhys.map(w => `- **${w.why}**\n  ↳ ${w.cause}`).join('\n')}
 
-## 🛠️ Preventive Action Items
+## Preventive Action Items
 ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).join('\n')}
 
 ---
@@ -76,7 +76,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
       <div className="modal-content postmortem-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="release-icon">🚨</span>
+            <span className="release-icon"><IconAlertTriangle size={20} /></span>
             <div>
               <h2 className="modal-title">{t('postMortemModalTitle')}</h2>
               <p className="modal-subtitle">
@@ -108,7 +108,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           <div className="pm-section">
             <div className="pm-section-header">
               <IconZap size={18} color="#6366f1" />
-              <span>🤖 AI 5-Whys Root Cause Chain</span>
+              <span>AI 5-Whys Root Cause Chain</span>
             </div>
             <div className="whys-list">
               {fiveWhys.map((w, idx) => (
@@ -123,7 +123,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           {/* Preventive Action Items Matrix */}
           <div className="pm-section">
             <div className="pm-section-header">
-              <span>🛠️ Preventive Action Items</span>
+              <span>Preventive Action Items</span>
             </div>
             <div className="pm-actions-grid">
               {actionItems.map((item, idx) => (
@@ -152,7 +152,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
               </>
             ) : (
               <>
-                ⚡ Convert Action Items to Jira Tasks
+                Convert Action Items to Jira Tasks
               </>
             )}
           </button>
