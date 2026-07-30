@@ -1310,6 +1310,15 @@
   padding: 16px;
 }
 
+.sprints-container {
+  display: grid;
+  gap: var(--space-4, 16px);
+}
+
+.sprints-container + .backlog-block {
+  margin-top: var(--space-4, 16px);
+}
+
 .sprint-header {
   display: flex;
   justify-content: space-between;
