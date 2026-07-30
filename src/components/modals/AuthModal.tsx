@@ -9,7 +9,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { currentUser, setCurrentUser, users } = useAether();
+  const { authUser, isAuthLoading, currentUser, setCurrentUser, users } = useAether();
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
@@ -42,14 +42,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setErrorMsg(error.message);
       } else if (data.user) {
         setSuccessMsg(`Welcome back, ${data.user.email}!`);
-        const signedInUser = {
-          id: data.user.id,
-          name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
-          email: data.user.email || '',
-          avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80`,
-          role: 'Lead Architect',
-        };
-        setCurrentUser(signedInUser);
         setTimeout(() => onClose(), 1500);
       }
     } catch (err: any) {
@@ -83,14 +75,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setErrorMsg(error.message);
       } else if (data.user) {
         setSuccessMsg('Account created successfully! Check your email for confirmation link.');
-        const newUser = {
-          id: data.user.id,
-          name: name || data.user.email?.split('@')[0] || 'User',
-          email: data.user.email || '',
-          avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80`,
-          role: 'Software Engineer',
-        };
-        setCurrentUser(newUser);
         setTimeout(() => onClose(), 2000);
       }
     } catch (err: any) {
@@ -117,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <div>
               <h2 className="modal-title">Supabase Authentication & Account</h2>
               <p className="modal-subtitle">
-                {currentUser.email ? `Signed in as ${currentUser.email}` : 'Sign in to access your team workspace'}
+                {authUser ? `Signed in as ${authUser.email}` : 'Sign in to access your team workspace'}
               </p>
             </div>
           </div>
@@ -127,14 +111,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="modal-body auth-modal-body">
-          {currentUser.email ? (
+          {isAuthLoading ? (
+            <div className="auth-alert">Supabase session 확인 중...</div>
+          ) : authUser ? (
             /* Signed in user view */
             <div className="signed-in-box">
-              <img src={currentUser.avatar} alt={currentUser.name} className="signed-in-avatar" />
+              <img src={authUser.avatar} alt={authUser.name} className="signed-in-avatar" />
               <div className="signed-in-info">
-                <h3>{currentUser.name}</h3>
-                <span className="signed-in-email">{currentUser.email}</span>
-                <span className="signed-in-role-badge">{currentUser.role}</span>
+                <h3>{authUser.name}</h3>
+                <span className="signed-in-email">{authUser.email}</span>
+                <span className="signed-in-role-badge">{authUser.role}</span>
               </div>
               <button className="btn-danger-sm" onClick={handleSignOut}>
                 Sign Out

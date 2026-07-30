@@ -32,6 +32,9 @@ export interface AetherContextValue {
   updateProject: (projectId: string, updates: Partial<Omit<Project, 'id'>>) => void;
   deleteProject: (projectId: string) => boolean;
   users: User[];
+  /** Actual Supabase Auth session user, separate from the demo workspace profile. */
+  authUser: User | null;
+  isAuthLoading: boolean;
   epics: Epic[];
   createEpic: (summary: string) => Epic;
   updateEpic: (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => void;

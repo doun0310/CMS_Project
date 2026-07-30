@@ -10,6 +10,7 @@ import type {
   Priority,
   Project,
   RetrospectiveItem,
+  User,
   ViewMode
 } from '../types/Aether';
 import {
@@ -23,7 +24,7 @@ import {
 } from '../mock/AetherData';
 import { translations, type Language } from '../i18n/translations';
 import { AetherContext } from './AetherContextValue';
-import { isSupabaseConfigured, subscribeToTable } from '../services/supabase';
+import { isSupabaseConfigured, subscribeToTable, supabase } from '../services/supabase';
 import {
   fetchIssuesFromSupabase,
   syncIssueToSupabase,
@@ -71,6 +72,16 @@ const isPriority = (value: unknown): value is Priority =>
 
 const isLanguage = (value: unknown): value is Language =>
   value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
+
+const toWorkspaceUser = (user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): User => ({
+  id: user.id,
+  name: typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : user.email?.split('@')[0] || 'User',
+  email: user.email || '',
+  avatar: typeof user.user_metadata?.avatar_url === 'string'
+    ? user.user_metadata.avatar_url
+    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+  role: typeof user.user_metadata?.role === 'string' ? user.user_metadata.role : 'Team Member',
+});
 
 import type { IssueType as IssueTypeAlias, SubTask } from '../types/Aether';
 
@@ -226,6 +237,36 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
   const [users] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(initialUsers[2]);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(isSupabaseConfigured);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setAuthUser(null);
+      setIsAuthLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    const applySession = (session: { user: { id: string; email?: string; user_metadata?: Record<string, unknown> } } | null) => {
+      if (!isMounted) return;
+      const nextAuthUser = session ? toWorkspaceUser(session.user) : null;
+      setAuthUser(nextAuthUser);
+      setCurrentUser(nextAuthUser ?? initialUsers[2]);
+      setIsAuthLoading(false);
+    };
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => applySession(session))
+      .catch(() => applySession(null));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => applySession(session));
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const [allEpics, setEpics] = useState<Epic[]>([]);
   const [allSprints, setSprints] = useState<Sprint[]>((persistedState.sprints ?? initialSprints).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
   const epics = useMemo(() => allEpics.filter(epic => epic.projectId === currentProject.id), [allEpics, currentProject.id]);
@@ -510,6 +551,8 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         projects,
         ...projectActions,
         users,
+        authUser,
+        isAuthLoading,
         epics,
         ...epicActions,
         sprints,

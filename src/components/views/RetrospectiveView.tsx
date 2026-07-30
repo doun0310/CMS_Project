@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { RetrospectiveItem, User } from '../../types/Aether';
 import { IconAiSpark, IconCheck, IconPlus, IconRetro, IconRetroBoard, IconTarget, IconThumbUp, IconTrash } from '../common/Icons';
+import { analyzeRetrospective, fetchLatestRetrospectiveAnalysis, type RetrospectiveSentimentAnalysis } from '../../services/retrospectiveAnalysis';
 
 export const RetrospectiveView: React.FC = () => {
-  const { retrospectiveItems, addRetroItem, voteRetroItem, deleteRetroItem, createIssue, users, t } = useAether();
+  const { retrospectiveItems, addRetroItem, voteRetroItem, deleteRetroItem, createIssue, users, currentProject, sprints, language, t } = useAether();
 
   const [newContent, setNewContent] = useState('');
   const [targetColumn, setTargetColumn] = useState<'went_well' | 'to_improve' | 'action_item'>('went_well');
   const [convertedIds, setConvertedIds] = useState<Record<string, string>>({});
   const [notification, setNotification] = useState<string | null>(null);
   const [retroSubTab, setRetroSubTab] = useState<'board' | 'actions'>('board');
+  const [aiAnalysis, setAiAnalysis] = useState<RetrospectiveSentimentAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const activeSprint = sprints.find(sprint => sprint.status === 'active' && (!sprint.projectId || sprint.projectId === currentProject.id));
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchLatestRetrospectiveAnalysis(currentProject.id, activeSprint?.id ?? null)
+      .then(analysis => { if (isMounted) setAiAnalysis(analysis); })
+      // An absent Supabase login or an undeployed function should not hide the board.
+      .catch(() => { if (isMounted) setAiAnalysis(null); });
+    return () => { isMounted = false; };
+  }, [currentProject.id, activeSprint?.id]);
 
   const handleAdd = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,6 +64,24 @@ export const RetrospectiveView: React.FC = () => {
   // Sentiment ratio
   const totalFeedback = wentWellItems.length + toImproveItems.length;
   const sentimentPct = totalFeedback > 0 ? Math.round((wentWellItems.length / totalFeedback) * 100) : 80;
+
+  const handleAiAnalysis = async () => {
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    try {
+      const analysis = await analyzeRetrospective({
+        projectId: currentProject.id,
+        sprintId: activeSprint?.id ?? null,
+        language,
+        items: retrospectiveItems,
+      });
+      setAiAnalysis(analysis);
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : 'AI 분석을 완료하지 못했습니다.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const renderColumn = (
     title: string,
@@ -172,18 +204,25 @@ export const RetrospectiveView: React.FC = () => {
       <div className="ai-retro-summary-card animate-fade-in">
         <div className="summary-header">
           <h3 className="section-title-with-icon"><IconAiSpark size={17} /> {t('retroDigest')}</h3>
-          <span className="sentiment-badge">{sentimentPct}% {t('positiveSentiment')}</span>
+          <div className="ai-summary-actions">
+            <span className="sentiment-badge">{aiAnalysis?.score ?? sentimentPct}% {t('positiveSentiment')}</span>
+            <button type="button" className="btn-primary-sm" onClick={handleAiAnalysis} disabled={isAnalyzing || retrospectiveItems.length === 0}>
+              <IconAiSpark size={14} /> {isAnalyzing ? 'AI 분석 중…' : 'AI 분석 실행'}
+            </button>
+          </div>
         </div>
+        {aiAnalysis && <p className="ai-analysis-summary-text">{aiAnalysis.summary}</p>}
+        {analysisError && <p className="ai-analysis-error" role="alert">{analysisError}</p>}
         <div className="summary-grid">
           <div className="summary-box">
             <div className="s-label">{t('sprintTeamMorale')}</div>
-            <div className="s-value">{t('highAlignment')}</div>
-            <div className="s-desc">{wentWellItems.length} {t('positiveLogged')}</div>
+            <div className="s-value">{aiAnalysis ? (aiAnalysis.tone === 'positive' ? t('highAlignment') : aiAnalysis.tone === 'neutral' ? '균형 잡힌 의견' : '살펴볼 신호가 있음') : t('highAlignment')}</div>
+            <div className="s-desc">{aiAnalysis?.positiveSignals[0] || `${wentWellItems.length} ${t('positiveLogged')}`}</div>
           </div>
           <div className="summary-box">
             <div className="s-label">{t('keyGrowthArea')}</div>
-            <div className="s-value">{toImproveItems[0]?.content || 'CI/CD build pipeline speed'}</div>
-            <div className="s-desc">{t('topImprovement')}</div>
+            <div className="s-value">{aiAnalysis?.risks[0] || toImproveItems[0]?.content || 'CI/CD build pipeline speed'}</div>
+            <div className="s-desc">{aiAnalysis?.recommendedActions[0] || t('topImprovement')}</div>
           </div>
           <div className="summary-box">
             <div className="s-label">{t('actionTicketConversion')}</div>
