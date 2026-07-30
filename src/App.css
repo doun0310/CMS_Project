@@ -2115,6 +2115,35 @@
 .initiative-roadmap-row { background: color-mix(in srgb, var(--color-in-progress, #6366f1) 5%, var(--bg-secondary)); }
 .initiative-roadmap-bar { background-color: var(--color-in-progress, #6366f1) !important; }
 
+.initiative-detail-overview {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-in-progress, #6366f1) 32%, var(--border-color));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 7%, var(--bg-secondary));
+}
+.initiative-overview-heading, .initiative-overview-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.initiative-overview-kicker { display: block; margin-bottom: 3px; color: var(--text-secondary); font-size: 0.76rem; font-weight: 600; }
+.initiative-overview-heading strong { font-size: 1.05rem; color: var(--text-primary); }
+.initiative-overview-heading > span, .initiative-overview-meta { color: var(--text-secondary); font-size: 0.8rem; }
+.initiative-progress-track { height: 7px; overflow: hidden; margin: 12px 0; border-radius: 999px; background: var(--bg-tertiary); }
+.initiative-progress-track span { display: block; height: 100%; border-radius: inherit; background: var(--color-in-progress, #6366f1); transition: width 180ms ease; }
+.initiative-sidebar .initiative-technical-field,
+.initiative-sidebar .custom-fields-sidebar-group { display: none; }
+
+/* Keep issue details focused on editable delivery information. These simulated
+   diagnostics remain available in source data but are not shown as live signals. */
+.ai-solution-card,
+.detail-sidebar-col .custom-fields-sidebar-group { display: none; }
+
+.issue-status-audit { margin-top: 10px; }
+
+.status-workflow-bar,
+.status-workflow-bar label,
+.status-select,
+.status-badge,
+.status-badge-sm { white-space: nowrap; }
+
 .gantt-timeline-grid {
   flex: 1;
   display: flex;

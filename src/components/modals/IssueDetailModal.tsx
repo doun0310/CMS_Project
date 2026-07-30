@@ -35,7 +35,15 @@ export const IssueDetailModal: React.FC = () => {
   const issue = issues.find((i: Issue) => i.id === selectedIssueId);
   if (!issue) return null;
 
+  const isInitiative = issue.type === 'initiative';
   const reporter = users.find(u => u.id === issue.reporterId);
+  const linkedInitiativeIssues = isInitiative
+    ? issues.filter(candidate => candidate.initiativeId === issue.id && candidate.id !== issue.id)
+    : [];
+  const completedInitiativeIssues = linkedInitiativeIssues.filter(candidate => candidate.status === 'done').length;
+  const initiativeProgressPct = linkedInitiativeIssues.length > 0
+    ? Math.round((completedInitiativeIssues / linkedInitiativeIssues.length) * 100)
+    : issue.status === 'done' ? 100 : 0;
 
   const completedSubtasks = issue.subtasks.filter(s => s.completed).length;
   const subtaskProgressPct = issue.subtasks.length > 0 ? Math.round((completedSubtasks / issue.subtasks.length) * 100) : 0;
@@ -90,7 +98,7 @@ export const IssueDetailModal: React.FC = () => {
         {/* Drawer Header */}
         <div className="drawer-header">
           <div className="header-left-info">
-            <span className="issue-type-badge">{issue.type.toUpperCase()}</span>
+            <span className="issue-type-badge">{isInitiative ? t('typeInitiative') : issue.type.toUpperCase()}</span>
             <span className="issue-key-large">{issue.key}</span>
           </div>
 
@@ -138,20 +146,37 @@ export const IssueDetailModal: React.FC = () => {
                 <option value="done">{t('done')}</option>
               </select>
 
-              {/* AI Security & PR Readiness Audit Badge */}
-              <div className="ai-audit-box">
-                <div className="audit-score-row">
-                  <span className="audit-badge pass">AI Audit 98%</span>
-                  <span className="audit-badge sec">Security Clear</span>
-                </div>
-                <div className="audit-desc">
-                  Sub-task SLA 100%, 0 security vulnerabilities detected. PR ready for merge.
-                </div>
-              </div>
             </div>
 
+            {!isInitiative && <div className="ai-audit-box issue-status-audit">
+              <div className="audit-score-row">
+                <span className="audit-badge pass">AI Audit 98%</span>
+                <span className="audit-badge sec">Security Clear</span>
+              </div>
+              <div className="audit-desc">
+                Sub-task SLA 100%, 0 security vulnerabilities detected. PR ready for merge.
+              </div>
+            </div>}
+
+            {isInitiative && (
+              <section className="initiative-detail-overview">
+                <div className="initiative-overview-heading">
+                  <div>
+                    <span className="initiative-overview-kicker">{t('topLevelInitiative')}</span>
+                    <strong>{initiativeProgressPct}% {t('completed')}</strong>
+                  </div>
+                  <span>{completedInitiativeIssues}/{linkedInitiativeIssues.length} {t('issues')}</span>
+                </div>
+                <div className="initiative-progress-track"><span style={{ width: `${initiativeProgressPct}%` }} /></div>
+                <div className="initiative-overview-meta">
+                  <span>{t('dueDate')}: {issue.dueDate}</span>
+                  <span>{t('storyPoints')}: {issue.storyPoints || 0} {t('pointsShort')}</span>
+                </div>
+              </section>
+            )}
+
             {/* AI Solution Recommendation & Auto-Resolver Card */}
-            <div className="ai-solution-card animate-fade-in">
+            {!isInitiative && <div className="ai-solution-card animate-fade-in">
               <div className="ai-sol-header">
                 <span>🤖 AI Auto-Resolver & Recommended Solution</span>
                 <span className="sol-badge">Confidence: 96%</span>
@@ -183,7 +208,7 @@ useEffect(() => {
                   ⚡ Apply Fix Code to Comment & Move to IN REVIEW
                 </button>
               </div>
-            </div>
+            </div>}
 
             {/* Description Section */}
             <div className="detail-section">
@@ -198,7 +223,7 @@ useEffect(() => {
             </div>
 
             {/* Interactive Issue Dependency & Critical Path Section */}
-            <div className="detail-section">
+            {!isInitiative && <div className="detail-section">
               <div className="section-title-with-badge">
                 <h3>🔗 Issue Dependencies & Critical Path</h3>
                 {hasCriticalPathRisk && (
@@ -295,10 +320,10 @@ useEffect(() => {
                   </div>
                 )}
               </div>
-            </div>
+            </div>}
 
             {/* Subtasks Section */}
-            <div className="detail-section">
+            {!isInitiative && <div className="detail-section">
               <h3>{t('subtasks')} ({completedSubtasks}/{issue.subtasks.length})</h3>
               <div className="subtask-progress-bar">
                 <div className="fill" style={{ width: `${subtaskProgressPct}%` }}></div>
@@ -326,10 +351,10 @@ useEffect(() => {
                 />
                 <button type="submit" className="btn-primary-sm">{t('add')}</button>
               </form>
-            </div>
+            </div>}
 
             {/* Time Tracking */}
-            <section className="detail-section time-tracking-section">
+            {!isInitiative && <section className="detail-section time-tracking-section">
               <div className="time-tracking-heading">
                 <h3><IconClock size={16} /> {t('timeTracking')}</h3>
                 <span>{timeLogged}h {t('logged')}</span>
@@ -350,7 +375,7 @@ useEffect(() => {
                   </label>
                 </div>
               </div>
-            </section>
+            </section>}
 
             {/* Comments & Activity Audit History */}
             <div className="detail-section">
@@ -462,7 +487,7 @@ useEffect(() => {
           </div>
 
           {/* Right Sidebar Metadata Fields */}
-          <div className="detail-sidebar-col">
+          <div className={`detail-sidebar-col ${isInitiative ? 'initiative-sidebar' : ''}`}>
             <div className="field-group">
               <label>{t('issueType')}</label>
               <select
@@ -511,12 +536,7 @@ useEffect(() => {
               </div>
             </div>
 
-            {issue.type === 'initiative' ? (
-              <div className="field-group">
-                <label>{t('typeInitiative')}</label>
-                <div className="initiative-level-value">{t('topLevelInitiative')}</div>
-              </div>
-            ) : (
+            {!isInitiative && (
               <div className="field-group">
                 <label>{t('typeInitiative')}</label>
                 <select
@@ -531,7 +551,7 @@ useEffect(() => {
               </div>
             )}
 
-            <div className="field-group">
+            {!isInitiative && <div className="field-group">
               <label>{t('sprint')}</label>
               <select
                 value={issue.sprintId || ''}
@@ -542,7 +562,7 @@ useEffect(() => {
                   <option key={sp.id} value={sp.id}>{sp.name}</option>
                 ))}
               </select>
-            </div>
+            </div>}
 
             <div className="field-group">
               <label>{t('dueDate')}</label>
@@ -563,8 +583,8 @@ useEffect(() => {
               />
             </div>
 
-            <div className="field-group">
-              <label>Component</label>
+            <div className="field-group initiative-technical-field">
+              <label>{t('componentName')}</label>
               <input
                 type="text"
                 value={issue.component}
