@@ -10,7 +10,7 @@ interface UseIssueActionsParams {
   sprints: Sprint[];
   selectedIssueId: string | null;
   setSelectedIssueId: (id: string | null) => void;
-  onDoneStatusAutomation: () => void;
+  onDoneStatusAutomation: (targetKey?: string) => void;
   notify: (notification: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
 }
 
@@ -52,7 +52,7 @@ export function useIssueActions({
       issueId: issue.id,
     });
 
-    if (newStatus === 'done') onDoneStatusAutomation();
+    if (newStatus === 'done') onDoneStatusAutomation(issue.key);
   };
 
   const createIssue = (issueData: Partial<Issue>) => {

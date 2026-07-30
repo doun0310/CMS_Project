@@ -70,14 +70,36 @@ export function useAutomationActions({
   };
 
   /** Called internally when an issue moves to 'done' status */
-  const recordDoneStatusAutomation = () => {
+  const recordDoneStatusAutomation = (targetIssueKey = 'CLOUD-101') => {
+    const nowStr = new Date().toLocaleString();
+
     setAutomationRules(previousRules =>
-      previousRules.map(rule =>
-        rule.id === 'auto-1' && rule.enabled
-          ? { ...rule, lastExecuted: new Date().toLocaleTimeString() }
-          : rule
-      )
+      previousRules.map(rule => {
+        if ((rule.id === 'auto-1' || rule.trigger.toLowerCase().includes('done')) && rule.enabled) {
+          return {
+            ...rule,
+            lastExecuted: 'Just now',
+            executionCount: (rule.executionCount || 0) + 1
+          };
+        }
+        return rule;
+      })
     );
+
+    const matchingRule = automationRules.find(
+      r => (r.id === 'auto-1' || r.trigger.toLowerCase().includes('done')) && r.enabled
+    );
+    if (matchingRule) {
+      const newLog: AutomationAuditLog = {
+        id: `log-${Date.now()}`,
+        ruleName: matchingRule.name,
+        triggeredAt: nowStr,
+        targetIssueKey,
+        actionTaken: matchingRule.action,
+        status: 'SUCCESS'
+      };
+      setAutomationAuditLogs(prev => [newLog, ...prev]);
+    }
   };
 
   return {

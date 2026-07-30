@@ -82,26 +82,46 @@ export async function fetchIssuesFromSupabase(): Promise<Issue[]> {
   }
 }
 
-/**
- * Sync an issue to Supabase (Insert or Update)
- */
-export async function syncIssueToSupabase(issue: Issue, projectId: string) {
+const ISSUE_SYNC_DEBOUNCE_MS = 400;
+const pendingIssueSyncs = new Map<string, ReturnType<typeof setTimeout>>();
+
+const syncIssueImmediately = async (issue: Issue, projectId: string) => {
   if (!isSupabaseConfigured) return;
   try {
     const dbRow = mapIssueToDb(issue, projectId);
     const { error } = await supabase.from('issues').upsert(dbRow);
     if (error) {
-      console.error('Supabase issue sync error:', error.message);
+    console.error('Supabase issue sync error:', error.message);
     }
   } catch (err) {
     console.error('Failed to sync issue to Supabase:', err);
   }
+};
+
+/**
+ * Coalesce successive local changes for the same issue. Dragging a card or
+ * editing several fields therefore produces a single server write after 400ms.
+ */
+export function syncIssueToSupabase(issue: Issue, projectId: string) {
+  const pending = pendingIssueSyncs.get(issue.id);
+  if (pending) clearTimeout(pending);
+
+  const timer = setTimeout(() => {
+    pendingIssueSyncs.delete(issue.id);
+    void syncIssueImmediately(issue, projectId);
+  }, ISSUE_SYNC_DEBOUNCE_MS);
+  pendingIssueSyncs.set(issue.id, timer);
 }
 
 /**
  * Delete an issue from Supabase
  */
 export async function deleteIssueFromSupabase(issueId: string) {
+  const pending = pendingIssueSyncs.get(issueId);
+  if (pending) {
+    clearTimeout(pending);
+    pendingIssueSyncs.delete(issueId);
+  }
   if (!isSupabaseConfigured) return;
   try {
     const { error } = await supabase.from('issues').delete().eq('id', issueId);

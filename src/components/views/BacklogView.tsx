@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAether } from '../../context/AetherContextValue';
 import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import { SprintCelebrationModal } from '../modals/SprintCelebrationModal';
@@ -57,6 +58,7 @@ export const BacklogView: React.FC = () => {
   const [planningSprintId, setPlanningSprintId] = useState<string>(
     sprints.find(sprint => sprint.status === 'active')?.id || sprints.find(sprint => sprint.status === 'future')?.id || ''
   );
+  const backlogListRef = useRef<HTMLDivElement>(null);
 
   const handleCompleteSprint = (sprint: Sprint) => {
     completeSprint(sprint.id);
@@ -299,6 +301,13 @@ export const BacklogView: React.FC = () => {
   };
 
   const backlogIssues = filteredIssues.filter((i: Issue) => !i.sprintId);
+  const shouldVirtualizeBacklog = backlogIssues.length > 50;
+  const backlogVirtualizer = useVirtualizer({
+    count: backlogIssues.length,
+    getScrollElement: () => backlogListRef.current,
+    estimateSize: () => 56,
+    overscan: 8,
+  });
   const backlogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
   const activeSprint = sprints.find(sprint => sprint.status === 'active');
   const activeSprintIssues = activeSprint ? filteredIssues.filter(issue => issue.sprintId === activeSprint.id) : [];
@@ -457,9 +466,28 @@ export const BacklogView: React.FC = () => {
           )}
         </div>
 
-        <div className="sprint-issues-list">
+        <div
+          ref={backlogListRef}
+          className={`sprint-issues-list ${shouldVirtualizeBacklog ? 'virtualized-issue-list' : ''}`}
+        >
           {backlogIssues.length === 0 ? (
             <div className="empty-sprint-msg">{t('backlogEmpty')}</div>
+          ) : shouldVirtualizeBacklog ? (
+            <div style={{ height: `${backlogVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+              {backlogVirtualizer.getVirtualItems().map(virtualRow => {
+                const issue = backlogIssues[virtualRow.index];
+                return (
+                  <div
+                    key={issue.id}
+                    ref={backlogVirtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    {renderIssueRow(issue, true)}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             backlogIssues.map(issue => renderIssueRow(issue, true))
           )}

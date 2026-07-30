@@ -840,11 +840,16 @@
 }
 .control-select {
   padding: 8px 12px;
-  background: rgba(196, 139, 79, 0.08);
-  border: 1px solid rgba(196, 139, 79, 0.16);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   color: var(--text-primary);
   font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+.control-select:hover, .control-select:focus {
+  border-color: var(--border-focus, #2563eb);
+  background: var(--bg-hover);
 }
 
 .kanban-grid {
@@ -856,15 +861,15 @@
 }
 
 .kanban-column {
-  background: rgba(255, 252, 246, 0.42);
+  background: var(--bg-secondary);
   border-radius: 16px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 180px);
   border: 1px solid var(--border-color);
-  box-shadow: none;
-  transition: width 0.2s ease, flex 0.2s ease;
+  box-shadow: var(--card-shadow, 0 1px 2px rgba(15, 23, 42, 0.04));
+  transition: all 0.2s ease;
   backdrop-filter: blur(8px);
 }
 
@@ -950,17 +955,117 @@
 
 .column-count {
   font-size: 0.72rem;
-  background: rgba(196, 139, 79, 0.12);
+  background: var(--bg-accent-soft, rgba(37, 99, 235, 0.1));
   color: var(--text-primary);
   padding: 3px 7px;
   border-radius: 999px;
   font-weight: 600;
+  border: 1px solid var(--border-color);
 }
 
 .column-points {
   font-size: 0.72rem;
   color: var(--text-secondary);
   font-weight: 500;
+}
+
+/* Unified Swimlane Board Styling */
+.swimlane-board-headers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-primary);
+  padding: 6px 0 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 14px;
+}
+
+.swimlane-board-header-col {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--card-shadow, 0 1px 2px rgba(15, 23, 42, 0.04));
+}
+
+.swimlane-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.swimlane-group {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  padding: 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--card-shadow, 0 1px 2px rgba(15, 23, 42, 0.04));
+  transition: all 0.2s ease;
+}
+
+.swimlane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.swimlane-header:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong, var(--border-color));
+}
+
+.swimlane-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.swimlane-title-text {
+  font-weight: 700;
+}
+
+.swimlane-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swimlane-header-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--bg-accent-soft, rgba(37, 99, 235, 0.1));
+  color: var(--text-primary);
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+}
+
+.swimlane-empty-drop-zone {
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+  background: var(--bg-primary);
+  opacity: 0.7;
 }
 
 .column-cards-list {
@@ -1304,6 +1409,12 @@
   border-radius: var(--radius-sm);
   margin-bottom: 6px;
   cursor: pointer;
+}
+
+.virtualized-issue-list {
+  max-height: min(65vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .backlog-issue-row:hover {
   background: var(--bg-hover);
