@@ -178,7 +178,7 @@ export const IssueDetailModal: React.FC = () => {
             {/* AI Solution Recommendation & Auto-Resolver Card */}
             {!isInitiative && <div className="ai-solution-card animate-fade-in">
               <div className="ai-sol-header">
-                <span>🤖 AI Auto-Resolver & Recommended Solution</span>
+                <span> AI Auto-Resolver & Recommended Solution</span>
                 <span className="sol-badge">Confidence: 96%</span>
               </div>
               <div className="ai-sol-body">
@@ -200,7 +200,7 @@ useEffect(() => {
                   onClick={() => {
                     addComment(
                       issue.id,
-                      `🤖 [AI Auto-Resolver Solution Applied]:\n\`\`\`typescript\n// Recommended Code Fix for ${issue.key}:\nuseEffect(() => {\n  const handler = (evt) => handleEvent(evt);\n  eventEmitter.on('${issue.key.toLowerCase()}_sync', handler);\n  return () => eventEmitter.off('${issue.key.toLowerCase()}_sync', handler);\n}, []);\n\`\`\``
+                      ` [AI Auto-Resolver Solution Applied]:\n\`\`\`typescript\n// Recommended Code Fix for ${issue.key}:\nuseEffect(() => {\n  const handler = (evt) => handleEvent(evt);\n  eventEmitter.on('${issue.key.toLowerCase()}_sync', handler);\n  return () => eventEmitter.off('${issue.key.toLowerCase()}_sync', handler);\n}, []);\n\`\`\``
                     );
                     moveIssueStatus(issue.id, 'in_review');
                   }}
@@ -225,7 +225,7 @@ useEffect(() => {
             {/* Interactive Issue Dependency & Critical Path Section */}
             {!isInitiative && <div className="detail-section">
               <div className="section-title-with-badge">
-                <h3>🔗 Issue Dependencies & Critical Path</h3>
+                <h3> Issue Dependencies & Critical Path</h3>
                 {hasCriticalPathRisk && (
                   <span className="critical-path-badge animate-pulse">
                     ⚠️ Critical Path Risk ({unfinishedBlockers.length} Unfinished Blocker)
