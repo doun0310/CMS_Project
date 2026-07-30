@@ -228,7 +228,6 @@ export const AutomationView: React.FC = () => {
       <div className="ai-preset-card animate-fade-in" style={{ marginBottom: '20px' }}>
         <div className="ai-preset-header">
           <span>{t('oneClickPresets')}</span>
-          <span className="preset-hint">{t('presetHint')}</span>
         </div>
         <div className="preset-buttons-row" style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
