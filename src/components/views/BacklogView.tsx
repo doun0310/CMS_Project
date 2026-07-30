@@ -63,12 +63,30 @@ export const BacklogView: React.FC = () => {
     setCelebratingSprint(sprint);
   };
 
-  const handleEditSprint = (sprint: Sprint) => {
-    const name = window.prompt('Sprint name', sprint.name);
-    if (!name?.trim()) return;
-    const goal = window.prompt('Sprint goal', sprint.goal);
-    if (goal === null) return;
-    updateSprint(sprint.id, { name: name.trim(), goal: goal.trim() });
+  const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
+  const [editSprintName, setEditSprintName] = useState('');
+  const [editSprintGoal, setEditSprintGoal] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editEndDate, setEditEndDate] = useState('');
+
+  const openEditSprintModal = (sprint: Sprint) => {
+    setEditingSprint(sprint);
+    setEditSprintName(sprint.name);
+    setEditSprintGoal(sprint.goal || '');
+    setEditStartDate(sprint.startDate || '');
+    setEditEndDate(sprint.endDate || '');
+  };
+
+  const handleEditSprintSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingSprint || !editSprintName.trim()) return;
+    updateSprint(editingSprint.id, {
+      name: editSprintName.trim(),
+      goal: editSprintGoal.trim(),
+      startDate: editStartDate,
+      endDate: editEndDate,
+    });
+    setEditingSprint(null);
   };
 
   const handleDeleteSprint = (sprint: Sprint) => {
@@ -227,7 +245,7 @@ export const BacklogView: React.FC = () => {
           </div>
 
           <div className="sprint-actions">
-            <button className="btn-ghost-sm" onClick={() => handleEditSprint(sprint)} title="Edit sprint"><IconSettings size={14} /></button>
+            <button className="btn-ghost-sm" onClick={() => openEditSprintModal(sprint)} title="Edit sprint settings"><IconSettings size={14} /></button>
             <button className="btn-ghost-sm text-danger" onClick={() => handleDeleteSprint(sprint)} title="Delete sprint"><IconTrash size={14} /></button>
             {sprint.status === 'future' && (
               <button className="btn-success-sm" onClick={() => startSprint(sprint.id)}>
@@ -353,6 +371,56 @@ export const BacklogView: React.FC = () => {
               <div className="modal-actions">
                 <button type="button" className="btn-ghost" onClick={() => setIsCreatingSprint(false)}>{t('cancel')}</button>
                 <button type="submit" className="btn-primary">{t('createSprint')}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Sprint Modal */}
+      {editingSprint && (
+        <div className="modal-backdrop-center animate-fade-in" onClick={() => setEditingSprint(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h2>스프린트 설정 및 수정</h2>
+            <form onSubmit={handleEditSprintSubmit}>
+              <div className="form-group">
+                <label>{t('sprintName') || '스프린트 이름'}</label>
+                <input
+                  type="text"
+                  required
+                  placeholder={t('sprintNamePlaceholder')}
+                  value={editSprintName}
+                  onChange={e => setEditSprintName(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('sprintGoal') || '스프린트 목표'}</label>
+                <textarea
+                  placeholder={t('sprintGoalPlaceholder')}
+                  value={editSprintGoal}
+                  onChange={e => setEditSprintGoal(e.target.value)}
+                />
+              </div>
+              <div className="form-row" style={{ display: 'flex', gap: '12px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>시작일</label>
+                  <input
+                    type="date"
+                    value={editStartDate}
+                    onChange={e => setEditStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>종료일</label>
+                  <input
+                    type="date"
+                    value={editEndDate}
+                    onChange={e => setEditEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-ghost" onClick={() => setEditingSprint(null)}>{t('cancel')}</button>
+                <button type="submit" className="btn-primary">{t('save') || '저장'}</button>
               </div>
             </form>
           </div>

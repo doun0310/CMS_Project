@@ -31,6 +31,7 @@ export interface Epic {
   summary: string;
   color: string;
   description?: string;
+  isCriticalPath?: boolean;
 }
 
 export interface Sprint {
@@ -145,6 +146,7 @@ export interface Issue {
   githubBranch?: string;
   linkedPRs?: LinkedPR[];
   linkedCommits?: LinkedCommit[];
+  isCriticalPath?: boolean;
 }
 
 export interface CustomFieldDef {

@@ -188,7 +188,11 @@ export const RoadmapView: React.FC = () => {
               const progressPct = linkedIssues.length > 0
                 ? Math.round(linkedIssues.reduce((total, issue) => total + statusProgress[issue.status], 0) / linkedIssues.length)
                 : statusProgress[initiative.status];
-              const isCriticalInitiative = criticalPathOnly && progressPct < 100;
+              const isCriticalInitiative = criticalPathOnly && (
+                initiative.summary.toLowerCase().includes('oauth') ||
+                initiative.summary.toLowerCase().includes('security') ||
+                progressPct < 100
+              );
               const healthClass = progressPct < 30 ? 'status-at-risk' : progressPct < 70 ? 'status-attention' : 'status-on-schedule';
               const healthLabel = progressPct < 30 ? t('atRisk') : progressPct < 70 ? t('attention') : t('onSchedule');
               return <React.Fragment key={initiative.id}>
@@ -336,7 +340,11 @@ export const RoadmapView: React.FC = () => {
               const progressPct = linkedIssues.length > 0
                 ? Math.round(linkedIssues.reduce((total, issue) => total + statusProgress[issue.status], 0) / linkedIssues.length)
                 : statusProgress[initiative.status];
-              const isCriticalInitiative = criticalPathOnly && progressPct < 100;
+              const isCriticalInitiative = criticalPathOnly && (
+                initiative.summary.toLowerCase().includes('oauth') ||
+                initiative.summary.toLowerCase().includes('security') ||
+                progressPct < 100
+              );
               const leftPos = getPositionPercent(initiative.createdAt);
               const milestone = milestones.find(item => item.initiativeId === initiative.id);
               const endPos = milestone?.position ?? getPositionPercent(initiative.dueDate);
@@ -370,7 +378,12 @@ export const RoadmapView: React.FC = () => {
               const totalPoints = childIssues.reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
               const donePoints = childIssues.filter((i: Issue) => i.status === 'done').reduce((acc: number, i: Issue) => acc + (i.storyPoints || 0), 0);
               const pointsPct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : progressPct;
-              const isCritical = criticalPathOnly && pointsPct < 50;
+              const isCritical = criticalPathOnly && (
+                epic.isCriticalPath ||
+                epic.summary.toLowerCase().includes('oauth') ||
+                epic.summary.toLowerCase().includes('security') ||
+                pointsPct < 50
+              );
 
               return (
                 <React.Fragment key={epic.id}>

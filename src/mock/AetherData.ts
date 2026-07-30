@@ -76,9 +76,10 @@ export const initialEpics: Epic[] = [
   {
     id: 'epic-2',
     key: 'CLOUD-E2',
-    summary: 'Enterprise Security & Row-Level Security Auth',
+    summary: 'OAuth2 & SAML SSO Security Auth',
     color: '#0065FF',
-    description: 'OAuth2/OIDC, SAML SSO, and Postgres RLS security compliance'
+    description: 'OAuth2/OIDC, SAML SSO, and Postgres RLS security compliance',
+    isCriticalPath: true
   },
   {
     id: 'epic-3',
@@ -288,23 +289,25 @@ export const initialIssues: Issue[] = [
   {
     id: 'issue-104',
     key: 'CLOUD-104',
-    summary: 'Configure SAML 2.0 Identity Provider (IdP) integration for Okta & Azure AD',
-    description: 'Implement SSO authentication flow with metadata XML parsing, assertion signature validation, and auto user provisioning.',
+    projectId: 'p1',
+    epicId: 'epic-2',
+    summary: 'OAuth2 & SAML 2.0 Identity Provider Integration (100% 완료)',
+    description: 'Implement OAuth2 / SAML SSO authentication flow with metadata XML parsing, assertion signature validation, and auto user provisioning.',
     type: 'workitem',
-    status: 'todo',
-    priority: 'medium',
+    status: 'done',
+    priority: 'highest',
     assigneeId: 'u2',
     reporterId: 'u1',
-    epicId: 'epic-2',
     sprintId: 'sprint-24',
     storyPoints: 5,
+    isCriticalPath: true,
     subtasks: [
-      { id: 'st-9', title: 'SAML SP metadata endpoint setup', completed: false },
-      { id: 'st-10', title: 'Certificate validation & assertion parser', completed: false }
+      { id: 'st-9', title: 'OAuth2 & SAML SP metadata endpoint setup', completed: true },
+      { id: 'st-10', title: 'Certificate validation & OAuth2 JWT assertion parser', completed: true }
     ],
     comments: [],
     history: [],
-    labels: ['security', 'sso', 'saml'],
+    labels: ['security', 'oauth2', 'sso', 'saml'],
     component: 'Auth Service',
     dueDate: '2026-08-02',
     originalEstimate: 10,
