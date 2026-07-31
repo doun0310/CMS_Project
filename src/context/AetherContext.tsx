@@ -236,9 +236,85 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
   );
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [currentUser, setCurrentUser] = useState(initialUsers[2]);
+
+  const [signedInAccounts, setSignedInAccounts] = useState<User[]>(() => {
+    try {
+      const saved = localStorage.getItem('aether_signed_in_accounts');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [initialUsers[0], initialUsers[2], initialUsers[3]];
+  });
+
+  const [currentUser, setCurrentUser] = useState<User>(() => {
+    try {
+      const savedId = localStorage.getItem('aether_active_account_id');
+      if (savedId) {
+        const found = initialUsers.find(u => u.id === savedId);
+        if (found) return found;
+      }
+    } catch {}
+    return initialUsers[0];
+  });
+
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(isSupabaseConfigured);
+
+  const switchAccount = (user: User) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('aether_active_account_id', user.id);
+    } catch {}
+    addNotification({
+      kind: 'system',
+      title: '계정 전환',
+      text: `계정이 전환되었습니다: ${user.name} (${user.email})`
+    });
+  };
+
+  const addSignedInAccount = (account: User) => {
+    setSignedInAccounts(prev => {
+      const exists = prev.some(a => a.id === account.id || a.email === account.email);
+      const updated = exists
+        ? prev.map(a => (a.id === account.id || a.email === account.email ? account : a))
+        : [...prev, account];
+      try {
+        localStorage.setItem('aether_signed_in_accounts', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    setUsers(prev => {
+      if (prev.some(u => u.id === account.id)) return prev;
+      return [...prev, account];
+    });
+
+    switchAccount(account);
+  };
+
+  const removeAccount = (accountId: string) => {
+    setSignedInAccounts(prev => {
+      const updated = prev.filter(a => a.id !== accountId);
+      try {
+        localStorage.setItem('aether_signed_in_accounts', JSON.stringify(updated));
+      } catch {}
+      if (currentUser.id === accountId && updated.length > 0) {
+        setCurrentUser(updated[0]);
+      }
+      return updated;
+    });
+  };
+
+  const signOutAllAccounts = () => {
+    setSignedInAccounts([]);
+    try {
+      localStorage.removeItem('aether_signed_in_accounts');
+      localStorage.removeItem('aether_active_account_id');
+    } catch {}
+    setCurrentUser(initialUsers[0]);
+  };
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -606,6 +682,11 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setSelectedLabel,
         currentUser,
         setCurrentUser,
+        signedInAccounts,
+        switchAccount,
+        addSignedInAccount,
+        removeAccount,
+        signOutAllAccounts,
         selectedIssueId,
         setSelectedIssueId,
         isCreateModalOpen,
