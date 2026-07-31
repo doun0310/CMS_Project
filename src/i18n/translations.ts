@@ -363,7 +363,48 @@ export const translations: Record<Language, Record<string, string>> = {
     copied: 'Copied!',
     copyMarkdown: 'Copy Markdown',
     close: 'Close',
-    exportRetro: 'Export Retro (.md)'
+    exportRetro: 'Export Retro (.md)',
+
+    // Sprint Insights - Risk Matrix, Team Health, SLA, Knowledge Silo
+    sprintRiskTitle: 'AI Multi-Factor Sprint Risk Matrix',
+    sprintRiskSubtitle: 'Real-time early warning system analyzing blocker bottlenecks & unassigned workloads',
+    riskScoreLabel: 'Risk Score',
+    lowRisk: 'LOW RISK',
+    mediumRisk: 'MEDIUM RISK',
+    highRisk: 'HIGH RISK',
+    unassignedTasksTitle: 'Unassigned Priority Tasks',
+    unassignedHighDesc: 'High priority items lack assigned developer',
+    unassignedOkDesc: 'All priority items assigned',
+    autoAssignLead: 'Auto-Assign to Tech Lead',
+    blockerBottlenecksTitle: 'Unresolved Blocker Bottlenecks',
+    blockerWarningDesc: 'Tasks waiting on unfinished prerequisite issues',
+    blockerOkDesc: 'No blocker delays detected',
+    unestimatedScopeTitle: 'Unestimated Scope Items',
+    unestimatedWarningDesc: 'Items missing story points estimate',
+    unestimatedOkDesc: 'All items accurately estimated',
+
+    teamHealthTitle: 'AI Team Health Pulse & Burnout Diagnostics',
+    teamHealthSubtitle: 'Workload density & fatigue monitoring engine for agile engineering teams',
+    rebalanceWorkload: '1-Click Workload Rebalancer',
+    optimalBalance: 'Optimal Balance',
+    heavyWorkload: 'Heavy Workload',
+    burnoutRisk: 'Burnout Risk',
+
+    slaTitle: 'Enterprise SLA & MTTR Compliance Diagnostics',
+    slaSubtitle: 'Service Level Agreement tracking & Mean Time To Resolution (MTTR) monitoring',
+    slaHealth: 'SLA Health',
+    withinSla: 'Within SLA Threshold',
+    slaAtRisk: 'SLA At-Risk (< 6h)',
+    autoEscalateBreached: 'Auto-Escalate Breached Tasks',
+
+    knowledgeSiloTitle: 'Team Knowledge Silo & Bus Factor Diagnostics',
+    knowledgeSiloSubtitle: 'Identify single-point-of-failure component ownership & trigger cross-training tasks',
+    avgBusFactor: 'Avg Bus Factor',
+    engPerComp: 'Eng/Comp',
+    singleOwnerSilos: 'Single-Owner Silos (Bus Factor = 1)',
+    siloRiskWarning: 'High risk of project delay if key owners are unavailable.',
+    siloRiskOk: 'Healthy knowledge distribution across all subsystem components.',
+    triggerKnowledgeTransfer: 'Trigger Cross-Training Task'
   },
 
   ko: {
@@ -729,7 +770,48 @@ export const translations: Record<Language, Record<string, string>> = {
     copied: '복사됨!',
     copyMarkdown: '마크다운 복사',
     close: '닫기',
-    exportRetro: '요약 내보내기 (.md)'
+    exportRetro: '요약 내보내기 (.md)',
+
+    // Sprint Insights - Risk Matrix, Team Health, SLA, Knowledge Silo
+    sprintRiskTitle: 'AI 다차원 스프린트 위험 매트릭스',
+    sprintRiskSubtitle: '블로커 병목 및 미할당 작업을 분석하는 실시간 조기 경보 시스템',
+    riskScoreLabel: '위험 점수',
+    lowRisk: '낮음',
+    mediumRisk: '보통',
+    highRisk: '높음',
+    unassignedTasksTitle: '미할당 우선순위 작업',
+    unassignedHighDesc: '고우선순위 항목에 담당 개발자가 없습니다',
+    unassignedOkDesc: '모든 우선순위 항목이 담당자에게 할당됨',
+    autoAssignLead: '테크 리드에게 자동 할당',
+    blockerBottlenecksTitle: '미해결 블로커 병목',
+    blockerWarningDesc: '선행 미완료 이슈로 인해 대기 중인 작업 존재',
+    blockerOkDesc: '차단성 지연 이슈가 감지되지 않음',
+    unestimatedScopeTitle: '추정치 미입력 작업',
+    unestimatedWarningDesc: '스토리 포인트 추정치가 누락된 항목',
+    unestimatedOkDesc: '모든 작업의 스토리 포인트 추정 완료',
+
+    teamHealthTitle: 'AI 팀 건강 상태 및 번아웃 위험 진단',
+    teamHealthSubtitle: '애자일 개발 팀의 업무 밀도 및 피로도 모니터링 엔진',
+    rebalanceWorkload: '1-클릭 업무 불균형 재배치',
+    optimalBalance: '최적의 균형',
+    heavyWorkload: '업무 과중',
+    burnoutRisk: '번아웃 위험',
+
+    slaTitle: '엔터프라이즈 SLA 및 평균 해결 시간(MTTR) 준수 진단',
+    slaSubtitle: '서비스 수준 계약(SLA) 추적 및 평균 해결 시간 모니터링',
+    slaHealth: 'SLA 건강도',
+    withinSla: 'SLA 기준 준수',
+    slaAtRisk: 'SLA 위협 (< 6시간)',
+    autoEscalateBreached: '위반/위험 작업 긴급 승격',
+
+    knowledgeSiloTitle: '팀 지식 독점(Silo) 및 버스 팩터(Bus Factor) 진단',
+    knowledgeSiloSubtitle: '단일 장애점(SPOF) 컴포넌트를 식별하고 교차 학습 작업을 생성합니다',
+    avgBusFactor: '평균 버스 팩터',
+    engPerComp: '엔지니어/모듈',
+    singleOwnerSilos: '단일 소유자 독점 모듈 (Bus Factor = 1)',
+    siloRiskWarning: '핵심 담당자 부재 시 프로젝트 지연 위험이 높습니다.',
+    siloRiskOk: '모든 서브시스템 컴포넌트에 지식이 고르게 공유되고 있습니다.',
+    triggerKnowledgeTransfer: '지식 공유 짝 프로그래밍 생성'
   },
 
   ja: {
@@ -1014,7 +1096,48 @@ export const translations: Record<Language, Record<string, string>> = {
     enabled: '有効',
     disabled: '無効',
     liveExecutionLogs: 'リアルタイム実行監査ログ',
-    targetIssue: '対象課題'
+    targetIssue: '対象課題',
+
+    // Sprint Insights - Risk Matrix, Team Health, SLA, Knowledge Silo
+    sprintRiskTitle: 'AI多要素スプリントリスクマトリックス',
+    sprintRiskSubtitle: 'ブロッカーのボトルネックと未割り当てワークロードをリアルタイム分析する早期警戒システム',
+    riskScoreLabel: 'リスクスコア',
+    lowRisk: '低リスク',
+    mediumRisk: '中リスク',
+    highRisk: '高リスク',
+    unassignedTasksTitle: '未割り当て優先タスク',
+    unassignedHighDesc: '優先度の高い項目に担当者がアサインされていません',
+    unassignedOkDesc: 'すべての優先項目がアサイン済みです',
+    autoAssignLead: 'テックリードに自動割り当て',
+    blockerBottlenecksTitle: '未解決のブロッカーボトルネック',
+    blockerWarningDesc: '前提の未完了タスク待ちの項目があります',
+    blockerOkDesc: 'ブロッカーによる遅延は検出されませんでした',
+    unestimatedScopeTitle: '見積もり未入力のスコープ',
+    unestimatedWarningDesc: 'ストーリーポイントの見積もりが欠落しています',
+    unestimatedOkDesc: 'すべての項目が見積もり済みです',
+
+    teamHealthTitle: 'AIチームヘルス＆バーンアウト診断',
+    teamHealthSubtitle: 'アジャイルチームのワークロード密度および疲労度モニタリング',
+    rebalanceWorkload: '1-クリック ワークロード再配分',
+    optimalBalance: '最適なバランス',
+    heavyWorkload: '高負荷',
+    burnoutRisk: 'バーンアウトのリスク',
+
+    slaTitle: 'エンタープライズ SLA＆MTTR 遵守診断',
+    slaSubtitle: 'サービスレベル合意(SLA)追跡および平均解決時間モニタリング',
+    slaHealth: 'SLA 健全度',
+    withinSla: 'SLA 閾値内',
+    slaAtRisk: 'SLA リスクあり (< 6時間)',
+    autoEscalateBreached: '違反・リスクタスクの緊急昇格',
+
+    knowledgeSiloTitle: 'チームナレッジサイロ＆バスファクター診断',
+    knowledgeSiloSubtitle: '単一障害点（SPOF）モジュールを特定し、クロス・トレーニングタスクを生成します',
+    avgBusFactor: '平均バスファクター',
+    engPerComp: 'エンジニア/モジュール',
+    singleOwnerSilos: '単一所有者サイロ (Bus Factor = 1)',
+    siloRiskWarning: '主要担当者の離脱時にプロジェクト遅延のリスクが高まります。',
+    siloRiskOk: 'すべてのサブシステムで健全に知識が共有されています。',
+    triggerKnowledgeTransfer: 'クロス・トレーニングタスクを生成'
   },
 
   zh: {
@@ -1299,6 +1422,47 @@ export const translations: Record<Language, Record<string, string>> = {
     enabled: '已启用',
     disabled: '已禁用',
     liveExecutionLogs: '实时执行审计日志',
-    targetIssue: '目标事项'
+    targetIssue: '目标事项',
+
+    // Sprint Insights - Risk Matrix, Team Health, SLA, Knowledge Silo
+    sprintRiskTitle: 'AI多要素迭代风险矩阵',
+    sprintRiskSubtitle: '实时预警系统，分析阻塞瓶颈与未分配工作量',
+    riskScoreLabel: '风险得分',
+    lowRisk: '低风险',
+    mediumRisk: '中风险',
+    highRisk: '高风险',
+    unassignedTasksTitle: '未分配高优先级任务',
+    unassignedHighDesc: '高优先级项目缺少分配的开发者',
+    unassignedOkDesc: '所有高优先级项目均已分配',
+    autoAssignLead: '自动分配给技术负责人',
+    blockerBottlenecksTitle: '未解决的阻塞瓶颈',
+    blockerWarningDesc: '存在等待未完成前置事项的任务',
+    blockerOkDesc: '未检测到阻塞延迟',
+    unestimatedScopeTitle: '未估算工作量项目',
+    unestimatedWarningDesc: '缺少故事点估算的项目',
+    unestimatedOkDesc: '所有项目均已准确估算',
+
+    teamHealthTitle: 'AI团队健康度与倦怠诊断',
+    teamHealthSubtitle: '敏捷工程团队的工作量密度与疲劳度监控引擎',
+    rebalanceWorkload: '1键工作量重新平衡',
+    optimalBalance: '最佳平衡',
+    heavyWorkload: '工作量较重',
+    burnoutRisk: '倦怠风险',
+
+    slaTitle: '企业级 SLA 与 MTTR 合规性诊断',
+    slaSubtitle: '服务级别协议(SLA)跟踪与平均解决时间监控',
+    slaHealth: 'SLA 健康度',
+    withinSla: '在 SLA 阈值范围内',
+    slaAtRisk: 'SLA 存在风险 (< 6小时)',
+    autoEscalateBreached: '自动升级违约与高风险任务',
+
+    knowledgeSiloTitle: '团队知识孤岛与总监风险诊断',
+    knowledgeSiloSubtitle: '识别单点故障组件归属并触发交叉培训任务',
+    avgBusFactor: '平均 Bus Factor',
+    engPerComp: '工程师/模块',
+    singleOwnerSilos: '单人掌控模块 (Bus Factor = 1)',
+    siloRiskWarning: '关键负责人不可用时存在项目延迟的高风险。',
+    siloRiskOk: '所有子系统组件均拥有健康的技术知识共享。',
+    triggerKnowledgeTransfer: '触发交叉培训任务'
   }
 };

@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconCheckCircle, IconZap } from './Icons';
+import { IconCheckCircle, IconZap, IconBrain, IconUsers } from './Icons';
 
 export const KnowledgeSiloCard: React.FC = () => {
-  const { issues, users, createIssue } = useAether();
+  const { issues, users, createIssue, t } = useAether();
   const [createdTask, setCreatedTask] = useState<string | null>(null);
 
   // Analyze component ownership distribution among team members
@@ -76,28 +76,28 @@ export const KnowledgeSiloCard: React.FC = () => {
   return (
     <div className="analytics-card silo-card">
       <div className="card-header-row">
-        <div>
-          <h3 className="card-title">🧠 Team Knowledge Silo & Bus Factor Diagnostics</h3>
-          <p className="card-subtitle">
-            Identify single-point-of-failure component ownership & trigger cross-training tasks
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <IconBrain size={22} color="#8b5cf6" />
+          <div>
+            <h3 className="card-title">{t('knowledgeSiloTitle')}</h3>
+            <p className="card-subtitle">{t('knowledgeSiloSubtitle')}</p>
+          </div>
         </div>
         <div className="bus-factor-badge">
-          <span>Avg Bus Factor:</span>
-          <strong>{overallBusFactorAvg} Eng/Comp</strong>
+          <span>{t('avgBusFactor')}:</span>
+          <strong>{overallBusFactorAvg} {t('engPerComp')}</strong>
         </div>
       </div>
 
       {/* Silo Risk Overview Bar */}
       <div className="silo-summary-row">
         <div className="silo-stat-pill critical">
-          <span>🔴 Single-Owner Silos (Bus Factor = 1):</span>
-          <strong>{criticalSilosCount} Modules</strong>
+          <span className="dot" style={{ backgroundColor: '#de350b', width: 8, height: 8, borderRadius: '50%', display: 'inline-block', marginRight: 6 }}></span>
+          <span>{t('singleOwnerSilos')}:</span>
+          <strong style={{ marginLeft: 6 }}>{criticalSilosCount} {t('modules')}</strong>
         </div>
         <span className="silo-hint-text">
-          {criticalSilosCount > 0
-            ? '⚠️ High risk of project delay if key owners are unavailable.'
-            : '✅ Healthy knowledge distribution across all subsystem components.'}
+          {criticalSilosCount > 0 ? t('siloRiskWarning') : t('siloRiskOk')}
         </span>
       </div>
 
@@ -108,23 +108,24 @@ export const KnowledgeSiloCard: React.FC = () => {
             <div className="comp-card-top">
               <span className="comp-name">{d.component}</span>
               <span className={`bus-badge ${d.riskTier}`}>
+                <IconUsers size={12} style={{ marginRight: 4 }} />
                 Bus Factor: {d.busFactor}
               </span>
             </div>
 
             <div className="comp-owner-info">
               <img src={d.primaryOwner?.avatar} alt="" className="avatar-xs" />
-              <span>Primary Owner: <strong>{d.primaryOwner?.name}</strong></span>
+              <span>Owner: <strong>{d.primaryOwner?.name}</strong></span>
             </div>
 
             <div className="comp-card-footer">
-              <span className="comp-issues-count">{d.issueCount} Active Tasks</span>
+              <span className="comp-issues-count">{d.issueCount} {t('tasks')}</span>
               {d.riskTier === 'critical' && (
                 <button
                   className="btn-ghost-sm btn-kt"
                   onClick={() => handleCreateKnowledgeTransferTask(d.component, d.primaryOwner?.name || '')}
                 >
-                  <IconZap size={12} /> 1-Click Pair Train
+                  <IconZap size={12} style={{ marginRight: 4 }} /> {t('triggerKnowledgeTransfer')}
                 </button>
               )}
             </div>
@@ -134,7 +135,7 @@ export const KnowledgeSiloCard: React.FC = () => {
 
       {createdTask && (
         <div className="silo-toast animate-fade-in">
-          <IconCheckCircle size={14} color="#22c55e" /> {createdTask}
+          <IconCheckCircle size={14} color="#10b981" /> {createdTask}
         </div>
       )}
     </div>

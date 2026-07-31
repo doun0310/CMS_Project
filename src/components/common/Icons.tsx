@@ -355,13 +355,6 @@ export const IconHeartPulse: React.FC<IconProps> = ({ size = 18, color = 'curren
   </svg>
 );
 
-export const IconClock: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <circle cx="12" cy="12" r="9" fill={color} fillOpacity="0.15" />
-    <polyline points="12 7 12 12 15 15" />
-  </svg>
-);
-
 export const IconBrain: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M9.5 2a4.5 4.5 0 0 1 4.5 4.5V7a2.5 2.5 0 0 1 0 5v1a2.5 2.5 0 0 1 0 5v.5A4.5 4.5 0 0 1 9.5 22H9a4.5 4.5 0 0 1-4.5-4.5V17a2.5 2.5 0 0 1 0-5v-1a2.5 2.5 0 0 1 0-5V6.5A4.5 4.5 0 0 1 9 2h.5Z" fill={color} fillOpacity="0.1" />

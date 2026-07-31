@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconCheckCircle, IconZap } from './Icons';
+import { IconCheckCircle, IconZap, IconClock } from './Icons';
 
 export const SlaAnalyticsCard: React.FC = () => {
-  const { issues, updateIssue } = useAether();
+  const { issues, updateIssue, t } = useAether();
   const [escalated, setEscalated] = useState(false);
 
   // SLA Threshold rules (in hours) based on priority
@@ -69,14 +69,15 @@ export const SlaAnalyticsCard: React.FC = () => {
   return (
     <div className="analytics-card sla-card">
       <div className="card-header-row">
-        <div>
-          <h3 className="card-title">⏱️ Enterprise SLA & MTTR Compliance Diagnostics</h3>
-          <p className="card-subtitle">
-            Service Level Agreement tracking & Mean Time To Resolution (MTTR) monitoring
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <IconClock size={22} color="#3b82f6" />
+          <div>
+            <h3 className="card-title">{t('slaTitle')}</h3>
+            <p className="card-subtitle">{t('slaSubtitle')}</p>
+          </div>
         </div>
         <div className="sla-compliance-badge">
-          <span>SLA Health:</span>
+          <span>{t('slaHealth')}:</span>
           <strong>{slaCompliancePct}%</strong>
         </div>
       </div>
@@ -85,15 +86,15 @@ export const SlaAnalyticsCard: React.FC = () => {
       <div className="sla-summary-grid">
         <div className="sla-metric-box ok">
           <span className="sla-metric-val">{okCount}</span>
-          <span className="sla-metric-label">🟢 Within SLA Threshold</span>
+          <span className="sla-metric-label">{t('withinSla')}</span>
         </div>
         <div className="sla-metric-box at-risk">
           <span className="sla-metric-val">{atRiskCount}</span>
-          <span className="sla-metric-label">🟡 SLA At-Risk (&lt; 6h)</span>
+          <span className="sla-metric-label">{t('slaAtRisk')}</span>
         </div>
         <div className="sla-metric-box breached">
           <span className="sla-metric-val">{breachedCount}</span>
-          <span className="sla-metric-label">🔴 SLA Breached</span>
+          <span className="sla-metric-label">{t('slaBreached')}</span>
         </div>
       </div>
 
@@ -102,12 +103,12 @@ export const SlaAnalyticsCard: React.FC = () => {
         <table className="sla-table">
           <thead>
             <tr>
-              <th>Issue Key</th>
+              <th>{t('issueKey')}</th>
               <th>Summary</th>
               <th>Priority</th>
               <th>Elapsed</th>
               <th>SLA Limit</th>
-              <th>SLA Status</th>
+              <th>{t('status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -123,9 +124,24 @@ export const SlaAnalyticsCard: React.FC = () => {
                 <td>{d.elapsedHours}h</td>
                 <td>{d.maxAllowedHours}h</td>
                 <td>
-                  {d.status === 'ok' && <span className="sla-status ok">🟢 OK</span>}
-                  {d.status === 'at_risk' && <span className="sla-status at-risk">🟡 {d.hoursRemaining}h left</span>}
-                  {d.status === 'breached' && <span className="sla-status breached">🔴 Breached</span>}
+                  {d.status === 'ok' && (
+                    <span className="sla-status ok">
+                      <span className="dot" style={{ backgroundColor: '#10b981', width: 6, height: 6, borderRadius: '50%', display: 'inline-block', marginRight: 5 }}></span>
+                      {t('withinSla')}
+                    </span>
+                  )}
+                  {d.status === 'at_risk' && (
+                    <span className="sla-status at-risk">
+                      <span className="dot" style={{ backgroundColor: '#f59e0b', width: 6, height: 6, borderRadius: '50%', display: 'inline-block', marginRight: 5 }}></span>
+                      {d.hoursRemaining}h left
+                    </span>
+                  )}
+                  {d.status === 'breached' && (
+                    <span className="sla-status breached">
+                      <span className="dot" style={{ backgroundColor: '#de350b', width: 6, height: 6, borderRadius: '50%', display: 'inline-block', marginRight: 5 }}></span>
+                      {t('slaBreached')}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}
@@ -137,8 +153,8 @@ export const SlaAnalyticsCard: React.FC = () => {
       <div className="sla-action-footer">
         <span className="sla-hint">
           {breachedCount + atRiskCount > 0
-            ? `⚠️ ${breachedCount + atRiskCount} issues require immediate escalation to prevent breach.`
-            : '✅ All active issues are currently well within SLA limits.'}
+            ? `${breachedCount + atRiskCount} ${t('needsAttention')}`
+            : t('siloRiskOk')}
         </span>
         <button
           className="btn-primary-sm"
@@ -147,11 +163,11 @@ export const SlaAnalyticsCard: React.FC = () => {
         >
           {escalated ? (
             <>
-              <IconCheckCircle size={14} /> Escalated to Highest Priority!
+              <IconCheckCircle size={14} /> {t('copied')}
             </>
           ) : (
             <>
-              <IconZap size={14} /> ⚡ Auto-Escalate At-Risk Issues
+              <IconZap size={14} style={{ marginRight: 4 }} /> {t('autoEscalateBreached')}
             </>
           )}
         </button>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconCheckCircle } from './Icons';
+import { IconCheckCircle, IconHeartPulse, IconZap } from './Icons';
 import type { User } from '../../types/Aether';
 
 export const TeamHealthPulseCard: React.FC = () => {
-  const { users, issues, sprints, updateIssue } = useAether();
+  const { users, issues, sprints, updateIssue, t } = useAether();
   const [balancedAlert, setBalancedAlert] = useState<string | null>(null);
 
   const activeSprint = sprints.find(s => s.status === 'active');
@@ -20,17 +20,17 @@ export const TeamHealthPulseCard: React.FC = () => {
     const openCount = uIssues.filter(i => i.status !== 'done').length;
 
     let healthState: 'OPTIMAL' | 'MODERATE' | 'BURNOUT' = 'OPTIMAL';
-    let badgeColor = '#22c55e';
-    let labelText = '🟢 Optimal Balance';
+    let badgeColor = '#10b981';
+    let labelText = t('optimalBalance');
 
     if (assignedPts > 15 || openCount > 5) {
       healthState = 'BURNOUT';
       badgeColor = '#de350b';
-      labelText = '🔴 Burnout Risk';
+      labelText = t('burnoutRisk');
     } else if (assignedPts > 10 || openCount > 3) {
       healthState = 'MODERATE';
       badgeColor = '#ffab00';
-      labelText = '🟡 Heavy Workload';
+      labelText = t('heavyWorkload');
     }
 
     return {
@@ -56,7 +56,7 @@ export const TeamHealthPulseCard: React.FC = () => {
 
     if (taskToMove) {
       updateIssue(taskToMove.id, { assigneeId: targetMember.user.id });
-      setBalancedAlert(`Reallocated [${taskToMove.key}] from ${overloaded.user.name} to ${targetMember.user.name} for workload health!`);
+      setBalancedAlert(`Reallocated [${taskToMove.key}] from ${overloaded.user.name} to ${targetMember.user.name}!`);
       setTimeout(() => setBalancedAlert(null), 4000);
     }
   };
@@ -65,23 +65,26 @@ export const TeamHealthPulseCard: React.FC = () => {
     <div className="team-health-pulse-card animate-fade-in">
       <div className="card-header-row">
         <div className="title-area">
-          <span className="card-icon">🩺</span>
+          <span className="card-icon">
+            <IconHeartPulse size={22} color="#ec4899" />
+          </span>
           <div>
-            <h3>AI Team Health Pulse & Burnout Risk Diagnostics</h3>
-            <p>Workload density & fatigue monitoring engine for agile engineering teams</p>
+            <h3>{t('teamHealthTitle')}</h3>
+            <p>{t('teamHealthSubtitle')}</p>
           </div>
         </div>
 
         {overloadedMembers.length > 0 && lightMembers.length > 0 && (
           <button className="btn-primary-sm" onClick={handle1ClickRedistribute}>
-            ⚡ 1-Click Workload Rebalancer
+            <IconZap size={14} color="#ffffff" style={{ marginRight: 4 }} />
+            {t('rebalanceWorkload')}
           </button>
         )}
       </div>
 
       {balancedAlert && (
         <div className="mitigation-alert-banner animate-fade-in">
-          <IconCheckCircle size={16} /> {balancedAlert}
+          <IconCheckCircle size={16} color="#10b981" /> {balancedAlert}
         </div>
       )}
 
@@ -95,22 +98,23 @@ export const TeamHealthPulseCard: React.FC = () => {
                 <span className="member-role">{item.user.role}</span>
               </div>
               <span className="health-state-badge" style={{ color: item.badgeColor, borderColor: item.badgeColor }}>
+                <span className="dot" style={{ backgroundColor: item.badgeColor, width: 6, height: 6, borderRadius: '50%', display: 'inline-block', marginRight: 5 }}></span>
                 {item.labelText}
               </span>
             </div>
 
             <div className="member-stats-row">
               <div className="m-stat">
-                <span className="m-label">Assigned Points</span>
-                <span className="m-val">{item.assignedPts} pts</span>
+                <span className="m-label">{t('totalPoints')}</span>
+                <span className="m-val">{item.assignedPts} {t('pointsShort')}</span>
               </div>
               <div className="m-stat">
-                <span className="m-label">Open Tasks</span>
-                <span className="m-val">{item.openCount} items</span>
+                <span className="m-label">{t('assignedTasks')}</span>
+                <span className="m-val">{item.openCount} {t('tasks')}</span>
               </div>
               <div className="m-stat">
-                <span className="m-label">Completed</span>
-                <span className="m-val green">{item.donePts} pts</span>
+                <span className="m-label">{t('donePoints')}</span>
+                <span className="m-val green">{item.donePts} {t('pointsShort')}</span>
               </div>
             </div>
           </div>
