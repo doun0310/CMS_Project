@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import { useAether } from '../../context/AetherContextValue';
-import type { User } from '../../types/Aether';
+import { PROJECT_ROLES, type ProjectRole, type User } from '../../types/Aether';
 import { IconX, IconCheckCircle, IconAlertTriangle } from '../common/Icons';
 
 interface AuthModalProps {
@@ -14,6 +14,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     isAuthLoading,
     currentUser,
     addSignedInAccount,
+    signedInAccounts,
+    updateAccountProjectRole,
     users,
     t
   } = useAether();
@@ -22,19 +24,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [projectRole, setProjectRole] = useState<ProjectRole>('Project Member');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSignIn = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
 
     setLoading(true);
     try {
+      if (isSupabaseConfigured && mode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { name: name.trim(), project_role: projectRole } }
+        });
+        if (error) throw error;
+
+        if (data.session && data.user) {
+          addSignedInAccount({
+            id: data.user.id,
+            name: name.trim() || email.split('@')[0],
+            email: data.user.email || email,
+            avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
+            projectRole,
+            role: 'Team Member'
+          });
+        }
+        setSuccessMsg(data.session ? '계정이 생성되어 로그인되었습니다.' : '계정이 생성되었습니다. 이메일 인증 후 로그인해 주세요.');
+        return;
+      }
+
       if (isSupabaseConfigured) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -51,6 +76,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             name: data.user.user_metadata?.name || email.split('@')[0],
             email: data.user.email || email,
             avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
+            projectRole: data.user.user_metadata?.project_role as ProjectRole || 'Project Member',
             role: 'Enterprise Member'
           };
           addSignedInAccount(newAcc);
@@ -66,6 +92,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         name: name.trim() || email.split('@')[0] || 'Team Member',
         email: email.trim() || 'user@aetherpulse.io',
         avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
+        projectRole,
         role: 'Agile Team Member'
       };
       addSignedInAccount(newAcc);
@@ -198,7 +225,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              <form onSubmit={handleSignIn} className="auth-form">
+              <form onSubmit={handleAuth} className="auth-form">
                 {mode === 'signup' && (
                   <div className="auth-form-group">
                     <label>Full Name</label>
@@ -209,6 +236,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setName(e.target.value)}
                       required
                     />
+                  </div>
+                )}
+
+                {mode === 'signup' && (
+                  <div className="auth-form-group">
+                    <label>프로젝트 권한</label>
+                    <select value={projectRole} onChange={(e) => setProjectRole(e.target.value as ProjectRole)}>
+                      {PROJECT_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}
+                    </select>
                   </div>
                 )}
 
@@ -238,6 +274,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   {loading ? 'Authenticating...' : mode === 'signin' ? 'Sign In & Add Account' : 'Register & Add Account'}
                 </button>
               </form>
+
+              <section className="account-role-section" aria-label="프로젝트 권한 관리">
+                <div className="account-role-heading">
+                  <strong>계정별 프로젝트 권한</strong>
+                  <p>직무와 별도로 프로젝트에서 수행할 수 있는 범위를 정합니다.</p>
+                </div>
+                <div className="account-role-list">
+                  {signedInAccounts.map((account) => (
+                    <div className="account-role-row" key={account.id}>
+                      <img src={account.avatar} alt="" />
+                      <div className="account-role-user">
+                        <strong>{account.name}</strong>
+                        <span>{account.email}</span>
+                      </div>
+                      <select
+                        aria-label={`${account.name} 프로젝트 권한`}
+                        value={account.projectRole || 'Project Member'}
+                        onChange={async (e) => {
+                          const saved = await updateAccountProjectRole(account.id, e.target.value as ProjectRole);
+                          if (saved) setSuccessMsg(`${account.name}의 프로젝트 권한을 저장했습니다.`);
+                        }}
+                      >
+                        {PROJECT_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
               {/* Demo Quick Account Switcher */}
               <div className="demo-users-section">

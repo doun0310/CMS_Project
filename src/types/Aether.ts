@@ -4,11 +4,16 @@ export type IssueStatus = 'todo' | 'in_progress' | 'in_review' | 'done';
 
 export type Priority = 'highest' | 'high' | 'medium' | 'low' | 'lowest';
 
+export const PROJECT_ROLES = ['Project Owner', 'Project Admin', 'Project Member', 'Viewer'] as const;
+export type ProjectRole = typeof PROJECT_ROLES[number];
+
 export interface User {
   id: string;
   name: string;
   email: string;
   avatar: string;
+  /** Project permission, kept separate from the person's job title. */
+  projectRole?: ProjectRole;
   role: string;
 }
 

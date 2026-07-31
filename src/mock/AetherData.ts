@@ -6,6 +6,7 @@ export const initialUsers: User[] = [
     name: '김민수 (Min-su Kim)',
     email: 'minsu.kim@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    projectRole: 'Project Owner',
     role: 'Product Owner'
   },
   {
@@ -13,6 +14,7 @@ export const initialUsers: User[] = [
     name: 'Sarah Connor',
     email: 'sarah.c@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    projectRole: 'Project Admin',
     role: 'Senior Backend Architect'
   },
   {
@@ -20,6 +22,7 @@ export const initialUsers: User[] = [
     name: 'Alex Rivera',
     email: 'alex.rivera@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    projectRole: 'Project Member',
     role: 'Frontend Lead'
   },
   {
@@ -27,6 +30,7 @@ export const initialUsers: User[] = [
     name: 'Elena Rostova',
     email: 'elena.r@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    projectRole: 'Project Member',
     role: 'DevOps & Site Reliability'
   },
   {
@@ -34,6 +38,7 @@ export const initialUsers: User[] = [
     name: '박다윗 (David Park)',
     email: 'david.park@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    projectRole: 'Viewer',
     role: 'QA & Automation Engineer'
   }
 ];
@@ -611,4 +616,3 @@ export const initialAutomationAuditLogs = [
     status: 'SUCCESS' as const
   }
 ];
-

@@ -175,6 +175,9 @@ export const KanbanBoard: React.FC = () => {
   });
 
   const allLabels = Array.from(new Set(issues.flatMap(i => i.labels || [])));
+  // Keep every tag available until a choice is made. Once selected, the bar becomes
+  // compact and keeps only the active tag plus the clear action visible.
+  const visibleLabels = selectedLabel ? allLabels.filter(label => label === selectedLabel) : allLabels;
 
   const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
     { status: 'todo', title: t('todo'), color: '#94a3b8' },
@@ -353,7 +356,7 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Tag Filter Pills Bar */}
-      <div className="tag-filter-pills-bar">
+      <div className={`tag-filter-pills-bar ${selectedLabel ? 'has-selected-tag' : ''}`}>
         <span className="filter-label">{t('filterByTag')}</span>
         <div className="tag-filter-list">
           <button
@@ -363,7 +366,7 @@ export const KanbanBoard: React.FC = () => {
           >
             {t('groupNone')}
           </button>
-          {allLabels.map(lbl => (
+          {visibleLabels.map(lbl => (
             <button
               key={lbl}
               className={`tag-pill ${selectedLabel === lbl ? 'active' : ''}`}

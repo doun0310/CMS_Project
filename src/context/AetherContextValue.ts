@@ -75,6 +75,7 @@ export interface AetherContextValue {
   signedInAccounts: User[];
   switchAccount: (account: User) => void;
   addSignedInAccount: (account: User) => void;
+  updateAccountProjectRole: (accountId: string, projectRole: User['projectRole']) => Promise<boolean>;
   removeAccount: (accountId: string) => void;
   signOutAllAccounts: () => void;
 

@@ -8,6 +8,7 @@ import type {
   AppNotification,
   IssueType,
   Priority,
+  ProjectRole,
   Project,
   RetrospectiveItem,
   User,
@@ -74,6 +75,9 @@ const isPriority = (value: unknown): value is Priority =>
 const isLanguage = (value: unknown): value is Language =>
   value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
 
+const isProjectRole = (value: unknown): value is ProjectRole =>
+  value === 'Project Owner' || value === 'Project Admin' || value === 'Project Member' || value === 'Viewer';
+
 const toWorkspaceUser = (user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): User => ({
   id: user.id,
   name: typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : user.email?.split('@')[0] || 'User',
@@ -81,6 +85,9 @@ const toWorkspaceUser = (user: { id: string; email?: string; user_metadata?: Rec
   avatar: typeof user.user_metadata?.avatar_url === 'string'
     ? user.user_metadata.avatar_url
     : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+  projectRole: isProjectRole(user.user_metadata?.project_role)
+    ? user.user_metadata.project_role
+    : 'Project Member',
   role: typeof user.user_metadata?.role === 'string' ? user.user_metadata.role : 'Team Member',
 });
 
@@ -293,6 +300,35 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     });
 
     switchAccount(account);
+  };
+
+  const updateAccountProjectRole = async (accountId: string, projectRole: User['projectRole']): Promise<boolean> => {
+    if (!projectRole || !isProjectRole(projectRole)) return false;
+    const applyRole = (account: User) => account.id === accountId ? { ...account, projectRole } : account;
+
+    // Supabase Auth metadata is changed only for the active authenticated account.
+    // Roles for other workspace accounts remain stored with this workspace.
+    if (authUser?.id === accountId && isSupabaseConfigured) {
+      const { error } = await supabase.auth.updateUser({ data: { project_role: projectRole } });
+      if (error) {
+        addNotification({ kind: 'system', title: '권한 저장 실패', text: error.message });
+        return false;
+      }
+    }
+
+    setSignedInAccounts(prev => {
+      const updated = prev.map(applyRole);
+      try {
+        localStorage.setItem('aether_signed_in_accounts', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    setUsers(prev => prev.map(applyRole));
+    setCurrentUser(prev => applyRole(prev));
+    setAuthUser(prev => prev ? applyRole(prev) : null);
+
+    addNotification({ kind: 'system', title: '프로젝트 권한 변경', text: `프로젝트 권한이 ${projectRole}(으)로 변경되었습니다.` });
+    return true;
   };
 
   const removeAccount = (accountId: string) => {
@@ -692,6 +728,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         signedInAccounts,
         switchAccount,
         addSignedInAccount,
+        updateAccountProjectRole,
         removeAccount,
         signOutAllAccounts,
         selectedIssueId,

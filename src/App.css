@@ -9884,13 +9884,39 @@ input:checked + .slider:before {
   color: var(--text-secondary);
 }
 
-.auth-form-group input {
+.auth-form-group input,
+.auth-form-group select,
+.account-role-row select {
   padding: 10px 12px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.85rem;
+}
+
+.account-role-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.account-role-heading strong { font-size: 0.82rem; color: var(--text-primary); }
+.account-role-heading p { margin: 3px 0 0; font-size: 0.73rem; color: var(--text-tertiary); }
+.account-role-list { display: flex; flex-direction: column; gap: 7px; max-height: 194px; overflow-y: auto; }
+.account-role-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) minmax(122px, auto); align-items: center; gap: 9px; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); }
+.account-role-row img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.account-role-user { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.account-role-user strong, .account-role-user span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-role-user strong { font-size: 0.76rem; color: var(--text-primary); }
+.account-role-user span { font-size: 0.68rem; color: var(--text-tertiary); }
+.account-role-row select { padding: 7px 8px; font-size: 0.73rem; }
+
+@media (max-width: 480px) {
+  .account-role-row { grid-template-columns: 26px minmax(0, 1fr); }
+  .account-role-row select { grid-column: 2; width: 100%; }
 }
 
 .auth-submit-btn {
