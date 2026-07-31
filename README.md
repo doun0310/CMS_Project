@@ -1,69 +1,66 @@
-# AetherPulse - Next-Gen AI-Powered Smart Agile Workspace
+# AetherPulse
 
-> **AetherPulse**는 인공지능(AI) 기반의 차세대 스마트 애자일 프로젝트 관리 워크스페이스입니다.  
-> Atlassian Aether 스타일의 직관적인 디자인, AI 코파일럿, 1-Click 워크로드 자동 재배치, 애자일 회고 보드, 컴플라이언스 및 코드 거버넌스 워크벤치를 탑재하여 팀의 생산성과 협업 효율성을 극대화합니다.
+AetherPulse는 팀 프로젝트의 할 일을 정리하고 스프린트를 관리할 수 있는 웹 애플리케이션입니다. React와 TypeScript로 만들었으며, 칸반 보드와 회고처럼 애자일 프로젝트에서 자주 쓰는 기능을 구현했습니다.
 
----
+## 한눈에 보기
 
-## 핵심 역량 및 핵심 기능 (Core Capabilities)
+- 할 일을 만들고 담당자, 우선순위, 마감일을 설정할 수 있습니다.
+- 칸반 보드에서 카드를 드래그해 `할 일 → 진행 중 → 검토 중 → 완료` 상태로 옮길 수 있습니다.
+- 백로그에 있는 일을 스프린트에 넣고, 진행 상황과 리포트를 확인할 수 있습니다.
+- 회고 내용을 기록하고, 필요한 항목은 다음 작업으로 만들 수 있습니다.
+- 다크 모드, 언어 변경, JSON 백업과 복원을 지원합니다.
 
-### 1. AI 기반 스마트 코파일럿 & 분석 엔진 (AI Engineering & Analytics)
-- **AI Workload Auto-Balancer**: 팀원별 업무 과부하(Story Points) 감지 및 1-Click 최적 업무 재배치.
-- **AI Tech Debt & Code Governance**: Security, Performance, Testing, Code Smells 4대 부채 스캔 및 1-Click 리팩토링 태스크 생성.
-- **AI Dependency Graph & Blast Radius**: 상류/하류 서비스 및 티켓 영향 범위 시각화 (Blast Radius Index).
-- **AI Monte Carlo Forecaster**: 1,000회 통계 시뮬레이션을 통한 85% 고신뢰 목표 동기화.
-- **SRE Post-Mortem & Auto-Triage**: 5-Whys 근본 원인 체인 분석 및 이슈 라벨/우선순위 자동 분류.
+## 데이터는 어디에 저장되나요?
 
-### 2. 고도화된 애자일 프로젝트 관리 (Agile Project Management)
-- **Interactive Kanban & Backlog**: 드래그 앤 드롭, 컬럼 접기, WIP Limit 과부하 경고 엔진.
-- **Timeline Roadmap & Epic Tracking**: 에픽 마일스톤 및 Critical Path 병목 감지.
-- **Sprint Retrospective & Action Kanban**: 3컬럼 회고 보드 및 회고 액션 전용 칸반 보드 (Action Execution Rate 추적).
-- **Executive Portfolio View**: 다중 프로젝트 헬스 대시보드 및 전사 리소스 할당 히트맵.
+처음에는 예시 데이터로 실행됩니다. 별도 설정을 하지 않아도 사용할 수 있으며, 변경한 내용은 현재 브라우저에 저장됩니다.
 
-### 3. 엔터프라이즈 거버넌스 & 컴플라이언스 (Enterprise Governance & Compliance)
-- **Enterprise Regulatory Compliance Matrix**: SOC2, GDPR, ISO 27001, HIPAA 4대 보안 표준 감사 점수 측정 및 공식 감사 인증서 추출.
-- **Release Go / No-Go Decision Gate**: 4대 이해관계자 서명 팩 및 프로덕션 배포 승인 워크플로우.
-- **Cross-Team Skill Matrix**: 4대 분야 기술 숙련도 평가 및 최적 담당자 1-Click 배정.
-- **Capacity & Holiday Calendar**: 팀 가용 용량(Net Capacity) 및 휴가/PTO 통합 관리.
+Supabase를 연결하면 로그인과 이슈·회고 데이터 저장 기능을 사용할 수 있습니다. 연결하지 않은 경우에는 다른 브라우저나 기기에서 데이터가 공유되지 않습니다.
 
----
+## AI 기능
 
-## 기술 스택 (Tech Stack)
+이슈의 예상 난이도, 스프린트 상태, 작업량 분배, 데일리 스탠드업 기능은 입력된 데이터를 기준으로 계산해 주는 보조 기능입니다.
 
-| 구분 | 기술 / 라이브러리 |
-| :--- | :--- |
-| **Core Framework** | React 19, TypeScript, Vite |
-| **Backend & DB** | Supabase (PostgreSQL, Auth, Realtime WebSockets, RLS Security) |
-| **Styling** | Vanilla CSS (CSS Custom Properties & Design Tokens), Dark/Light Theme System |
-| **State & Modal** | React Context API, Centralized Lazy ModalManager (`React.lazy` / `Suspense`) |
-| **Data Persistence** | Supabase DB, LocalStorage API Fallback, Custom JSON Import/Export |
-| **Lint & Quality** | TypeScript Compiler (`tsc -b`), React ErrorBoundary System |
+회고 분석에는 OpenAI API를 선택적으로 연결할 수 있습니다. 설정하지 않아도 간단한 로컬 분석 결과를 확인할 수 있습니다.
 
----
+> GitHub, Slack 등 외부 서비스 이름이 보이는 일부 메뉴는 화면과 동작 방식을 보여 주기 위한 데모입니다. 실제 외부 서비스 연동 서버는 포함되어 있지 않습니다.
 
-## 빠른 시작 (Getting Started)
+## 실행 방법
 
-### 1. 의존성 설치
+Node.js와 npm이 설치되어 있다면 아래 명령어로 실행할 수 있습니다.
+
 ```bash
+git clone https://github.com/doun0310/CMS_Project.git
+cd CMS_Project
 npm install
+npm run dev
 ```
 
-### 2. Supabase 환경변수 설정
-`.env` 파일에 발급받은 Supabase 프로젝트 URL 및 Anon Key를 설정합니다:
+실행 후 터미널에 표시된 로컬 주소를 브라우저에서 열면 됩니다.
+
+```bash
+npm run build    # 빌드
+npm run lint     # 코드 검사
+npm run preview  # 빌드 결과 확인
+```
+
+## 사용 기술
+
+| 구분 | 기술 |
+| --- | --- |
+| 프런트엔드 | React, TypeScript, Vite |
+| 상태 관리 | React Context, Custom Hooks |
+| 스타일 | CSS |
+| 선택적 백엔드 | Supabase |
+
+## Supabase 연결하기 (선택)
+
+1. Supabase에서 프로젝트를 만듭니다.
+2. `supabase_schema.sql` 파일을 Supabase SQL Editor에서 실행합니다.
+3. `.env.example`을 참고해 `.env` 파일을 만들고 아래 값을 입력합니다.
+
 ```env
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-### 3. Supabase DB 스키마 생성
-프로젝트 루트의 [`supabase_schema.sql`](file:///Users/jhrsoft/Downloads/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%ED%85%8C%EC%8A%A4%ED%8A%B8/supabase_schema.sql) 스크립트 내용을 복사하여 Supabase Dashboard의 **SQL Editor**에 붙여넣고 실행합니다.
-
-### 4. 개발 서버 실행
-```bash
-npm run dev
-```
-
-### 5. 프로덕션 빌드 및 검증
-```bash
-npm run build
-```
+OpenAI를 이용한 회고 분석까지 사용하려면 `supabase/README.md`의 Edge Function 설정 방법을 참고하세요. API 키나 서비스 역할 키처럼 민감한 값은 `.env`에 넣거나 GitHub에 올리면 안 됩니다.
