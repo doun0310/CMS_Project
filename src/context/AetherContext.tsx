@@ -53,6 +53,7 @@ const PREVIOUS_STORAGE_KEY = 'JIRA_VERSE_APP_DATA_V1';
 import type { IssueStatus } from '../types/Aether';
 
 interface PersistedState {
+  users?: User[];
   projects?: Project[];
   currentProjectId?: string;
   issues?: Issue[];
@@ -208,6 +209,7 @@ const readPersistedState = (): PersistedState => {
 
     const data = parsed as Record<string, unknown>;
     return {
+      users: Array.isArray(data.users) ? data.users as User[] : undefined,
       projects: normalizeProjectCollection(data.projects),
       currentProjectId: typeof data.currentProjectId === 'string' ? data.currentProjectId : undefined,
       issues: normalizeIssueCollection(data.issues, initialIssues),
@@ -261,38 +263,40 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [currentProject, setCurrentProject] = useState<Project>(
     initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
   );
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(() => {
+    const raw: User[] = persistedState.users ?? initialUsers;
+    return raw.map(u => u.id === 'u1' ? { ...u, projectRole: 'Project Owner', role: 'Project Owner' } : u);
+  });
 
   const [signedInAccounts, setSignedInAccounts] = useState<User[]>(() => {
+    let list: User[] = [];
     try {
       const saved = localStorage.getItem('aether_signed_in_accounts');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((acc: User) => {
-            const match = initialUsers.find(u => u.id === acc.id || u.email === acc.email);
-            const roleVal = match?.projectRole || acc.projectRole || 'Project Member';
-            return {
-              ...acc,
-              projectRole: roleVal,
-              role: roleVal
-            };
-          });
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
       }
     } catch {}
-    return [initialUsers[0], initialUsers[2], initialUsers[3]];
+    if (list.length === 0) {
+      const baseUsers = persistedState.users ?? initialUsers;
+      list = [baseUsers[0], baseUsers[2], baseUsers[3]];
+    }
+    if (!list.some(a => a.id === 'u1')) {
+      list = [initialUsers[0], ...list];
+    }
+    return list.map(u => u.id === 'u1' ? { ...u, projectRole: 'Project Owner', role: 'Project Owner' } : u);
   });
 
   const [currentUser, setCurrentUser] = useState<User>(() => {
+    const baseUsers = persistedState.users ?? initialUsers;
     try {
       const savedId = localStorage.getItem('aether_active_account_id');
       if (savedId) {
-        const found = initialUsers.find(u => u.id === savedId);
-        if (found) return { ...found, role: found.projectRole || 'Project Member' };
+        const found = baseUsers.find(u => u.id === savedId);
+        if (found) return found;
       }
     } catch {}
-    return { ...initialUsers[0], role: initialUsers[0].projectRole || 'Project Member' };
+    return baseUsers[0];
   });
 
   const [authUser, setAuthUser] = useState<User | null>(null);
@@ -588,6 +592,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     try {
       const stateToSave = {
+        users,
         projects,
         currentProjectId: currentProject.id,
         issues: allIssues,
@@ -606,7 +611,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } catch (error) {
       console.error('Failed to save to local storage:', error);
     }
-  }, [projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, allRetrospectiveItems, automationAuditLogs, notifications, theme, language, accentColor]);
+  }, [users, projects, currentProject.id, allIssues, allSprints, allEpics, automationRules, allRetrospectiveItems, automationAuditLogs, notifications, theme, language, accentColor]);
 
   useEffect(() => {
     if (projects.some(project => project.id === currentProject.id)) return;

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue, Sprint, User } from '../../types/Aether';
 import { IconAiSpark, IconAnalytics, IconDownload } from '../common/Icons';
@@ -124,10 +124,64 @@ export const ReportsView: React.FC = () => {
   const chartPadding = { left: 42, right: 16, top: 18, bottom: 34 };
   const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
   const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
-  const chartX = (index: number) => chartPadding.left + (plotWidth * index) / Math.max(chartDates.length - 1, 1);
-  const chartY = (value: number) => chartPadding.top + plotHeight - (Math.min(value, maxChartValue) / maxChartValue) * plotHeight;
+  const chartX = useCallback(
+    (index: number) => chartPadding.left + (plotWidth * index) / Math.max(chartDates.length - 1, 1),
+    [chartDates.length, chartPadding.left, plotWidth]
+  );
+  const chartY = useCallback(
+    (value: number) => chartPadding.top + plotHeight - (Math.min(value, maxChartValue) / maxChartValue) * plotHeight,
+    [chartPadding.top, maxChartValue, plotHeight]
+  );
   const actualPath = burndownSeries.map((point, index) => `${index === 0 ? 'M' : 'L'} ${chartX(index)} ${chartY(point.actual)}`).join(' ');
   const idealPath = burndownSeries.map((point, index) => `${index === 0 ? 'M' : 'L'} ${chartX(index)} ${chartY(point.ideal)}`).join(' ');
+  const actualAreaPath = burndownSeries.length ? `${actualPath} L ${chartX(burndownSeries.length - 1)} ${chartY(0)} L ${chartX(0)} ${chartY(0)} Z` : '';
+
+  const cfdPoints = useMemo(() => cumulativeFlowSeries.map((point, index) => {
+    const x = chartX(index);
+    const doneVal = point.done;
+    const reviewVal = doneVal + point.inReview;
+    const progressVal = reviewVal + point.inProgress;
+    const totalVal = Math.min(maxChartValue, progressVal + point.todo);
+
+    return {
+      x,
+      y0: chartY(0),
+      yDone: chartY(doneVal),
+      yReview: chartY(reviewVal),
+      yProgress: chartY(progressVal),
+      yTotal: chartY(totalVal),
+      point
+    };
+  }), [chartX, chartY, cumulativeFlowSeries, maxChartValue]);
+
+  const cfdDoneArea = useMemo(() => {
+    if (!cfdPoints.length) return '';
+    const top = cfdPoints.map(p => `L ${p.x} ${p.yDone}`).join(' ').replace(/^L/, 'M');
+    const bottom = [...cfdPoints].reverse().map(p => `L ${p.x} ${p.y0}`).join(' ');
+    return `${top} ${bottom} Z`;
+  }, [cfdPoints]);
+
+  const cfdReviewArea = useMemo(() => {
+    if (!cfdPoints.length) return '';
+    const top = cfdPoints.map(p => `L ${p.x} ${p.yReview}`).join(' ').replace(/^L/, 'M');
+    const bottom = [...cfdPoints].reverse().map(p => `L ${p.x} ${p.yDone}`).join(' ');
+    return `${top} ${bottom} Z`;
+  }, [cfdPoints]);
+
+  const cfdProgressArea = useMemo(() => {
+    if (!cfdPoints.length) return '';
+    const top = cfdPoints.map(p => `L ${p.x} ${p.yProgress}`).join(' ').replace(/^L/, 'M');
+    const bottom = [...cfdPoints].reverse().map(p => `L ${p.x} ${p.yReview}`).join(' ');
+    return `${top} ${bottom} Z`;
+  }, [cfdPoints]);
+
+  const cfdTodoArea = useMemo(() => {
+    if (!cfdPoints.length) return '';
+    const top = cfdPoints.map(p => `L ${p.x} ${p.yTotal}`).join(' ').replace(/^L/, 'M');
+    const bottom = [...cfdPoints].reverse().map(p => `L ${p.x} ${p.yProgress}`).join(' ');
+    return `${top} ${bottom} Z`;
+  }, [cfdPoints]);
+
   const formatChartDate = (date: Date) => new Intl.DateTimeFormat(language === 'ko' ? 'ko-KR' : language, { month: 'numeric', day: 'numeric' }).format(date);
 
   // CSV Report Generator
@@ -255,20 +309,35 @@ export const ReportsView: React.FC = () => {
                   <div><span>{t('goalCompleted')}</span><strong>{completionPercentage}%</strong></div>
                 </div>
                 <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="burndown-svg" role="img" aria-label={t('burndownChart')}>
+                  <defs>
+                    <linearGradient id="burndownFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--color-in-progress, #6366f1)" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="var(--color-in-progress, #6366f1)" stopOpacity="0.0" />
+                    </linearGradient>
+                    <filter id="burndownGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-in-progress, #6366f1)" floodOpacity="0.35" />
+                    </filter>
+                  </defs>
+
                   {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
                     const value = Math.round(maxChartValue * (1 - ratio));
                     const y = chartY(value);
-                    return <g key={ratio}>
-                      <line x1={chartPadding.left} y1={y} x2={chartWidth - chartPadding.right} y2={y} className="report-chart-gridline" />
-                      <text x={chartPadding.left - 8} y={y + 4} className="report-chart-y-label">{value}</text>
-                    </g>;
+                    return (
+                      <g key={ratio}>
+                        <line x1={chartPadding.left} y1={y} x2={chartWidth - chartPadding.right} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+                        <text x={chartPadding.left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="var(--text-tertiary)">{value}</text>
+                      </g>
+                    );
                   })}
-                  <path d={idealPath} className="report-ideal-path" />
-                  <path d={actualPath} className="report-actual-path" />
+
+                  <path d={actualAreaPath} fill="url(#burndownFill)" />
+                  <path d={idealPath} stroke="rgba(148, 163, 184, 0.4)" strokeWidth="2" strokeDasharray="5 5" fill="none" />
+                  <path d={actualPath} stroke="var(--color-in-progress, #6366f1)" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" filter="url(#burndownGlow)" />
+
                   {burndownSeries.map((point, index) => (
                     <g key={point.date.toISOString()}>
-                      <circle cx={chartX(index)} cy={chartY(point.actual)} r={index === burndownSeries.length - 1 ? 4.5 : 3.5} className="report-actual-point" />
-                      <text x={chartX(index)} y={chartHeight - 10} textAnchor="middle" className="report-chart-x-label">{formatChartDate(point.date)}</text>
+                      <circle cx={chartX(index)} cy={chartY(point.actual)} r={index === burndownSeries.length - 1 ? 5 : 4} fill="#ffffff" stroke="var(--color-in-progress, #6366f1)" strokeWidth="2.5" />
+                      <text x={chartX(index)} y={chartHeight - 8} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--text-secondary)">{formatChartDate(point.date)}</text>
                     </g>
                   ))}
                 </svg>
@@ -279,24 +348,48 @@ export const ReportsView: React.FC = () => {
                   <div><span>WIP</span><strong>{statusCounts.in_progress + statusCounts.in_review} {t('tasks')}</strong></div>
                   <div><span>{t('done')}</span><strong>{donePoints} {t('pointsShort')}</strong></div>
                 </div>
-                <div className="cfd-chart" role="img" aria-label={t('cumulativeFlow')}>
-                  <div className="cfd-scale"><span>{maxChartValue}</span><span>{Math.round(maxChartValue / 2)}</span><span>0</span></div>
-                  <div className="cfd-columns">
-                    {cumulativeFlowSeries.map(point => {
-                      const total = point.todo + point.inProgress + point.inReview + point.done;
-                      const asPercent = (value: number) => `${total ? (value / maxChartValue) * 100 : 0}%`;
-                      return <div className="cfd-column" key={point.date.toISOString()}>
-                        <div className="cfd-stack" title={`${formatChartDate(point.date)} · ${total} ${t('pointsShort')}`}>
-                          <span className="cfd-segment todo" style={{ height: asPercent(point.todo) }} />
-                          <span className="cfd-segment progress" style={{ height: asPercent(point.inProgress) }} />
-                          <span className="cfd-segment review" style={{ height: asPercent(point.inReview) }} />
-                          <span className="cfd-segment done" style={{ height: asPercent(point.done) }} />
-                        </div>
-                        <span className="cfd-date-label">{formatChartDate(point.date)}</span>
-                      </div>;
-                    })}
-                  </div>
-                </div>
+                <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="burndown-svg cfd-svg" role="img" aria-label={t('cumulativeFlow')}>
+                  <defs>
+                    <linearGradient id="cfdDoneGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.45" />
+                    </linearGradient>
+                    <linearGradient id="cfdReviewGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.45" />
+                    </linearGradient>
+                    <linearGradient id="cfdProgressGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0.45" />
+                    </linearGradient>
+                    <linearGradient id="cfdTodoGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.75" />
+                      <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.3" />
+                    </linearGradient>
+                  </defs>
+
+                  {[0, 0.5, 1].map(ratio => {
+                    const value = Math.round(maxChartValue * (1 - ratio));
+                    const y = chartY(value);
+                    return (
+                      <g key={ratio}>
+                        <line x1={chartPadding.left} y1={y} x2={chartWidth - chartPadding.right} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+                        <text x={chartPadding.left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="var(--text-tertiary)">{value}</text>
+                      </g>
+                    );
+                  })}
+
+                  <path d={cfdTodoArea} fill="url(#cfdTodoGrad)" />
+                  <path d={cfdProgressArea} fill="url(#cfdProgressGrad)" />
+                  <path d={cfdReviewArea} fill="url(#cfdReviewGrad)" />
+                  <path d={cfdDoneArea} fill="url(#cfdDoneGrad)" />
+
+                  {cumulativeFlowSeries.map((point, index) => (
+                    <text key={point.date.toISOString()} x={chartX(index)} y={chartHeight - 8} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--text-secondary)">
+                      {formatChartDate(point.date)}
+                    </text>
+                  ))}
+                </svg>
               </>
             )}
 

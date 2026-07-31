@@ -341,3 +341,48 @@ export const IconRelease: React.FC<IconProps> = ({ size = 16, color = 'currentCo
     <path d="M15 9V4.5" />
   </svg>
 );
+
+export const IconShield: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill={color} fillOpacity="0.15" />
+  </svg>
+);
+
+export const IconHeartPulse: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" fill={color} fillOpacity="0.15" />
+    <path d="M4 12h3l2 -4l3 8l2 -4h4" />
+  </svg>
+);
+
+export const IconClock: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="12" r="9" fill={color} fillOpacity="0.15" />
+    <polyline points="12 7 12 12 15 15" />
+  </svg>
+);
+
+export const IconBrain: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9.5 2a4.5 4.5 0 0 1 4.5 4.5V7a2.5 2.5 0 0 1 0 5v1a2.5 2.5 0 0 1 0 5v.5A4.5 4.5 0 0 1 9.5 22H9a4.5 4.5 0 0 1-4.5-4.5V17a2.5 2.5 0 0 1 0-5v-1a2.5 2.5 0 0 1 0-5V6.5A4.5 4.5 0 0 1 9 2h.5Z" fill={color} fillOpacity="0.1" />
+    <path d="M14.5 2a4.5 4.5 0 0 1 4.5 4.5V7a2.5 2.5 0 0 1 0 5v1a2.5 2.5 0 0 1 0 5v.5A4.5 4.5 0 0 1 14.5 22H15a4.5 4.5 0 0 0 4.5-4.5V17a2.5 2.5 0 0 0 0-5v-1a2.5 2.5 0 0 0 0-5V6.5A4.5 4.5 0 0 0 15 2h-.5Z" fill={color} fillOpacity="0.1" />
+    <path d="M12 4v16" />
+  </svg>
+);
+
+export const IconScale: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" fill={color} fillOpacity="0.15" />
+    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" fill={color} fillOpacity="0.15" />
+    <path d="M7 21h10M12 3v18M3 7h18" />
+  </svg>
+);
+
+export const IconUserPlus: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill={color} fillOpacity="0.15" />
+    <circle cx="8.5" cy="7" r="4" fill={color} fillOpacity="0.15" />
+    <line x1="20" y1="8" x2="20" y2="14" />
+    <line x1="17" y1="11" x2="23" y2="11" />
+  </svg>
+);
