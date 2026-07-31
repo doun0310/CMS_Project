@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
-import { useModal } from '../common/ModalManager';
+import { useModal } from '../../hooks/useModalContext';
 import type { Language } from '../../i18n/translations';
 import type { IssueType, Project, User } from '../../types/Aether';
 import {

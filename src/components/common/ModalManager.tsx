@@ -1,10 +1,6 @@
 import React, { type ComponentType } from 'react';
 import { useModal } from '../../hooks/useModalContext';
 
-// Re-export for backward compatibility — consumers can import from either location
-export { useModal, ModalProvider } from '../../hooks/useModalContext';
-export type { ModalName } from '../../hooks/useModalContext';
-
 // -- Lazy Modal Registry --
 // Only the active modal is imported and rendered. All others are unmounted.
 const MODAL_REGISTRY: Record<string, () => Promise<{ default: ComponentType<{ isOpen: boolean; onClose: () => void }> }>> = {

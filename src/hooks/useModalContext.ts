@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 
 // -- Modal Registry Type --
 export type ModalName =
@@ -37,21 +37,3 @@ export const ModalContext = createContext<ModalContextValue>({
 });
 
 export const useModal = () => useContext(ModalContext);
-
-export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [activeModal, setActiveModal] = useState<ModalName>(null);
-
-  const openModal = useCallback((name: ModalName) => {
-    setActiveModal(name);
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setActiveModal(null);
-  }, []);
-
-  return (
-    <ModalContext.Provider value={{ activeModal, openModal, closeModal }}>
-      {children}
-    </ModalContext.Provider>
-  );
-};
