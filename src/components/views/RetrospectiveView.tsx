@@ -212,7 +212,6 @@ export const RetrospectiveView: React.FC = () => {
             </button>
           </div>
         </div>
-        {aiAnalysis && <p className="ai-analysis-summary-text">{aiAnalysis.summary}</p>}
         {analysisError && <p className="ai-analysis-error" role="alert">{analysisError}</p>}
         <div className="summary-grid">
           <div className="summary-box">
@@ -235,6 +234,39 @@ export const RetrospectiveView: React.FC = () => {
             <div className="s-desc">{aiAnalysis?.topFocusTopic ? `Top Topic: ${aiAnalysis.topFocusTopic}` : t('convertOneClick')}</div>
           </div>
         </div>
+
+        {/* AI Deep Engineering Atmosphere Reasoning Panel */}
+        {aiAnalysis?.aiReasoningReport && (
+          <div className="ai-deep-reasoning-panel animate-fade-in">
+            <div className="reasoning-header">
+              <span className="reasoning-badge"> AI 개발 팀 분위기 & 사고 심층 진단 (Deep AI Reasoning)</span>
+            </div>
+            <div className="reasoning-grid">
+              <div className="reasoning-card morale">
+                <div className="r-title"> 팀 사기 및 협업 분위기 분석</div>
+                <p className="r-text">{aiAnalysis.aiReasoningReport.moraleDiagnosis}</p>
+              </div>
+              <div className="reasoning-card debt">
+                <div className="r-title"> 엔지니어링 품질 및 기술 부채 감지</div>
+                <p className="r-text">{aiAnalysis.aiReasoningReport.techDebtRiskDiagnosis}</p>
+              </div>
+              <div className="reasoning-card velocity">
+                <div className="r-title"> 배포 속도 및 작업 모멘텀</div>
+                <p className="r-text">{aiAnalysis.aiReasoningReport.velocityConfidenceDiagnosis}</p>
+              </div>
+            </div>
+            {aiAnalysis.aiReasoningReport.strategicActionPlan.length > 0 && (
+              <div className="strategic-plan-box">
+                <div className="plan-title"> AI 추천 전략적 개선 로드맵</div>
+                <ul className="plan-list">
+                  {aiAnalysis.aiReasoningReport.strategicActionPlan.map((step: string, idx: number) => (
+                    <li key={idx}>{step}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {retroSubTab === 'board' ? (

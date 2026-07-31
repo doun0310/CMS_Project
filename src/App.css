@@ -10606,6 +10606,87 @@ input:checked + .slider:before {
   margin-top: var(--space-2);
 }
 
+/* AI Deep Reasoning Atmosphere Panel */
+.ai-deep-reasoning-panel {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.reasoning-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-accent-soft, rgba(99, 102, 241, 0.12));
+  color: var(--bg-accent-strong, #6366f1);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+.reasoning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+.reasoning-card {
+  padding: 12px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reasoning-card .r-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.reasoning-card .r-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.strategic-plan-box {
+  padding: 12px 14px;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--bg-accent-strong, #6366f1);
+  border-radius: var(--radius-sm);
+}
+
+.strategic-plan-box .plan-title {
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.strategic-plan-box .plan-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strategic-plan-box .plan-list li {
+  font-size: 0.79rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 /* Google-Style Account Switcher Dropdown & Social Auth */
 .google-account-switcher {
   min-width: 320px;
