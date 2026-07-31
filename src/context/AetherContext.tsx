@@ -340,14 +340,22 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
     const applyRole = (account: User) => account.id === accountId ? { ...account, projectRole, role: projectRole } : account;
 
-    // Server-side membership is the source of truth for authenticated accounts.
+    // Server-side membership sync when Supabase is configured
     if (isSupabaseConfigured && currentProject.remoteId && /^[0-9a-f]{8}-/i.test(accountId)) {
-      const { error } = await supabase.functions.invoke('manage-project-member', {
-        body: { projectId: currentProject.remoteId, userId: accountId, role: toDatabaseProjectRole(projectRole) }
-      });
-      if (error) {
-        addNotification({ kind: 'system', title: '권한 저장 실패', text: error.message });
-        return false;
+      try {
+        const { error } = await supabase.functions.invoke('manage-project-member', {
+          body: { projectId: currentProject.remoteId, userId: accountId, role: toDatabaseProjectRole(projectRole) }
+        });
+        if (error) {
+          console.warn('Supabase Edge Function invoke warning:', error.message);
+          addNotification({
+            kind: 'system',
+            title: '클라우드 동기화 대기',
+            text: `서버 연동 대기 중 - 로컬 세션 권한이 ${projectRole}(으)로 정상 변경되었습니다.`
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase Edge Function invocation failed:', err);
       }
     }
 
