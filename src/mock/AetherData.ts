@@ -66,15 +66,18 @@ export const initialProjects: Project[] = [
 ];
 
 export const initialEpics: Epic[] = [
+  // Project 1: Cloud AI Core Platform (p1)
   {
     id: 'epic-1',
+    projectId: 'p1',
     key: 'CLOUD-E1',
     summary: 'LLM Multi-Modal Inference Pipeline',
     color: '#6554C0',
-    description: 'High-throughput GPU clusters and streaming streaming API endpoints'
+    description: 'High-throughput GPU clusters and streaming API endpoints'
   },
   {
     id: 'epic-2',
+    projectId: 'p1',
     key: 'CLOUD-E2',
     summary: 'OAuth2 & SAML SSO Security Auth',
     color: '#0065FF',
@@ -83,10 +86,45 @@ export const initialEpics: Epic[] = [
   },
   {
     id: 'epic-3',
+    projectId: 'p1',
     key: 'CLOUD-E3',
     summary: 'Real-time Telemetry & Performance Dashboard',
     color: '#36B37E',
     description: 'WebSocket live metric streaming, alert notifications & audit logs'
+  },
+  // Project 2: AetherPulse Mobile iOS & Android (p2)
+  {
+    id: 'epic-mobile-1',
+    projectId: 'p2',
+    key: 'MOBILE-E1',
+    summary: 'Mobile Offline-First Data Caching Engine',
+    color: '#FFAB00',
+    description: 'IndexedDB caching, state persistence & background sync manager'
+  },
+  {
+    id: 'epic-mobile-2',
+    projectId: 'p2',
+    key: 'MOBILE-E2',
+    summary: 'Mobile Touch UI & Biometric Security Suite',
+    color: '#00B8D9',
+    description: 'Biometric FaceID prompt & touch gesture smooth scrolling'
+  },
+  // Project 3: IT Service & Infrastructure Ops (p3)
+  {
+    id: 'epic-ops-1',
+    projectId: 'p3',
+    key: 'OPS-E1',
+    summary: 'Zero-Downtime Infrastructure & K8s Security',
+    color: '#FF5630',
+    description: 'K8s kernel security patching & multi-region failover cluster'
+  },
+  {
+    id: 'epic-ops-2',
+    projectId: 'p3',
+    key: 'OPS-E2',
+    summary: '99.99% SLA Monitoring & Alert Desk',
+    color: '#36B37E',
+    description: 'PagerDuty incident webhooks, SLA breach alerting & Datadog integration'
   }
 ];
 
@@ -394,7 +432,7 @@ export const initialIssues: Issue[] = [
     id: 'issue-mobile-201',
     key: 'MOBILE-201',
     projectId: 'p2',
-    epicId: null,
+    epicId: 'epic-mobile-1',
     summary: 'Implement Mobile Offline First Data Caching & LocalStorage Sync',
     description: 'Optimize mobile network resiliency by caching workspace state in IndexedDB and syncing when connection resumes.',
     type: 'feature',
@@ -422,7 +460,7 @@ export const initialIssues: Issue[] = [
     id: 'issue-mobile-202',
     key: 'MOBILE-202',
     projectId: 'p2',
-    epicId: null,
+    epicId: 'epic-mobile-2',
     summary: 'Fix touch gesture latency on iOS Safari and React Native WebView',
     description: 'Address 300ms click delay and touch scrolling jitter on lower-end mobile test devices.',
     type: 'bug',
@@ -447,7 +485,7 @@ export const initialIssues: Issue[] = [
     id: 'issue-mobile-203',
     key: 'MOBILE-203',
     projectId: 'p2',
-    epicId: null,
+    epicId: 'epic-mobile-2',
     summary: 'Biometric FaceID & TouchID Authentication UI Flow',
     description: 'Add secure biometric authentication prompt for sensitive workspace operations on iOS and Android.',
     type: 'story',
@@ -473,7 +511,7 @@ export const initialIssues: Issue[] = [
     id: 'issue-ops-301',
     key: 'OPS-301',
     projectId: 'p3',
-    epicId: null,
+    epicId: 'epic-ops-1',
     summary: 'Zero-downtime Kubernetes node security patching (CVE-2026-8801)',
     description: 'Roll out kernel patch to all production K8s worker nodes without interrupting active user traffic.',
     type: 'workitem',
@@ -502,7 +540,7 @@ export const initialIssues: Issue[] = [
     id: 'issue-ops-302',
     key: 'OPS-302',
     projectId: 'p3',
-    epicId: null,
+    epicId: 'epic-ops-2',
     summary: 'Configure Automated PagerDuty Incident Alerting for SLA Desk',
     description: 'Connect Datadog monitors to PagerDuty webhooks for auto-escalation of 99.99% SLA breaches.',
     type: 'task',

@@ -13,6 +13,7 @@ export const IssueDetailModal: React.FC = () => {
     addComment,
     toggleSubtask,
     addSubtask,
+    deleteSubtask,
     moveIssueStatus,
     users,
     sprints,
@@ -338,6 +339,14 @@ useEffect(() => {
                       onChange={() => toggleSubtask(issue.id, st.id)}
                     />
                     <span className={st.completed ? 'completed-text' : ''}>{st.title}</span>
+                    <button
+                      type="button"
+                      className="btn-subtask-delete"
+                      onClick={() => deleteSubtask(issue.id, st.id)}
+                      title="Subtask 삭제"
+                    >
+                      <IconTrash size={14} />
+                    </button>
                   </div>
                 ))}
               </div>

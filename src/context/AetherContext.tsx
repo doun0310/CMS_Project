@@ -17,6 +17,7 @@ import {
   initialUsers,
   initialProjects,
   initialSprints,
+  initialEpics,
   initialIssues,
   initialAutomationRules,
   initialRetrospectiveItems,
@@ -227,7 +228,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const initialIssueList = (persistedState.issues ?? initialIssues).map(issue => ({
     ...issue,
     projectId: issue.projectId || initialProjectList[0].id,
-    epicId: null,
+    epicId: issue.epicId ?? null,
     initiativeId: issue.initiativeId ?? null,
   }));
 
@@ -352,15 +353,21 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
   }, []);
 
-  const [allEpics, setEpics] = useState<Epic[]>([]);
+  const [allEpics, setEpics] = useState<Epic[]>(() => {
+    const raw: Epic[] = persistedState.epics ?? initialEpics;
+    return raw.map((epic: Epic) => {
+      const defaultProject = epic.id.includes('mobile') ? 'p2' : epic.id.includes('ops') ? 'p3' : 'p1';
+      return { ...epic, projectId: epic.projectId || defaultProject };
+    });
+  });
   const [allSprints, setSprints] = useState<Sprint[]>(() => {
-    const raw = persistedState.sprints ?? initialSprints;
-    return raw.map(sprint => {
+    const raw: Sprint[] = persistedState.sprints ?? initialSprints;
+    return raw.map((sprint: Sprint) => {
       const defaultProject = sprint.id.includes('mobile') ? 'p2' : sprint.id.includes('ops') ? 'p3' : 'p1';
       return { ...sprint, projectId: sprint.projectId || defaultProject };
     });
   });
-  const epics = useMemo(() => allEpics.filter(epic => epic.projectId === currentProject.id), [allEpics, currentProject.id]);
+  const epics = useMemo(() => allEpics.filter(epic => !epic.projectId || epic.projectId === currentProject.id), [allEpics, currentProject.id]);
   const sprints = useMemo(() => allSprints.filter(sprint => sprint.projectId === currentProject.id), [allSprints, currentProject.id]);
   const [allIssues, setIssues] = useState<Issue[]>(initialIssueList);
   const issues = useMemo(

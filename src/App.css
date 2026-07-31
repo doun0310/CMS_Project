@@ -1937,9 +1937,31 @@
   gap: 8px;
   font-size: 0.88rem;
 }
+.subtask-item span {
+  flex: 1;
+}
 .subtask-item .completed-text {
   text-decoration: line-through;
   opacity: 0.6;
+}
+
+.btn-subtask-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  opacity: 0.6;
+}
+.btn-subtask-delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  opacity: 1;
 }
 
 .subtask-progress-bar {

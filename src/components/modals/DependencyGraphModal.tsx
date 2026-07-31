@@ -13,8 +13,6 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
   const [selectedIssueId, setSelectedIssueId] = useState<string>(issues[0]?.id || '');
   const [attachedSuccess, setAttachedSuccess] = useState(false);
 
-  if (!isOpen) return null;
-
   const targetIssue = issues.find((i) => i.id === selectedIssueId) || issues[0];
 
   const blastScore = React.useMemo(() => {
@@ -35,6 +33,8 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
       { id: 'n-4', name: 'Mobile Push Notification Desk', type: 'downstream', health: 'healthy', blastScore: Math.max(15, blastScore - 30) },
     ];
   }, [targetIssue, blastScore]);
+
+  if (!isOpen) return null;
 
   const handleAttachGraphBadge = () => {
     if (!targetIssue) return;

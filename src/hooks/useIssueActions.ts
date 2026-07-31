@@ -154,6 +154,18 @@ export function useIssueActions({
     );
   };
 
+  const deleteSubtask = (issueId: string, subtaskId: string) => {
+    setIssues(prev =>
+      prev.map(item => {
+        if (item.id === issueId) {
+          const updatedSubtasks = item.subtasks.filter(st => st.id !== subtaskId);
+          return { ...item, subtasks: updatedSubtasks };
+        }
+        return item;
+      })
+    );
+  };
+
   return {
     createIssue,
     updateIssue,
@@ -162,5 +174,6 @@ export function useIssueActions({
     addComment,
     toggleSubtask,
     addSubtask,
+    deleteSubtask,
   };
 }

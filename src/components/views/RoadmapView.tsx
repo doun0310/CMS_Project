@@ -349,7 +349,8 @@ export const RoadmapView: React.FC = () => {
               const milestone = milestones.find(item => item.initiativeId === initiative.id);
               const endPos = milestone?.position ?? getPositionPercent(initiative.dueDate);
               const milestoneSpan = Math.max(12, endPos - leftPos);
-              const barWidth = Math.min(100 - leftPos, milestoneSpan * 2.5);
+              const baseBarWidth = Math.min(100 - leftPos, milestoneSpan * 2.5);
+              const barWidth = Math.min(100 - leftPos, baseBarWidth * 1.015);
               return <React.Fragment key={initiative.id}>
                 <div className="gantt-right-row epic-row initiative-roadmap-row">
                   <div
@@ -393,7 +394,7 @@ export const RoadmapView: React.FC = () => {
                       className={`gantt-bar epic-bar ${isCritical ? 'critical-path-bar' : ''}`}
                       style={{
                         left: '8%',
-                        width: '84%',
+                        width: '85.26%',
                         backgroundColor: epic.color
                       }}
                       title={`${epic.summary}: ${pointsPct}% ${t('completed').toLowerCase()} (${donePoints}/${totalPoints} ${t('pointsShort')})`}

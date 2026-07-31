@@ -189,7 +189,8 @@ export const KanbanBoard: React.FC = () => {
     users.forEach(u => swimlaneGroups.push({ id: u.id, name: u.name }));
     swimlaneGroups.push({ id: UNASSIGNED_GROUP_ID, name: t('unassigned') });
   } else if (swimlaneBy === 'epic' || swimlaneBy === 'initiative') {
-    epics.forEach(e => swimlaneGroups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
+    const projectEpics = epics.filter(e => !e.projectId || e.projectId === currentProject.id);
+    projectEpics.forEach(e => swimlaneGroups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
     swimlaneGroups.push({ id: NO_EPIC_GROUP_ID, name: t('issuesWithoutEpic') });
   } else if (swimlaneBy === 'priority') {
     const priorityLabels: Record<Priority, string> = {

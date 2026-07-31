@@ -90,6 +90,7 @@ export interface AetherContextValue {
   addComment: (issueId: string, text: string) => void;
   toggleSubtask: (issueId: string, subtaskId: string) => void;
   addSubtask: (issueId: string, title: string) => void;
+  deleteSubtask: (issueId: string, subtaskId: string) => void;
 
   startSprint: (sprintId: string) => void;
   completeSprint: (sprintId: string) => void;
