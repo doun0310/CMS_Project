@@ -17,21 +17,33 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
 
   const targetIssue = issues.find((i) => i.id === selectedIssueId) || issues[0];
 
-  const dependencyNodes = [
-    { id: 'n-1', name: 'Auth API Gateway', type: 'upstream', health: 'healthy', blastScore: 68 },
-    { id: 'n-2', name: 'User Session DB Cluster', type: 'database', health: 'healthy', blastScore: 85 },
-    { id: 'n-3', name: 'Billing Engine Payment Service', type: 'downstream', health: 'degraded', blastScore: 42 },
-    { id: 'n-4', name: 'Mobile Push Notification Microservice', type: 'downstream', health: 'healthy', blastScore: 24 },
-  ];
+  const blastScore = React.useMemo(() => {
+    if (!targetIssue) return 68;
+    const base = targetIssue.priority === 'highest' ? 85 : targetIssue.priority === 'high' ? 72 : targetIssue.priority === 'medium' ? 50 : 32;
+    const pointsBonus = Math.min(14, (targetIssue.storyPoints || 0) * 1.5);
+    return Math.min(99, Math.round(base + pointsBonus));
+  }, [targetIssue]);
+
+  const couplingTier = blastScore >= 75 ? 'High' : blastScore >= 45 ? 'Moderate' : 'Low';
+
+  const dependencyNodes = React.useMemo(() => {
+    const comp = targetIssue?.component || 'Core Engine';
+    return [
+      { id: 'n-1', name: `${comp} API Gateway`, type: 'upstream', health: 'healthy', blastScore: Math.min(95, blastScore + 8) },
+      { id: 'n-2', name: 'User Session DB Cluster', type: 'database', health: 'healthy', blastScore: Math.min(90, blastScore + 4) },
+      { id: 'n-3', name: 'Billing & Enterprise Service', type: 'downstream', health: blastScore > 70 ? 'degraded' : 'healthy', blastScore: Math.max(20, blastScore - 15) },
+      { id: 'n-4', name: 'Mobile Push Notification Desk', type: 'downstream', health: 'healthy', blastScore: Math.max(15, blastScore - 30) },
+    ];
+  }, [targetIssue, blastScore]);
 
   const handleAttachGraphBadge = () => {
     if (!targetIssue) return;
     const currentDesc = targetIssue.description || '';
-    const badgeMarkdown = `\n\n### AI Dependency & Blast Radius Diagnosis
-- **Upstream Subsystem:** Auth API Gateway
-- **Blast Radius Index:** 68% (High Subsystem Coupling)
-- **Affected Services:** Billing Engine, User Session DB, Mobile Push
-- **Canary Flag Recommended:** \`FF_AUTH_CANARY_V2\``;
+    const badgeMarkdown = `\n\n### AI Dependency & Blast Radius Diagnosis\n` +
+      `- **Target Subsystem:** ${targetIssue.component || 'Core Engine'}\n` +
+      `- **Blast Radius Index:** ${blastScore}% (${couplingTier} Subsystem Coupling)\n` +
+      `- **Affected Services:** ${dependencyNodes.map(n => n.name).join(', ')}\n` +
+      `- **Canary Flag Recommended:** \`FF_${(targetIssue.key || 'APP').replace('-', '_')}_CANARY\``;
 
     updateIssue(targetIssue.id, {
       description: currentDesc + badgeMarkdown,
@@ -82,13 +94,13 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
           {/* Blast Radius Scorecard Banner */}
           <div className="blast-banner">
             <div className="blast-score-box">
-              <span className="blast-val">68%</span>
+              <span className="blast-val">{blastScore}%</span>
               <span className="blast-lbl">Blast Radius Index</span>
             </div>
             <div className="blast-meta">
-              <span className="blast-title">High Subsystem Coupling Detected</span>
+              <span className="blast-title">{couplingTier} Subsystem Coupling Detected</span>
               <p className="blast-desc">
-                Modifying <strong>{targetIssue?.component || 'Auth API'}</strong> impacts 3 downstream microservices & 8 active sprint tickets. Canary deployment recommended.
+                Modifying <strong>{targetIssue?.component || 'Core Module'}</strong> impacts {dependencyNodes.length} downstream microservices & active sprint tickets. Canary deployment recommended.
               </p>
             </div>
           </div>
@@ -99,7 +111,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
 
             <div className="dep-nodes-grid">
               {dependencyNodes.map((node) => (
-                <div key={node.id} className="dep-node-card">
+                <div key={node.id} className="`dep`-node-card">
                   <div className="node-top">
                     <span className="node-name">{node.name}</span>
                     <span className={`node-type-badge ${node.type}`}>{node.type.toUpperCase()}</span>

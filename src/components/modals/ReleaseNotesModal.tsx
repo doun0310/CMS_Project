@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCopy, IconCheckCircle } from '../common/Icons';
+import { IconX, IconCopy, IconCheckCircle, IconRelease } from '../common/Icons';
 
 interface ReleaseNotesModalProps {
   isOpen: boolean;
@@ -64,10 +64,14 @@ ${includeRollbackPlan ? rollbackPlanText : ''}
       <div className="release-notes-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
           <div className="title-with-icon">
-            <span className="release-icon">🚀</span>
+            <span className="release-modal-icon-badge">
+              <IconRelease size={20} color="var(--color-in-progress, #6366f1)" />
+            </span>
             <div>
-              <h3>{t('releaseNotesTitle')} & AI Deployment Risk Advisor</h3>
-              <span className="subtitle-text">{t('releaseNotesSubtitle')} {activeSprint.name}</span>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{t('releaseNotesTitle')} & AI Deployment Advisor</h3>
+              <span className="subtitle-text" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                {t('releaseNotesSubtitle')} • <strong>{activeSprint.name}</strong>
+              </span>
             </div>
           </div>
           <button className="btn-icon-close" onClick={onClose}>

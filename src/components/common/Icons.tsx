@@ -323,3 +323,21 @@ export const IconCopy: React.FC<IconProps> = ({ size = 16, color = 'currentColor
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
 );
+
+export const IconStandup: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" fill={color} fillOpacity="0.15" />
+    <circle cx="9" cy="7" r="4" fill={color} fillOpacity="0.15" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+export const IconRelease: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" fill={color} fillOpacity="0.15" />
+    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-3.05 11a22.35 22.35 0 0 1-3.95 2z" fill={color} fillOpacity="0.15" />
+    <path d="M9 12H4.5" />
+    <path d="M15 9V4.5" />
+  </svg>
+);

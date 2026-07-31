@@ -453,7 +453,7 @@ export const initialIssues: Issue[] = [
     type: 'story',
     status: 'done',
     priority: 'medium',
-    assigneeId: 'u2',
+    assigneeId: 'u3',
     reporterId: 'u1',
     sprintId: 'sprint-mobile-12',
     storyPoints: 8,

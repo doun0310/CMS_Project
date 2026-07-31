@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconCheckCircle, IconZap, IconCopy } from '../common/Icons';
+import { IconX, IconCheckCircle, IconZap, IconCopy, IconStandup, IconAlertTriangle } from '../common/Icons';
 
 interface DailyStandupModalProps {
   isOpen: boolean;
@@ -47,10 +47,14 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers
       <div className="daily-standup-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
           <div className="modal-title-with-icon">
-            <span className="standup-icon">🤖</span>
+            <span className="standup-modal-icon-badge">
+              <IconStandup size={20} color="var(--color-in-progress, #6366f1)" />
+            </span>
             <div>
-              <h3>{t('standupTitle')}</h3>
-              <span className="subtitle-text">{t('standupSubtitle')} {activeSprint.name}</span>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{t('standupTitle')}</h3>
+              <span className="subtitle-text" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                {t('standupSubtitle')} • <strong>{activeSprint.name}</strong>
+              </span>
             </div>
           </div>
           <button className="btn-icon-close" onClick={onClose}>
@@ -62,20 +66,26 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers
           {/* Section 1: Completed Tasks */}
           <div className="standup-card-section done">
             <div className="section-title-row">
-              <IconCheckCircle size={16} color="#22c55e" />
+              <IconCheckCircle size={17} color="#22c55e" />
               <h4>1. {t('completedRecently')} ({doneIssues.length})</h4>
             </div>
             <div className="standup-items-list">
               {doneIssues.length === 0 ? (
                 <div className="empty-text">{t('noCompletedRecently')}</div>
               ) : (
-                doneIssues.map(issue => (
-                  <div key={issue.id} className="standup-item-row">
-                    <span className="item-key">{issue.key}</span>
-                    <span className="item-summary">{issue.summary}</span>
-                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || t('unassigned')}</span>
-                  </div>
-                ))
+                doneIssues.map(issue => {
+                  const user = users.find(u => u.id === issue.assigneeId);
+                  return (
+                    <div key={issue.id} className="standup-item-row">
+                      <span className="item-key">{issue.key}</span>
+                      <span className="item-summary">{issue.summary}</span>
+                      <span className="item-assignee-badge">
+                        {user?.avatar && <img src={user.avatar} alt={user.name} className="avatar-xs" />}
+                        @{user?.name || t('unassigned')}
+                      </span>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -83,20 +93,26 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers
           {/* Section 2: In Progress Tasks */}
           <div className="standup-card-section progress">
             <div className="section-title-row">
-              <IconZap size={16} color="#6366f1" />
+              <IconZap size={17} color="#6366f1" />
               <h4>2. {t('workingToday')} ({inProgressIssues.length})</h4>
             </div>
             <div className="standup-items-list">
               {inProgressIssues.length === 0 ? (
                 <div className="empty-text">{t('noInProgress')}</div>
               ) : (
-                inProgressIssues.map(issue => (
-                  <div key={issue.id} className="standup-item-row">
-                    <span className="item-key">{issue.key}</span>
-                    <span className="item-summary">{issue.summary}</span>
-                    <span className="item-assignee">@{users.find(u => u.id === issue.assigneeId)?.name || t('unassigned')}</span>
-                  </div>
-                ))
+                inProgressIssues.map(issue => {
+                  const user = users.find(u => u.id === issue.assigneeId);
+                  return (
+                    <div key={issue.id} className="standup-item-row">
+                      <span className="item-key">{issue.key}</span>
+                      <span className="item-summary">{issue.summary}</span>
+                      <span className="item-assignee-badge">
+                        {user?.avatar && <img src={user.avatar} alt={user.name} className="avatar-xs" />}
+                        @{user?.name || t('unassigned')}
+                      </span>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -104,7 +120,7 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers
           {/* Section 3: Blockers & Risks */}
           <div className="standup-card-section blocked">
             <div className="section-title-row">
-              <span className="blocker-icon">🛑</span>
+              <IconAlertTriangle size={17} color="#ef4444" />
               <h4>3. {t('blockersImpediments')} ({blockedIssues.length})</h4>
             </div>
             <div className="standup-items-list">
