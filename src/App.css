@@ -642,6 +642,13 @@
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
+.account-item-role,
+.account-role-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-in-progress, #6366f1);
+  margin-top: 2px;
+}
 
 /* Sidebar */
 .app-sidebar {

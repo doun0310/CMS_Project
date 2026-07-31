@@ -268,7 +268,17 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const saved = localStorage.getItem('aether_signed_in_accounts');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((acc: User) => {
+            const match = initialUsers.find(u => u.id === acc.id || u.email === acc.email);
+            const roleVal = match?.projectRole || acc.projectRole || 'Project Member';
+            return {
+              ...acc,
+              projectRole: roleVal,
+              role: roleVal
+            };
+          });
+        }
       }
     } catch {}
     return [initialUsers[0], initialUsers[2], initialUsers[3]];
@@ -279,10 +289,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const savedId = localStorage.getItem('aether_active_account_id');
       if (savedId) {
         const found = initialUsers.find(u => u.id === savedId);
-        if (found) return found;
+        if (found) return { ...found, role: found.projectRole || 'Project Member' };
       }
     } catch {}
-    return initialUsers[0];
+    return { ...initialUsers[0], role: initialUsers[0].projectRole || 'Project Member' };
   });
 
   const [authUser, setAuthUser] = useState<User | null>(null);
@@ -290,14 +300,15 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const authenticatedUserId = authUser?.id;
 
   const switchAccount = (user: User) => {
-    setCurrentUser(user);
+    const latest = users.find(u => u.id === user.id) || user;
+    setCurrentUser(latest);
     try {
       localStorage.setItem('aether_active_account_id', user.id);
     } catch {}
     addNotification({
       kind: 'system',
       title: '계정 전환',
-      text: `계정이 전환되었습니다: ${user.name} (${user.email})`
+      text: `계정이 전환되었습니다: ${latest.name} (${latest.email})`
     });
   };
 
@@ -327,7 +338,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 권한은 Project Owner만 변경할 수 있습니다.' });
       return false;
     }
-    const applyRole = (account: User) => account.id === accountId ? { ...account, projectRole } : account;
+    const applyRole = (account: User) => account.id === accountId ? { ...account, projectRole, role: projectRole } : account;
 
     // Server-side membership is the source of truth for authenticated accounts.
     if (isSupabaseConfigured && currentProject.remoteId && /^[0-9a-f]{8}-/i.test(accountId)) {

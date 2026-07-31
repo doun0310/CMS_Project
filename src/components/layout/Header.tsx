@@ -41,6 +41,7 @@ export const Header: React.FC = () => {
     setViewMode,
     projects,
     currentUser,
+    users,
     signedInAccounts,
     switchAccount,
     removeAccount,
@@ -430,7 +431,7 @@ export const Header: React.FC = () => {
                 <div className="current-user-info">
                   <div className="current-user-name">{currentUser.name}</div>
                   <div className="current-user-email">{currentUser.email}</div>
-                  <span className="current-user-role-badge">{currentUser.role}</span>
+                  <span className="current-user-role-badge">{currentUser.projectRole || currentUser.role || 'Project Member'}</span>
                 </div>
               </div>
 
@@ -440,12 +441,13 @@ export const Header: React.FC = () => {
               <div className="signed-in-accounts-list">
                 {signedInAccounts.map((u: User) => {
                   const isActive = u.id === currentUser.id;
+                  const latestUser = users.find((user: User) => user.id === u.id) || u;
                   return (
                     <div
                       key={u.id}
                       className={`account-item ${isActive ? 'active' : ''}`}
                       onClick={() => {
-                        switchAccount(u);
+                        switchAccount(latestUser);
                         setIsUserDropdownOpen(false);
                       }}
                     >
