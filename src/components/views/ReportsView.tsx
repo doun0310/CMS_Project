@@ -54,12 +54,20 @@ export const ReportsView: React.FC = () => {
     return { user: u, count: uIssues.length, points: pts, completedPts, statusLabel, statusClass };
   });
 
-  // AI Velocity Forecasting Calculation
-  const historicalAvgVelocity = 28; // Story Points per sprint average
+  // Dynamic AI Velocity & Capacity Forecasting Calculations
+  const completedIssuesAllSprints = issues.filter((i: Issue) => i.status === 'done');
+  const totalCompletedStoryPoints = completedIssuesAllSprints.reduce((sum: number, curr: Issue) => sum + (curr.storyPoints || 0), 0);
+  const historicalAvgVelocity = Math.max(
+    10,
+    totalCompletedStoryPoints > 0 ? totalCompletedStoryPoints : (donePoints > 0 ? donePoints : totalPoints)
+  );
+
   const backlogIssues = issues.filter((i: Issue) => !i.sprintId);
   const totalBacklogPoints = backlogIssues.reduce((acc: number, curr: Issue) => acc + (curr.storyPoints || 0), 0);
-  const estimatedSprintsNeeded = Math.ceil(totalBacklogPoints / historicalAvgVelocity);
+  const estimatedSprintsNeeded = Math.max(1, Math.ceil(totalBacklogPoints / historicalAvgVelocity));
   const completionPercentage = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0;
+  const activeEngineerCount = Math.max(1, users.length);
+  const recommendedCapacityPerEngineer = (historicalAvgVelocity / activeEngineerCount).toFixed(1);
 
   // Status changes are not stored as a separate event stream yet.  Use each completed
   // issue's last update as the best available completion timestamp, so the chart always
@@ -209,8 +217,8 @@ export const ReportsView: React.FC = () => {
           </div>
           <div className="forecast-item">
             <div className="f-title">{t('recommendedCapacity')}</div>
-            <div className="f-value">7.5 {t('pointsShort')} / {t('engineer')}</div>
-            <div className="f-sub">{t('preventsBurnout')}</div>
+            <div className="f-value">{recommendedCapacityPerEngineer} {t('pointsShort')} / {t('engineer')}</div>
+            <div className="f-sub">{t('preventsBurnout')} ({activeEngineerCount}명 엔지니어 기준)</div>
           </div>
         </div>
       </div>

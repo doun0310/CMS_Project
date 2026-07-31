@@ -34,9 +34,6 @@ export const RoadmapView: React.FC = () => {
   const developmentDates = issues.flatMap(issue => [toCalendarDate(issue.createdAt), toCalendarDate(issue.dueDate)])
     .filter(date => !Number.isNaN(date.getTime()));
   const fallbackDate = new Date();
-  const earliestDevelopmentDate = developmentDates.length
-    ? new Date(Math.min(...developmentDates.map(date => date.getTime())))
-    : fallbackDate;
   const latestDevelopmentDate = developmentDates.length
     ? new Date(Math.max(...developmentDates.map(date => date.getTime())))
     : fallbackDate;
@@ -46,8 +43,16 @@ export const RoadmapView: React.FC = () => {
       .map(initiative => ({ initiativeId: initiative.id, date: toCalendarDate(initiative.dueDate) }))
     : [{ initiativeId: null, date: toCalendarDate('2026-08-10') }, { initiativeId: null, date: toCalendarDate('2026-08-30') }];
   const milestoneDates = initiativeMilestones.map(milestone => milestone.date);
-  const timelineStart = new Date(earliestDevelopmentDate);
-  const timelineEnd = new Date(Math.max(latestDevelopmentDate.getTime(), ...milestoneDates.map(date => date.getTime())));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const timelineStart = today;
+  const timelineEnd = new Date(
+    Math.max(
+      timelineStart.getTime() + 14 * 24 * 60 * 60 * 1000,
+      latestDevelopmentDate.getTime(),
+      ...milestoneDates.map((date: Date) => date.getTime())
+    )
+  );
   const oneDay = 24 * 60 * 60 * 1000;
   const dayCount = Math.max(14, Math.round((timelineEnd.getTime() - timelineStart.getTime()) / oneDay) + 1);
   const days = Array.from({ length: dayCount }, (_, index) => {
