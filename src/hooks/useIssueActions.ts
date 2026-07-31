@@ -1,6 +1,7 @@
 import type { AppNotification, Issue, IssueStatus, SubTask, Sprint, User, Project } from '../types/Aether';
 import { syncIssueToSupabase, deleteIssueFromSupabase } from '../services/supabaseSync';
 import type { Dispatch, SetStateAction } from 'react';
+import { can } from '../utils/permissions';
 
 interface UseIssueActionsParams {
   allIssues: Issue[];
@@ -26,8 +27,10 @@ export function useIssueActions({
   notify,
 }: UseIssueActionsParams) {
   const issues = allIssues.filter(issue => issue.projectId === currentProject.id);
+  const deny = () => notify({ kind: 'system', title: '권한 없음', text: '현재 프로젝트 역할로는 작업을 변경할 수 없습니다.' });
 
   const moveIssueStatus = (issueId: string, newStatus: IssueStatus) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     const issue = issues.find(item => item.id === issueId);
     if (!issue || issue.status === newStatus) return;
 
@@ -44,7 +47,7 @@ export function useIssueActions({
       )
     );
 
-    syncIssueToSupabase(updatedIssue, currentProject.id);
+    syncIssueToSupabase(updatedIssue, currentProject.remoteId ?? currentProject.id);
     notify({
       kind: 'issue',
       title: '작업 상태 변경',
@@ -56,6 +59,7 @@ export function useIssueActions({
   };
 
   const createIssue = (issueData: Partial<Issue>) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     const maxNum = issues.reduce((max, i) => Math.max(max, parseInt(i.key.split('-')[1]) || 0), 100);
     const key = `${currentProject.key}-${maxNum + 1}`;
     const now = new Date().toISOString();
@@ -90,17 +94,18 @@ export function useIssueActions({
 
     setIssues(prev => [newIssue, ...prev]);
     setSelectedIssueId(newIssue.id);
-    syncIssueToSupabase(newIssue, currentProject.id);
+    syncIssueToSupabase(newIssue, currentProject.remoteId ?? currentProject.id);
     notify({ kind: 'issue', title: '새 작업 생성', text: `${newIssue.key} · ${newIssue.summary} 작업이 생성되었습니다.`, issueId: newIssue.id });
   };
 
   const updateIssue = (id: string, updates: Partial<Issue>) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     const issue = issues.find(item => item.id === id);
     setIssues(prev =>
       prev.map(item => {
         if (item.id === id) {
           const updated = { ...item, ...updates, updatedAt: new Date().toISOString() };
-          syncIssueToSupabase(updated, currentProject.id);
+          syncIssueToSupabase(updated, currentProject.remoteId ?? currentProject.id);
           return updated;
         }
         return item;
@@ -110,12 +115,14 @@ export function useIssueActions({
   };
 
   const deleteIssue = (id: string) => {
+    if (!can(currentUser, 'issue:delete')) return deny();
     setIssues(prev => prev.filter(item => item.id !== id));
     deleteIssueFromSupabase(id);
     if (selectedIssueId === id) setSelectedIssueId(null);
   };
 
   const addComment = (issueId: string, text: string) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     if (!text.trim()) return;
     const newComment = {
       id: 'c_' + Date.now(),
@@ -133,6 +140,7 @@ export function useIssueActions({
   };
 
   const toggleSubtask = (issueId: string, subtaskId: string) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     setIssues(prev =>
       prev.map(item => {
         if (item.id === issueId) {
@@ -147,6 +155,7 @@ export function useIssueActions({
   };
 
   const addSubtask = (issueId: string, title: string) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     if (!title.trim()) return;
     const newSub: SubTask = { id: 'st_' + Date.now(), title: title.trim(), completed: false };
     setIssues(prev =>
@@ -155,6 +164,7 @@ export function useIssueActions({
   };
 
   const deleteSubtask = (issueId: string, subtaskId: string) => {
+    if (!can(currentUser, 'issue:write')) return deny();
     setIssues(prev =>
       prev.map(item => {
         if (item.id === issueId) {

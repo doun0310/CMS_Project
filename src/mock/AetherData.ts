@@ -14,7 +14,7 @@ export const initialUsers: User[] = [
     name: 'Sarah Connor',
     email: 'sarah.c@aetherpulse.io',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    projectRole: 'Project Admin',
+    projectRole: 'Project Manager',
     role: 'Senior Backend Architect'
   },
   {
@@ -46,6 +46,7 @@ export const initialUsers: User[] = [
 export const initialProjects: Project[] = [
   {
     id: 'p1',
+    remoteId: '513a426e-7dd6-470a-a3bf-22091e2f887a',
     key: 'CLOUD',
     name: 'Cloud AI Core Platform',
     category: 'Software Development (Agile)',
@@ -54,6 +55,7 @@ export const initialProjects: Project[] = [
   },
   {
     id: 'p2',
+    remoteId: 'a1b1755c-7d1b-4a6f-a1ed-8904f8dc7c94',
     key: 'MOBILE',
     name: 'AetherPulse Mobile iOS & Android',
     category: 'Mobile Application',
@@ -62,6 +64,7 @@ export const initialProjects: Project[] = [
   },
   {
     id: 'p3',
+    remoteId: 'd6d3748e-7e1e-4bbb-8ab8-0172bab4f1a0',
     key: 'OPS',
     name: 'IT Service & Infrastructure Ops',
     category: 'IT Service Management',

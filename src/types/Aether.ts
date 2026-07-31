@@ -4,7 +4,7 @@ export type IssueStatus = 'todo' | 'in_progress' | 'in_review' | 'done';
 
 export type Priority = 'highest' | 'high' | 'medium' | 'low' | 'lowest';
 
-export const PROJECT_ROLES = ['Project Owner', 'Project Admin', 'Project Member', 'Viewer'] as const;
+export const PROJECT_ROLES = ['Viewer', 'Project Member', 'Project Manager', 'Project Owner'] as const;
 export type ProjectRole = typeof PROJECT_ROLES[number];
 
 export interface User {
@@ -173,6 +173,8 @@ export interface WorkflowState {
 
 export interface Project {
   id: string;
+  /** UUID used by the secured Supabase project record; local ids remain stable for UI state. */
+  remoteId?: string;
   key: string;
   name: string;
   category: string;

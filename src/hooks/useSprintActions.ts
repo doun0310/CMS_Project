@@ -1,12 +1,14 @@
-import type { Sprint, Issue, Project } from '../types/Aether';
+import type { Sprint, Issue, Project, User } from '../types/Aether';
 import type { Dispatch, SetStateAction } from 'react';
 import type { AppNotification } from '../types/Aether';
+import { can } from '../utils/permissions';
 
 interface UseSprintActionsParams {
   setSprints: Dispatch<SetStateAction<Sprint[]>>;
   setIssues: Dispatch<SetStateAction<Issue[]>>;
   currentProject: Project;
   sprints: Sprint[];
+  currentUser: User;
   notify: (notification: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
 }
 
@@ -15,9 +17,12 @@ export function useSprintActions({
   setIssues,
   currentProject,
   sprints,
+  currentUser,
   notify,
 }: UseSprintActionsParams) {
+  const deny = () => notify({ kind: 'system', title: '권한 없음', text: '스프린트는 Project Manager 이상만 변경할 수 있습니다.' });
   const startSprint = (sprintId: string) => {
+    if (!can(currentUser, 'project:manage')) return deny();
     const sprint = sprints.find(item => item.id === sprintId);
     const targetProjectId = sprint?.projectId || currentProject.id;
     setSprints(prev =>
@@ -33,6 +38,7 @@ export function useSprintActions({
   };
 
   const completeSprint = (sprintId: string) => {
+    if (!can(currentUser, 'project:manage')) return deny();
     const sprint = sprints.find(item => item.id === sprintId);
     setSprints(prev =>
       prev.map(s => (s.id === sprintId ? { ...s, status: 'completed' } : s))
@@ -47,6 +53,7 @@ export function useSprintActions({
   };
 
   const createSprint = (name: string, goal: string) => {
+    if (!can(currentUser, 'project:manage')) return deny();
     const newSprint: Sprint = {
       id: 'sprint_' + Date.now(),
       projectId: currentProject.id,
@@ -61,6 +68,7 @@ export function useSprintActions({
   };
 
   const updateSprint = (sprintId: string, updates: Partial<Omit<Sprint, 'id' | 'projectId'>>) => {
+    if (!can(currentUser, 'project:manage')) return deny();
     const sprint = sprints.find(item => item.id === sprintId);
     setSprints(previousSprints => previousSprints.map(sprint => (
       sprint.id === sprintId ? { ...sprint, ...updates } : sprint
@@ -69,6 +77,7 @@ export function useSprintActions({
   };
 
   const deleteSprint = (sprintId: string) => {
+    if (!can(currentUser, 'project:manage')) return deny();
     const sprint = sprints.find(item => item.id === sprintId);
     setSprints(previousSprints => previousSprints.filter(sprint => sprint.id !== sprintId));
     setIssues(previousIssues => previousIssues.map(issue => (

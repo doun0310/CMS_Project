@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
 import { IconDownload, IconReset, IconCheck, IconSettings } from '../common/Icons';
+import { can } from '../../utils/permissions';
 
 export const SettingsView: React.FC = () => {
   const {
     currentProject,
+    currentUser,
     exportDataJSON,
     importDataJSON,
     resetDemoData,
@@ -162,7 +164,7 @@ export const SettingsView: React.FC = () => {
             <button className="btn-primary" onClick={handleExport}>
               <IconDownload size={15} /> {t('exportData')}
             </button>
-            <button
+            {can(currentUser, 'team:manage') && <button
               className="btn-danger-outline"
               onClick={() => {
                 if (window.confirm(t('resetDataConfirm'))) {
@@ -172,10 +174,10 @@ export const SettingsView: React.FC = () => {
               }}
             >
               <IconReset size={15} /> {t('resetData')}
-            </button>
+            </button>}
           </div>
 
-          <form onSubmit={handleImportSubmit} className="import-form">
+          {can(currentUser, 'team:manage') && <form onSubmit={handleImportSubmit} className="import-form">
             <label className="settings-label">{t('importPayload')}</label>
             <textarea
               rows={4}
@@ -189,7 +191,7 @@ export const SettingsView: React.FC = () => {
                 {t('restoreProjectData')}
               </button>
             </div>
-          </form>
+          </form>}
         </div>
       </div>
     </div>

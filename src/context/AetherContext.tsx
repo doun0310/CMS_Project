@@ -42,6 +42,7 @@ import { useEpicActions } from '../hooks/useEpicActions';
 import { useRetroActions } from '../hooks/useRetroActions';
 import { useAutomationActions } from '../hooks/useAutomationActions';
 import { useProjectActions } from '../hooks/useProjectActions';
+import { can } from '../utils/permissions';
 
 // ─── Persistence Helpers ──────────────────────────────────────────────
 
@@ -76,7 +77,21 @@ const isLanguage = (value: unknown): value is Language =>
   value === 'ko' || value === 'en' || value === 'ja' || value === 'zh';
 
 const isProjectRole = (value: unknown): value is ProjectRole =>
-  value === 'Project Owner' || value === 'Project Admin' || value === 'Project Member' || value === 'Viewer';
+  value === 'Project Owner' || value === 'Project Manager' || value === 'Project Member' || value === 'Viewer';
+
+const fromDatabaseProjectRole = (role: unknown): ProjectRole => {
+  if (role === 'project_owner') return 'Project Owner';
+  if (role === 'project_manager') return 'Project Manager';
+  if (role === 'project_member') return 'Project Member';
+  return 'Viewer';
+};
+
+const toDatabaseProjectRole = (role: ProjectRole): 'viewer' | 'project_member' | 'project_manager' | 'project_owner' => {
+  if (role === 'Project Owner') return 'project_owner';
+  if (role === 'Project Manager') return 'project_manager';
+  if (role === 'Project Member') return 'project_member';
+  return 'viewer';
+};
 
 const toWorkspaceUser = (user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): User => ({
   id: user.id,
@@ -87,7 +102,7 @@ const toWorkspaceUser = (user: { id: string; email?: string; user_metadata?: Rec
     : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
   projectRole: isProjectRole(user.user_metadata?.project_role)
     ? user.user_metadata.project_role
-    : 'Project Member',
+    : 'Viewer',
   role: typeof user.user_metadata?.role === 'string' ? user.user_metadata.role : 'Team Member',
 });
 
@@ -231,7 +246,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.setProperty('--border-focus', accentColor);
   }, [accentColor]);
 
-  const initialProjectList = persistedState.projects ?? initialProjects;
+  const initialProjectList = (persistedState.projects ?? initialProjects).map(project => ({
+    ...project,
+    remoteId: project.remoteId ?? initialProjects.find(initial => initial.key === project.key)?.remoteId,
+  }));
   const initialIssueList = (persistedState.issues ?? initialIssues).map(issue => ({
     ...issue,
     projectId: issue.projectId || initialProjectList[0].id,
@@ -269,6 +287,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(isSupabaseConfigured);
+  const authenticatedUserId = authUser?.id;
 
   const switchAccount = (user: User) => {
     setCurrentUser(user);
@@ -304,12 +323,17 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const updateAccountProjectRole = async (accountId: string, projectRole: User['projectRole']): Promise<boolean> => {
     if (!projectRole || !isProjectRole(projectRole)) return false;
+    if (!can(currentUser, 'team:manage')) {
+      addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 권한은 Project Owner만 변경할 수 있습니다.' });
+      return false;
+    }
     const applyRole = (account: User) => account.id === accountId ? { ...account, projectRole } : account;
 
-    // Supabase Auth metadata is changed only for the active authenticated account.
-    // Roles for other workspace accounts remain stored with this workspace.
-    if (authUser?.id === accountId && isSupabaseConfigured) {
-      const { error } = await supabase.auth.updateUser({ data: { project_role: projectRole } });
+    // Server-side membership is the source of truth for authenticated accounts.
+    if (isSupabaseConfigured && currentProject.remoteId && /^[0-9a-f]{8}-/i.test(accountId)) {
+      const { error } = await supabase.functions.invoke('manage-project-member', {
+        body: { projectId: currentProject.remoteId, userId: accountId, role: toDatabaseProjectRole(projectRole) }
+      });
       if (error) {
         addNotification({ kind: 'system', title: '권한 저장 실패', text: error.message });
         return false;
@@ -388,6 +412,31 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       subscription.unsubscribe();
     };
   }, []);
+
+  // Auth metadata is not trusted for authorization. Load the current user's
+  // project role from the RLS-protected membership table instead.
+  useEffect(() => {
+    if (!isSupabaseConfigured || !authenticatedUserId || !currentProject.remoteId) return;
+    let cancelled = false;
+
+    supabase
+      .from('project_members')
+      .select('role')
+      .eq('project_id', currentProject.remoteId)
+      .eq('user_id', authenticatedUserId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) return;
+        const projectRole = fromDatabaseProjectRole(data.role);
+        const applyRole = (user: User) => user.id === authenticatedUserId ? { ...user, projectRole } : user;
+        setAuthUser(previous => previous ? applyRole(previous) : null);
+        setCurrentUser(previous => applyRole(previous));
+        setUsers(previous => previous.map(applyRole));
+        setSignedInAccounts(previous => previous.map(applyRole));
+      });
+
+    return () => { cancelled = true; };
+  }, [authenticatedUserId, currentProject.remoteId]);
 
   const [allEpics, setEpics] = useState<Epic[]>(() => {
     const raw: Epic[] = persistedState.epics ?? initialEpics;
@@ -469,6 +518,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setAutomationRules,
     setAutomationAuditLogs,
     issues,
+    currentUser,
   });
 
   const issueActions = useIssueActions({
@@ -488,6 +538,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setIssues,
     currentProject,
     sprints,
+    currentUser,
     notify: addNotification,
   });
 
@@ -496,6 +547,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setEpics,
     setIssues,
     currentProject,
+    currentUser,
   });
 
   const retroActions = useRetroActions({
@@ -509,6 +561,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     projects,
     setProjects,
     setCurrentProject,
+    currentUser,
   });
 
   // ── Persistence ───────────────────────────────────────────────────
@@ -557,7 +610,9 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
       } else {
         // If DB is empty, seed initial issues to Supabase
-        initialIssues.forEach((issue) => syncIssueToSupabase(issue, currentProject.id));
+        initialIssues
+          .filter(issue => issue.projectId === currentProject.id)
+          .forEach((issue) => syncIssueToSupabase(issue, currentProject.remoteId ?? currentProject.id));
       }
     });
 
@@ -608,7 +663,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       unsubscribeIssues();
       unsubscribeRetro();
     };
-  }, [currentProject.id]);
+  }, [currentProject.id, currentProject.remoteId]);
 
   // ── Misc Actions ──────────────────────────────────────────────────
 
@@ -617,6 +672,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const resetDemoData = () => {
+    if (!can(currentUser, 'team:manage')) {
+      addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 데이터 초기화는 Project Owner만 실행할 수 있습니다.' });
+      return;
+    }
     setIssues(initialIssues);
     setProjects(initialProjects);
     setSprints(initialSprints);
@@ -634,6 +693,10 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
+    if (!can(currentUser, 'team:manage')) {
+      addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 데이터 복원은 Project Owner만 실행할 수 있습니다.' });
+      return false;
+    }
     try {
       const parsed: unknown = JSON.parse(jsonStr);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;

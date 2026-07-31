@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import { IconX, IconPlus, IconCheck, IconTrash, IconSettings } from '../common/Icons';
 import type { Project } from '../../types/Aether';
+import { can } from '../../utils/permissions';
 
 interface ProjectSwitchModalProps {
   isOpen: boolean;
@@ -9,7 +10,7 @@ interface ProjectSwitchModalProps {
 }
 
 export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, setCurrentProject, setViewMode, setSearchQuery, setSelectedIssueId, createProject, updateProject, deleteProject, projects, issues, t } = useAether();
+  const { currentProject, currentUser, setCurrentProject, setViewMode, setSearchQuery, setSelectedIssueId, createProject, updateProject, deleteProject, projects, issues, t } = useAether();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newKey, setNewKey] = useState('');
@@ -111,24 +112,24 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                       <span className="meta-item">📁 {proj.category}</span>
                       <span className="meta-item">🎟️ {projIssues.length} {t('activeIssues')}</span>
                     </div>
-                    <div className="project-card-actions">
+                    {can(currentUser, 'team:manage') && <div className="project-card-actions">
                       <button type="button" className="project-card-action" onClick={event => { event.stopPropagation(); handleEditProject(proj); }}>
                         <IconSettings size={14} /> Edit
                       </button>
                       <button type="button" className="project-card-action danger" onClick={event => { event.stopPropagation(); handleDeleteProject(proj); }}>
                         <IconTrash size={14} /> Delete
                       </button>
-                    </div>
+                    </div>}
                   </div>
                 );
               })}
             </div>
 
-            <div className="modal-footer-actions">
+            {can(currentUser, 'team:manage') && <div className="modal-footer-actions">
               <button className="btn-primary" onClick={() => { setEditingProject(null); setNewKey(''); setNewName(''); setNewDesc(''); setIsCreating(true); }}>
                 <IconPlus size={16} /> {t('createWorkspace')}
               </button>
-            </div>
+            </div>}
           </div>
         ) : (
           <form onSubmit={handleCreateSubmit} className="create-project-form">

@@ -1,11 +1,13 @@
-import type { AutomationRule, AutomationAuditLog, Issue } from '../types/Aether';
+import type { AutomationRule, AutomationAuditLog, Issue, User } from '../types/Aether';
 import type { Dispatch, SetStateAction } from 'react';
+import { can } from '../utils/permissions';
 
 interface UseAutomationActionsParams {
   automationRules: AutomationRule[];
   setAutomationRules: Dispatch<SetStateAction<AutomationRule[]>>;
   setAutomationAuditLogs: Dispatch<SetStateAction<AutomationAuditLog[]>>;
   issues: Issue[];
+  currentUser: User;
 }
 
 export function useAutomationActions({
@@ -13,14 +15,17 @@ export function useAutomationActions({
   setAutomationRules,
   setAutomationAuditLogs,
   issues,
+  currentUser,
 }: UseAutomationActionsParams) {
   const toggleAutomationRule = (ruleId: string) => {
+    if (!can(currentUser, 'project:manage')) return;
     setAutomationRules(prev =>
       prev.map(r => (r.id === ruleId ? { ...r, enabled: !r.enabled } : r))
     );
   };
 
   const addAutomationRule = (name: string, trigger: string, action: string) => {
+    if (!can(currentUser, 'project:manage')) return;
     const newRule: AutomationRule = {
       id: `rule-${Date.now()}`,
       name,
@@ -33,10 +38,12 @@ export function useAutomationActions({
   };
 
   const deleteAutomationRule = (ruleId: string) => {
+    if (!can(currentUser, 'project:manage')) return;
     setAutomationRules(prev => prev.filter(rule => rule.id !== ruleId));
   };
 
   const runAutomationRule = (ruleId: string) => {
+    if (!can(currentUser, 'project:manage')) return;
     const rule = automationRules.find(r => r.id === ruleId);
     if (!rule) return;
 

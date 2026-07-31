@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import { useAether } from '../../context/AetherContextValue';
 import { PROJECT_ROLES, type ProjectRole, type User } from '../../types/Aether';
 import { IconX, IconCheckCircle, IconAlertTriangle } from '../common/Icons';
+import { can } from '../../utils/permissions';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [projectRole, setProjectRole] = useState<ProjectRole>('Project Member');
+  const projectRole: ProjectRole = 'Project Member';
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -42,7 +43,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { name: name.trim(), project_role: projectRole } }
+          // New accounts always start as Viewer. Only a Project Owner can grant access.
+          options: { data: { name: name.trim(), project_role: 'Viewer' } }
         });
         if (error) throw error;
 
@@ -52,7 +54,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             name: name.trim() || email.split('@')[0],
             email: data.user.email || email,
             avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-            projectRole,
+            projectRole: 'Viewer',
             role: 'Team Member'
           });
         }
@@ -92,7 +94,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         name: name.trim() || email.split('@')[0] || 'Team Member',
         email: email.trim() || 'user@aetherpulse.io',
         avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-        projectRole,
+        projectRole: mode === 'signup' ? 'Viewer' : projectRole,
         role: 'Agile Team Member'
       };
       addSignedInAccount(newAcc);
@@ -239,15 +241,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   </div>
                 )}
 
-                {mode === 'signup' && (
-                  <div className="auth-form-group">
-                    <label>프로젝트 권한</label>
-                    <select value={projectRole} onChange={(e) => setProjectRole(e.target.value as ProjectRole)}>
-                      {PROJECT_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}
-                    </select>
-                  </div>
-                )}
-
                 <div className="auth-form-group">
                   <label>Email Address</label>
                   <input
@@ -288,9 +281,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         <strong>{account.name}</strong>
                         <span>{account.email}</span>
                       </div>
-                      <select
+                    <select
                         aria-label={`${account.name} 프로젝트 권한`}
-                        value={account.projectRole || 'Project Member'}
+                      value={account.projectRole || 'Project Member'}
+                      disabled={!can(currentUser, 'team:manage')}
                         onChange={async (e) => {
                           const saved = await updateAccountProjectRole(account.id, e.target.value as ProjectRole);
                           if (saved) setSuccessMsg(`${account.name}의 프로젝트 권한을 저장했습니다.`);
@@ -301,6 +295,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   ))}
                 </div>
+                {!can(currentUser, 'team:manage') && <p className="account-role-access-note">프로젝트 권한은 Project Owner만 변경할 수 있습니다.</p>}
               </section>
 
               {/* Demo Quick Account Switcher */}

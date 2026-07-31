@@ -27,6 +27,7 @@ import {
   IconX,
 } from '../common/Icons';
 import { SAVED_JQL_PRESETS } from '../../utils/jqlEngine';
+import { can } from '../../utils/permissions';
 
 export const Header: React.FC = () => {
   const {
@@ -236,10 +237,10 @@ export const Header: React.FC = () => {
             </div>
           )}
         </div>
-        <button className="btn-create" onClick={() => setIsCreateModalOpen(true)}>
+        {can(currentUser, 'issue:write') && <button className="btn-create" onClick={() => setIsCreateModalOpen(true)}>
           <IconPlus size={16} />
           <span>{t('createIssue')}</span>
-        </button>
+        </button>}
       </div>
 
       {/* Center: Search + Filters */}

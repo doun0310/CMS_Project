@@ -28,7 +28,7 @@ export interface AetherContextValue {
   currentProject: Project;
   setCurrentProject: (project: Project) => void;
   projects: Project[];
-  createProject: (project: Omit<Project, 'id'>) => Project;
+  createProject: (project: Omit<Project, 'id'>) => Project | null;
   updateProject: (projectId: string, updates: Partial<Omit<Project, 'id'>>) => void;
   deleteProject: (projectId: string) => boolean;
   users: User[];
@@ -36,7 +36,7 @@ export interface AetherContextValue {
   authUser: User | null;
   isAuthLoading: boolean;
   epics: Epic[];
-  createEpic: (summary: string) => Epic;
+  createEpic: (summary: string) => Epic | null;
   updateEpic: (epicId: string, updates: Partial<Omit<Epic, 'id' | 'projectId'>>) => void;
   deleteEpic: (epicId: string) => void;
   sprints: Sprint[];
