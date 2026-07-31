@@ -325,13 +325,16 @@ export const BacklogView: React.FC = () => {
       {/* Realtime Sprint Goal & Progress Banner */}
       <SprintGoalBanner />
 
-      <div className="view-header-bar">
+      <div className="view-header-bar flex-between">
         <div>
-          <h1 className="view-title">{t('backlogViewTitle')}</h1>
+          <h2 className="view-title-with-icon">
+            <IconWorkItem size={20} color="#0065FF" />
+            {t('backlogViewTitle')}
+          </h2>
         </div>
 
-        <button className="btn-primary" onClick={() => setIsCreatingSprint(true)}>
-          <IconPlus size={16} /> {t('createSprint')}
+        <button className="btn-primary-sm" onClick={() => setIsCreatingSprint(true)}>
+          <IconPlus size={14} /> {t('createSprint')}
         </button>
       </div>
 

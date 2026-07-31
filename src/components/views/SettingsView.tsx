@@ -59,7 +59,7 @@ export const SettingsView: React.FC = () => {
     <div className="settings-view animate-fade-in">
       <div className="view-header-bar">
         <div>
-          <h2 className="view-title-with-icon"><IconSettings size={20} /> {t('settings')}</h2>
+          <h2 className="view-title-with-icon"><IconSettings size={20} color="var(--color-in-progress, #6366f1)" /> {t('settings')}</h2>
         </div>
       </div>
 

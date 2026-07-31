@@ -122,7 +122,7 @@ export const RoadmapView: React.FC = () => {
     <div className="roadmap-view animate-fade-in">
       <div className="view-header-bar flex-between">
         <div>
-          <h2 className="view-title-with-icon"><IconRoadmap size={20} /> {t('roadmapTitle')}</h2>
+          <h2 className="view-title-with-icon"><IconRoadmap size={20} color="var(--color-in-progress, #6366f1)" /> {t('roadmapTitle')}</h2>
         </div>
 
         <div className="roadmap-controls">

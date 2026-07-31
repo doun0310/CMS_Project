@@ -98,9 +98,12 @@ export const ArchitectureView: React.FC = () => {
 
   return (
     <div className="view-container architecture-view animate-fade-in">
-      <div className="view-header-row">
+      <div className="view-header-bar flex-between">
         <div>
-          <h1 className="view-title view-title-with-icon"><IconArchitecture size={20} /> {t('architectureTitle')}</h1>
+          <h2 className="view-title-with-icon">
+            <IconArchitecture size={20} color="var(--color-in-progress, #6366f1)" />
+            {t('architectureTitle')}
+          </h2>
         </div>
       </div>
 

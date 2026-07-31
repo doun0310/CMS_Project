@@ -323,7 +323,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
             ) : (
               <>
-                <h1 className="view-title">{boardTitle}</h1>
+                <h2 className="view-title-with-icon"><IconFeature size={20} color="var(--color-in-progress, #6366f1)" /> {boardTitle}</h2>
                 <button className="board-title-edit" onClick={handleEditBoardTitle} title="Edit board title"><IconSettings size={15} /></button>
               </>
             )}

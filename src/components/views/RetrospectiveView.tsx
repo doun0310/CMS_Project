@@ -175,7 +175,7 @@ export const RetrospectiveView: React.FC = () => {
     <div className="retrospective-view animate-fade-in">
       <div className="view-header-bar flex-between">
         <div>
-          <h2 className="view-title-with-icon"><IconRetro size={20} /> {t('retrospectiveTitle')}</h2>
+          <h2 className="view-title-with-icon"><IconRetro size={20} color="#6554C0" /> {t('retrospectiveTitle')}</h2>
         </div>
 
         {/* View Mode Sub-tabs */}
