@@ -78,7 +78,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
+    if (isSupabaseConfigured) {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+      });
+      if (error) setErrorMsg(error.message);
+      setLoading(false);
+      return;
+    }
     const googleUser: User = {
       id: `user-google-${Date.now()}`,
       name: 'Google User',
@@ -91,7 +101,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setTimeout(() => onClose(), 1000);
   };
 
-  const handleGitHubSignIn = () => {
+  const handleGitHubSignIn = async () => {
+    if (isSupabaseConfigured) {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: { redirectTo: window.location.origin }
+      });
+      if (error) setErrorMsg(error.message);
+      setLoading(false);
+      return;
+    }
     const githubUser: User = {
       id: `user-github-${Date.now()}`,
       name: 'GitHub Developer',
