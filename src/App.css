@@ -10598,7 +10598,198 @@ input:checked + .slider:before {
 .report-chart-y-label, .report-chart-x-label { fill: var(--text-tertiary); font-size: 10px; font-weight: 600; }
 .report-ideal-path { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 6 5; }
 .report-actual-path { fill: none; stroke: #6366f1; stroke-linecap: round; stroke-linejoin: round; stroke-width: 3.5; }
-.report-actual-point { fill: #6366f1; stroke: var(--bg-primary); stroke-width: 2; }
+.report-actual.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+/* Google-Style Account Switcher Dropdown & Social Auth */
+.google-account-switcher {
+  min-width: 320px;
+  max-width: 360px;
+  padding: 12px;
+}
+
+.account-switcher-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+}
+
+.current-user-avatar-lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--bg-accent-strong, #2563eb);
+}
+
+.current-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.current-user-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.current-user-email {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.current-user-role-badge {
+  font-size: 0.68rem;
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--bg-accent-soft, rgba(37, 99, 235, 0.1));
+  color: var(--bg-accent-strong, #2563eb);
+  border-radius: 6px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.signed-in-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.account-item:hover {
+  background: var(--bg-hover);
+}
+
+.account-item.active {
+  background: var(--bg-accent-soft, rgba(37, 99, 235, 0.08));
+}
+
+.account-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.active-tag {
+  font-size: 0.7rem;
+  color: #10b981;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.btn-remove-account {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.btn-remove-account:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.add-account-item {
+  color: var(--bg-accent-strong, #2563eb);
+  font-weight: 600;
+}
+
+.add-account-icon {
+  margin-right: 6px;
+}
+
+.danger-text {
+  color: #ef4444 !important;
+}
+
+.social-auth-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-social:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.btn-social.google:hover {
+  border-color: #4285f4;
+  background: rgba(66, 133, 244, 0.06);
+}
+
+.btn-social.github:hover {
+  border-color: #24292e;
+  background: rgba(36, 41, 46, 0.06);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  margin: 12px 0;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
 .chart-legend {
   display: flex;
   align-items: center;

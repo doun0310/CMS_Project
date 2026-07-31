@@ -24,6 +24,7 @@ import {
   IconSettings,
   IconTarget,
   IconUsers,
+  IconX,
 } from '../common/Icons';
 import { SAVED_JQL_PRESETS } from '../../utils/jqlEngine';
 
@@ -38,9 +39,11 @@ export const Header: React.FC = () => {
     setCurrentProject,
     setViewMode,
     projects,
-    users,
     currentUser,
-    setCurrentUser,
+    signedInAccounts,
+    switchAccount,
+    removeAccount,
+    signOutAllAccounts,
     searchQuery,
     setSearchQuery,
     onlyMyIssues,
@@ -420,33 +423,79 @@ export const Header: React.FC = () => {
             <IconChevronDown size={14} />
           </button>
           {isUserDropdownOpen && (
-            <div className="dropdown-menu right animate-fade-in">
-              <div className="dropdown-header">{t('switchCurrentUser').toUpperCase()}</div>
-              {users.map((u: User) => (
-                <div
-                  key={u.id}
-                  className={`dropdown-item ${u.id === currentUser.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setCurrentUser(u);
-                    setIsUserDropdownOpen(false);
-                  }}
-                >
-                  <img src={u.avatar} alt={u.name} className="dropdown-user-avatar" />
-                  <div>
-                    <div className="dropdown-title">{u.name}</div>
-                    <div className="dropdown-sub">{u.role}</div>
-                  </div>
+            <div className="dropdown-menu right animate-fade-in google-account-switcher">
+              <div className="account-switcher-header">
+                <img src={currentUser.avatar} alt={currentUser.name} className="current-user-avatar-lg" />
+                <div className="current-user-info">
+                  <div className="current-user-name">{currentUser.name}</div>
+                  <div className="current-user-email">{currentUser.email}</div>
+                  <span className="current-user-role-badge">{currentUser.role}</span>
                 </div>
-              ))}
+              </div>
+
               <div className="dropdown-divider" />
+              <div className="dropdown-header">{t('signedInAccounts').toUpperCase()} ({signedInAccounts.length})</div>
+
+              <div className="signed-in-accounts-list">
+                {signedInAccounts.map((u: User) => {
+                  const isActive = u.id === currentUser.id;
+                  return (
+                    <div
+                      key={u.id}
+                      className={`account-item ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        switchAccount(u);
+                        setIsUserDropdownOpen(false);
+                      }}
+                    >
+                      <img src={u.avatar} alt={u.name} className="dropdown-user-avatar" />
+                      <div className="account-item-details">
+                        <div className="dropdown-title">
+                          {u.name}
+                          {isActive && <span className="active-tag">✓ {t('activeAccount')}</span>}
+                        </div>
+                        <div className="dropdown-sub">{u.email}</div>
+                      </div>
+                      {signedInAccounts.length > 1 && (
+                        <button
+                          type="button"
+                          className="btn-remove-account"
+                          title={t('signOutThisAccount')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeAccount(u.id);
+                          }}
+                        >
+                          <IconX size={14} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="dropdown-divider" />
+
               <div
-                className="dropdown-item"
+                className="dropdown-item add-account-item"
                 onClick={() => {
                   setIsUserDropdownOpen(false);
                   openModal('auth');
                 }}
               >
-                <span className="dropdown-title">🔐 Supabase Sign In / Account</span>
+                <IconPlus size={16} className="add-account-icon" />
+                <span className="dropdown-title">{t('addAnotherAccount')}</span>
+              </div>
+
+              <div
+                className="dropdown-item signout-all-item"
+                onClick={() => {
+                  setIsUserDropdownOpen(false);
+                  signOutAllAccounts();
+                }}
+              >
+                <IconX size={16} className="signout-icon" />
+                <span className="dropdown-title danger-text">{t('signOutAll')}</span>
               </div>
             </div>
           )}

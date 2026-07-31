@@ -72,6 +72,11 @@ export interface AetherContextValue {
   setSelectedLabel: (label: string | null) => void;
   currentUser: User;
   setCurrentUser: (user: User) => void;
+  signedInAccounts: User[];
+  switchAccount: (account: User) => void;
+  addSignedInAccount: (account: User) => void;
+  removeAccount: (accountId: string) => void;
+  signOutAllAccounts: () => void;
 
   selectedIssueId: string | null;
   setSelectedIssueId: (id: string | null) => void;
