@@ -9,6 +9,7 @@ import {
   IconBug,
   IconInitiative,
   IconSubtask,
+  IconBacklog,
   PriorityHighest,
   PriorityHigh,
   PriorityMedium,
@@ -328,7 +329,7 @@ export const BacklogView: React.FC = () => {
       <div className="view-header-bar flex-between">
         <div>
           <h2 className="view-title-with-icon">
-            <IconWorkItem size={20} color="#0065FF" />
+            <IconBacklog size={20} color="var(--color-in-progress, #6366f1)" />
             {t('backlogViewTitle')}
           </h2>
         </div>

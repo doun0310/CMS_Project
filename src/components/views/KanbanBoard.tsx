@@ -7,6 +7,7 @@ import {
   IconBug,
   IconInitiative,
   IconSubtask,
+  IconBoard,
   PriorityHighest,
   PriorityHigh,
   PriorityMedium,
@@ -158,26 +159,30 @@ export const KanbanBoard: React.FC = () => {
     setIsEditingBoardTitle(false);
   };
 
-  // Filter issues with JQL engine & active sprint filters
-  const jqlFiltered = filterIssuesWithJQL(issues, searchQuery, currentUser.id, activeSprint?.id);
+  // Filter issues with JQL engine & active sprint filters (Memoized for High FPS Performance)
+  const filteredIssues = React.useMemo(() => {
+    const jqlFiltered = filterIssuesWithJQL(issues, searchQuery, currentUser.id, activeSprint?.id);
+    return jqlFiltered.filter((issue: Issue) => {
+      if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
+      if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
+      if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
+      if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
+      if (selectedLabel && !(issue.labels || []).includes(selectedLabel)) return false;
 
-  const filteredIssues = jqlFiltered.filter((issue: Issue) => {
-    if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
-    if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
-    if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
-    if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
-    if (selectedLabel && !(issue.labels || []).includes(selectedLabel)) return false;
+      if (activeSprint) {
+        return issue.sprintId === activeSprint.id || !issue.sprintId;
+      }
+      return true;
+    });
+  }, [issues, searchQuery, currentUser.id, activeSprint, onlyMyIssues, selectedEpicId, selectedType, selectedPriority, selectedLabel]);
 
-    if (activeSprint) {
-      return issue.sprintId === activeSprint.id || !issue.sprintId;
-    }
-    return true;
-  });
+  const allLabels = React.useMemo(() => {
+    return Array.from(new Set(issues.flatMap(i => i.labels || [])));
+  }, [issues]);
 
-  const allLabels = Array.from(new Set(issues.flatMap(i => i.labels || [])));
-  // Keep every tag available until a choice is made. Once selected, the bar becomes
-  // compact and keeps only the active tag plus the clear action visible.
-  const visibleLabels = selectedLabel ? allLabels.filter(label => label === selectedLabel) : allLabels;
+  const visibleLabels = React.useMemo(() => {
+    return selectedLabel ? allLabels.filter(label => label === selectedLabel) : allLabels;
+  }, [selectedLabel, allLabels]);
 
   const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
     { status: 'todo', title: t('todo'), color: '#94a3b8' },
@@ -186,31 +191,38 @@ export const KanbanBoard: React.FC = () => {
     { status: 'done', title: t('done'), color: '#10b981' }
   ];
 
-  // Build swimlane groups dynamically based on mode
-  const swimlaneGroups: SwimlaneGroup[] = [];
-  if (swimlaneBy === 'assignee') {
-    users.forEach(u => swimlaneGroups.push({ id: u.id, name: u.name }));
-    swimlaneGroups.push({ id: UNASSIGNED_GROUP_ID, name: t('unassigned') });
-  } else if (swimlaneBy === 'epic' || swimlaneBy === 'initiative') {
-    const projectEpics = epics.filter(e => !e.projectId || e.projectId === currentProject.id);
-    projectEpics.forEach(e => swimlaneGroups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
-    swimlaneGroups.push({ id: NO_EPIC_GROUP_ID, name: t('issuesWithoutEpic') });
-  } else if (swimlaneBy === 'priority') {
-    const priorityLabels: Record<Priority, string> = {
-      highest: t('highestPriority'),
-      high: t('highPriority'),
-      medium: t('mediumPriority'),
-      low: t('lowPriority'),
-      lowest: t('lowestPriority')
-    };
-    PRIORITY_GROUPS.forEach(p => swimlaneGroups.push({ id: p, name: priorityLabels[p] }));
-  }
+  // Build swimlane groups dynamically based on mode (Memoized)
+  const swimlaneGroups: SwimlaneGroup[] = React.useMemo(() => {
+    const groups: SwimlaneGroup[] = [];
+    if (swimlaneBy === 'assignee') {
+      users.forEach(u => groups.push({ id: u.id, name: u.name }));
+      groups.push({ id: UNASSIGNED_GROUP_ID, name: t('unassigned') });
+    } else if (swimlaneBy === 'epic' || swimlaneBy === 'initiative') {
+      const projectEpics = epics.filter(e => !e.projectId || e.projectId === currentProject.id);
+      projectEpics.forEach(e => groups.push({ id: e.id, name: `${e.key}: ${e.summary}` }));
+      groups.push({ id: NO_EPIC_GROUP_ID, name: t('issuesWithoutEpic') });
+    } else if (swimlaneBy === 'priority') {
+      const priorityLabels: Record<Priority, string> = {
+        highest: t('highestPriority'),
+        high: t('highPriority'),
+        medium: t('mediumPriority'),
+        low: t('lowPriority'),
+        lowest: t('lowestPriority')
+      };
+      PRIORITY_GROUPS.forEach(p => groups.push({ id: p, name: priorityLabels[p] }));
+    }
+    return groups;
+  }, [swimlaneBy, users, epics, currentProject.id, t]);
 
   // Drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, issueId: string) => {
     e.dataTransfer.setData('text/plain', issueId);
     setDraggedIssueId(issueId);
   }, []);
+
+  const handleSelectIssue = useCallback((issueId: string) => {
+    setSelectedIssueId(issueId);
+  }, [setSelectedIssueId]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -292,7 +304,7 @@ export const KanbanBoard: React.FC = () => {
         assigneeLabelText={t('assigneeLabel')}
         unassignedText={t('unassigned')}
         onDragStart={handleDragStart}
-        onSelectIssue={setSelectedIssueId}
+        onSelectIssue={handleSelectIssue}
       />
     );
   };
@@ -323,7 +335,7 @@ export const KanbanBoard: React.FC = () => {
               </div>
             ) : (
               <>
-                <h2 className="view-title-with-icon"><IconFeature size={20} color="var(--color-in-progress, #6366f1)" /> {boardTitle}</h2>
+                <h2 className="view-title-with-icon"><IconBoard size={20} color="var(--color-in-progress, #6366f1)" /> {boardTitle}</h2>
                 <button className="board-title-edit" onClick={handleEditBoardTitle} title="Edit board title"><IconSettings size={15} /></button>
               </>
             )}

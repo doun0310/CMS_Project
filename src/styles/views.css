@@ -1,10 +1,18 @@
 /* Main Page View Styles */
 
-/* Kanban Board View */
+/* Kanban Board View - 60FPS Performance Optimized */
 .kanban-view {
   display: flex;
   flex-direction: column;
   height: 100%;
+  contain: layout style;
+}
+
+.kanban-card {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: content;
 }
 
 .board-header {
