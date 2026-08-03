@@ -6,13 +6,11 @@ import type {
   AutomationRule,
   AutomationAuditLog,
   AppNotification,
-  IssueType,
   Priority,
   ProjectRole,
   Project,
   RetrospectiveItem,
-  User,
-  ViewMode
+  User
 } from '../types/Aether';
 import {
   initialUsers,
@@ -24,7 +22,7 @@ import {
   initialRetrospectiveItems,
   initialAutomationAuditLogs
 } from '../mock/AetherData';
-import { translations, type Language } from '../i18n/translations';
+import type { Language } from '../i18n/translations';
 import { AetherContext } from './AetherContextValue';
 import { isSupabaseConfigured, subscribeToTable, supabase } from '../services/supabase';
 import {
@@ -43,6 +41,8 @@ import { useRetroActions } from '../hooks/useRetroActions';
 import { useAutomationActions } from '../hooks/useAutomationActions';
 import { useProjectActions } from '../hooks/useProjectActions';
 import { can } from '../utils/permissions';
+import { UIProvider } from './UIContext';
+import { useUIState } from '../hooks/useUIState';
 
 // ─── Persistence Helpers ──────────────────────────────────────────────
 
@@ -236,12 +236,9 @@ const readPersistedState = (): PersistedState => {
 
 // ─── Provider ─────────────────────────────────────────────────────────
 
-export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // ── Core State ────────────────────────────────────────────────────
-  const [persistedState] = useState(readPersistedState);
-  const [theme, setTheme] = useState<'light' | 'dark'>(persistedState.theme ?? 'dark');
-  const [accentColor, setAccentColor] = useState(persistedState.accentColor ?? '#6366f1');
-  const [language, setLanguage] = useState<Language>(persistedState.language ?? 'ko');
+const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: PersistedState }> = ({ children, persistedState }) => {
+  const ui = useUIState();
+  const { theme, toggleTheme, accentColor, setAccentColor, language, setLanguage, t, viewMode, setViewMode, searchQuery, setSearchQuery, onlyMyIssues, setOnlyMyIssues, selectedEpicId, setSelectedEpicId, selectedType, setSelectedType, selectedPriority, setSelectedPriority, selectedLabel, setSelectedLabel, selectedIssueId, setSelectedIssueId, isCreateModalOpen, setIsCreateModalOpen } = ui;
 
   useEffect(() => {
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
@@ -518,21 +515,7 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     [allRetrospectiveItems, currentProject.id]
   );
 
-  const [viewMode, setViewMode] = useState<ViewMode>('my-work');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [onlyMyIssues, setOnlyMyIssues] = useState<boolean>(false);
-  const [selectedEpicId, setSelectedEpicId] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<IssueType | 'all'>('all');
-  const [selectedPriority, setSelectedPriority] = useState<Priority | 'all'>('all');
-  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
-
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-
-  const t = (key: string): string => {
-    const langDict = translations[language] || translations.en;
-    return langDict[key] || translations.en[key] || key;
-  };
+  // UI State is now delegated to UIProvider via useUIState()
 
   // ── Domain Hooks ──────────────────────────────────────────────────
 
@@ -691,10 +674,6 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // ── Misc Actions ──────────────────────────────────────────────────
 
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
-
   const resetDemoData = () => {
     if (!can(currentUser, 'team:manage')) {
       addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 데이터 초기화는 Project Owner만 실행할 수 있습니다.' });
@@ -835,5 +814,18 @@ export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     >
       {children}
     </AetherContext.Provider>
+  );
+};
+
+export const AetherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [persistedState] = useState(readPersistedState);
+  return (
+    <UIProvider
+      initialTheme={persistedState.theme}
+      initialLanguage={persistedState.language}
+      initialAccentColor={persistedState.accentColor}
+    >
+      <AetherProviderContent persistedState={persistedState}>{children}</AetherProviderContent>
+    </UIProvider>
   );
 };

@@ -27,6 +27,124 @@ import {
 import { isIssueTypeMatch } from '../../utils/typeMatcher';
 import { SprintGoalBanner } from '../common/SprintGoalBanner';
 
+interface BacklogIssueRowProps {
+  issue: Issue;
+  isBacklog: boolean;
+  epic?: Epic;
+  assignee?: User;
+  sprints: Sprint[];
+  selectedBacklogIssueIds: string[];
+  setSelectedBacklogIssueIds: React.Dispatch<React.SetStateAction<string[]>>;
+  updateIssue: (id: string, updates: Partial<Issue>) => void;
+  setSelectedIssueId: (id: string | null) => void;
+  t: (key: string) => string;
+}
+
+const BacklogIssueRow = React.memo(({
+  issue,
+  isBacklog,
+  epic,
+  assignee,
+  sprints,
+  selectedBacklogIssueIds,
+  setSelectedBacklogIssueIds,
+  updateIssue,
+  setSelectedIssueId,
+  t
+}: BacklogIssueRowProps) => {
+  const renderTypeIcon = (type: IssueType) => {
+    switch (type) {
+      case 'feature':
+      case 'story':
+        return <IconFeature size={16} />;
+      case 'workitem':
+      case 'task':
+        return <IconWorkItem size={16} />;
+      case 'bug':
+        return <IconBug size={16} />;
+      case 'initiative':
+      case 'epic':
+        return <IconInitiative size={16} />;
+      default:
+        return <IconSubtask size={16} />;
+    }
+  };
+
+  const renderPriorityIcon = (prio: Priority) => {
+    switch (prio) {
+      case 'highest': return <PriorityHighest size={14} />;
+      case 'high': return <PriorityHigh size={14} />;
+      case 'medium': return <PriorityMedium size={14} />;
+      case 'low': return <PriorityLow size={14} />;
+      case 'lowest': return <PriorityLowest size={14} />;
+    }
+  };
+
+  return (
+    <div
+      className="backlog-issue-row"
+      onClick={() => setSelectedIssueId(issue.id)}
+    >
+      <div className="row-left">
+        {isBacklog && (
+          <input
+            className="backlog-row-check"
+            type="checkbox"
+            checked={selectedBacklogIssueIds.includes(issue.id)}
+            onClick={event => event.stopPropagation()}
+            onChange={() => setSelectedBacklogIssueIds(current =>
+              current.includes(issue.id) ? current.filter(id => id !== issue.id) : [...current, issue.id]
+            )}
+            aria-label={`${t('selectIssue')} ${issue.key}`}
+          />
+        )}
+        <span className="row-type" title={issue.type}>{renderTypeIcon(issue.type)}</span>
+        <span className="row-key">{issue.key}</span>
+        <span className="row-summary">{issue.summary}</span>
+      </div>
+
+      <div className="row-right">
+        {epic && (
+          <span className="row-epic-tag" style={{ backgroundColor: epic.color + '20', color: epic.color }}>
+            {epic.summary}
+          </span>
+        )}
+
+        <span className={`status-badge status-${issue.status}`}>
+          {t(issue.status)}
+        </span>
+
+        <span className="row-priority" title={issue.priority}>
+          {renderPriorityIcon(issue.priority)}
+        </span>
+
+        {assignee ? (
+          <img src={assignee.avatar} alt={assignee.name} className="assignee-avatar" title={assignee.name} />
+        ) : (
+          <div className="unassigned-avatar"><IconUser size={14} /></div>
+        )}
+
+        <span className="points-badge">{issue.storyPoints || '-'}</span>
+
+        <select
+          className="row-sprint-select"
+          value={issue.sprintId || 'backlog'}
+          onClick={e => e.stopPropagation()}
+          onChange={e => {
+            const val = e.target.value;
+            updateIssue(issue.id, { sprintId: val === 'backlog' ? null : val });
+          }}
+        >
+          <option value="backlog">{t('backlogLabel')}</option>
+          {sprints.map((s: Sprint) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+});
+
 export const BacklogView: React.FC = () => {
   const {
     issues,
@@ -107,34 +225,6 @@ export const BacklogView: React.FC = () => {
     return true;
   });
 
-  const renderTypeIcon = (type: IssueType) => {
-    switch (type) {
-      case 'feature':
-      case 'story':
-        return <IconFeature size={16} />;
-      case 'workitem':
-      case 'task':
-        return <IconWorkItem size={16} />;
-      case 'bug':
-        return <IconBug size={16} />;
-      case 'initiative':
-      case 'epic':
-        return <IconInitiative size={16} />;
-      default:
-        return <IconSubtask size={16} />;
-    }
-  };
-
-  const renderPriorityIcon = (prio: Priority) => {
-    switch (prio) {
-      case 'highest': return <PriorityHighest size={14} />;
-      case 'high': return <PriorityHigh size={14} />;
-      case 'medium': return <PriorityMedium size={14} />;
-      case 'low': return <PriorityLow size={14} />;
-      case 'lowest': return <PriorityLowest size={14} />;
-    }
-  };
-
   const handleCreateSprintSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newSprintName.trim()) return;
@@ -161,69 +251,19 @@ export const BacklogView: React.FC = () => {
     const assignee = users.find((u: User) => u.id === issue.assigneeId);
 
     return (
-      <div
+      <BacklogIssueRow
         key={issue.id}
-        className="backlog-issue-row"
-        onClick={() => setSelectedIssueId(issue.id)}
-      >
-        <div className="row-left">
-          {isBacklog && (
-            <input
-              className="backlog-row-check"
-              type="checkbox"
-              checked={selectedBacklogIssueIds.includes(issue.id)}
-              onClick={event => event.stopPropagation()}
-              onChange={() => setSelectedBacklogIssueIds(current =>
-                current.includes(issue.id) ? current.filter(id => id !== issue.id) : [...current, issue.id]
-              )}
-              aria-label={`${t('selectIssue')} ${issue.key}`}
-            />
-          )}
-          <span className="row-type" title={issue.type}>{renderTypeIcon(issue.type)}</span>
-          <span className="row-key">{issue.key}</span>
-          <span className="row-summary">{issue.summary}</span>
-        </div>
-
-        <div className="row-right">
-          {epic && (
-            <span className="row-epic-tag" style={{ backgroundColor: epic.color + '20', color: epic.color }}>
-              {epic.summary}
-            </span>
-          )}
-
-          <span className={`status-badge status-${issue.status}`}>
-            {t(issue.status)}
-          </span>
-
-          <span className="row-priority" title={issue.priority}>
-            {renderPriorityIcon(issue.priority)}
-          </span>
-
-          {assignee ? (
-            <img src={assignee.avatar} alt={assignee.name} className="assignee-avatar" title={assignee.name} />
-          ) : (
-            <div className="unassigned-avatar"><IconUser size={14} /></div>
-          )}
-
-          <span className="points-badge">{issue.storyPoints || '-'}</span>
-
-          {/* Move to Sprint / Backlog Selector */}
-          <select
-            className="row-sprint-select"
-            value={issue.sprintId || 'backlog'}
-            onClick={e => e.stopPropagation()}
-            onChange={e => {
-              const val = e.target.value;
-              updateIssue(issue.id, { sprintId: val === 'backlog' ? null : val });
-            }}
-          >
-            <option value="backlog">{t('backlogLabel')}</option>
-            {sprints.map((s: Sprint) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+        issue={issue}
+        isBacklog={isBacklog}
+        epic={epic}
+        assignee={assignee}
+        sprints={sprints}
+        selectedBacklogIssueIds={selectedBacklogIssueIds}
+        setSelectedBacklogIssueIds={setSelectedBacklogIssueIds}
+        updateIssue={updateIssue}
+        setSelectedIssueId={setSelectedIssueId}
+        t={t}
+      />
     );
   };
 
