@@ -173,7 +173,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         <div className="modal-body auth-modal-body">
           {isAuthLoading ? (
-            <div className="auth-alert">Supabase session 확인 중...</div>
+            <div className="auth-alert">{t('checkingSession')}</div>
           ) : (
             <>
               {/* Quick Social SSO Logins */}
@@ -268,10 +268,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </button>
               </form>
 
-              <section className="account-role-section" aria-label="프로젝트 권한 관리">
+              <section className="account-role-section" aria-label={t('accountProjectRoles')}>
                 <div className="account-role-heading">
-                  <strong>계정별 프로젝트 권한</strong>
-                  <p>직무와 별도로 프로젝트에서 수행할 수 있는 범위를 정합니다.</p>
+                  <strong>{t('accountProjectRoles')}</strong>
+                  <p>{t('accountProjectRolesSubtitle')}</p>
                 </div>
                 <div className="account-role-list">
                   {signedInAccounts.map((account) => (
@@ -282,12 +282,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         <span>{account.email}</span>
                       </div>
                     <select
-                        aria-label={`${account.name} 프로젝트 권한`}
+                        aria-label={`${account.name} ${t('accountProjectRoles')}`}
                       value={account.projectRole || 'Project Member'}
                       disabled={!can(currentUser, 'team:manage')}
                         onChange={async (e) => {
                           const saved = await updateAccountProjectRole(account.id, e.target.value as ProjectRole);
-                          if (saved) setSuccessMsg(`${account.name}의 프로젝트 권한을 저장했습니다.`);
+                          if (saved) setSuccessMsg(`${account.name} -> ${e.target.value}`);
                         }}
                       >
                         {PROJECT_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}
@@ -295,7 +295,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   ))}
                 </div>
-                {!can(currentUser, 'team:manage') && <p className="account-role-access-note">프로젝트 권한은 Project Owner만 변경할 수 있습니다.</p>}
+                {!can(currentUser, 'team:manage') && <p className="account-role-access-note">{t('onlyOwnerCanChangeRoles')}</p>}
               </section>
 
               {/* Demo Quick Account Switcher */}

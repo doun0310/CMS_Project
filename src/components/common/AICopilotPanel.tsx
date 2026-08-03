@@ -10,7 +10,7 @@ import {
 import { IconX, IconZap, IconCheck } from './Icons';
 
 export const AICopilotPanel: React.FC = () => {
-  const { users, sprints, issues, selectedIssueId, updateIssue, addSubtask } = useAether();
+  const { users, sprints, issues, selectedIssueId, updateIssue, addSubtask, t } = useAether();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'advisor' | 'rebalance' | 'generator'>('advisor');
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -37,17 +37,17 @@ export const AICopilotPanel: React.FC = () => {
 
   const handleGenerate = () => {
     if (!inputSummary.trim()) {
-      setFeedback('Generate할 이슈 요약을 먼저 입력해 주세요.');
+      setFeedback(t('aiEnterSummary'));
       return;
     }
     const res = generateAISpecs(inputSummary);
     setAiResult(res);
-    setFeedback('AI 제안이 생성되었습니다. 검토 후 적용할 수 있습니다.');
+    setFeedback(t('aiProposalGenerated'));
   };
 
   const handleApplyToIssue = () => {
     if (!selectedIssue || !aiResult) {
-      setFeedback('적용할 열린 이슈를 먼저 선택해 주세요.');
+      setFeedback(t('aiSelectOpenIssue'));
       return;
     }
 
@@ -65,8 +65,8 @@ export const AICopilotPanel: React.FC = () => {
 
     setFeedback(
       newSubtasks.length > 0
-        ? `${selectedIssue.key}에 스토리 포인트와 ${newSubtasks.length}개의 새 서브태스크를 반영했습니다.`
-        : `${selectedIssue.key}의 스토리 포인트를 업데이트했고, 중복 없는 새 서브태스크는 없었습니다.`
+        ? `${selectedIssue.key} + ${newSubtasks.length} subtasks (${aiResult.suggestedPoints} pts)`
+        : `${selectedIssue.key} -> ${aiResult.suggestedPoints} pts`
     );
   };
 
@@ -76,8 +76,8 @@ export const AICopilotPanel: React.FC = () => {
     const movedIssue = issues.find(issue => issue.id === issueId);
     setFeedback(
       movedIssue && targetUser
-        ? `${movedIssue.key}를 ${targetUser.name}에게 재할당했습니다.`
-        : '이슈를 재할당했습니다.'
+        ? `${movedIssue.key} -> ${targetUser.name}`
+        : t('aiReassignedSuccess')
     );
   };
 

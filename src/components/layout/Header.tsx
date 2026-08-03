@@ -377,7 +377,7 @@ export const Header: React.FC = () => {
               </div>
               <div className="notif-items-list">
                 {notifications.length === 0 ? (
-                  <div className="notif-empty-state">새로운 알림이 없습니다.</div>
+                  <div className="notif-empty-state">{t('noNotifications')}</div>
                 ) : notifications.map(notification => (
                   <div key={notification.id} className="notif-item" onClick={() => {
                     if (notification.issueId) setSelectedIssueId(notification.issueId);

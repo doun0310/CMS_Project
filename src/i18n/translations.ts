@@ -404,7 +404,18 @@ export const translations: Record<Language, Record<string, string>> = {
     singleOwnerSilos: 'Single-Owner Silos (Bus Factor = 1)',
     siloRiskWarning: 'High risk of project delay if key owners are unavailable.',
     siloRiskOk: 'Healthy knowledge distribution across all subsystem components.',
-    triggerKnowledgeTransfer: 'Trigger Cross-Training Task'
+    triggerKnowledgeTransfer: 'Trigger Cross-Training Task',
+
+    // Global & Modals Missing Keys
+    noNotifications: 'No new notifications.',
+    accountProjectRoles: 'Account Project Roles',
+    accountProjectRolesSubtitle: 'Define project execution scope independently from job titles.',
+    onlyOwnerCanChangeRoles: 'Only Project Owner can change project roles.',
+    aiEnterSummary: 'Please enter an issue summary to generate specs.',
+    aiProposalGenerated: 'AI proposal generated. Review and apply.',
+    aiSelectOpenIssue: 'Please select an open issue to apply.',
+    aiReassignedSuccess: 'Reassigned issue successfully.',
+    checkingSession: 'Checking Supabase session...'
   },
 
   ko: {
@@ -811,7 +822,18 @@ export const translations: Record<Language, Record<string, string>> = {
     singleOwnerSilos: '단일 소유자 독점 모듈 (Bus Factor = 1)',
     siloRiskWarning: '핵심 담당자 부재 시 프로젝트 지연 위험이 높습니다.',
     siloRiskOk: '모든 서브시스템 컴포넌트에 지식이 고르게 공유되고 있습니다.',
-    triggerKnowledgeTransfer: '지식 공유 짝 프로그래밍 생성'
+    triggerKnowledgeTransfer: '지식 공유 짝 프로그래밍 생성',
+
+    // Global & Modals Missing Keys
+    noNotifications: '새로운 알림이 없습니다.',
+    accountProjectRoles: '계정별 프로젝트 권한',
+    accountProjectRolesSubtitle: '직무와 별도로 프로젝트에서 수행할 수 있는 범위를 정합니다.',
+    onlyOwnerCanChangeRoles: '프로젝트 권한은 Project Owner만 변경할 수 있습니다.',
+    aiEnterSummary: 'Generate할 이슈 요약을 먼저 입력해 주세요.',
+    aiProposalGenerated: 'AI 제안이 생성되었습니다. 검토 후 적용할 수 있습니다.',
+    aiSelectOpenIssue: '적용할 열린 이슈를 먼저 선택해 주세요.',
+    aiReassignedSuccess: '이슈를 재할당했습니다.',
+    checkingSession: 'Supabase session 확인 중...'
   },
 
   ja: {
@@ -1137,7 +1159,18 @@ export const translations: Record<Language, Record<string, string>> = {
     singleOwnerSilos: '単一所有者サイロ (Bus Factor = 1)',
     siloRiskWarning: '主要担当者の離脱時にプロジェクト遅延のリスクが高まります。',
     siloRiskOk: 'すべてのサブシステムで健全に知識が共有されています。',
-    triggerKnowledgeTransfer: 'クロス・トレーニングタスクを生成'
+    triggerKnowledgeTransfer: 'クロス・トレーニングタスクを生成',
+
+    // Global & Modals Missing Keys
+    noNotifications: '新しい通知はありません。',
+    accountProjectRoles: 'アカウント別プロジェクト権限',
+    accountProjectRolesSubtitle: '職務とは独立してプロジェクトでの実行範囲を設定します。',
+    onlyOwnerCanChangeRoles: 'プロジェクト権限はProject Ownerのみ変更できます。',
+    aiEnterSummary: 'スペックを生成する課題の要約を入力してください。',
+    aiProposalGenerated: 'AI提案が生成されました。確認して適用できます。',
+    aiSelectOpenIssue: '適用するオープン課題を先に選択してください。',
+    aiReassignedSuccess: '課題を再割り当てしました。',
+    checkingSession: 'Supabaseセッションを確認中...'
   },
 
   zh: {
@@ -1463,6 +1496,17 @@ export const translations: Record<Language, Record<string, string>> = {
     singleOwnerSilos: '单人掌控模块 (Bus Factor = 1)',
     siloRiskWarning: '关键负责人不可用时存在项目延迟的高风险。',
     siloRiskOk: '所有子系统组件均拥有健康的技术知识共享。',
-    triggerKnowledgeTransfer: '触发交叉培训任务'
+    triggerKnowledgeTransfer: '触发交叉培训任务',
+
+    // Global & Modals Missing Keys
+    noNotifications: '暂无新通知。',
+    accountProjectRoles: '按账户项目权限',
+    accountProjectRolesSubtitle: '独立于职务设定项目内的执行权限范围。',
+    onlyOwnerCanChangeRoles: '仅 Project Owner 可修改项目权限。',
+    aiEnterSummary: '请先输入要生成 Issue 摘要。',
+    aiProposalGenerated: '已生成 AI 建议，审查后可应用。',
+    aiSelectOpenIssue: '请先选择要应用事项。',
+    aiReassignedSuccess: '已重新分配事项。',
+    checkingSession: '正在检查 Supabase 会话...'
   }
 };
