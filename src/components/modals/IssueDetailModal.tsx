@@ -1,7 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
-import { IconX, IconTrash, IconClock, IconLink } from '../common/Icons';
+import {
+  IconX,
+  IconTrash,
+  IconClock,
+  IconLink,
+  IconFeature,
+  IconWorkItem,
+  IconBug,
+  IconInitiative,
+  IconSubtask,
+  PriorityHighest,
+  PriorityHigh,
+  PriorityMedium,
+  PriorityLow,
+  PriorityLowest
+} from '../common/Icons';
 
 export const IssueDetailModal: React.FC = () => {
   const {
@@ -93,17 +108,48 @@ export const IssueDetailModal: React.FC = () => {
     });
   };
 
+  const getTypeIcon = (type: IssueType) => {
+    switch (type) {
+      case 'feature':
+      case 'story':
+        return <IconFeature size={16} />;
+      case 'workitem':
+      case 'task':
+        return <IconWorkItem size={16} />;
+      case 'bug':
+        return <IconBug size={16} />;
+      case 'initiative':
+      case 'epic':
+        return <IconInitiative size={16} />;
+      default:
+        return <IconSubtask size={16} />;
+    }
+  };
+
+  const getPriorityIcon = (priority: Priority) => {
+    switch (priority) {
+      case 'highest': return <PriorityHighest size={16} />;
+      case 'high': return <PriorityHigh size={16} />;
+      case 'medium': return <PriorityMedium size={16} />;
+      case 'low': return <PriorityLow size={16} />;
+      case 'lowest': return <PriorityLowest size={16} />;
+    }
+  };
+
   return (
     <div className="modal-backdrop animate-fade-in" onClick={() => setSelectedIssueId(null)}>
-      <div className="issue-detail-drawer animate-slide-in" onClick={e => e.stopPropagation()}>
+      <div className="issue-detail-drawer glass-drawer animate-slide-in" onClick={e => e.stopPropagation()}>
         {/* Drawer Header */}
-        <div className="drawer-header">
-          <div className="header-left-info">
-            <span className="issue-type-badge">{isInitiative ? t('typeInitiative') : issue.type.toUpperCase()}</span>
+        <div className="drawer-header glass-drawer-header">
+          <div className="header-left-info flex-center gap-2">
+            <span className={`type-badge-chip type-${issue.type}`}>
+              {getTypeIcon(issue.type)}
+              <span>{isInitiative ? t('typeInitiative') : issue.type.toUpperCase()}</span>
+            </span>
             <span className="issue-key-large">{issue.key}</span>
           </div>
 
-          <div className="header-actions">
+          <div className="header-actions flex-center gap-2">
             <button
               className="btn-icon-danger"
               title={t('deleteIssue')}
@@ -511,7 +557,12 @@ useEffect(() => {
             </div>
 
             <div className="field-group">
-              <label>{t('priority')}</label>
+              <label className="flex-between">
+                <span>{t('priority')}</span>
+                <span className="priority-icon-inline flex-center gap-1">
+                  {getPriorityIcon(issue.priority)}
+                </span>
+              </label>
               <select
                 value={issue.priority}
                 onChange={e => updateIssue(issue.id, { priority: e.target.value as Priority })}

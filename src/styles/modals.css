@@ -6231,3 +6231,56 @@
   background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
 }
 
+/* Glassmorphic Drawer & Detail Enhancements */
+.issue-detail-drawer.glass-drawer {
+  background: var(--bg-glass, rgba(15, 23, 42, 0.92));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.glass-drawer-header {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.type-badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+}
+
+.type-badge-chip.type-bug {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.type-badge-chip.type-initiative {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+}
+
+.type-badge-chip.type-workitem {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+}
+
+.priority-icon-inline {
+  display: inline-flex;
+  align-items: center;
+}
+
