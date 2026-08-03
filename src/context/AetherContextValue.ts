@@ -70,6 +70,10 @@ export interface AetherContextValue {
   setSelectedPriority: (priority: Priority | 'all') => void;
   selectedLabel: string | null;
   setSelectedLabel: (label: string | null) => void;
+  selectedLabels: string[];
+  setSelectedLabels: Dispatch<SetStateAction<string[]>>;
+  toggleSelectedLabel: (label: string) => void;
+  clearSelectedLabels: () => void;
   currentUser: User;
   setCurrentUser: (user: User) => void;
   signedInAccounts: User[];

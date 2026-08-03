@@ -17,7 +17,7 @@ export const RoadmapView: React.FC = () => {
   const [newEpicSummary, setNewEpicSummary] = useState('');
   const [editingEpicId, setEditingEpicId] = useState<string | null>(null);
   const [editingEpicSummary, setEditingEpicSummary] = useState('');
-  const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language];
+  const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language] || 'ko-KR';
   const initiatives = issues.filter((issue: Issue) => issue.type === 'initiative');
 
   const toggleEpic = (id: string) => {

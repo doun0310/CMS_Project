@@ -3289,3 +3289,21 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   line-height: 1.4;
 }
+
+.tag-count-badge {
+  font-size: 0.72rem;
+  opacity: 0.8;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.tag-pill.clear-all-pill {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.tag-pill.clear-all-pill:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}

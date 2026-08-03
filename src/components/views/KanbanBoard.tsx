@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
+import { TagSearchFilter } from '../common/TagSearchFilter';
 import type { Epic, Issue, IssueStatus, Priority, Sprint, User } from '../../types/Aether';
 import {
   IconFeature,
@@ -113,8 +114,9 @@ export const KanbanBoard: React.FC = () => {
     selectedEpicId,
     selectedType,
     selectedPriority,
-    selectedLabel,
-    setSelectedLabel,
+    selectedLabels,
+    toggleSelectedLabel,
+    clearSelectedLabels,
     t
   } = useAether();
 
@@ -167,22 +169,28 @@ export const KanbanBoard: React.FC = () => {
       if (selectedEpicId && issue.epicId !== selectedEpicId) return false;
       if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
       if (selectedPriority !== 'all' && issue.priority !== selectedPriority) return false;
-      if (selectedLabel && !(issue.labels || []).includes(selectedLabel)) return false;
+      if (selectedLabels.length > 0 && !(issue.labels || []).some(lbl => selectedLabels.includes(lbl))) return false;
 
       if (activeSprint) {
         return issue.sprintId === activeSprint.id || !issue.sprintId;
       }
       return true;
     });
-  }, [issues, searchQuery, currentUser.id, activeSprint, onlyMyIssues, selectedEpicId, selectedType, selectedPriority, selectedLabel]);
+  }, [issues, searchQuery, currentUser.id, activeSprint, onlyMyIssues, selectedEpicId, selectedType, selectedPriority, selectedLabels]);
 
   const allLabels = React.useMemo(() => {
     return Array.from(new Set(issues.flatMap(i => i.labels || [])));
   }, [issues]);
 
-  const visibleLabels = React.useMemo(() => {
-    return selectedLabel ? allLabels.filter(label => label === selectedLabel) : allLabels;
-  }, [selectedLabel, allLabels]);
+  const labelCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    issues.forEach(issue => {
+      (issue.labels || []).forEach(lbl => {
+        counts[lbl] = (counts[lbl] || 0) + 1;
+      });
+    });
+    return counts;
+  }, [issues]);
 
   const columns: { status: IssueStatus; title: string; color: string; wipLimit?: number }[] = [
     { status: 'todo', title: t('todo'), color: '#94a3b8' },
@@ -368,26 +376,40 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Tag Filter Pills Bar */}
-      <div className={`tag-filter-pills-bar ${selectedLabel ? 'has-selected-tag' : ''}`}>
+      <div className={`tag-filter-pills-bar ${selectedLabels.length > 0 ? 'has-selected-tag' : ''}`}>
         <span className="filter-label">{t('filterByTag')}</span>
         <div className="tag-filter-list">
           <button
-            className={`tag-pill ${selectedLabel === null ? 'active' : ''}`}
-            onClick={() => setSelectedLabel(null)}
-            aria-pressed={selectedLabel === null}
+            className={`tag-pill ${selectedLabels.length === 0 ? 'active' : ''}`}
+            onClick={clearSelectedLabels}
+            aria-pressed={selectedLabels.length === 0}
           >
             {t('groupNone')}
           </button>
-          {visibleLabels.map(lbl => (
+          {allLabels.map(lbl => {
+            const isSelected = selectedLabels.includes(lbl);
+            const count = labelCounts[lbl] || 0;
+            return (
+              <button
+                key={lbl}
+                className={`tag-pill ${isSelected ? 'active' : ''}`}
+                onClick={() => toggleSelectedLabel(lbl)}
+                aria-pressed={isSelected}
+              >
+                #{lbl} <span className="tag-count-badge">({count})</span>
+              </button>
+            );
+          })}
+          {selectedLabels.length > 0 && (
             <button
-              key={lbl}
-              className={`tag-pill ${selectedLabel === lbl ? 'active' : ''}`}
-              onClick={() => setSelectedLabel(selectedLabel === lbl ? null : lbl)}
-              aria-pressed={selectedLabel === lbl}
+              className="tag-pill clear-all-pill"
+              onClick={clearSelectedLabels}
+              title="Reset all tag filters"
             >
-              #{lbl}
+              ✕ {t('clearFilters')} ({selectedLabels.length})
             </button>
-          ))}
+          )}
+          <TagSearchFilter allLabels={allLabels} labelCounts={labelCounts} />
         </div>
       </div>
 

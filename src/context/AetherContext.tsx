@@ -238,7 +238,7 @@ const readPersistedState = (): PersistedState => {
 
 const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: PersistedState }> = ({ children, persistedState }) => {
   const ui = useUIState();
-  const { theme, toggleTheme, accentColor, setAccentColor, language, setLanguage, t, viewMode, setViewMode, searchQuery, setSearchQuery, onlyMyIssues, setOnlyMyIssues, selectedEpicId, setSelectedEpicId, selectedType, setSelectedType, selectedPriority, setSelectedPriority, selectedLabel, setSelectedLabel, selectedIssueId, setSelectedIssueId, isCreateModalOpen, setIsCreateModalOpen } = ui;
+  const { theme, toggleTheme, accentColor, setAccentColor, language, setLanguage, t, viewMode, setViewMode, searchQuery, setSearchQuery, onlyMyIssues, setOnlyMyIssues, selectedEpicId, setSelectedEpicId, selectedType, setSelectedType, selectedPriority, setSelectedPriority, selectedLabel, setSelectedLabel, selectedLabels, setSelectedLabels, toggleSelectedLabel, clearSelectedLabels, selectedIssueId, setSelectedIssueId, isCreateModalOpen, setIsCreateModalOpen } = ui;
 
   useEffect(() => {
     document.documentElement.style.setProperty('--color-in-progress', accentColor);
@@ -789,6 +789,10 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
         setSelectedPriority,
         selectedLabel,
         setSelectedLabel,
+        selectedLabels,
+        setSelectedLabels,
+        toggleSelectedLabel,
+        clearSelectedLabels,
         currentUser,
         setCurrentUser,
         signedInAccounts,

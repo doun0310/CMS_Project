@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAether } from '../../context/AetherContextValue';
+import { TagSearchFilter } from '../common/TagSearchFilter';
 import type { Epic, Issue, IssueType, Priority, Sprint, User } from '../../types/Aether';
 import { SprintCelebrationModal } from '../modals/SprintCelebrationModal';
 import {
@@ -163,6 +164,9 @@ export const BacklogView: React.FC = () => {
     searchQuery,
     onlyMyIssues,
     selectedType,
+    selectedLabels,
+    toggleSelectedLabel,
+    clearSelectedLabels,
     t
   } = useAether();
 
@@ -198,12 +202,12 @@ export const BacklogView: React.FC = () => {
     setEditEndDate(sprint.endDate || '');
   };
 
-  const handleEditSprintSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEditSprintSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingSprint || !editSprintName.trim()) return;
+    if (!editingSprint) return;
     updateSprint(editingSprint.id, {
-      name: editSprintName.trim(),
-      goal: editSprintGoal.trim(),
+      name: editSprintName,
+      goal: editSprintGoal,
       startDate: editStartDate,
       endDate: editEndDate,
     });
@@ -214,6 +218,20 @@ export const BacklogView: React.FC = () => {
     if (window.confirm(`Delete ${sprint.name}? Assigned issues will move to the backlog.`)) deleteSprint(sprint.id);
   };
 
+  const allLabels = React.useMemo(() => {
+    return Array.from(new Set(issues.flatMap(i => i.labels || [])));
+  }, [issues]);
+
+  const labelCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    issues.forEach(issue => {
+      (issue.labels || []).forEach(lbl => {
+        counts[lbl] = (counts[lbl] || 0) + 1;
+      });
+    });
+    return counts;
+  }, [issues]);
+
   // Filter issues
   const filteredIssues = issues.filter(issue => {
     if (searchQuery.trim()) {
@@ -222,6 +240,7 @@ export const BacklogView: React.FC = () => {
     }
     if (onlyMyIssues && issue.assigneeId !== currentUser.id) return false;
     if (selectedType !== 'all' && !isIssueTypeMatch(issue.type, selectedType)) return false;
+    if (selectedLabels.length > 0 && !(issue.labels || []).some(lbl => selectedLabels.includes(lbl))) return false;
     return true;
   });
 
@@ -355,10 +374,29 @@ export const BacklogView: React.FC = () => {
   const activeSprintDone = activeSprintIssues.filter(issue => issue.status === 'done').length;
   const futureSprintCount = sprints.filter(sprint => sprint.status === 'future').length;
 
+  const [bulkTagInput, setBulkTagInput] = useState('');
+  const [isBulkTagOpen, setIsBulkTagOpen] = useState(false);
+
   const handleBulkPlan = () => {
     if (!planningSprintId || selectedBacklogIssueIds.length === 0) return;
     selectedBacklogIssueIds.forEach(issueId => updateIssue(issueId, { sprintId: planningSprintId }));
     setSelectedBacklogIssueIds([]);
+  };
+
+  const handleBulkAddTag = () => {
+    if (!bulkTagInput.trim() || selectedBacklogIssueIds.length === 0) return;
+    const tagToAdd = bulkTagInput.trim().toLowerCase();
+    selectedBacklogIssueIds.forEach(issueId => {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        const existingLabels = issue.labels || [];
+        if (!existingLabels.includes(tagToAdd)) {
+          updateIssue(issueId, { labels: [...existingLabels, tagToAdd] });
+        }
+      }
+    });
+    setBulkTagInput('');
+    setIsBulkTagOpen(false);
   };
 
   return (
@@ -396,6 +434,44 @@ export const BacklogView: React.FC = () => {
           <small>{t('notStarted')}</small>
         </div>
       </section>
+
+      {/* Tag Filter Pills Bar */}
+      <div className={`tag-filter-pills-bar ${selectedLabels.length > 0 ? 'has-selected-tag' : ''}`} style={{ marginBottom: '16px' }}>
+        <span className="filter-label">{t('filterByTag')}</span>
+        <div className="tag-filter-list">
+          <button
+            className={`tag-pill ${selectedLabels.length === 0 ? 'active' : ''}`}
+            onClick={clearSelectedLabels}
+            aria-pressed={selectedLabels.length === 0}
+          >
+            {t('groupNone')}
+          </button>
+          {allLabels.map(lbl => {
+            const isSelected = selectedLabels.includes(lbl);
+            const count = labelCounts[lbl] || 0;
+            return (
+              <button
+                key={lbl}
+                className={`tag-pill ${isSelected ? 'active' : ''}`}
+                onClick={() => toggleSelectedLabel(lbl)}
+                aria-pressed={isSelected}
+              >
+                #{lbl} <span className="tag-count-badge">({count})</span>
+              </button>
+            );
+          })}
+          {selectedLabels.length > 0 && (
+            <button
+              className="tag-pill clear-all-pill"
+              onClick={clearSelectedLabels}
+              title="Reset all tag filters"
+            >
+              ✕ {t('clearFilters')} ({selectedLabels.length})
+            </button>
+          )}
+          <TagSearchFilter allLabels={allLabels} labelCounts={labelCounts} />
+        </div>
+      </div>
 
       {/* Create Sprint Modal */}
       {isCreatingSprint && (
@@ -495,8 +571,42 @@ export const BacklogView: React.FC = () => {
             <span className="sprint-points-summary">({backlogIssues.length} {t('issues')} • {backlogPoints} SP)</span>
           </div>
           {backlogIssues.length > 0 && (
-            <div className="backlog-plan-controls">
+            <div className="backlog-plan-controls flex-center gap-2">
               <span>{selectedBacklogIssueIds.length ? `${selectedBacklogIssueIds.length} ${t('selected')}` : t('selectToPlan')}</span>
+              
+              {/* Bulk Tagging Control */}
+              {selectedBacklogIssueIds.length > 0 && (
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  {isBulkTagOpen ? (
+                    <div className="flex-center gap-1">
+                      <input
+                        type="text"
+                        placeholder="Tag (e.g. security)"
+                        value={bulkTagInput}
+                        onChange={e => setBulkTagInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleBulkAddTag()}
+                        autoFocus
+                        style={{
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '6px',
+                          padding: '3px 8px',
+                          fontSize: '0.78rem',
+                          color: 'var(--text-primary)',
+                          width: '120px',
+                        }}
+                      />
+                      <button className="btn-primary-sm" style={{ padding: '3px 8px', fontSize: '0.75rem' }} onClick={handleBulkAddTag}>Apply</button>
+                      <button className="btn-ghost-sm" style={{ padding: '3px 6px', fontSize: '0.75rem' }} onClick={() => setIsBulkTagOpen(false)}>✕</button>
+                    </div>
+                  ) : (
+                    <button className="btn-ghost-sm flex-center gap-1" style={{ fontSize: '0.78rem' }} onClick={() => setIsBulkTagOpen(true)}>
+                      🏷️ 태그 일괄 추가
+                    </button>
+                  )}
+                </div>
+              )}
+
               <select value={planningSprintId} onChange={event => setPlanningSprintId(event.target.value)}>
                 <option value="">{t('chooseSprint')}</option>
                 {sprints.filter(sprint => sprint.status !== 'completed').map(sprint => (

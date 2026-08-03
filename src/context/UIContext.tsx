@@ -26,6 +26,10 @@ export interface UIContextValue {
   setSelectedPriority: (priority: Priority | 'all') => void;
   selectedLabel: string | null;
   setSelectedLabel: (label: string | null) => void;
+  selectedLabels: string[];
+  setSelectedLabels: Dispatch<SetStateAction<string[]>>;
+  toggleSelectedLabel: (label: string) => void;
+  clearSelectedLabels: () => void;
 
   selectedIssueId: string | null;
   setSelectedIssueId: (id: string | null) => void;
@@ -58,7 +62,26 @@ export const UIProvider: React.FC<UIProviderProps> = ({
   const [selectedEpicId, setSelectedEpicId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<IssueType | 'all'>('all');
   const [selectedPriority, setSelectedPriority] = useState<Priority | 'all'>('all');
-  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+  const selectedLabel = selectedLabels.length > 0 ? selectedLabels[0] : null;
+
+  const setSelectedLabel = (label: string | null) => {
+    if (label === null) {
+      setSelectedLabels([]);
+    } else {
+      setSelectedLabels([label]);
+    }
+  };
+
+  const toggleSelectedLabel = (label: string) => {
+    setSelectedLabels(prev =>
+      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
+    );
+  };
+
+  const clearSelectedLabels = () => {
+    setSelectedLabels([]);
+  };
 
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -96,6 +119,10 @@ export const UIProvider: React.FC<UIProviderProps> = ({
     setSelectedPriority,
     selectedLabel,
     setSelectedLabel,
+    selectedLabels,
+    setSelectedLabels,
+    toggleSelectedLabel,
+    clearSelectedLabels,
     selectedIssueId,
     setSelectedIssueId,
     isCreateModalOpen,
@@ -112,6 +139,7 @@ export const UIProvider: React.FC<UIProviderProps> = ({
     selectedType,
     selectedPriority,
     selectedLabel,
+    selectedLabels,
     selectedIssueId,
     isCreateModalOpen,
   ]);
