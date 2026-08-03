@@ -8,17 +8,24 @@ export interface AISpecSuggestion {
   reasoning: string;
 }
 
+export interface AILocalizedItem {
+  key: string;
+  params?: Record<string, string | number>;
+  rawText: string;
+}
+
 export interface AISprintInsights {
   healthScore: number; // 0-100
   blockersCount: number;
-  risks: string[];
-  recommendations: string[];
+  risks: (string | AILocalizedItem)[];
+  recommendations: (string | AILocalizedItem)[];
 }
 
 export interface DailyStandupDigest {
   completedYesterday: string[];
   inProgressToday: string[];
   blockersDetected: string[];
+  aiPredictionKey?: 'aiPredictionHigh' | 'aiPredictionModerate';
   aiPrediction: string;
 }
 
@@ -68,8 +75,14 @@ export const analyzeSprintHealth = (sprint: Sprint, issues: Issue[]): AISprintIn
     return {
       healthScore: 100,
       blockersCount: 0,
-      risks: ['No issues currently assigned to this sprint.'],
-      recommendations: ['Add backlog items to active sprint commitments.']
+      risks: [{
+        key: 'aiRiskEmpty',
+        rawText: 'No issues currently assigned to this sprint.'
+      }],
+      recommendations: [{
+        key: 'aiRecEmpty',
+        rawText: 'Add backlog items to active sprint commitments.'
+      }]
     };
   }
 
@@ -83,26 +96,49 @@ export const analyzeSprintHealth = (sprint: Sprint, issues: Issue[]): AISprintIn
   let healthScore = Math.round(completionRatio * 65 + (15 - highestPrioCount * 3) + (10 - unassignedCount * 2) + 10);
   healthScore = Math.max(28, Math.min(99, healthScore));
 
-  const risks: string[] = [];
-  const recommendations: string[] = [];
+  const risks: (string | AILocalizedItem)[] = [];
+  const recommendations: (string | AILocalizedItem)[] = [];
 
   if (highestPrioCount > 0) {
-    risks.push(`${highestPrioCount} Highest Priority issues remain unresolved in Active Sprint.`);
-    recommendations.push(`Prioritize resolving Highest Priority tasks immediately.`);
+    risks.push({
+      key: 'aiRiskHighestPriority',
+      params: { count: highestPrioCount },
+      rawText: `${highestPrioCount} Highest Priority issues remain unresolved in Active Sprint.`
+    });
+    recommendations.push({
+      key: 'aiRecHighestPriority',
+      rawText: 'Prioritize resolving Highest Priority tasks immediately.'
+    });
   }
 
   if (unassignedCount > 0) {
-    risks.push(`${unassignedCount} issues in active sprint are currently unassigned.`);
-    recommendations.push(`Use 1-Click AI Auto-Balancer to distribute unassigned tasks evenly.`);
+    risks.push({
+      key: 'aiRiskUnassigned',
+      params: { count: unassignedCount },
+      rawText: `${unassignedCount} issues in active sprint are currently unassigned.`
+    });
+    recommendations.push({
+      key: 'aiRecUnassigned',
+      rawText: 'Use 1-Click AI Auto-Balancer to distribute unassigned tasks evenly.'
+    });
   }
 
   if (completionRatio < 0.4 && sprintIssues.length > 5) {
-    risks.push(`Sprint progress is lagging behind ideal burndown trajectory.`);
-    recommendations.push(`Consider scope reduction or re-estimating remaining work items.`);
+    risks.push({
+      key: 'aiRiskLagging',
+      rawText: 'Sprint progress is lagging behind ideal burndown trajectory.'
+    });
+    recommendations.push({
+      key: 'aiRecLagging',
+      rawText: 'Consider scope reduction or re-estimating remaining work items.'
+    });
   }
 
   if (healthScore > 85) {
-    recommendations.push(`Sprint velocity is optimal! Target early release testing or stretch goals.`);
+    recommendations.push({
+      key: 'aiRecOptimal',
+      rawText: 'Sprint velocity is optimal! Target early release testing or stretch goals.'
+    });
   }
 
   return {
@@ -146,7 +182,9 @@ export const calculateWorkloadRebalance = (users: User[], issues: Issue[]): Work
         issueSummary: issue.summary,
         fromUserId: 'Unassigned',
         toUserId: minUser.user.id,
-        reason: `Assigning unassigned task to ${minUser.user.name} (Lowest current load: ${minUser.points} pts)`
+        reason: `Assigning unassigned task to ${minUser.user.name} (Lowest current load: ${minUser.points} pts)`,
+        reasonKey: 'aiRebalanceReasonUnassigned',
+        reasonParams: { name: minUser.user.name, points: minUser.points }
       });
       minUser.points += issue.storyPoints || 1;
       minUser.count += 1;
@@ -168,7 +206,15 @@ export const calculateWorkloadRebalance = (users: User[], issues: Issue[]): Work
         issueSummary: candidate.summary,
         fromUserId: highest.user.id,
         toUserId: lowest.user.id,
-        reason: `Rebalancing ${candidate.key} from ${highest.user.name} (${highest.points} pts) to ${lowest.user.name} (${lowest.points} pts)`
+        reason: `Rebalancing ${candidate.key} from ${highest.user.name} (${highest.points} pts) to ${lowest.user.name} (${lowest.points} pts)`,
+        reasonKey: 'aiRebalanceReasonOverloaded',
+        reasonParams: {
+          key: candidate.key,
+          fromName: highest.user.name,
+          fromPoints: highest.points,
+          toName: lowest.user.name,
+          toPoints: lowest.points
+        }
       });
     }
   }
@@ -181,13 +227,15 @@ export const generateDailyStandupDigest = (issues: Issue[]): DailyStandupDigest 
   const inProgress = issues.filter(i => i.status === 'in_progress' || i.status === 'in_review').map(i => `[${i.key}] ${i.summary}`);
   const blockers = issues.filter(i => i.priority === 'highest' && i.status !== 'done').map(i => `[${i.key}] ${i.summary} (High Priority Block)` + (i.assigneeId ? '' : ' - Unassigned!'));
 
+  const isHigh = doneRecently.length > 2;
   return {
     completedYesterday: doneRecently.length > 0 ? doneRecently : ['No tasks completed in last 24h cycle'],
     inProgressToday: inProgress.length > 0 ? inProgress : ['No active in-progress tasks'],
     blockersDetected: blockers.length > 0 ? blockers : ['No critical blockers detected'],
-    aiPrediction: doneRecently.length > 2 
-      ? '🚀 High momentum! Project is on track for upcoming sprint milestone.' 
-      : '⚠️ Moderate velocity detected. Focus on resolving in-progress review items today.'
+    aiPredictionKey: isHigh ? 'aiPredictionHigh' : 'aiPredictionModerate',
+    aiPrediction: isHigh
+      ? 'High momentum! Project is on track for upcoming sprint milestone.' 
+      : 'Moderate velocity detected. Focus on resolving in-progress review items today.'
   };
 };
 

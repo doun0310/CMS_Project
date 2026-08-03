@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconReset, IconCheck, IconSettings } from '../common/Icons';
+import { IconDownload, IconReset, IconCheck, IconSettings, IconFolder } from '../common/Icons';
 import { can } from '../../utils/permissions';
 
 export const SettingsView: React.FC = () => {
@@ -124,7 +124,7 @@ export const SettingsView: React.FC = () => {
         {/* Card 2: Project Profile */}
         <div className="settings-card">
           <div className="settings-card-header">
-            <h3>📁 {t('activeProjectProfile')}</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconFolder size={18} color="var(--color-in-progress, #6366f1)" /> {t('activeProjectProfile')}</h3>
             <span className="card-badge">{currentProject.key}</span>
           </div>
 

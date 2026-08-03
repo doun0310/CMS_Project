@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import { IconAiSpark, IconPortfolio, IconUsers } from '../common/Icons';
 
+import { ProjectAvatar } from '../common/ProjectAvatar';
+
 export const PortfolioView: React.FC = () => {
   const { projects, portfolioIssues, users, setCurrentProject, setViewMode, updateProject, t } = useAether();
 
@@ -36,7 +38,7 @@ export const PortfolioView: React.FC = () => {
           const lead = users.find(user => user.id === project.leadUserId);
           return (
             <article key={project.id} className={`portfolio-proj-card ${project.status}`}>
-              <div className="proj-card-top"><div className="proj-avatar">{project.avatar}</div><div className="proj-meta"><span className="proj-name">{project.name}</span><span className="proj-key font-mono">[{project.key}]</span></div><span className={`proj-status-badge ${project.status}`}>{project.status === 'on_track' ? `🟢 ${t('onTrack')}` : project.status === 'warning' ? `🟡 ${t('attention')}` : `🔴 ${t('atRisk')}`}</span></div>
+              <div className="proj-card-top"><ProjectAvatar avatar={project.avatar} projectKey={project.key} name={project.name} size="md" /><div className="proj-meta"><span className="proj-name">{project.name}</span><span className="proj-key font-mono">[{project.key}]</span></div><span className={`proj-status-badge ${project.status}`}>{project.status === 'on_track' ? `🟢 ${t('onTrack')}` : project.status === 'warning' ? `🟡 ${t('attention')}` : `🔴 ${t('atRisk')}`}</span></div>
               <div className="proj-stats-row"><div className="stat-item"><span className="stat-label">{t('activeIssues')}</span><span className="stat-val">{project.activeIssues}</span></div><div className="stat-item"><span className="stat-label">{t('totalPoints')}</span><span className="stat-val">{project.totalPoints}</span></div><div className="stat-item"><span className="stat-label">{t('completion')}</span><span className="stat-val">{project.completionPct}%</span></div></div>
               <div className="proj-progress-wrap"><div className="proj-progress-bar" style={{ width: `${project.completionPct}%` }} /></div>
               <div className="portfolio-lead-control"><span>{t('lead')}</span><select value={project.leadUserId || ''} onChange={event => updateProject(project.id, { leadUserId: event.target.value || null })}><option value="">{t('unassigned')}</option>{users.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}</select></div>

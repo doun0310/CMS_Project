@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import { IconX, IconPlus, IconCheck, IconTrash, IconSettings } from '../common/Icons';
+import { IconX, IconPlus, IconCheck, IconTrash, IconSettings, IconFolder, IconWorkItem, IconBoard } from '../common/Icons';
 import type { Project } from '../../types/Aether';
 import { can } from '../../utils/permissions';
+
+import { ProjectAvatar } from '../common/ProjectAvatar';
 
 interface ProjectSwitchModalProps {
   isOpen: boolean;
@@ -43,7 +45,7 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
         key: newKey.trim().toUpperCase(),
         name: newName.trim(),
         category: 'Software Engineering',
-        avatar: '✦',
+        avatar: 'custom-proj',
         description: newDesc.trim() || t('projectDescriptionDefault')
       });
     }
@@ -75,7 +77,7 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
       <div className="project-switch-modal glass-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
           <div className="title-with-icon">
-            <span></span>
+            <span><IconBoard size={18} color="var(--color-in-progress, #6366f1)" /></span>
             <h3>{t('workspacesTitle')}</h3>
           </div>
           <button className="btn-icon-close" onClick={onClose}>
@@ -97,9 +99,7 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                     onClick={() => handleSelectProject(proj)}
                   >
                     <div className="card-top">
-                      <span className="project-avatar-lg project-avatar-symbol" aria-hidden="true">
-                        {proj.avatar.startsWith('http') || proj.avatar.startsWith('data:image') ? '✦' : proj.avatar}
-                      </span>
+                      <ProjectAvatar avatar={proj.avatar} projectKey={proj.key} name={proj.name} size="lg" />
                       <div className="proj-info">
                         <span className="proj-key">{proj.key}</span>
                         <h4 className="proj-name">{proj.name}</h4>
@@ -109,8 +109,8 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
                     <p className="proj-desc">{proj.description}</p>
 
                     <div className="proj-meta-footer">
-                      <span className="meta-item">📁 {proj.category}</span>
-                      <span className="meta-item">🎟️ {projIssues.length} {t('activeIssues')}</span>
+                      <span className="meta-item"><IconFolder size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {proj.category}</span>
+                      <span className="meta-item"><IconWorkItem size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {projIssues.length} {t('activeIssues')}</span>
                     </div>
                     {can(currentUser, 'team:manage') && <div className="project-card-actions">
                       <button type="button" className="project-card-action" onClick={event => { event.stopPropagation(); handleEditProject(proj); }}>

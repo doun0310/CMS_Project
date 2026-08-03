@@ -50,7 +50,7 @@ export const initialProjects: Project[] = [
     key: 'CLOUD',
     name: 'Cloud AI Core Platform',
     category: 'Software Development (Agile)',
-    avatar: '⚡',
+    avatar: 'cloud-ai',
     description: 'Next-gen distributed AI inference & Enterprise SaaS engine'
   },
   {
@@ -59,7 +59,7 @@ export const initialProjects: Project[] = [
     key: 'MOBILE',
     name: 'AetherPulse Mobile iOS & Android',
     category: 'Mobile Application',
-    avatar: '📱',
+    avatar: 'mobile-app',
     description: 'Native mobile productivity app for agile project tracking'
   },
   {
@@ -68,7 +68,7 @@ export const initialProjects: Project[] = [
     key: 'OPS',
     name: 'IT Service & Infrastructure Ops',
     category: 'IT Service Management',
-    avatar: '🛠️',
+    avatar: 'infra-ops',
     description: 'Global cloud infrastructure, security patching & SLA desk'
   }
 ];

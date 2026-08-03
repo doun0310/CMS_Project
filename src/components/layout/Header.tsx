@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { useModal } from '../../hooks/useModalContext';
+import { ProjectAvatar } from '../common/ProjectAvatar';
 import type { Language } from '../../i18n/translations';
 import type { IssueType, Project, User } from '../../types/Aether';
 import {
@@ -199,7 +200,7 @@ export const Header: React.FC = () => {
               setIsProjectDropdownOpen(current => !current);
             }}
           >
-            <span className="proj-avatar">{currentProject.avatar}</span>
+            <ProjectAvatar avatar={currentProject.avatar} projectKey={currentProject.key} name={currentProject.name} size="sm" />
             <span className="proj-name">{currentProject.name}</span>
             <IconChevronDown size={14} />
           </button>
@@ -218,7 +219,7 @@ export const Header: React.FC = () => {
                     setIsProjectDropdownOpen(false);
                   }}
                 >
-                  <span className="dropdown-avatar">{p.avatar}</span>
+                  <ProjectAvatar avatar={p.avatar} projectKey={p.key} name={p.name} size="sm" />
                   <div>
                     <div className="dropdown-title">{p.name}</div>
                     <div className="dropdown-sub">{p.key} • {p.category}</div>

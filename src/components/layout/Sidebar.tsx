@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAether } from '../../context/AetherContextValue';
+import { ProjectAvatar } from '../common/ProjectAvatar';
 import type { ViewMode } from '../../types/Aether';
 import {
   IconBoard,
@@ -93,7 +94,7 @@ export const Sidebar: React.FC = () => {
   return (
     <aside className="app-sidebar">
       <div className="sidebar-project-card">
-        <div className="project-icon">{currentProject.avatar}</div>
+        <ProjectAvatar avatar={currentProject.avatar} projectKey={currentProject.key} name={currentProject.name} size="md" />
         <div className="project-info">
           <div className="project-title">{currentProject.name}</div>
           <div className="project-type">{currentProject.key}</div>

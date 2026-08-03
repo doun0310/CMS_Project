@@ -32,20 +32,20 @@ export const ReleaseNotesModal: React.FC<ReleaseNotesModalProps> = ({ isOpen, on
 4. **On-Call Lead**: Alex Rivera (@alex.rivera)`;
 
   const releaseMarkdown = `
-# 🚀 ${t('releaseNotesTitle')} - ${currentProject.name} (${versionTag})
+# ${t('releaseNotesTitle')} - ${currentProject.name} (${versionTag})
 **${t('sprint')}:** ${activeSprint.name}
 **Date:** ${new Date().toLocaleDateString()}
 
-${initiatives.length > 0 ? `## 🎯 ${t('typeInitiative')}
+${initiatives.length > 0 ? `## ${t('typeInitiative')}
 ${initiatives.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
 ` : ''}
-${features.length > 0 ? `## 🚀 ${t('typeFeature')}
+${features.length > 0 ? `## ${t('typeFeature')}
 ${features.map(i => `- **[${i.key}]** ${i.summary} (@${users.find(u => u.id === i.assigneeId)?.name || teamLabel})`).join('\n')}
 ` : ''}
-${workItems.length > 0 ? `## 🛠️ ${t('typeWorkItem')}
+${workItems.length > 0 ? `## ${t('typeWorkItem')}
 ${workItems.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
 ` : ''}
-${bugs.length > 0 ? `## 🐛 ${t('typeBug')}
+${bugs.length > 0 ? `## ${t('typeBug')}
 ${bugs.map(i => `- **[${i.key}]** ${i.summary}`).join('\n')}
 ` : ''}
 ${includeRollbackPlan ? rollbackPlanText : ''}

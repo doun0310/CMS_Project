@@ -92,8 +92,8 @@ describe('aiCopilot service', () => {
 
       const health = analyzeSprintHealth(mockSprint, issues);
       expect(health.blockersCount).toBe(1);
-      expect(health.risks.some(r => r.includes('Highest Priority'))).toBe(true);
-      expect(health.risks.some(r => r.includes('unassigned'))).toBe(true);
+      expect(health.risks.some(r => (typeof r === 'string' ? r : r.rawText).includes('Highest Priority'))).toBe(true);
+      expect(health.risks.some(r => (typeof r === 'string' ? r : r.rawText).includes('unassigned'))).toBe(true);
     });
   });
 

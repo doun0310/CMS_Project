@@ -186,7 +186,7 @@ export const AutomationView: React.FC = () => {
 
   const handleRunRule = (ruleId: string, ruleName: string) => {
     runAutomationRule(ruleId);
-    setTestNotification(`⚡ ${t('automationTriggered')}: "${tr(ruleName)}" ${t('executedSuccessfully')}`);
+    setTestNotification(`${t('automationTriggered')}: "${tr(ruleName)}" ${t('executedSuccessfully')}`);
     setTimeout(() => setTestNotification(null), 4000);
   };
 
@@ -283,7 +283,7 @@ export const AutomationView: React.FC = () => {
       {/* Interactive New Rule Builder Form */}
       {isCreatingRule && (
         <form onSubmit={handleCreateRuleSubmit} className="automation-builder-card animate-fade-in">
-          <h3>🛠️ {t('customAutomationBuilder')}</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><IconAutomation size={18} color="var(--color-in-progress, #6366f1)" /> {t('customAutomationBuilder')}</h3>
 
           <div className="builder-grid">
             <div className="form-group">

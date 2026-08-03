@@ -90,6 +90,8 @@ export interface WorkloadSuggestion {
   fromUserId: string;
   toUserId: string;
   reason: string;
+  reasonKey?: string;
+  reasonParams?: Record<string, string | number>;
 }
 
 export interface ActivityLog {

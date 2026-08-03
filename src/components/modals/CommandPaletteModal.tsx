@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { ViewMode } from '../../types/Aether';
-import { IconSearch, IconZap, IconPlus, IconX } from '../common/Icons';
+import { IconSearch, IconZap, IconPlus, IconX, IconBoard, IconAutomation, IconSettings, IconReports, IconRetro, IconCalendar } from '../common/Icons';
 
 export const CommandPaletteModal: React.FC = () => {
   const {
@@ -32,14 +32,14 @@ export const CommandPaletteModal: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const views: { mode: ViewMode; label: string; icon: string }[] = [
-    { mode: 'backlog', label: t('backlog'), icon: '📑' },
-    { mode: 'board', label: t('board'), icon: '📋' },
-    { mode: 'roadmap', label: t('roadmap'), icon: '🗺️' },
-    { mode: 'reports', label: t('reports'), icon: '📊' },
-    { mode: 'automation', label: t('automation'), icon: '⚡' },
-    { mode: 'retrospective', label: t('retrospective'), icon: '🔄' },
-    { mode: 'settings', label: t('settings'), icon: '⚙️' }
+  const views: { mode: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { mode: 'backlog', label: t('backlog'), icon: <IconCalendar size={16} /> },
+    { mode: 'board', label: t('board'), icon: <IconBoard size={16} /> },
+    { mode: 'roadmap', label: t('roadmap'), icon: <IconCalendar size={16} /> },
+    { mode: 'reports', label: t('reports'), icon: <IconReports size={16} /> },
+    { mode: 'automation', label: t('automation'), icon: <IconAutomation size={16} /> },
+    { mode: 'retrospective', label: t('retrospective'), icon: <IconRetro size={16} /> },
+    { mode: 'settings', label: t('settings'), icon: <IconSettings size={16} /> }
   ];
 
   const filteredIssues = issues.filter(
