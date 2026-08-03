@@ -72,10 +72,10 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
 
   return (
     <div className="modal-backdrop-center animate-fade-in" onClick={onClose}>
-      <div className="project-switch-modal animate-fade-in" onClick={e => e.stopPropagation()}>
+      <div className="project-switch-modal glass-modal animate-fade-in" onClick={e => e.stopPropagation()}>
         <div className="modal-header-bar">
           <div className="title-with-icon">
-            <span>💼</span>
+            <span></span>
             <h3>{t('workspacesTitle')}</h3>
           </div>
           <button className="btn-icon-close" onClick={onClose}>
@@ -125,11 +125,15 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
               })}
             </div>
 
-            {can(currentUser, 'team:manage') && <div className="modal-footer-actions">
-              <button className="btn-primary" onClick={() => { setEditingProject(null); setNewKey(''); setNewName(''); setNewDesc(''); setIsCreating(true); }}>
-                <IconPlus size={16} /> {t('createWorkspace')}
+            <div className="modal-footer-actions" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+              <button
+                className="btn-primary-sm flex-center gap-1"
+                style={{ padding: '7px 14px', fontSize: '0.82rem', fontWeight: 600, borderRadius: '8px' }}
+                onClick={() => { setEditingProject(null); setNewKey(''); setNewName(''); setNewDesc(''); setIsCreating(true); }}
+              >
+                <IconPlus size={14} /> {t('createWorkspace')}
               </button>
-            </div>}
+            </div>
           </div>
         ) : (
           <form onSubmit={handleCreateSubmit} className="create-project-form">
@@ -164,9 +168,10 @@ export const ProjectSwitchModal: React.FC<ProjectSwitchModalProps> = ({ isOpen, 
               />
             </div>
 
-            <div className="form-actions-row">
-              <button type="button" className="btn-secondary" onClick={() => { setIsCreating(false); setEditingProject(null); }}>{t('cancel')}</button>
-              <button type="submit" className="btn-primary">
+            <div className="form-actions-row flex-center gap-3" style={{ marginTop: '16px' }}>
+              <button type="button" className="btn-ghost-styled" onClick={() => { setIsCreating(false); setEditingProject(null); }}>{t('cancel')}</button>
+              <button type="submit" className="btn-primary-styled flex-center gap-2">
+                <IconPlus size={16} />
                 {editingProject ? 'Save Changes' : t('createSwitchWorkspace')}
               </button>
             </div>

@@ -6284,3 +6284,12 @@
   align-items: center;
 }
 
+.form-select.disabled-locked {
+  background: rgba(168, 85, 247, 0.08) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+  color: #c084fc !important;
+  cursor: not-allowed !important;
+  font-weight: 700;
+  opacity: 0.9;
+}
+

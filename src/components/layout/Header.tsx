@@ -233,6 +233,7 @@ export const Header: React.FC = () => {
                   openModal('projectSwitch');
                 }}
               >
+                <IconSettings size={14} style={{ marginRight: '6px' }} />
                 {t('manageWorkspaces')}
               </div>
             </div>

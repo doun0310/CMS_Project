@@ -122,7 +122,10 @@ export const CreateIssueModal: React.FC = () => {
                     type="button"
                     className={`type-chip-btn ${isSelected ? 'selected' : ''}`}
                     style={{ '--chip-color': conf.color } as React.CSSProperties}
-                    onClick={() => setType(tKey)}
+                    onClick={() => {
+                      setType(tKey);
+                      if (tKey === 'initiative') setEpicId('');
+                    }}
                   >
                     <span className="chip-icon-wrapper">{conf.renderIcon(conf.color)}</span>
                     <span className="chip-label">{conf.label}</span>
@@ -225,14 +228,24 @@ export const CreateIssueModal: React.FC = () => {
 
                   <div className="form-group">
                     <label className="form-label">{t('typeInitiative')}</label>
-                    <select className="form-select" value={epicId} onChange={e => setEpicId(e.target.value)}>
-                      <option value="">{t('none')}</option>
-                      {initiatives.map(initiative => (
-                        <option key={initiative.id} value={initiative.id}>
-                          {initiative.summary}
-                        </option>
-                      ))}
-                    </select>
+                    {type === 'initiative' ? (
+                      <select
+                        className="form-select disabled-locked"
+                        disabled
+                        value="top-level"
+                      >
+                        <option value="top-level">최고 우선순위 이니셔티브</option>
+                      </select>
+                    ) : (
+                      <select className="form-select" value={epicId} onChange={e => setEpicId(e.target.value)}>
+                        <option value="">{t('none')}</option>
+                        {initiatives.map(initiative => (
+                          <option key={initiative.id} value={initiative.id}>
+                            {initiative.summary}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
 
