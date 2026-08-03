@@ -77,7 +77,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
         <div className="modal-body dep-graph-body">
           {/* Target Issue Selection Bar */}
           <div className="dep-issue-select-row">
-            <label>Select Target Issue:</label>
+            <label>{t('selectTargetIssue')}:</label>
             <select
               value={selectedIssueId}
               onChange={(e) => setSelectedIssueId(e.target.value)}
@@ -95,10 +95,10 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
           <div className="blast-banner">
             <div className="blast-score-box">
               <span className="blast-val">{blastScore}%</span>
-              <span className="blast-lbl">Blast Radius Index</span>
+              <span className="blast-lbl">{t('blastRadiusIndex')}</span>
             </div>
             <div className="blast-meta">
-              <span className="blast-title">{couplingTier} Subsystem Coupling Detected</span>
+              <span className="blast-title">{couplingTier} {t('subsystemCouplingDetected')}</span>
               <p className="blast-desc">
                 Modifying <strong>{targetIssue?.component || 'Core Module'}</strong> impacts {dependencyNodes.length} downstream microservices & active sprint tickets. Canary deployment recommended.
               </p>
@@ -107,7 +107,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
 
           {/* Subsystem Dependency Nodes Grid */}
           <div className="dep-nodes-section">
-            <h3>Linked Subsystem Nodes & Risk Scores</h3>
+            <h3>{t('linkedSubsystemNodes')}</h3>
 
             <div className="dep-nodes-grid">
               {dependencyNodes.map((node) => (
@@ -117,8 +117,8 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
                     <span className={`node-type-badge ${node.type}`}>{node.type.toUpperCase()}</span>
                   </div>
                   <div className="node-bottom">
-                    <span className="node-health">Health: {node.health}</span>
-                    <span className="node-blast">Impact Score: {node.blastScore}%</span>
+                    <span className="node-health">{t('healthy')}: {node.health}</span>
+                    <span className="node-blast">Score: {node.blastScore}%</span>
                   </div>
                 </div>
               ))}
@@ -128,7 +128,7 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button
             className="btn-primary"
@@ -137,11 +137,11 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
           >
             {attachedSuccess ? (
               <>
-                <IconCheckCircle /> Attached Blast Badge to Ticket!
+                <IconCheckCircle /> {t('attachedBlastBadgeSuccess')}
               </>
             ) : (
               <>
-                <IconZap /> Attach Dependency Badge to Ticket
+                <IconZap /> {t('attachDependencyBadge')}
               </>
             )}
           </button>

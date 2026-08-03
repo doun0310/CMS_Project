@@ -8,7 +8,7 @@ interface PrAuditModalProps {
 }
 
 export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) => {
-  const { issues, selectedIssueId } = useAether();
+  const { issues, selectedIssueId, t } = useAether();
 
   const targetIssue = issues.find((i) => i.id === selectedIssueId) || issues[0];
 
@@ -62,9 +62,9 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
           <div className="modal-title-group">
             <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
-              <h2 className="modal-title">AI Pull Request Quality & Security Gate Audit</h2>
+              <h2 className="modal-title">{t('prAuditModalTitle')}</h2>
               <p className="modal-subtitle">
-                Automated security scan, test coverage validation & PR readiness gate for [{targetIssue?.key}]
+                {t('prAuditModalSubtitle')} [{targetIssue?.key}]
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
         <div className="modal-body audit-modal-body">
           {/* PR Link Bar */}
           <div className="pr-link-bar">
-            <label>GitHub PR Link:</label>
+            <label>{t('githubPrLink')}:</label>
             <input
               type="url"
               value={prUrl}
@@ -89,25 +89,25 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
           <div className="audit-metrics-grid">
             <div className="audit-card green">
               <div className="audit-val">{auditResults.securityScore}/100</div>
-              <div className="audit-lbl">Security Gate Score</div>
+              <div className="audit-lbl">{t('securityGateScore')}</div>
             </div>
             <div className="audit-card green">
               <div className="audit-val">{auditResults.coveragePct}%</div>
-              <div className="audit-lbl">Test Coverage</div>
+              <div className="audit-lbl">{t('testCoverage')}</div>
             </div>
             <div className="audit-card yellow">
               <div className="audit-val">{auditResults.codeSmells}</div>
-              <div className="audit-lbl">Code Smells</div>
+              <div className="audit-lbl">{t('codeSmells')}</div>
             </div>
             <div className="audit-card blue">
               <div className="audit-val">0</div>
-              <div className="audit-lbl">Vulnerabilities</div>
+              <div className="audit-lbl">{t('vulnerabilities')}</div>
             </div>
           </div>
 
           {/* Detailed Security & Quality Checks List */}
           <div className="audit-checks-section">
-            <h3>Automated CI/CD Quality Gate Checks</h3>
+            <h3>{t('cicdQualityChecks')}</h3>
 
             <div className="checks-list">
               {auditResults.checks.map((check, idx) => (
@@ -126,10 +126,10 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
           {/* Audit Report Markdown Box */}
           <div className="audit-report-box">
             <div className="report-header">
-              <span>Formatted PR Audit Badge Markdown:</span>
+              <span>{t('formattedAuditMarkdown')}:</span>
               <button className="btn-copy-small" onClick={handleCopyMarkdown}>
                 {copied ? <IconCheckCircle /> : <IconCopy />}
-                {copied ? ' Copied!' : ' Copy Markdown'}
+                {copied ? ` ${t('copied')}` : ` ${t('copyMarkdown')}`}
               </button>
             </div>
             <pre className="audit-markdown-pre">{formattedAuditMarkdown}</pre>
@@ -138,16 +138,16 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button className="btn-primary" onClick={handleAttachToIssue} disabled={auditAttached}>
             {auditAttached ? (
               <>
-                <IconCheckCircle /> Audit Attached to {targetIssue?.key}!
+                <IconCheckCircle /> {t('attachedBadgeSuccess')}
               </>
             ) : (
               <>
-                Approve & Attach Audit Badge
+                {t('approveAndAttachBadge')}
               </>
             )}
           </button>

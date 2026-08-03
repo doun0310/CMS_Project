@@ -270,7 +270,7 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
             onClick={handleAppendToIssue}
             disabled={appended}
           >
-            {appended ? 'Appended to Issue' : 'Append AC to Issue Description'}
+            {appended ? t('appendedToIssue') : t('appendAcToIssue')}
           </button>
           <button
             className="btn-primary"
@@ -278,11 +278,11 @@ describe('${selectedIssue.key} Unit & Integration Test Suite', () => {
           >
             {copied === 'all' ? (
               <>
-                <IconCheckCircle /> Copied to Clipboard
+                <IconCheckCircle /> {t('copied')}
               </>
             ) : (
               <>
-                <IconCopy /> Copy {activeTab === 'gherkin' ? 'Gherkin' : 'Test Suite'}
+                <IconCopy /> {t('copyAction')} {activeTab === 'gherkin' ? 'Gherkin' : 'Test Suite'}
               </>
             )}
           </button>

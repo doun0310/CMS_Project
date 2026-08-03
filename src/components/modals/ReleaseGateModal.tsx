@@ -63,9 +63,9 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
           {/* AI Decision Recommendation Banner */}
           <div className={`gate-recommendation-card ${decisionClass}`}>
             <div className="rec-header">
-              <span className="rec-title">AI Release Readiness Score: {readinessScore}%</span>
+              <span className="rec-title">{t('aiReadinessScore')}: {readinessScore}%</span>
               <span className={`rec-badge ${decisionClass}`}>
-                {decisionClass === 'go' ? 'GO FOR PRODUCTION RELEASE' : 'NO-GO: HOLD RELEASE'}
+                {decisionClass === 'go' ? t('goForProduction') : t('noGoHoldRelease')}
               </span>
             </div>
             <p className="rec-text">
@@ -77,17 +77,17 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
 
           {/* Stakeholder Approval Checklist */}
           <div className="signoff-section">
-            <h3>Stakeholder Approval Signoffs</h3>
+            <h3>{t('stakeholderSignoffs')}</h3>
 
             <div className="signoff-grid">
               <div
                 className={`signoff-card ${signoffs.engLead ? 'approved' : 'pending'}`}
                 onClick={() => toggleSignoff('engLead')}
               >
-                <div className="signoff-role">Engineering Lead</div>
+                <div className="signoff-role">{t('engLead')}</div>
                 <div className="signoff-user">{users[0]?.name || 'Alex Rivera'}</div>
                 <div className="signoff-status">
-                  {signoffs.engLead ? 'Approved' : 'Pending Signoff'}
+                  {signoffs.engLead ? t('approved') : t('pendingSignoff')}
                 </div>
               </div>
 
@@ -95,10 +95,10 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 className={`signoff-card ${signoffs.qaLead ? 'approved' : 'pending'}`}
                 onClick={() => toggleSignoff('qaLead')}
               >
-                <div className="signoff-role">QA & Test Manager</div>
+                <div className="signoff-role">{t('qaLead')}</div>
                 <div className="signoff-user">{users[1]?.name || 'Sarah Chen'}</div>
                 <div className="signoff-status">
-                  {signoffs.qaLead ? 'Approved' : 'Pending Signoff'}
+                  {signoffs.qaLead ? t('approved') : t('pendingSignoff')}
                 </div>
               </div>
 
@@ -106,10 +106,10 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 className={`signoff-card ${signoffs.securityOfficer ? 'approved' : 'pending'}`}
                 onClick={() => toggleSignoff('securityOfficer')}
               >
-                <div className="signoff-role">Security & Compliance Officer</div>
+                <div className="signoff-role">{t('securityOfficer')}</div>
                 <div className="signoff-user">{users[2]?.name || 'Marcus Vance'}</div>
                 <div className="signoff-status">
-                  {signoffs.securityOfficer ? 'Approved' : 'Pending Signoff'}
+                  {signoffs.securityOfficer ? t('approved') : t('pendingSignoff')}
                 </div>
               </div>
 
@@ -117,10 +117,10 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
                 className={`signoff-card ${signoffs.productManager ? 'approved' : 'pending'}`}
                 onClick={() => toggleSignoff('productManager')}
               >
-                <div className="signoff-role">Product Manager</div>
+                <div className="signoff-role">{t('productManager')}</div>
                 <div className="signoff-user">{users[0]?.name || 'Elena Rostova'}</div>
                 <div className="signoff-status">
-                  {signoffs.productManager ? 'Approved' : 'Pending Signoff'}
+                  {signoffs.productManager ? t('approved') : t('pendingSignoff')}
                 </div>
               </div>
             </div>
@@ -129,17 +129,17 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
           {/* Compliance & Quality Audit Metrics */}
           <div className="gate-audit-summary">
             <div className="audit-row">
-              <span>Blocker Issues Remaining:</span>
+              <span>{t('blockersRemaining')}:</span>
               <strong className={openBlockers.length === 0 ? 'text-green' : 'text-red'}>
                 {openBlockers.length} {openBlockers.length === 0 ? ' (Clean Pass)' : ' Blockers'}
               </strong>
             </div>
             <div className="audit-row">
-              <span>Automated Test Pass Rate:</span>
+              <span>{t('testPassRate')}:</span>
               <strong className="text-green">98.4% (142 / 144 Passed)</strong>
             </div>
             <div className="audit-row">
-              <span>Security Vulnerability Audit:</span>
+              <span>{t('securityAudit')}:</span>
               <strong className="text-indigo">0 Critical, 0 High Vulnerabilities</strong>
             </div>
           </div>
@@ -147,7 +147,7 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button
             className="btn-primary"
@@ -156,11 +156,11 @@ export const ReleaseGateModal: React.FC<ReleaseGateModalProps> = ({ isOpen, onCl
           >
             {signedOff ? (
               <>
-                <IconCheckCircle /> Release Certified & Signed Off!
+                <IconCheckCircle /> {t('certifiedSignedOff')}
               </>
             ) : (
               <>
-                Execute Official Production Signoff
+                {t('executeProductionSignoff')}
               </>
             )}
           </button>

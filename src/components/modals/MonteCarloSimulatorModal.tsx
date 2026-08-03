@@ -55,10 +55,10 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
           <div className="mc-banner">
             <div className="mc-trials-box">
               <span className="mc-val">{simulationCount}</span>
-              <span className="mc-lbl">Monte Carlo Trials</span>
+              <span className="mc-lbl">{t('monteCarloTrials')}</span>
             </div>
             <div className="mc-meta">
-              <span className="mc-title">85% High-Confidence Velocity Target: {recommendedSp} SP</span>
+              <span className="mc-title">{t('confidenceVelocityTarget')}: {recommendedSp} SP</span>
               <p className="mc-desc">
                 Based on 1,000 statistical trials, your team has an <strong>85% probability</strong> of completing <strong>{recommendedSp} Story Points</strong> without scope overflow.
               </p>
@@ -67,16 +67,16 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
 
           {/* Probability Percentile Table */}
           <div className="mc-percentiles-section">
-            <h3>Statistical Completion Likelihood Percentiles</h3>
+            <h3>{t('statisticalCompletionLikelihood')}</h3>
 
             <div className="mc-table-wrap">
               <table className="mc-table">
                 <thead>
                   <tr>
-                    <th>Confidence Level</th>
-                    <th>Target Velocity (SP)</th>
-                    <th>Estimated Completion Date</th>
-                    <th>Risk Profile</th>
+                    <th>{t('confidenceLevel')}</th>
+                    <th>{t('targetVelocity')}</th>
+                    <th>{t('estCompletionDate')}</th>
+                    <th>{t('riskProfile')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -96,7 +96,7 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button
             className="btn-primary"
@@ -105,11 +105,11 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
           >
             {syncedSuccess ? (
               <>
-                <IconCheckCircle /> Synced 36 SP Target to Sprint!
+                <IconCheckCircle /> {t('syncedTargetSuccess')}
               </>
             ) : (
               <>
-                <IconZap /> Sync 85% Target (36 SP) to Sprint Goal
+                <IconZap /> {t('syncTargetToSprintGoal')}
               </>
             )}
           </button>

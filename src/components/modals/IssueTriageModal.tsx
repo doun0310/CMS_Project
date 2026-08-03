@@ -61,7 +61,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
         <div className="modal-body triage-modal-body">
           {/* Target Issue Selector */}
           <div className="triage-issue-select-row">
-            <label>Select Untriaged Issue:</label>
+            <label>{t('selectUntriagedIssue')}:</label>
             <select
               value={selectedIssueId}
               onChange={(e) => setSelectedIssueId(e.target.value)}
@@ -89,30 +89,30 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
             <div className="triage-card-header">
               <div className="flex-align-gap">
                 <IconZap size={18} color="#6366f1" />
-                <span className="font-bold">AI Auto-Triage Diagnosis</span>
+                <span className="font-bold">{t('aiTriageDiagnosis')}</span>
               </div>
-              <span className="triage-confidence">Confidence: {aiTriageRecommendation.confidenceScore}%</span>
+              <span className="triage-confidence">{t('confidence')}: {aiTriageRecommendation.confidenceScore}%</span>
             </div>
 
             <div className="triage-matrix-grid">
               <div className="triage-matrix-item">
-                <span className="matrix-lbl">Suggested Priority</span>
+                <span className="matrix-lbl">{t('suggestedPriority')}</span>
                 <span className="matrix-val red-text">{aiTriageRecommendation.suggestedPriority.toUpperCase()}</span>
               </div>
 
               <div className="triage-matrix-item">
-                <span className="matrix-lbl">Suggested Component</span>
+                <span className="matrix-lbl">{t('suggestedComponent')}</span>
                 <span className="matrix-val blue-text">{aiTriageRecommendation.suggestedComponent}</span>
               </div>
 
               <div className="triage-matrix-item">
-                <span className="matrix-lbl">Suggested Estimate</span>
+                <span className="matrix-lbl">{t('suggestedEstimate')}</span>
                 <span className="matrix-val green-text">{aiTriageRecommendation.suggestedStoryPoints} Story Points</span>
               </div>
             </div>
 
             <div className="triage-labels-row">
-              <span className="labels-lbl">Recommended Labels:</span>
+              <span className="labels-lbl">{t('recommendedLabels')}:</span>
               <div className="labels-flex">
                 {aiTriageRecommendation.suggestedLabels.map((lbl, idx) => (
                   <span key={idx} className="triage-tag-chip">
@@ -126,7 +126,7 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button
             className="btn-primary"
@@ -135,11 +135,11 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
           >
             {triagedSuccess ? (
               <>
-                <IconCheckCircle /> Applied Triage Recommendations!
+                <IconCheckCircle /> {t('appliedTriageSuccess')}
               </>
             ) : (
               <>
-                Apply AI Triage & Promote to Backlog
+                {t('applyTriageAndPromote')}
               </>
             )}
           </button>

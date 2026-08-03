@@ -99,8 +99,8 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
               className="pm-title-input"
             />
             <div className="pm-pills">
-              <span className={`pm-sev-badge ${severity.toLowerCase()}`}>Severity: {severity}</span>
-              <span className="pm-time-badge">Outage: {durationMins} mins</span>
+              <span className={`pm-sev-badge ${severity.toLowerCase()}`}>{t('severity')}: {severity}</span>
+              <span className="pm-time-badge">{t('outageDuration')}: {durationMins} mins</span>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           <div className="pm-section">
             <div className="pm-section-header">
               <IconZap size={18} color="#6366f1" />
-              <span>AI 5-Whys Root Cause Chain</span>
+              <span>{t('ai5WhysChain')}</span>
             </div>
             <div className="whys-list">
               {fiveWhys.map((w, idx) => (
@@ -123,7 +123,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           {/* Preventive Action Items Matrix */}
           <div className="pm-section">
             <div className="pm-section-header">
-              <span>Preventive Action Items</span>
+              <span>{t('preventiveActionItems')}</span>
             </div>
             <div className="pm-actions-grid">
               {actionItems.map((item, idx) => (
@@ -139,7 +139,7 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={handleCopyReport}>
-            <IconCopy size={16} /> {copied ? 'Report Copied!' : 'Copy Markdown Report'}
+            <IconCopy size={16} /> {copied ? t('copiedReport') : t('copyMarkdownReport')}
           </button>
           <button
             className="btn-primary"
@@ -148,11 +148,11 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
           >
             {actionItemsCreated ? (
               <>
-                <IconCheckCircle /> Created 3 Backlog Tasks!
+                <IconCheckCircle /> {t('createdBacklogTasksSuccess')}
               </>
             ) : (
               <>
-                Convert Action Items to Jira Tasks
+                {t('convertActionItemsToTasks')}
               </>
             )}
           </button>

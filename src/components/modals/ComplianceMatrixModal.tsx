@@ -67,10 +67,10 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
           <div className="comp-banner">
             <div className="comp-score-circle">
               <span className="comp-val">{overallAuditScore}%</span>
-              <span className="comp-lbl">Audit Score</span>
+              <span className="comp-lbl">{t('auditScore')}</span>
             </div>
             <div className="comp-meta">
-              <span className="comp-title">Compliance Certified for Production Release</span>
+              <span className="comp-title">{t('complianceCertified')}</span>
               <p className="comp-desc">
                 All 4 enterprise regulatory compliance standards (SOC2, GDPR, ISO 27001, HIPAA) have passed automated security audit gates with 0 compliance violations.
               </p>
@@ -79,16 +79,16 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
 
           {/* Compliance Standards Table */}
           <div className="comp-standards-section">
-            <h3>Enterprise Audit Standards Signoff</h3>
+            <h3>{t('enterpriseAuditStandards')}</h3>
 
             <div className="comp-table-wrap">
               <table className="comp-table">
                 <thead>
                   <tr>
-                    <th>Standard</th>
-                    <th>Domain Scope</th>
-                    <th>Audit Status</th>
-                    <th>Score</th>
+                    <th>{t('standard')}</th>
+                    <th>{t('domainScope')}</th>
+                    <th>{t('auditStatus')}</th>
+                    <th>{t('score')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -108,10 +108,10 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button className="btn-primary" onClick={handleCopyCertificate}>
-            <IconCopy size={16} /> {copied ? 'Certificate Copied!' : 'Export ISO/SOC2 Audit Certificate'}
+            <IconCopy size={16} /> {copied ? t('certificateCopiedSuccess') : t('exportAuditCertificate')}
           </button>
         </div>
       </div>

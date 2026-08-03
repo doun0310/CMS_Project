@@ -72,7 +72,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
         <div className="modal-body skill-modal-body">
           {/* Target Issue Selection Bar */}
           <div className="skill-issue-select-bar">
-            <label>Select Target Issue:</label>
+            <label>{t('selectTargetIssue')}:</label>
             <select
               value={selectedIssueId}
               onChange={(e) => setSelectedIssueId(e.target.value)}
@@ -90,7 +90,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
           <div className="ai-skill-recommendation-card">
             <div className="skill-rec-header">
               <IconZap size={18} color="#6366f1" />
-              <span>AI Recommended Best Engineer Match: {bestMatch.user.name} ({bestMatch.matchScore}% Match)</span>
+              <span>{t('aiRecommendedMatch')}: {bestMatch.user.name} ({bestMatch.matchScore}% {t('match')})</span>
             </div>
             <p className="skill-rec-text">
               Based on skill proficiency tags and current workload, <strong>{bestMatch.user.name}</strong> possesses the highest technical competency for [{targetIssue?.key}].
@@ -99,20 +99,20 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
 
           {/* Skill Proficiency Matrix Table */}
           <div className="skill-matrix-section">
-            <h3>Team Technical Skill Competency Ratings (1-5 Scale)</h3>
+            <h3>{t('teamSkillRatings')}</h3>
 
             <div className="skill-table-wrap">
               <table className="skill-table">
                 <thead>
                   <tr>
-                    <th>Engineer</th>
-                    <th>Role</th>
+                    <th>{t('engineer')}</th>
+                    <th>{t('role')}</th>
                     <th>Frontend</th>
                     <th>Backend</th>
                     <th>DevOps</th>
                     <th>AI / ML</th>
-                    <th>AI Match Score</th>
-                    <th>Action</th>
+                    <th>{t('aiRecommendedMatch')}</th>
+                    <th>{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,7 +131,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
                       <td><span className="skill-stars">{'★'.repeat(item.skills.ai)}</span></td>
                       <td>
                         <span className={`match-badge ${item.matchScore >= 90 ? 'high' : 'medium'}`}>
-                          {item.matchScore}% Match
+                          {item.matchScore}% {t('match')}
                         </span>
                       </td>
                       <td>
@@ -139,7 +139,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
                           className="btn-primary-sm"
                           onClick={() => handleAssignBestMatch(item.user.id)}
                         >
-                          Assign Ticket
+                          {t('assignTicket')}
                         </button>
                       </td>
                     </tr>
@@ -152,7 +152,7 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
           <button
             className="btn-primary"
@@ -161,11 +161,11 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
           >
             {assignedSuccess ? (
               <>
-                <IconCheckCircle /> Assigned to {bestMatch.user.name}!
+                <IconCheckCircle /> {t('assignedSuccess')}
               </>
             ) : (
               <>
-                Auto-Assign Best Match ({bestMatch.user.name})
+                {t('autoAssignBestMatch')} ({bestMatch.user.name})
               </>
             )}
           </button>

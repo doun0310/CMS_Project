@@ -72,15 +72,15 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
           {/* Net Capacity Bar */}
           <div className="capacity-summary-card">
             <div className="cap-summary-item">
-              <span className="cap-lbl">Gross Team Capacity</span>
+              <span className="cap-lbl">{t('grossTeamCapacity')}</span>
               <span className="cap-val font-mono">{grossCapacitySp} SP</span>
             </div>
             <div className="cap-summary-item deduction">
-              <span className="cap-lbl">PTO & Holiday Deduction</span>
+              <span className="cap-lbl">{t('ptoDeduction')}</span>
               <span className="cap-val font-mono">-{ptoDeductionSp} SP</span>
             </div>
             <div className="cap-summary-item net">
-              <span className="cap-lbl">Net Recommended Commitment</span>
+              <span className="cap-lbl">{t('netRecommendedCommitment')}</span>
               <span className="cap-val font-mono green">{netCapacitySp} SP</span>
             </div>
           </div>
@@ -88,7 +88,7 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
           {/* Add PTO Form */}
           <form onSubmit={handleAddPto} className="add-pto-form">
             <div className="form-group-inline">
-              <label>Engineer:</label>
+              <label>{t('engineer')}:</label>
               <select value={newUserId} onChange={(e) => setNewUserId(e.target.value)}>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -99,7 +99,7 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
             </div>
 
             <div className="form-group-inline">
-              <label>PTO Date:</label>
+              <label>{t('ptoDate')}:</label>
               <input
                 type="date"
                 value={newDate}
@@ -109,34 +109,34 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
             </div>
 
             <div className="form-group-inline flex-1">
-              <label>Reason:</label>
+              <label>{t('reason')}:</label>
               <input
                 type="text"
                 value={newReason}
                 onChange={(e) => setNewReason(e.target.value)}
-                placeholder="Reason..."
+                placeholder={t('reason')}
                 required
               />
             </div>
 
             <button type="submit" className="btn-primary-sm">
-              + Add PTO Day
+              {t('addPtoDay')}
             </button>
           </form>
 
           {/* PTO & Holidays Table */}
           <div className="pto-list-section">
-            <h3>Active Sprint PTO & Out-of-Office Schedule</h3>
+            <h3>{t('activeSprintPtoSchedule')}</h3>
 
             <div className="pto-table-wrap">
               <table className="pto-table">
                 <thead>
                   <tr>
-                    <th>Engineer</th>
-                    <th>Out-of-Office Date</th>
-                    <th>Reason</th>
-                    <th>Deduction</th>
-                    <th>Action</th>
+                    <th>{t('engineer')}</th>
+                    <th>{t('ptoDate')}</th>
+                    <th>{t('reason')}</th>
+                    <th>{t('workload')}</th>
+                    <th>{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -170,16 +170,16 @@ export const CapacityCalendarModal: React.FC<CapacityCalendarModalProps> = ({ is
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </button>
           <button className="btn-primary" onClick={handleSyncToSprint} disabled={synced}>
             {synced ? (
               <>
-                <IconCheckCircle /> Net Capacity Synced ({netCapacitySp} SP)!
+                <IconCheckCircle /> {t('syncedCapacitySuccess')} ({netCapacitySp} SP)!
               </>
             ) : (
               <>
-                <IconCalendar /> Sync Net Capacity to Sprint ({netCapacitySp} SP)
+                <IconCalendar /> {t('syncNetCapacityToSprint')} ({netCapacitySp} SP)
               </>
             )}
           </button>

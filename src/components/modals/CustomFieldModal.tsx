@@ -9,7 +9,7 @@ interface CustomFieldModalProps {
 }
 
 export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, issues, updateIssue } = useAether();
+  const { currentProject, issues, updateIssue, t } = useAether();
 
   // Default pre-loaded custom fields
   const [fields, setFields] = useState<CustomFieldDef[]>([
@@ -104,9 +104,9 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
           <div className="modal-title-group">
             <span className="release-icon"><IconSettings size={20} /></span>
             <div>
-              <h2 className="modal-title">Custom Fields & Enterprise Schema Workbench</h2>
+              <h2 className="modal-title">{t('customFieldWorkbenchTitle')}</h2>
               <p className="modal-subtitle">
-                Define dynamic project metadata fields for [{currentProject.key}] {currentProject.name}
+                {t('customFieldWorkbenchSubtitle')} [{currentProject.key}] {currentProject.name}
               </p>
             </div>
           </div>
@@ -119,8 +119,8 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
           {/* AI Preset Schema Recommendations */}
           <div className="ai-preset-card">
             <div className="ai-preset-header">
-              <span>AI Enterprise Metadata Schema Presets</span>
-              <span className="preset-hint">Click preset to load recommended custom fields</span>
+              <span>{t('aiPresetSchemaTitle')}</span>
+              <span className="preset-hint">{t('presetHint')}</span>
             </div>
             <div className="preset-buttons-row">
               <button
@@ -134,7 +134,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   ]);
                 }}
               >
-                DevOps & Release Preset
+                {t('presetDevops')}
               </button>
 
               <button
@@ -148,7 +148,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   ]);
                 }}
               >
-                Security & Compliance Preset
+                {t('presetSecurity')}
               </button>
 
               <button
@@ -162,14 +162,14 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   ]);
                 }}
               >
-                Enterprise Customer Impact Preset
+                {t('presetCustomerImpact')}
               </button>
             </div>
           </div>
 
           {/* Section 1: Manage Field Definitions */}
           <div className="cf-section">
-            <h3 className="cf-section-title">Active Field Schema Definitions</h3>
+            <h3 className="cf-section-title">{t('activeFieldDefinitions')}</h3>
             <div className="cf-schema-grid">
               {fields.map((field) => (
                 <div key={field.id} className="cf-schema-card">
@@ -179,7 +179,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                     <button
                       className="btn-icon-danger"
                       onClick={() => handleDeleteField(field.id)}
-                      title="Delete Field Schema"
+                      title={t('deleteFieldSchema')}
                     >
                       <IconX />
                     </button>
@@ -202,7 +202,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
               <div className="form-row-three">
                 <input
                   type="text"
-                  placeholder="Field Name (e.g. Target Milestone)"
+                  placeholder={t('fieldNamePlaceholder')}
                   value={newFieldName}
                   onChange={(e) => setNewFieldName(e.target.value)}
                   required
@@ -211,21 +211,21 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
                   value={newFieldType}
                   onChange={(e) => setNewFieldType(e.target.value as any)}
                 >
-                  <option value="text">Text Input</option>
-                  <option value="select">Select Dropdown</option>
-                  <option value="badge">Badge Pill</option>
-                  <option value="url">URL Link</option>
+                  <option value="text">{t('typeTextInput')}</option>
+                  <option value="select">{t('typeSelectDropdown')}</option>
+                  <option value="badge">{t('typeBadgePill')}</option>
+                  <option value="url">{t('typeUrlLink')}</option>
                 </select>
                 <input
                   type="text"
-                  placeholder="Options (comma separated)"
+                  placeholder={t('optionsPlaceholder')}
                   value={newFieldOptions}
                   onChange={(e) => setNewFieldOptions(e.target.value)}
                   disabled={newFieldType === 'text' || newFieldType === 'url'}
                 />
               </div>
               <button type="submit" className="btn-secondary add-cf-btn">
-                <IconPlus /> Add Schema Field
+                <IconPlus /> {t('addSchemaField')}
               </button>
             </form>
           </div>
@@ -236,7 +236,7 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
           {selectedIssue && (
             <div className="cf-section">
               <div className="cf-assign-header">
-                <h3 className="cf-section-title">Assign Metadata Values to Target Issue</h3>
+                <h3 className="cf-section-title">{t('assignMetadataTitle')}</h3>
                 <select
                   value={selectedIssue.id}
                   onChange={(e) => {
@@ -292,15 +292,15 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </button>
           <button className="btn-primary" onClick={handleSaveIssueFields}>
             {savedSuccess ? (
               <>
-                <IconCheckCircle /> Saved Schema & Values!
+                <IconCheckCircle /> {t('savedSchemaSuccess')}
               </>
             ) : (
-              'Save Metadata Values'
+              t('saveMetadata')
             )}
           </button>
         </div>

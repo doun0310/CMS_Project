@@ -8,7 +8,7 @@ interface AutomationRuleModalProps {
 }
 
 export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen, onClose }) => {
-  const { addAutomationRule, runAutomationRule, automationRules } = useAether();
+  const { addAutomationRule, runAutomationRule, automationRules, t } = useAether();
 
   const [ruleName, setRuleName] = useState('');
   const [trigger, setTrigger] = useState('Status moves to IN REVIEW');
@@ -63,9 +63,9 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
           <div className="modal-title-group">
             <span className="release-icon"><IconAutomation size={20} /></span>
             <div>
-              <h2 className="modal-title">Visual Automation Rule Builder & Webhook Simulator</h2>
+              <h2 className="modal-title">{t('automationRuleModalTitle')}</h2>
               <p className="modal-subtitle">
-                Configure IF-THIS-THEN-THAT triggers, conditions & external Webhook payloads
+                {t('automationRuleModalSubtitle')}
               </p>
             </div>
           </div>
@@ -77,11 +77,11 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
         <div className="modal-body auto-modal-body">
           {/* Rule Name Input */}
           <div className="auto-input-group">
-            <label htmlFor="auto-rule-name">Automation Rule Name:</label>
+            <label htmlFor="auto-rule-name">{t('automationRuleName')}:</label>
             <input
               id="auto-rule-name"
               type="text"
-              placeholder="e.g. Notify QA & Trigger Slack Webhook on In-Review"
+              placeholder={t('automationRuleNamePlaceholder')}
               value={ruleName}
               onChange={(e) => setRuleName(e.target.value)}
               className="auto-input"
@@ -92,7 +92,7 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
           <div className="workflow-steps-grid">
             {/* Step 1: Trigger */}
             <div className="step-card trigger">
-              <span className="step-badge">STEP 1: WHEN (TRIGGER)</span>
+              <span className="step-badge">{t('step1Trigger')}</span>
               <select value={trigger} onChange={(e) => setTrigger(e.target.value)}>
                 <option value="Status moves to IN REVIEW">Status moves to IN REVIEW</option>
                 <option value="Issue Created as BUG">Issue Created as BUG</option>
@@ -104,7 +104,7 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
 
             {/* Step 2: Condition */}
             <div className="step-card condition">
-              <span className="step-badge">STEP 2: IF (CONDITION)</span>
+              <span className="step-badge">{t('step2Condition')}</span>
               <select value={condition} onChange={(e) => setCondition(e.target.value)}>
                 <option value="Component == Auth & Security">Component == Auth & Security</option>
                 <option value="Assignee == Unassigned">Assignee == Unassigned</option>
@@ -115,7 +115,7 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
 
             {/* Step 3: Action */}
             <div className="step-card action">
-              <span className="step-badge">STEP 3: THEN (ACTION)</span>
+              <span className="step-badge">{t('step3Action')}</span>
               <select value={action} onChange={(e) => setAction(e.target.value)}>
                 <option value="Auto-assign QA Engineer & Add #needs-qa tag">Auto-assign QA Engineer & Add #needs-qa tag</option>
                 <option value="Send High Priority Alert to Team Slack">Send High Priority Alert to Team Slack</option>
@@ -128,14 +128,14 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
           {/* Webhook Configuration & Payload Preview */}
           <div className="webhook-section">
             <div className="webhook-header">
-              <span>External Webhook Integration Payload:</span>
+              <span>{t('externalWebhookPayload')}</span>
               <button className="btn-copy-small" onClick={handleCopyWebhookJson}>
                 {copied ? <IconCheckCircle /> : <IconCopy />}
-                {copied ? ' Copied Payload!' : ' Copy JSON'}
+                {copied ? ` ${t('copiedPayloadSuccess')}` : ` ${t('copyJsonPayload')}`}
               </button>
             </div>
             <div className="webhook-url-input">
-              <label>Endpoint URL:</label>
+              <label>{t('endpointUrl')}:</label>
               <input
                 type="url"
                 value={webhookUrl}
@@ -149,16 +149,16 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </button>
           <button className="btn-primary" onClick={handleSaveAndRun} disabled={executedSuccess}>
             {executedSuccess ? (
               <>
-                <IconCheckCircle /> Executed & Recorded Audit!
+                <IconCheckCircle /> {t('executedAuditSuccess')}
               </>
             ) : (
               <>
-                <IconZap /> Save & Dispatch Webhook
+                <IconZap /> {t('saveAndDispatchWebhook')}
               </>
             )}
           </button>

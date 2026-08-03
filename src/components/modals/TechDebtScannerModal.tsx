@@ -60,10 +60,10 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
           <div className="debt-score-banner">
             <div className="score-badge-circle">
               <span className="score-val">{healthScore}</span>
-              <span className="score-lbl">Health Score</span>
+              <span className="score-lbl">{t('healthy')}</span>
             </div>
             <div className="score-meta">
-              <span className="score-title">Codebase Technical Debt Index</span>
+              <span className="score-title">{t('codebaseTechDebtIndex')}</span>
               <p className="score-desc">
                 4 technical debt items detected totaling <strong>{totalDebtSp} Story Points</strong> of refactoring effort needed.
               </p>
@@ -72,7 +72,7 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
 
           {/* Technical Debt Items List */}
           <div className="debt-items-section">
-            <h3>Detected Technical Debt & Code Smells</h3>
+            <h3>{t('detectedTechDebt')}</h3>
 
             <div className="debt-items-list">
               {debtItems.map((item) => (
@@ -96,11 +96,11 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
                     >
                       {convertedDebt[item.id] ? (
                         <>
-                          <IconCheckCircle size={14} /> Created!
+                          <IconCheckCircle size={14} /> {t('createdTaskSuccess')}
                         </>
                       ) : (
                         <>
-                          <IconZap size={14} /> Refactor Task
+                          <IconZap size={14} /> {t('refactorTask')}
                         </>
                       )}
                     </button>
@@ -113,7 +113,7 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
 
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
-            Close
+            {t('close')}
           </button>
         </div>
       </div>
