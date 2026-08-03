@@ -59,6 +59,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: 'Search issues (Press Cmd+K)...',
     justNow: 'Just now', savedFilters: 'Saved filters',
+    presetMyTasks: 'My In-Progress Tasks',
+    presetCriticalBugs: 'Critical Bugs & Security',
+    presetActiveSprint: 'Active Sprint Backlog',
+    presetCoreFramework: 'Core Framework Tasks',
     createIssue: 'Create Issue',
     addEpic: 'Add Epic', epicName: 'Epic name', addInitiative: 'Add Initiative', initiativeName: 'Initiative name', topLevelInitiative: 'Top-level project item', componentName: 'Component',
     aiCopilot: 'Aether AI Copilot',
@@ -477,6 +481,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '이슈 검색 (Cmd+K)...',
     justNow: '방금 전', savedFilters: '저장된 필터',
+    presetMyTasks: '내 진행 중인 작업',
+    presetCriticalBugs: '긴급 버그 및 보안 항목',
+    presetActiveSprint: '현재 스프린트 할 일',
+    presetCoreFramework: '코어 프레임워크 태스크',
     createIssue: '이슈 생성',
     addEpic: '에픽 추가', epicName: '에픽 이름', addInitiative: '이니셔티브 추가', initiativeName: '이니셔티브 이름', topLevelInitiative: '프로젝트 최상위 항목', componentName: '구성 요소',
     aiCopilot: 'Aether AI 코파일럿',
@@ -886,6 +894,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '課題を検索 (Cmd+K)...',
     justNow: 'たった今', savedFilters: '保存したフィルター',
+    presetMyTasks: '自分の進行中タスク',
+    presetCriticalBugs: '緊急バグ・セキュリティ',
+    presetActiveSprint: 'アクティブスプリントのToDo',
+    presetCoreFramework: 'コアフレームワークタスク',
     createIssue: '課題を作成',
     addEpic: 'エピックを追加', epicName: 'エピック名', addInitiative: 'イニシアチブを追加', initiativeName: 'イニシアチブ名', topLevelInitiative: 'プロジェクトの最上位項目', componentName: 'コンポーネント',
     aiCopilot: 'Aether AIコパイロット',
@@ -1224,6 +1236,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header & Actions
     searchPlaceholder: '搜索事项 (Cmd+K)...',
     justNow: '刚刚', savedFilters: '已保存的筛选器',
+    presetMyTasks: '我的进行中事项',
+    presetCriticalBugs: '紧急缺陷与安全',
+    presetActiveSprint: '当前冲刺待办',
+    presetCoreFramework: '核心框架任务',
     createIssue: '新建事项',
     addEpic: '添加史诗', epicName: '史诗名称', addInitiative: '添加倡议', initiativeName: '倡议名称', topLevelInitiative: '项目顶层事项', componentName: '组件',
     aiCopilot: 'Aether AI 助手',

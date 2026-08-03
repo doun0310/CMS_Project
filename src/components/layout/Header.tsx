@@ -275,7 +275,7 @@ export const Header: React.FC = () => {
             <option value="">{t('savedFilters')}</option>
             {SAVED_JQL_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.query}>
-                {preset.name}
+                {t(preset.nameKey) || preset.name}
               </option>
             ))}
           </select>
