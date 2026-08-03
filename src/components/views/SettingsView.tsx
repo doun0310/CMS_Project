@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconReset, IconCheck, IconSettings, IconFolder } from '../common/Icons';
+import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon } from '../common/Icons';
 import { can } from '../../utils/permissions';
 
 export const SettingsView: React.FC = () => {
@@ -21,6 +21,29 @@ export const SettingsView: React.FC = () => {
   } = useAether();
   const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const ok = importDataJSON(content);
+        if (ok) {
+          setMsg({ text: t('importSuccess'), type: 'success' });
+          setImportText('');
+        } else {
+          setMsg({ text: t('importError'), type: 'error' });
+        }
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
 
   const colorOptions = [
@@ -43,18 +66,6 @@ export const SettingsView: React.FC = () => {
     setMsg({ text: t('exportSuccess'), type: 'success' });
   };
 
-  const handleImportSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!importText.trim()) return;
-    const ok = importDataJSON(importText.trim());
-    if (ok) {
-      setMsg({ text: t('importSuccess'), type: 'success' });
-      setImportText('');
-    } else {
-      setMsg({ text: t('importError'), type: 'error' });
-    }
-  };
-
   return (
     <div className="settings-view animate-fade-in">
       <div className="view-header-bar">
@@ -73,7 +84,7 @@ export const SettingsView: React.FC = () => {
         {/* Card 1: System Preferences & Theme */}
         <div className="settings-card">
           <div className="settings-card-header">
-            <h3>🌐 {t('systemPreferencesTheme')}</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconGlobe size={18} color="var(--color-in-progress, #6366f1)" /> {t('systemPreferencesTheme')}</h3>
             <span className="card-badge">{t('appearance')}</span>
           </div>
 
@@ -93,13 +104,28 @@ export const SettingsView: React.FC = () => {
 
           <div className="form-group" style={{ marginTop: '14px' }}>
             <label className="settings-label">{t('themeSetting')}</label>
-            <button type="button" className="btn-secondary settings-theme-toggle" onClick={toggleTheme}>
-              {theme === 'dark' ? `🌙 ${t('darkTheme')}` : `☀️ ${t('lightTheme')}`}
-            </button>
+            <div className="theme-segmented-group">
+              <button
+                type="button"
+                className={`theme-segment-btn ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+              >
+                <IconMoon size={16} />
+                <span>{t('darkTheme')}</span>
+              </button>
+              <button
+                type="button"
+                className={`theme-segment-btn ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => { if (theme !== 'light') toggleTheme(); }}
+              >
+                <IconSun size={16} />
+                <span>{t('lightTheme')}</span>
+              </button>
+            </div>
           </div>
 
           <div className="form-group" style={{ marginTop: '14px' }}>
-            <label className="settings-label">🎨 {t('accentTheme')}</label>
+            <label className="settings-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><IconPalette size={16} color="var(--color-in-progress, #6366f1)" /> {t('accentTheme')}</label>
             <div className="color-swatches-row">
               {colorOptions.map(c => (
                 <button
@@ -153,7 +179,7 @@ export const SettingsView: React.FC = () => {
         {/* Card 3: Data Export & Import */}
         <div className="settings-card full-width-card">
           <div className="settings-card-header">
-            <h3>💾 {t('dataBackup')}</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconDatabase size={18} color="var(--color-in-progress, #6366f1)" /> {t('dataBackup')}</h3>
             <span className="card-badge">{t('persistence')}</span>
           </div>
           <p className="card-desc">
@@ -161,10 +187,21 @@ export const SettingsView: React.FC = () => {
           </p>
 
           <div className="actions-row">
-            <button className="btn-primary" onClick={handleExport}>
+            <button type="button" className="btn-primary" onClick={handleExport}>
               <IconDownload size={15} /> {t('exportData')}
             </button>
+            <input
+              type="file"
+              accept=".json"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
+            />
+            <button type="button" className="btn-danger-outline" onClick={() => fileInputRef.current?.click()}>
+              <IconUpload size={15} /> {t('restoreProjectData')}
+            </button>
             {can(currentUser, 'team:manage') && <button
+              type="button"
               className="btn-danger-outline"
               onClick={() => {
                 if (window.confirm(t('resetDataConfirm'))) {
@@ -177,21 +214,26 @@ export const SettingsView: React.FC = () => {
             </button>}
           </div>
 
-          {can(currentUser, 'team:manage') && <form onSubmit={handleImportSubmit} className="import-form">
+          <div className="import-form">
             <label className="settings-label">{t('importPayload')}</label>
             <textarea
               rows={4}
               className="import-textarea"
               placeholder={t('importPlaceholder')}
               value={importText}
-              onChange={e => setImportText(e.target.value)}
+              onChange={e => {
+                const val = e.target.value;
+                setImportText(val);
+                if (val.trim().startsWith('{') && val.trim().endsWith('}')) {
+                  const ok = importDataJSON(val.trim());
+                  if (ok) {
+                    setMsg({ text: t('importSuccess'), type: 'success' });
+                    setImportText('');
+                  }
+                }
+              }}
             />
-            <div className="import-submit-row">
-              <button type="submit" className="btn-secondary-sm">
-                {t('restoreProjectData')}
-              </button>
-            </div>
-          </form>}
+          </div>
         </div>
       </div>
     </div>
