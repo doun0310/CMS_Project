@@ -42,7 +42,7 @@ export const PricingView: React.FC = () => {
   const [interval, setInterval] = useState<BillingInterval>('monthly');
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
   const { subscription, planId: currentPlanId } = useSubscription();
-  const { authUser, currentUser } = useAether();
+  const { authUser, currentUser, t } = useAether();
   const { error } = useToast();
 
   const handleUpgrade = async (planId: PlanId) => {
@@ -67,31 +67,79 @@ export const PricingView: React.FC = () => {
     }
   };
 
-  const savings = (plan: typeof PRICING_PLANS[0]) => {
+  const getSavingsTag = (plan: typeof PRICING_PLANS[0]) => {
     if (plan.monthlyPrice === 0) return null;
     const saved = Math.round((1 - plan.yearlyPrice / plan.monthlyPrice) * 100);
-    return saved > 0 ? `${saved}% 절약` : null;
+    if (saved <= 0) return null;
+    return t('savePercent').replace('{percent}', `${saved}`);
   };
 
   const getButtonLabel = (planId: PlanId) => {
-    if (planId === 'free') return '현재 플랜';
-    if (planId === currentPlanId && subscription.status === 'active') return '현재 플랜 ✓';
-    if (currentPlanId !== 'free') return '플랜 변경';
-    return '시작하기';
+    if (planId === 'free') return t('currentPlan');
+    if (planId === currentPlanId && subscription.status === 'active') return t('currentPlanActive');
+    if (currentPlanId !== 'free') return t('changePlan');
+    return t('getStarted');
   };
 
   const isCurrentPlan = (planId: PlanId) =>
     planId === currentPlanId && ['active', 'trialing'].includes(subscription.status);
 
+  const getLocalizedPlanDesc = (planId: PlanId) => {
+    switch (planId) {
+      case 'free': return t('planFreeDesc');
+      case 'pro': return t('planProDesc');
+      case 'enterprise': return t('planEnterpriseDesc');
+    }
+  };
+
+  const getLocalizedFeatures = (planId: PlanId) => {
+    switch (planId) {
+      case 'free':
+        return [
+          { text: t('featMaxProjects3'), included: true },
+          { text: t('featMaxMembers5'), included: true },
+          { text: t('featStorage100MB'), included: true },
+          { text: t('featKanbanBacklog'), included: true },
+          { text: t('featBasicSprint'), included: true },
+          { text: t('featAiCopilot'), included: false },
+          { text: t('featAnalytics'), included: false },
+          { text: t('featUnlimitedAutomation'), included: false },
+          { text: t('featPrioritySupport'), included: false },
+        ];
+      case 'pro':
+        return [
+          { text: t('featMaxProjects20'), included: true },
+          { text: t('featMaxMembers25'), included: true },
+          { text: t('featStorage5GB'), included: true },
+          { text: t('featAllViewsRoadmap'), included: true },
+          { text: t('featAdvancedSprint'), included: true },
+          { text: t('featAiCopilot'), included: true },
+          { text: t('featAnalytics'), included: true },
+          { text: t('featUnlimitedAutomation'), included: true },
+          { text: t('featPrioritySupport'), included: false },
+        ];
+      case 'enterprise':
+        return [
+          { text: t('featUnlimitedProjects'), included: true },
+          { text: t('featUnlimitedMembers'), included: true },
+          { text: t('featUnlimitedStorage'), included: true },
+          { text: t('featAllProFeatures'), included: true },
+          { text: t('featSsoLdap'), included: true },
+          { text: t('featDedicatedAi'), included: true },
+          { text: t('featAuditLog'), included: true },
+          { text: t('featSla'), included: true },
+          { text: t('featPrioritySupport'), included: true },
+        ];
+    }
+  };
+
   return (
     <div className="pricing-view animate-fade-in">
       {/* Header */}
       <div className="pricing-header">
-        <div className="pricing-header-badge">💳 요금제</div>
-        <h1 className="pricing-title">팀에 맞는 플랜을 선택하세요</h1>
-        <p className="pricing-subtitle">
-          언제든지 업그레이드하거나 다운그레이드할 수 있습니다.
-        </p>
+        <div className="pricing-header-badge">{t('pricingBadge')}</div>
+        <h1 className="pricing-title">{t('pricingTitle')}</h1>
+        <p className="pricing-subtitle">{t('pricingSubtitle')}</p>
 
         {/* Billing interval toggle */}
         <div className="pricing-interval-toggle">
@@ -99,14 +147,14 @@ export const PricingView: React.FC = () => {
             className={`interval-btn ${interval === 'monthly' ? 'active' : ''}`}
             onClick={() => setInterval('monthly')}
           >
-            월간 결제
+            {t('monthlyBilling')}
           </button>
           <button
             className={`interval-btn ${interval === 'yearly' ? 'active' : ''}`}
             onClick={() => setInterval('yearly')}
           >
-            연간 결제
-            <span className="interval-saving-badge">최대 25% 절약</span>
+            {t('yearlyBilling')}
+            <span className="interval-saving-badge">{t('saveUpTo')}</span>
           </button>
         </div>
       </div>
@@ -117,14 +165,15 @@ export const PricingView: React.FC = () => {
           const price = interval === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
           const isCurrent = isCurrentPlan(plan.id);
           const isPro = plan.id === 'pro';
-          const saving = savings(plan);
+          const savingTag = getSavingsTag(plan);
+          const features = getLocalizedFeatures(plan.id);
 
           return (
             <div
               key={plan.id}
               className={`pricing-card ${isPro ? 'pricing-card--featured' : ''} ${isCurrent ? 'pricing-card--current' : ''}`}
             >
-              {isPro && <div className="pricing-card-badge">{plan.badge}</div>}
+              {isPro && <div className="pricing-card-badge">{t('mostPopular')}</div>}
 
               {/* Plan header */}
               <div className="pricing-card-header">
@@ -133,7 +182,7 @@ export const PricingView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="pricing-plan-name">{plan.name}</h3>
-                  <p className="pricing-plan-desc">{plan.description}</p>
+                  <p className="pricing-plan-desc">{getLocalizedPlanDesc(plan.id)}</p>
                 </div>
               </div>
 
@@ -141,21 +190,21 @@ export const PricingView: React.FC = () => {
               <div className="pricing-price-block">
                 {plan.monthlyPrice === 0 ? (
                   <div className="pricing-price">
-                    <span className="pricing-price-amount">무료</span>
+                    <span className="pricing-price-amount">{t('freePrice')}</span>
                   </div>
                 ) : (
                   <div className="pricing-price">
                     <span className="pricing-price-currency">$</span>
                     <span className="pricing-price-amount">{price}</span>
-                    <span className="pricing-price-period">/월</span>
+                    <span className="pricing-price-period">{t('perMonth')}</span>
                   </div>
                 )}
-                {interval === 'yearly' && saving && plan.monthlyPrice > 0 && (
-                  <div className="pricing-saving-tag">{saving}</div>
+                {interval === 'yearly' && savingTag && plan.monthlyPrice > 0 && (
+                  <div className="pricing-saving-tag">{savingTag}</div>
                 )}
                 {interval === 'yearly' && plan.monthlyPrice > 0 && (
                   <p className="pricing-yearly-note">
-                    연간 ${price * 12} 청구
+                    {t('billedAnnuallyNote').replace('${amount}', `${price * 12}`)}
                   </p>
                 )}
               </div>
@@ -175,14 +224,14 @@ export const PricingView: React.FC = () => {
                 {loadingPlan === plan.id ? (
                   <span className="pricing-btn-loading">
                     <span className="auth-spinner" style={{ width: 14, height: 14, borderWidth: 2, marginRight: 6 }} />
-                    처리 중...
+                    {t('processing')}
                   </span>
                 ) : getButtonLabel(plan.id)}
               </button>
 
               {/* Features list */}
               <ul className="pricing-features-list">
-                {plan.features.map((feat, idx) => (
+                {features.map((feat, idx) => (
                   <li key={idx} className={`pricing-feature-item ${!feat.included ? 'pricing-feature-item--disabled' : ''}`}>
                     <span className={`pricing-feature-icon ${feat.included ? 'included' : 'excluded'}`}>
                       {feat.included ? <IconCheck /> : <IconX />}
@@ -198,8 +247,8 @@ export const PricingView: React.FC = () => {
 
       {/* FAQ / Notes */}
       <div className="pricing-footer-note">
-        <p>💡 모든 플랜은 무료 체험 기간 없이 즉시 활성화됩니다. 결제는 Stripe에 의해 안전하게 처리되며, 언제든지 취소할 수 있습니다.</p>
-        <p style={{ marginTop: 8 }}>🔒 결제 정보는 AetherPulse 서버에 저장되지 않습니다. Stripe PCI DSS 준수 환경에서 처리됩니다.</p>
+        <p>{t('pricingFooterNote1')}</p>
+        <p style={{ marginTop: 8 }}>{t('pricingFooterNote2')}</p>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       id: 'pricing',
-      label: '요금제',
+      label: t('pricing'),
       icon: <IconPricing size={18} />,
       badge: isFree ? 'FREE' : planId.toUpperCase(),
     },
