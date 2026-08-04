@@ -87,6 +87,57 @@ export async function signInWithGithub(): Promise<{ error: AuthError | null }> {
 }
 
 /**
+ * Fetch the list of OAuth identities linked to the current user.
+ * Returns an array of provider names (e.g. ['github', 'google']).
+ */
+export async function getIdentities(): Promise<{ identities: { provider: string; identity_id: string }[]; error: AuthError | null }> {
+  if (!isSupabaseConfigured) return { identities: [], error: null };
+
+  const { data, error } = await supabase.auth.getUserIdentities();
+  if (error) return { identities: [], error: { message: error.message } };
+  return {
+    identities: (data.identities ?? []).map((id) => ({
+      provider: id.provider,
+      identity_id: id.identity_id,
+    })),
+    error: null,
+  };
+}
+
+/**
+ * Link an additional OAuth provider to the currently signed-in user.
+ * e.g. a Google-signed-in user can link their GitHub account.
+ */
+export async function linkIdentity(provider: 'github' | 'google'): Promise<{ error: AuthError | null }> {
+  if (!isSupabaseConfigured) return { error: { message: 'Supabase가 설정되지 않았습니다.' } };
+
+  const { error } = await supabase.auth.linkIdentity({
+    provider,
+    options: {
+      redirectTo: window.location.origin,
+    },
+  });
+  if (error) return { error: { message: error.message } };
+  return { error: null };
+}
+
+/**
+ * Unlink an OAuth provider from the currently signed-in user.
+ * At least one identity must remain — Supabase will reject if it's the only one.
+ */
+export async function unlinkIdentity(identityId: string): Promise<{ error: AuthError | null }> {
+  if (!isSupabaseConfigured) return { error: { message: 'Supabase가 설정되지 않았습니다.' } };
+
+  const { data: userData } = await supabase.auth.getUserIdentities();
+  const identity = (userData?.identities ?? []).find((id) => id.identity_id === identityId);
+  if (!identity) return { error: { message: '연결된 계정을 찾을 수 없습니다.' } };
+
+  const { error } = await supabase.auth.unlinkIdentity(identity);
+  if (error) return { error: { message: error.message } };
+  return { error: null };
+}
+
+/**
  * Send password-reset email.
  */
 export async function sendPasswordReset(email: string): Promise<{ error: AuthError | null }> {

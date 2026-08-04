@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { openCustomerPortal, getPlan } from '../../services/stripeService';
 import type { Language } from '../../i18n/translations';
 import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield, IconCreditCard } from '../common/Icons';
 import { can } from '../../utils/permissions';
-import { signOut } from '../../services/authService';
+import { signOut, getIdentities, linkIdentity, unlinkIdentity } from '../../services/authService';
 import { isSupabaseConfigured } from '../../services/supabase';
 
 export const SettingsView: React.FC = () => {
@@ -33,7 +33,45 @@ export const SettingsView: React.FC = () => {
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
+  // Account Linking 상태
+  const [identities, setIdentities] = useState<{ provider: string; identity_id: string }[]>([]);
+  const [linkingProvider, setLinkingProvider] = useState<'github' | 'google' | null>(null);
+  const [unlinkingId, setUnlinkingId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // 현재 연결된 소셜 계정 목록 불러오기
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    getIdentities().then(({ identities: ids }) => setIdentities(ids));
+  }, []);
+
+  const handleLinkIdentity = async (provider: 'github' | 'google') => {
+    setLinkingProvider(provider);
+    const { error } = await linkIdentity(provider);
+    if (error) {
+      setMsg({ text: `연동 실패: ${error.message}`, type: 'error' });
+      setLinkingProvider(null);
+    }
+    // 성공 시 OAuth 리다이렉트로 페이지 이동 — 돌아오면 identities 자동 갱신
+  };
+
+  const handleUnlinkIdentity = async (identityId: string, provider: string) => {
+    if (identities.length <= 1) {
+      setMsg({ text: '마지막 로그인 수단은 해제할 수 없습니다. 먼저 다른 계정을 연동하세요.', type: 'error' });
+      return;
+    }
+    if (!window.confirm(`${provider} 계정 연동을 해제하시겠습니까?`)) return;
+    setUnlinkingId(identityId);
+    const { error } = await unlinkIdentity(identityId);
+    if (error) {
+      setMsg({ text: `해제 실패: ${error.message}`, type: 'error' });
+    } else {
+      setIdentities(prev => prev.filter(id => id.identity_id !== identityId));
+      setMsg({ text: `${provider} 계정 연동이 해제되었습니다.`, type: 'success' });
+    }
+    setUnlinkingId(null);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -274,20 +312,121 @@ export const SettingsView: React.FC = () => {
             </div>
           </div>
 
+          {/* ── Account Linking ───────────────────────────────── */}
           {isSupabaseConfigured && (
-            <div style={{ marginTop: '16px' }}>
-              <p className="card-desc" style={{ marginBottom: '12px' }}>
-                Supabase 인증으로 연결되어 있습니다. 데이터가 클라우드에 안전하게 저장됩니다.
+            <div style={{ marginTop: '20px' }}>
+              <div className="settings-label" style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🔗 소셜 계정 연동
+              </div>
+              <p className="card-desc" style={{ marginBottom: '14px' }}>
+                여러 소셜 계정을 하나의 AetherPulse 계정에 연결하면, Google 또는 GitHub 어느 쪽으로도 동일한 계정으로 로그인할 수 있습니다.
               </p>
-              <button
-                type="button"
-                className="btn-danger-outline"
-                onClick={handleLogout}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <IconLogout size={15} />
-                로그아웃
-              </button>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {/* GitHub */}
+                {(() => {
+                  const ghIdentity = identities.find(id => id.provider === 'github');
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-primary)', background: 'var(--bg-secondary)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                        </svg>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>GitHub</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {ghIdentity ? '연동됨' : '연동되지 않음'}
+                          </div>
+                        </div>
+                      </div>
+                      {ghIdentity ? (
+                        <button
+                          type="button"
+                          className="btn-danger-outline"
+                          style={{ fontSize: '0.78rem', padding: '5px 12px' }}
+                          disabled={unlinkingId === ghIdentity.identity_id}
+                          onClick={() => handleUnlinkIdentity(ghIdentity.identity_id, 'GitHub')}
+                        >
+                          {unlinkingId === ghIdentity.identity_id ? '해제 중...' : '연동 해제'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{ fontSize: '0.78rem', padding: '5px 12px' }}
+                          disabled={linkingProvider === 'github'}
+                          onClick={() => handleLinkIdentity('github')}
+                        >
+                          {linkingProvider === 'github' ? '연동 중...' : '연동하기'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Google */}
+                {(() => {
+                  const googleIdentity = identities.find(id => id.provider === 'google');
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-primary)', background: 'var(--bg-secondary)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Google</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {googleIdentity ? '연동됨' : '연동되지 않음'}
+                          </div>
+                        </div>
+                      </div>
+                      {googleIdentity ? (
+                        <button
+                          type="button"
+                          className="btn-danger-outline"
+                          style={{ fontSize: '0.78rem', padding: '5px 12px' }}
+                          disabled={unlinkingId === googleIdentity.identity_id}
+                          onClick={() => handleUnlinkIdentity(googleIdentity.identity_id, 'Google')}
+                        >
+                          {unlinkingId === googleIdentity.identity_id ? '해제 중...' : '연동 해제'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{ fontSize: '0.78rem', padding: '5px 12px' }}
+                          disabled={linkingProvider === 'google'}
+                          onClick={() => handleLinkIdentity('google')}
+                        >
+                          {linkingProvider === 'google' ? '연동 중...' : '연동하기'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <p className="card-desc" style={{ marginTop: '12px', fontSize: '0.76rem' }}>
+                ⚠️ 마지막으로 연결된 계정은 해제할 수 없습니다. 최소 1개의 로그인 수단이 유지되어야 합니다.
+              </p>
+
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-primary)' }}>
+                <p className="card-desc" style={{ marginBottom: '12px' }}>
+                  Supabase 인증으로 연결되어 있습니다. 데이터가 클라우드에 안전하게 저장됩니다.
+                </p>
+                <button
+                  type="button"
+                  className="btn-danger-outline"
+                  onClick={handleLogout}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <IconLogout size={15} />
+                  로그아웃
+                </button>
+              </div>
             </div>
           )}
           {!isSupabaseConfigured && (

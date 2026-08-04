@@ -253,3 +253,38 @@ CREATE POLICY "workflow_states_modify" ON public.workflow_states FOR ALL USING (
   EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.workflow_states.project_id AND pm.user_id = auth.uid())
 );
 
+-- =============================================
+-- Auto-create profiles for OAuth users
+-- (GitHub, Google 등 OAuth 로그인 시 자동 실행)
+-- =============================================
+
+-- 새 auth.users 행 삽입 시 profiles 테이블에 자동으로 행을 생성하는 함수
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, name, avatar)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    -- GitHub: name / Google: full_name / 없으면 이메일 앞부분
+    COALESCE(
+      NEW.raw_user_meta_data->>'name',
+      NEW.raw_user_meta_data->>'full_name',
+      split_part(NEW.email, '@', 1)
+    ),
+    -- GitHub: avatar_url / Google: picture
+    COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      NEW.raw_user_meta_data->>'picture'
+    )
+  )
+  ON CONFLICT (id) DO NOTHING; -- 이미 존재하면 무시 (중복 실행 방지)
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- auth.users에 새 사용자가 생성될 때마다 위 함수를 자동 실행하는 트리거
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
