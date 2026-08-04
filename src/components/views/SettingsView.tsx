@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { openCustomerPortal, getPlan } from '../../services/stripeService';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield, IconCreditCard } from '../common/Icons';
+import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield, IconCreditCard, IconLink, IconAlertTriangle } from '../common/Icons';
 import { can } from '../../utils/permissions';
 import { signOut, getIdentities, linkIdentity, unlinkIdentity } from '../../services/authService';
 import { isSupabaseConfigured } from '../../services/supabase';
@@ -316,7 +316,7 @@ export const SettingsView: React.FC = () => {
           {isSupabaseConfigured && (
             <div style={{ marginTop: '20px' }}>
               <div className="settings-label" style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🔗 소셜 계정 연동
+                <IconLink size={18} /> 소셜 계정 연동
               </div>
               <p className="card-desc" style={{ marginBottom: '14px' }}>
                 여러 소셜 계정을 하나의 AetherPulse 계정에 연결하면, Google 또는 GitHub 어느 쪽으로도 동일한 계정으로 로그인할 수 있습니다.
@@ -409,8 +409,9 @@ export const SettingsView: React.FC = () => {
                 })()}
               </div>
 
-              <p className="card-desc" style={{ marginTop: '12px', fontSize: '0.76rem' }}>
-                ⚠️ 마지막으로 연결된 계정은 해제할 수 없습니다. 최소 1개의 로그인 수단이 유지되어야 합니다.
+              <p className="card-desc" style={{ marginTop: '12px', fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconAlertTriangle size={15} color="var(--accent-warning, #f59e0b)" style={{ flexShrink: 0 }} />
+                마지막으로 연결된 계정은 해제할 수 없습니다. 최소 1개의 로그인 수단이 유지되어야 합니다.
               </p>
 
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-primary)' }}>
