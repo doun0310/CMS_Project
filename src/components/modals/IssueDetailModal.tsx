@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { IssueStatus, Priority, IssueType, Issue } from '../../types/Aether';
+import { uploadIssueAttachment, deleteIssueAttachment } from '../../services/storageService';
 import {
   IconX,
   IconTrash,
@@ -39,7 +40,10 @@ export const IssueDetailModal: React.FC = () => {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [selectedBlockerId, setSelectedBlockerId] = useState('');
   const [activityTab, setActivityTab] = useState<'comments' | 'history'>('comments');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const detailMainRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!selectedIssueId) return;
@@ -106,6 +110,58 @@ export const IssueDetailModal: React.FC = () => {
     updateIssue(issue.id, {
       blockedBy: currentBlockers.filter(b => b !== blockerIdOrKey)
     });
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await handleFileUpload(e.dataTransfer.files[0]);
+    }
+  };
+  
+  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      await handleFileUpload(e.target.files[0]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+  
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const uploaderId = users[0]?.id || 'unknown';
+      const attachment = await uploadIssueAttachment(issue.id, file, uploaderId);
+      if (attachment) {
+        const newAttachments = [...(issue.attachments || []), attachment];
+        updateIssue(issue.id, { attachments: newAttachments });
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const handleDeleteAttachment = async (attachmentId: string, url: string) => {
+    if (window.confirm('Delete this attachment?')) {
+      const success = await deleteIssueAttachment(url);
+      if (success) {
+        const newAttachments = (issue.attachments || []).filter(a => a.id !== attachmentId);
+        updateIssue(issue.id, { attachments: newAttachments });
+      }
+    }
   };
 
   const getTypeIcon = (type: IssueType) => {
@@ -267,6 +323,59 @@ useEffect(() => {
                 onChange={e => updateIssue(issue.id, { description: e.target.value })}
                 placeholder={t('descriptionPlaceholder')}
               />
+            </div>
+
+            {/* Attachments Section */}
+            <div className="detail-section">
+              <h3>Attachments</h3>
+              <div 
+                className={`attachment-dropzone ${isDragging ? 'dragging' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isUploading ? (
+                  <div className="uploading-spinner">Uploading...</div>
+                ) : (
+                  <div>Drag & drop files here, or click to browse</div>
+                )}
+                <input 
+                  type="file" 
+                  style={{ display: 'none' }} 
+                  ref={fileInputRef} 
+                  onChange={handleFileInput} 
+                />
+              </div>
+              
+              {issue.attachments && issue.attachments.length > 0 && (
+                <div className="attachments-gallery">
+                  {issue.attachments.map(att => {
+                    const isImage = att.mimeType.startsWith('image/');
+                    return (
+                      <div key={att.id} className="attachment-card">
+                        {isImage ? (
+                          <div className="attachment-preview image">
+                            <img src={att.url} alt={att.name} />
+                          </div>
+                        ) : (
+                          <div className="attachment-preview file">
+                            <span className="file-ext">{att.name.split('.').pop()?.toUpperCase()}</span>
+                          </div>
+                        )}
+                        <div className="attachment-info">
+                          <span className="attachment-name" title={att.name}>{att.name}</span>
+                          <span className="attachment-size">{(att.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                        <div className="attachment-actions">
+                          <a href={att.url} download={att.name} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>⬇️</a>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteAttachment(att.id, att.url); }}>❌</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Interactive Issue Dependency & Critical Path Section */}

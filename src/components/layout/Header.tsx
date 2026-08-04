@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import { useModal } from '../../hooks/useModalContext';
 import { ProjectAvatar } from '../common/ProjectAvatar';
+import { TeamPresenceBar } from '../common/TeamPresenceBar';
 import type { Language } from '../../i18n/translations';
 import type { IssueType, Project, User } from '../../types/Aether';
 import {
@@ -349,6 +350,7 @@ export const Header: React.FC = () => {
       </div>
 
       <div className="header-right">
+        <TeamPresenceBar />
         <select className="lang-select-header" value={language} onChange={event => setLanguage(event.target.value as Language)} title={t('selectLanguageTitle')}>
           <option value="ko">🇰🇷 {t('languageKo')}</option>
           <option value="en">🇺🇸 {t('languageEn')}</option>

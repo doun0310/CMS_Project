@@ -253,7 +253,7 @@
   display: flex;
   align-items: center;
   align-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   gap: 6px;
   flex-shrink: 0;
@@ -1127,5 +1127,181 @@
   font-size: 0.85rem;
   font-weight: 600;
   z-index: 999;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Attachment Dropzone & Gallery Styles */
+.attachment-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 16px;
+}
+.attachment-dropzone.dragging {
+  border-color: var(--color-in-progress, #6366f1);
+  background: color-mix(in srgb, var(--color-in-progress, #6366f1) 10%, transparent);
+  color: var(--color-in-progress, #6366f1);
+}
+.uploading-spinner {
+  font-weight: bold;
+  color: var(--color-in-progress, #6366f1);
+}
+
+.attachments-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.attachment-card {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.attachment-preview {
+  height: 90px;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.attachment-preview.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.attachment-preview.file .file-ext {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.attachment-info {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.attachment-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.attachment-size {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+}
+
+.attachment-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.attachment-card:hover .attachment-actions {
+  opacity: 1;
+}
+.attachment-actions a,
+.attachment-actions button {
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.attachment-actions a:hover,
+.attachment-actions button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Team Presence Bar */
+.team-presence-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.presence-avatar-container {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.presence-avatar-container:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.presence-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--bg-header);
+}
+
+.presence-avatar-more {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-accent-soft, rgba(99, 102, 241, 0.18));
+  color: var(--color-in-progress, #6366f1);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-header);
+  cursor: default;
+}
+
+.presence-pulse-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  border: 1.5px solid var(--bg-header);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
 }

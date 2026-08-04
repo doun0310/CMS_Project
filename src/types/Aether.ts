@@ -120,6 +120,16 @@ export interface LinkedCommit {
   timestamp: string;
 }
 
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  mimeType: string;
+  uploadedAt: string;
+  uploaderId: string;
+}
+
 export interface Issue {
   id: string;
   projectId?: string;
@@ -154,6 +164,7 @@ export interface Issue {
   linkedPRs?: LinkedPR[];
   linkedCommits?: LinkedCommit[];
   isCriticalPath?: boolean;
+  attachments?: Attachment[];
 }
 
 export interface CustomFieldDef {
