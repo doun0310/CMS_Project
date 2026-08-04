@@ -38,7 +38,7 @@ export const CreateIssueModal: React.FC = () => {
     feature: { label: t('typeFeature'), renderIcon: (c) => <IconFeature size={16} color={c} />, color: '#6366f1', desc: '새로운 기능 추가' },
     workitem: { label: t('typeWorkItem'), renderIcon: (c) => <IconWorkItem size={16} color={c} />, color: '#3b82f6', desc: '일반 작업 및 태스크' },
     bug: { label: t('typeBug'), renderIcon: (c) => <IconBug size={16} color={c} />, color: '#ef4444', desc: '버그 및 문제 수정' },
-    initiative: { label: t('typeInitiative'), renderIcon: (c) => <IconInitiative size={16} color={c} />, color: '#a855f7', desc: '대규모 상위 에픽' },
+    initiative: { label: t('typeInitiative'), renderIcon: (c) => <IconInitiative size={16} color={c} />, color: '#a855f7', desc: '대규모 상위 이니셔티브' },
     story: { label: t('typeFeature'), renderIcon: (c) => <IconStory size={16} color={c} />, color: '#8b5cf6', desc: '유저 스토리' },
     task: { label: t('typeWorkItem'), renderIcon: (c) => <IconTask size={16} color={c} />, color: '#06b6d4', desc: '하위 태스크' },
     subtask: { label: t('typeSubtask'), renderIcon: (c) => <IconSubtask size={16} color={c} />, color: '#64748b', desc: '소형 작업' },
@@ -197,7 +197,7 @@ export const CreateIssueModal: React.FC = () => {
               aria-expanded={showDetails}
             >
               <span>{showDetails ? '▲ ' + t('hideDetails') : '▼ ' + t('showDetails')}</span>
-              <span className="toggle-hint">스프린트, 에픽, 스토리포인트 및 세부설명</span>
+              <span className="toggle-hint">스프린트, 이니셔티브, 스토리포인트 및 세부설명</span>
             </button>
 
             {showDetails && (
@@ -234,7 +234,7 @@ export const CreateIssueModal: React.FC = () => {
                         disabled
                         value="top-level"
                       >
-                        <option value="top-level">최고 우선순위 이니셔티브</option>
+                        <option value="top-level">최고 우선순위</option>
                       </select>
                     ) : (
                       <select className="form-select" value={epicId} onChange={e => setEpicId(e.target.value)}>
