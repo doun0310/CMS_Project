@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
-import type { Epic, Issue } from '../../types/Aether';
+import type { Epic, Issue, Sprint } from '../../types/Aether';
 import { IconEpic, IconChevronRight, IconChevronDown, IconRoadmap, IconPlus, IconSettings, IconTrash, IconInitiative } from '../common/Icons';
 
 export const RoadmapView: React.FC = () => {
-  const { epics, issues, createIssue, updateEpic, deleteEpic, setSelectedIssueId, t, language } = useAether();
+  const { epics, issues, sprints, createIssue, updateEpic, deleteEpic, setSelectedIssueId, t, language } = useAether();
   const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>({
     'epic-1': true,
     'epic-2': true,
@@ -13,12 +13,28 @@ export const RoadmapView: React.FC = () => {
   const [expandedInitiatives, setExpandedInitiatives] = useState<Record<string, boolean>>({});
   const [criticalPathOnly, setCriticalPathOnly] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<string>('all');
+  const [selectedSprintId, setSelectedSprintId] = useState<string>('all');
   const [isCreatingEpic, setIsCreatingEpic] = useState(false);
   const [newEpicSummary, setNewEpicSummary] = useState('');
   const [editingEpicId, setEditingEpicId] = useState<string | null>(null);
   const [editingEpicSummary, setEditingEpicSummary] = useState('');
   const dateLocale = { en: 'en-US', ko: 'ko-KR', ja: 'ja-JP', zh: 'zh-CN' }[language] || 'ko-KR';
-  const initiatives = issues.filter((issue: Issue) => issue.type === 'initiative');
+
+  // ── Sprint filtering ──────────────────────────────────────────────────────
+  const selectedSprint: Sprint | undefined = sprints.find((s: Sprint) => s.id === selectedSprintId);
+
+  // 선택한 스프린트에 속한 이슈만 (전체 선택 시 전체 표시)
+  const filteredIssues: Issue[] = selectedSprintId === 'all'
+    ? issues
+    : issues.filter((i: Issue) => i.sprintId === selectedSprintId);
+
+  // 필터된 이슈에 연결된 이니셔티브만 표시 (이니셔티브 자체도 스프린트 필터 적용)
+  const allInitiatives = issues.filter((issue: Issue) => issue.type === 'initiative');
+  const filteredInitiatives: Issue[] = selectedSprintId === 'all'
+    ? allInitiatives
+    : allInitiatives.filter((initiative: Issue) =>
+        filteredIssues.some((i: Issue) => i.initiativeId === initiative.id)
+      );
 
   const toggleEpic = (id: string) => {
     setExpandedEpics(prev => ({ ...prev, [id]: !prev[id] }));
@@ -31,28 +47,36 @@ export const RoadmapView: React.FC = () => {
     String(date.getMonth() + 1).padStart(2, '0'),
     String(date.getDate()).padStart(2, '0'),
   ].join('-');
-  const developmentDates = issues.flatMap(issue => [toCalendarDate(issue.createdAt), toCalendarDate(issue.dueDate)])
-    .filter(date => !Number.isNaN(date.getTime()));
+  const developmentDates = filteredIssues.flatMap((issue: Issue) => [toCalendarDate(issue.createdAt), toCalendarDate(issue.dueDate)])
+    .filter((date: Date) => !Number.isNaN(date.getTime()));
   const fallbackDate = new Date();
   const latestDevelopmentDate = developmentDates.length
-    ? new Date(Math.max(...developmentDates.map(date => date.getTime())))
+    ? new Date(Math.max(...developmentDates.map((date: Date) => date.getTime())))
     : fallbackDate;
-  const initiativeMilestones = initiatives.length > 0
-    ? [...initiatives]
+  const initiativeMilestones = filteredInitiatives.length > 0
+    ? [...filteredInitiatives]
       .sort((a, b) => toCalendarDate(a.dueDate).getTime() - toCalendarDate(b.dueDate).getTime())
-      .map(initiative => ({ initiativeId: initiative.id, date: toCalendarDate(initiative.dueDate) }))
+      .map((initiative: Issue) => ({ initiativeId: initiative.id, date: toCalendarDate(initiative.dueDate) }))
     : [{ initiativeId: null, date: toCalendarDate('2026-08-10') }, { initiativeId: null, date: toCalendarDate('2026-08-30') }];
-  const milestoneDates = initiativeMilestones.map(milestone => milestone.date);
+  const milestoneDates = initiativeMilestones.map((milestone) => milestone.date);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const timelineStart = today;
-  const timelineEnd = new Date(
-    Math.max(
-      timelineStart.getTime() + 14 * 24 * 60 * 60 * 1000,
-      latestDevelopmentDate.getTime(),
-      ...milestoneDates.map((date: Date) => date.getTime())
-    )
-  );
+  // 스프린트가 선택된 경우 해당 기간으로 타임라인 고정, 아닌 경우 기존 계산 방식 유지
+  const timelineStart = selectedSprint
+    ? toCalendarDate(selectedSprint.startDate)
+    : today;
+  const timelineEnd = selectedSprint
+    ? new Date(Math.max(
+        toCalendarDate(selectedSprint.endDate).getTime(),
+        timelineStart.getTime() + 7 * 24 * 60 * 60 * 1000
+      ))
+    : new Date(
+        Math.max(
+          timelineStart.getTime() + 14 * 24 * 60 * 60 * 1000,
+          latestDevelopmentDate.getTime(),
+          ...milestoneDates.map((date: Date) => date.getTime())
+        )
+      );
   const oneDay = 24 * 60 * 60 * 1000;
   const dayCount = Math.max(14, Math.round((timelineEnd.getTime() - timelineStart.getTime()) / oneDay) + 1);
   const days = Array.from({ length: dayCount }, (_, index) => {
@@ -160,6 +184,19 @@ export const RoadmapView: React.FC = () => {
             {criticalPathOnly ? t('criticalPathOn') : t('highlightCriticalPath')}
           </button>
           <select
+            value={selectedSprintId}
+            onChange={(e) => setSelectedSprintId(e.target.value)}
+            className="milestone-select"
+            aria-label="스프린트 선택"
+          >
+            <option value="all">전체 스프린트</option>
+            {sprints.map((sprint: Sprint) => (
+              <option key={sprint.id} value={sprint.id}>
+                {sprint.name}{sprint.status === 'active' ? '' : sprint.status === 'completed' ? ' ✓' : ''}
+              </option>
+            ))}
+          </select>
+          <select
             value={selectedMilestone}
             onChange={(e) => setSelectedMilestone(e.target.value)}
             className="milestone-select"
@@ -181,8 +218,13 @@ export const RoadmapView: React.FC = () => {
           </div>
 
           <div className="gantt-left-body">
-            {initiatives.map(initiative => {
-              const linkedIssues = issues.filter(issue => issue.initiativeId === initiative.id && issue.id !== initiative.id);
+            {filteredInitiatives.length === 0 && filteredIssues.filter((i: Issue) => i.epicId).length === 0 && (
+              <div style={{ padding: '24px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center' }}>
+                선택한 스프린트에 할당된 이슈가 없습니다.
+              </div>
+            )}
+            {filteredInitiatives.map((initiative: Issue) => {
+              const linkedIssues = filteredIssues.filter((issue: Issue) => issue.initiativeId === initiative.id && issue.id !== initiative.id);
               const isExpanded = expandedInitiatives[initiative.id] ?? true;
               const statusProgress: Record<Issue['status'], number> = {
                 todo: 0,
@@ -209,12 +251,15 @@ export const RoadmapView: React.FC = () => {
                   <span className="epic-points-badge">{initiative.storyPoints || 0} {t('pointsShort')}</span>
                   <span className={`epic-health-badge ${healthClass}`}>{healthLabel}</span>
                 </div>
-                {isExpanded && linkedIssues.map(issue => <div key={issue.id} className="gantt-left-row issue-row" onClick={() => setSelectedIssueId(issue.id)}><span className="issue-key">{issue.key}</span><span className="issue-summary" title={issue.summary}>{issue.summary}</span><span className="issue-pts">{issue.storyPoints || 0} {t('pointsShort')}</span></div>)}
+                {isExpanded && linkedIssues.map((issue: Issue) => <div key={issue.id} className="gantt-left-row issue-row" onClick={() => setSelectedIssueId(issue.id)}><span className="issue-key">{issue.key}</span><span className="issue-summary" title={issue.summary}>{issue.summary}</span><span className="issue-pts">{issue.storyPoints || 0} {t('pointsShort')}</span></div>)}
               </React.Fragment>;
             })}
-            {epics.map((epic: Epic) => {
+            {epics.filter((epic: Epic) =>
+              selectedSprintId === 'all' ||
+              filteredIssues.some((i: Issue) => i.epicId === epic.id)
+            ).map((epic: Epic) => {
               const isExpanded = !!expandedEpics[epic.id];
-              const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
+              const childIssues = filteredIssues.filter((i: Issue) => i.epicId === epic.id);
               const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
               const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
 
@@ -333,8 +378,8 @@ export const RoadmapView: React.FC = () => {
               ))}
             </div>
 
-            {initiatives.map(initiative => {
-              const linkedIssues = issues.filter(issue => issue.initiativeId === initiative.id && issue.id !== initiative.id);
+            {filteredInitiatives.map((initiative: Issue) => {
+              const linkedIssues = filteredIssues.filter((issue: Issue) => issue.initiativeId === initiative.id && issue.id !== initiative.id);
               const isExpanded = expandedInitiatives[initiative.id] ?? true;
               const statusProgress: Record<Issue['status'], number> = {
                 todo: 0,
@@ -375,9 +420,12 @@ export const RoadmapView: React.FC = () => {
               </React.Fragment>;
             })}
 
-            {epics.map((epic: Epic) => {
+            {epics.filter((epic: Epic) =>
+              selectedSprintId === 'all' ||
+              filteredIssues.some((i: Issue) => i.epicId === epic.id)
+            ).map((epic: Epic) => {
               const isExpanded = !!expandedEpics[epic.id];
-              const childIssues = issues.filter((i: Issue) => i.epicId === epic.id);
+              const childIssues = filteredIssues.filter((i: Issue) => i.epicId === epic.id);
               const doneChildCount = childIssues.filter((i: Issue) => i.status === 'done').length;
               const progressPct = childIssues.length > 0 ? Math.round((doneChildCount / childIssues.length) * 100) : 0;
 
