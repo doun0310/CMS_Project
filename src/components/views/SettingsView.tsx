@@ -3,7 +3,7 @@ import { useAether } from '../../context/AetherContextValue';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { openCustomerPortal, getPlan } from '../../services/stripeService';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield } from '../common/Icons';
+import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield, IconCreditCard } from '../common/Icons';
 import { can } from '../../utils/permissions';
 import { signOut } from '../../services/authService';
 import { isSupabaseConfigured } from '../../services/supabase';
@@ -300,7 +300,7 @@ export const SettingsView: React.FC = () => {
         {/* Card 5: Subscription & Billing */}
         <div className="settings-card full-width-card">
           <div className="settings-card-header">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>💳 요금제 및 청구</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconCreditCard size={18} color="var(--color-in-progress, #6366f1)" /> 요금제 및 청구</h3>
             <span className="card-badge" style={{ backgroundColor: isFree ? 'var(--bg-tertiary)' : '#6366f1', color: isFree ? 'var(--text-secondary)' : '#fff' }}>
               {isFree ? 'FREE 플랜' : `${planId.toUpperCase()} (활성)`}
             </span>

@@ -71,6 +71,22 @@ export async function signInWithGoogle(): Promise<{ error: AuthError | null }> {
 }
 
 /**
+ * Sign in via GitHub OAuth — redirects and returns to the app automatically.
+ */
+export async function signInWithGithub(): Promise<{ error: AuthError | null }> {
+  if (!isSupabaseConfigured) return { error: { message: 'Supabase가 설정되지 않았습니다.' } };
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: window.location.origin,
+    },
+  });
+  if (error) return { error: { message: error.message } };
+  return { error: null };
+}
+
+/**
  * Send password-reset email.
  */
 export async function sendPasswordReset(email: string): Promise<{ error: AuthError | null }> {

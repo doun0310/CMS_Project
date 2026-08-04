@@ -451,3 +451,14 @@ export const IconLogout: React.FC<IconProps> = ({ size = 18, color = 'currentCol
   </svg>
 );
 
+export const IconCreditCard: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="5" width="20" height="14" rx="3" fill={color} fillOpacity="0.15" />
+    <line x1="2" y1="10" x2="22" y2="10" strokeWidth="2" />
+    <line x1="6" y1="15" x2="10" y2="15" strokeWidth="2" />
+  </svg>
+);
+
+export const IconPricing = IconCreditCard;
+
+
