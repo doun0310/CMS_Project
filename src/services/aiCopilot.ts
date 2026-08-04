@@ -29,9 +29,39 @@ export interface DailyStandupDigest {
   aiPrediction: string;
 }
 
-export const generateAISpecs = (summary: string, description?: string): AISpecSuggestion => {
+import { callGemini, isGeminiConfigured } from './geminiService';
+
+export const generateAISpecs = async (summary: string, description?: string): Promise<AISpecSuggestion> => {
   const text = (summary + ' ' + (description || '')).toLowerCase();
   
+  if (isGeminiConfigured) {
+    const systemInstruction = `당신은 AetherPulse 애자일 워크스페이스의 AI 어시스턴트입니다. 스프린트 계획, 이슈 관리, 기술 부채, 팀 협업에 관한 전문적인 조언을 제공합니다. 사용자의 언어(한국어/영어/일본어/중국어)에 맞춰 응답하세요. 
+이슈 요약을 바탕으로 다음 JSON 형식으로 정확히 응답해 주세요. 마크다운 백틱 없이 순수 JSON만 반환하세요:
+{
+  "acceptanceCriteria": ["기준1", "기준2"],
+  "suggestedSubtasks": ["서브태스크1", "서브태스크2"],
+  "suggestedPoints": 3,
+  "riskRating": "Low" | "Medium" | "High",
+  "reasoning": "왜 이렇게 평가했는지 설명"
+}`;
+    
+    try {
+      const responseText = await callGemini(text, systemInstruction);
+      const cleanedText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanedText);
+      return {
+        acceptanceCriteria: Array.isArray(parsed.acceptanceCriteria) ? parsed.acceptanceCriteria : [],
+        suggestedSubtasks: Array.isArray(parsed.suggestedSubtasks) ? parsed.suggestedSubtasks : [],
+        suggestedPoints: typeof parsed.suggestedPoints === 'number' ? parsed.suggestedPoints : 3,
+        riskRating: ['Low', 'Medium', 'High'].includes(parsed.riskRating) ? parsed.riskRating : 'Medium',
+        reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : ''
+      };
+    } catch (e) {
+      console.error('Gemini API error in generateAISpecs:', e);
+      // Fallback
+    }
+  }
+
   let suggestedPoints = 3;
   let riskRating: 'Low' | 'Medium' | 'High' = 'Medium';
   

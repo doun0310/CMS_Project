@@ -17,6 +17,7 @@ export const AICopilotPanel: React.FC = () => {
   // AI Generator state
   const [inputSummary, setInputSummary] = useState('');
   const [aiResult, setAiResult] = useState<AISpecSuggestion | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const activeSprint = sprints.find(s => s.status === 'active') || sprints[0];
   const healthData = activeSprint ? analyzeSprintHealth(activeSprint, issues) : null;
@@ -34,14 +35,21 @@ export const AICopilotPanel: React.FC = () => {
     return () => window.clearTimeout(timeoutId);
   }, [feedback]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!inputSummary.trim()) {
       setFeedback(t('aiEnterSummary'));
       return;
     }
-    const res = generateAISpecs(inputSummary);
-    setAiResult(res);
-    setFeedback(t('aiProposalGenerated'));
+    setIsLoading(true);
+    try {
+      const res = await generateAISpecs(inputSummary);
+      setAiResult(res);
+      setFeedback(t('aiProposalGenerated'));
+    } catch (e) {
+      setFeedback('죄송합니다. AI 응답을 가져오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleApplyToIssue = () => {
@@ -294,30 +302,33 @@ export const AICopilotPanel: React.FC = () => {
                     <span className="preset-label">{t('copilotQuickPresets')}</span>
                     <button
                       className="preset-chip"
-                      onClick={() => {
+                      onClick={async () => {
                         const val = t('copilotPresetOAuth');
                         setInputSummary(val);
-                        setAiResult(generateAISpecs(val));
+                        setIsLoading(true);
+                        try { setAiResult(await generateAISpecs(val)); } finally { setIsLoading(false); }
                       }}
                     >
                       {t('copilotPresetOAuth')}
                     </button>
                     <button
                       className="preset-chip"
-                      onClick={() => {
+                      onClick={async () => {
                         const val = t('copilotPresetGraphQL');
                         setInputSummary(val);
-                        setAiResult(generateAISpecs(val));
+                        setIsLoading(true);
+                        try { setAiResult(await generateAISpecs(val)); } finally { setIsLoading(false); }
                       }}
                     >
                       {t('copilotPresetGraphQL')}
                     </button>
                     <button
                       className="preset-chip"
-                      onClick={() => {
+                      onClick={async () => {
                         const val = t('copilotPresetSla');
                         setInputSummary(val);
-                        setAiResult(generateAISpecs(val));
+                        setIsLoading(true);
+                        try { setAiResult(await generateAISpecs(val)); } finally { setIsLoading(false); }
                       }}
                     >
                       {t('copilotPresetSla')}
@@ -331,10 +342,12 @@ export const AICopilotPanel: React.FC = () => {
                     value={inputSummary}
                     onChange={e => setInputSummary(e.target.value)}
                   />
-                  <button className="btn-ai-generate" onClick={handleGenerate}>
-                    {t('copilotGenerateBtn')}
+                  <button className="btn-ai-generate" onClick={handleGenerate} disabled={isLoading}>
+                    {isLoading ? '생성 중...' : t('copilotGenerateBtn')}
                   </button>
                 </div>
+
+                {isLoading && <div className="ai-loading-spinner" style={{ textAlign: 'center', padding: '1rem' }}>AI 스피너 로딩 중...</div>}
 
                 {aiResult && (
                   <div className="ai-result-box animate-fade-in">

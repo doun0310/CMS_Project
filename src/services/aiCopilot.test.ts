@@ -36,22 +36,22 @@ const createMockIssue = (overrides: Partial<Issue>): Issue => ({
 
 describe('aiCopilot service', () => {
   describe('generateAISpecs', () => {
-    it('rates high risk and 8 points for security/auth/rls keywords', () => {
-      const res = generateAISpecs('Implement RLS policies for auth');
+    it('rates high risk and 8 points for security/auth/rls keywords', async () => {
+      const res = await generateAISpecs('Implement RLS policies for auth');
       expect(res.riskRating).toBe('High');
       expect(res.suggestedPoints).toBe(8);
       expect(res.acceptanceCriteria).toHaveLength(3);
       expect(res.suggestedSubtasks).toHaveLength(4);
     });
 
-    it('rates low risk and 2 points for ui/css/fix keywords', () => {
-      const res = generateAISpecs('Fix UI button styling in css');
+    it('rates low risk and 2 points for ui/css/fix keywords', async () => {
+      const res = await generateAISpecs('Fix UI button styling in css');
       expect(res.riskRating).toBe('Low');
       expect(res.suggestedPoints).toBe(2);
     });
 
-    it('defaults to medium risk and 3 points for generic keywords', () => {
-      const res = generateAISpecs('Update user profile image avatar');
+    it('defaults to medium risk and 3 points for generic keywords', async () => {
+      const res = await generateAISpecs('Update user profile image avatar');
       expect(res.riskRating).toBe('Medium');
       expect(res.suggestedPoints).toBe(3);
     });

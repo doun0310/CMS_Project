@@ -568,6 +568,7 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
     setProjects,
     setCurrentProject,
     currentUser,
+    authUserId: authenticatedUserId,
   });
 
   // ── Persistence ───────────────────────────────────────────────────
@@ -666,9 +667,33 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
       }
     });
 
+    const unsubscribeSprints = subscribeToTable('sprints', (payload) => {
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const row = payload.new as Record<string, unknown>;
+        const sprint: Sprint = {
+          id: row.id as string,
+          projectId: row.project_id as string,
+          name: (row.name as string) || 'Sprint',
+          goal: (row.goal as string) || '',
+          startDate: (row.start_date as string) || '',
+          endDate: (row.end_date as string) || '',
+          status: (row.status === 'active' ? 'active' : row.status === 'completed' ? 'completed' : 'future') as Sprint['status'],
+        };
+        setSprints(prev => {
+          const idx = prev.findIndex(s => s.id === sprint.id);
+          if (idx >= 0) { const next = [...prev]; next[idx] = sprint; return next; }
+          return [sprint, ...prev];
+        });
+      } else if (payload.eventType === 'DELETE') {
+        const deletedId = payload.old?.id;
+        if (deletedId) setSprints(prev => prev.filter(s => s.id !== deletedId));
+      }
+    });
+
     return () => {
       unsubscribeIssues();
       unsubscribeRetro();
+      unsubscribeSprints();
     };
   }, [currentProject.id, currentProject.remoteId]);
 

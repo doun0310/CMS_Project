@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Language } from '../../i18n/translations';
-import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon } from '../common/Icons';
+import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield } from '../common/Icons';
 import { can } from '../../utils/permissions';
+import { signOut } from '../../services/authService';
+import { isSupabaseConfigured } from '../../services/supabase';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -53,6 +55,13 @@ export const SettingsView: React.FC = () => {
     { name: 'Crimson Pulse', hex: '#ef4444' },
     { name: 'Violet Glow', hex: '#8b5cf6' }
   ];
+
+  const handleLogout = async () => {
+    if (window.confirm('로그아웃 하시겠습니까?')) {
+      await signOut();
+      // AuthGate in App.tsx detects the auth state change and shows login page
+    }
+  };
 
   const handleExport = () => {
     const jsonStr = exportDataJSON();
@@ -234,6 +243,49 @@ export const SettingsView: React.FC = () => {
               }}
             />
           </div>
+        </div>
+
+        {/* Card 4: Account & Security */}
+        <div className="settings-card full-width-card">
+          <div className="settings-card-header">
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconShield size={18} color="var(--color-in-progress, #6366f1)" /> 계정 및 보안</h3>
+            <span className="card-badge">{isSupabaseConfigured ? '클라우드 연결됨' : '로컬 모드'}</span>
+          </div>
+
+          <div className="account-info-row">
+            <div className="account-avatar-circle" style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}>
+              {currentUser.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="account-info-text">
+              <div className="account-info-name">{currentUser.name}</div>
+              <div className="account-info-email">{currentUser.email}</div>
+              <div className="account-info-role">
+                <span className="card-badge" style={{ fontSize: '0.72rem' }}>{currentUser.projectRole ?? currentUser.role}</span>
+              </div>
+            </div>
+          </div>
+
+          {isSupabaseConfigured && (
+            <div style={{ marginTop: '16px' }}>
+              <p className="card-desc" style={{ marginBottom: '12px' }}>
+                Supabase 인증으로 연결되어 있습니다. 데이터가 클라우드에 안전하게 저장됩니다.
+              </p>
+              <button
+                type="button"
+                className="btn-danger-outline"
+                onClick={handleLogout}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <IconLogout size={15} />
+                로그아웃
+              </button>
+            </div>
+          )}
+          {!isSupabaseConfigured && (
+            <p className="card-desc" style={{ marginTop: '12px' }}>
+              현재 로컬 저장 모드로 실행 중입니다. 클라우드 연동을 위해 <code>.env</code> 파일에 Supabase 키를 설정하세요.
+            </p>
+          )}
         </div>
       </div>
     </div>

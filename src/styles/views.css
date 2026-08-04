@@ -1486,6 +1486,82 @@ input:checked + .slider:before {
   justify-content: flex-end;
 }
 
+/* Account & Security Card */
+.account-info-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.account-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.account-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.account-info-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.account-info-email {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.account-info-role {
+  margin-top: 2px;
+}
+
+/* Auth Loading Card (shown while session loads) */
+.auth-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-secondary, rgba(33, 40, 49, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 40px 48px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.auth-loading-logo {
+  margin-bottom: 4px;
+  animation: auth-pulse 2s ease-in-out infinite;
+}
+
+@keyframes auth-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+.auth-loading-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+
 /* AI Copilot Panel Floating Widget */
 .ai-copilot-trigger {
   position: fixed;

@@ -442,3 +442,12 @@ export const IconUserPlus: React.FC<IconProps> = ({ size = 18, color = 'currentC
     <line x1="17" y1="11" x2="23" y2="11" strokeWidth="2.5" />
   </svg>
 );
+
+export const IconLogout: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+

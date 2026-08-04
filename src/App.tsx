@@ -22,8 +22,82 @@ import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
 import { KeyboardShortcutsModal } from './components/modals/KeyboardShortcutsModal';
 import { AICopilotPanel } from './components/common/AICopilotPanel';
+import AuthPage from './components/auth/AuthPage';
+import { ToastProvider } from './context/ToastContext';
+import { ToastContainer } from './components/common/Toast';
+import { OfflineBanner } from './components/common/OfflineBanner';
+import { isSupabaseConfigured, supabase } from './services/supabase';
 import type { ViewMode } from './types/Aether';
 import './App.css';
+import './styles/auth.css';
+
+// ─── Auth Gate ─────────────────────────────────────────────────────────────
+
+/**
+ * Wraps the entire app with an authentication gate.
+ * - When Supabase is NOT configured → skip auth (local-only / demo mode)
+ * - When Supabase IS configured → require a valid session before showing the workspace
+ */
+const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [session, setSession] = useState<'loading' | 'authenticated' | 'unauthenticated'>(
+    isSupabaseConfigured ? 'loading' : 'authenticated'
+  );
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setSession('authenticated');
+      return;
+    }
+
+    // Check existing session immediately
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session ? 'authenticated' : 'unauthenticated');
+    }).catch(() => setSession('unauthenticated'));
+
+    // Listen for subsequent auth state changes (login / logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ? 'authenticated' : 'unauthenticated');
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (session === 'loading') {
+    return (
+      <div className="auth-page">
+        <div className="auth-bg-shapes">
+          <div className="auth-shape auth-shape-1" />
+          <div className="auth-shape auth-shape-2" />
+        </div>
+        <div className="auth-loading-card">
+          <div className="auth-loading-logo">
+            <svg width="40" height="40" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="10" fill="url(#lg-splash)"/>
+              <path d="M10 26L18 10L26 26" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M13 21H23" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+              <defs>
+                <linearGradient id="lg-splash" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#6366F1"/>
+                  <stop offset="1" stopColor="#8B5CF6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="auth-spinner" style={{ width: 24, height: 24, borderWidth: 3 }} />
+          <p className="auth-loading-text">AetherPulse 로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session === 'unauthenticated') {
+    return <AuthPage />;
+  }
+
+  return <>{children}</>;
+};
+
+// ─── Main Workspace Layout ──────────────────────────────────────────────────
 
 const MainLayout: React.FC = () => {
   const { viewMode, setViewMode, setIsCreateModalOpen, isCreateModalOpen, selectedIssueId, setSelectedIssueId } = useAether();
@@ -147,6 +221,8 @@ const MainLayout: React.FC = () => {
         onClose={() => setIsShortcutsModalOpen(false)}
       />
       <AICopilotPanel />
+      <ToastContainer />
+      <OfflineBanner />
 
       {/* Centralized Modal Manager — renders only the active tool modal */}
       <ModalManager />
@@ -154,14 +230,20 @@ const MainLayout: React.FC = () => {
   );
 };
 
+// ─── Root App ───────────────────────────────────────────────────────────────
+
 export default function App() {
   return (
-    <AetherProvider>
-      <ModalProvider>
-        <ErrorBoundary fallbackTitle="Application crashed — please refresh">
-          <MainLayout />
-        </ErrorBoundary>
-      </ModalProvider>
-    </AetherProvider>
+    <ToastProvider>
+      <AuthGate>
+        <AetherProvider>
+          <ModalProvider>
+            <ErrorBoundary fallbackTitle="Application crashed — please refresh">
+              <MainLayout />
+            </ErrorBoundary>
+          </ModalProvider>
+        </AetherProvider>
+      </AuthGate>
+    </ToastProvider>
   );
 }

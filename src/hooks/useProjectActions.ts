@@ -1,12 +1,15 @@
 import type { Project, User } from '../types/Aether';
 import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
+import { syncProjectToSupabase, addProjectMember, deleteProjectFromSupabase } from '../services/dbService';
+import { isSupabaseConfigured } from '../services/supabase';
 
 interface UseProjectActionsParams {
   projects: Project[];
   setProjects: Dispatch<SetStateAction<Project[]>>;
   setCurrentProject: Dispatch<SetStateAction<Project>>;
   currentUser: User;
+  authUserId?: string;
 }
 
 export function useProjectActions({
@@ -14,6 +17,7 @@ export function useProjectActions({
   setProjects,
   setCurrentProject,
   currentUser,
+  authUserId,
 }: UseProjectActionsParams) {
   const createProject = (projectData: Omit<Project, 'id'>): Project | null => {
     if (!can(currentUser, 'team:manage')) return null;
@@ -25,6 +29,19 @@ export function useProjectActions({
 
     setProjects(prev => [createdProject, ...prev]);
     setCurrentProject(createdProject);
+    
+    if (isSupabaseConfigured && authUserId) {
+      syncProjectToSupabase(createdProject, authUserId).then(remoteId => {
+        if (remoteId) {
+          setProjects(prev => prev.map(p => p.id === createdProject.id ? { ...p, remoteId } : p));
+          setCurrentProject(prev => prev.id === createdProject.id ? { ...prev, remoteId } : prev);
+          addProjectMember(remoteId, authUserId, 'project_owner');
+        }
+      }).catch(err => {
+        console.error('Failed to sync project:', err);
+      });
+    }
+
     return createdProject;
   };
 
@@ -42,9 +59,19 @@ export function useProjectActions({
     if (!can(currentUser, 'team:manage')) return false;
     if (projects.length <= 1) return false;
 
+    const projectToDelete = projects.find(p => p.id === projectId);
     const remainingProjects = projects.filter(project => project.id !== projectId);
     setProjects(remainingProjects);
     setCurrentProject(prev => prev.id === projectId ? remainingProjects[0] : prev);
+
+    if (isSupabaseConfigured && projectToDelete?.remoteId) {
+      try {
+        deleteProjectFromSupabase(projectToDelete.remoteId);
+      } catch (err) {
+        console.error('Failed to delete project from DB:', err);
+      }
+    }
+
     return true;
   };
 

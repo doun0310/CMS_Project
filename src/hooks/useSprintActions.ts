@@ -2,6 +2,8 @@ import type { Sprint, Issue, Project, User } from '../types/Aether';
 import type { Dispatch, SetStateAction } from 'react';
 import type { AppNotification } from '../types/Aether';
 import { can } from '../utils/permissions';
+import { syncSprintToSupabase, deleteSprintFromSupabase } from '../services/dbService';
+import { isSupabaseConfigured } from '../services/supabase';
 
 interface UseSprintActionsParams {
   setSprints: Dispatch<SetStateAction<Sprint[]>>;
@@ -34,7 +36,16 @@ export function useSprintActions({
         return item;
       })
     );
-    if (sprint) notify({ kind: 'sprint', title: '스프린트 시작', text: `${sprint.name} 스프린트가 시작되었습니다.` });
+    if (sprint) {
+      if (isSupabaseConfigured && currentProject.remoteId) {
+        try {
+          syncSprintToSupabase({ ...sprint, status: 'active' }, currentProject.remoteId);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      notify({ kind: 'sprint', title: '스프린트 시작', text: `${sprint.name} 스프린트가 시작되었습니다.` });
+    }
   };
 
   const completeSprint = (sprintId: string) => {
@@ -49,7 +60,16 @@ export function useSprintActions({
         item.sprintId === sprintId && item.status !== 'done' ? { ...item, sprintId: null } : item
       )
     );
-    if (sprint) notify({ kind: 'sprint', title: '스프린트 완료', text: `${sprint.name} 스프린트가 완료되어 남은 작업이 백로그로 이동했습니다.` });
+    if (sprint) {
+      if (isSupabaseConfigured && currentProject.remoteId) {
+        try {
+          syncSprintToSupabase({ ...sprint, status: 'completed' }, currentProject.remoteId);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      notify({ kind: 'sprint', title: '스프린트 완료', text: `${sprint.name} 스프린트가 완료되어 남은 작업이 백로그로 이동했습니다.` });
+    }
   };
 
   const createSprint = (name: string, goal: string) => {
@@ -64,6 +84,13 @@ export function useSprintActions({
       status: 'future'
     };
     setSprints(prev => [...prev, newSprint]);
+    if (isSupabaseConfigured && currentProject.remoteId) {
+      try {
+        syncSprintToSupabase(newSprint, currentProject.remoteId);
+      } catch (e) {
+        console.error(e);
+      }
+    }
     notify({ kind: 'sprint', title: '새 스프린트 생성', text: `${newSprint.name} 스프린트가 생성되었습니다.` });
   };
 
@@ -73,7 +100,16 @@ export function useSprintActions({
     setSprints(previousSprints => previousSprints.map(sprint => (
       sprint.id === sprintId ? { ...sprint, ...updates } : sprint
     )));
-    if (sprint) notify({ kind: 'sprint', title: '스프린트 변경', text: `${updates.name || sprint.name} 스프린트의 계획이 변경되었습니다.` });
+    if (sprint) {
+      if (isSupabaseConfigured && currentProject.remoteId) {
+        try {
+          syncSprintToSupabase({ ...sprint, ...updates }, currentProject.remoteId);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      notify({ kind: 'sprint', title: '스프린트 변경', text: `${updates.name || sprint.name} 스프린트의 계획이 변경되었습니다.` });
+    }
   };
 
   const deleteSprint = (sprintId: string) => {
@@ -83,7 +119,16 @@ export function useSprintActions({
     setIssues(previousIssues => previousIssues.map(issue => (
       issue.sprintId === sprintId ? { ...issue, sprintId: null } : issue
     )));
-    if (sprint) notify({ kind: 'sprint', title: '스프린트 삭제', text: `${sprint.name} 스프린트가 삭제되고 연결된 작업이 백로그로 이동했습니다.` });
+    if (sprint) {
+      if (isSupabaseConfigured && currentProject.remoteId) {
+        try {
+          deleteSprintFromSupabase(sprintId);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      notify({ kind: 'sprint', title: '스프린트 삭제', text: `${sprint.name} 스프린트가 삭제되고 연결된 작업이 백로그로 이동했습니다.` });
+    }
   };
 
   return {
