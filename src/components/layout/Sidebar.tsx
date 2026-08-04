@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAether } from '../../context/AetherContextValue';
+import { useSubscription } from '../../context/SubscriptionContext';
 import { ProjectAvatar } from '../common/ProjectAvatar';
 import type { ViewMode } from '../../types/Aether';
 import {
@@ -16,6 +17,14 @@ import {
   IconRetroBoard
 } from '../common/Icons';
 
+// Simple credit card icon for pricing
+const IconPricing: React.FC<{ size?: number }> = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="1" y="4" width="22" height="16" rx="3" fill="currentColor" fillOpacity="0.1" />
+    <path d="M1 10h22" />
+  </svg>
+);
+
 interface NavItem {
   id: ViewMode;
   label: string;
@@ -25,6 +34,7 @@ interface NavItem {
 
 export const Sidebar: React.FC = () => {
   const { viewMode, setViewMode, currentProject, issues, sprints, retrospectiveItems, t } = useAether();
+  const { planId, isFree } = useSubscription();
 
   const activeSprint = sprints.find(s => s.status === 'active');
   const activeSprintIssues = issues.filter(i => i.sprintId === activeSprint?.id);
@@ -88,6 +98,12 @@ export const Sidebar: React.FC = () => {
       id: 'settings',
       label: t('settings'),
       icon: <IconSettings size={18} />
+    },
+    {
+      id: 'pricing',
+      label: '요금제',
+      icon: <IconPricing size={18} />,
+      badge: isFree ? 'FREE' : planId.toUpperCase(),
     }
   ];
 

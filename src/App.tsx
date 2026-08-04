@@ -17,6 +17,8 @@ import { ArchitectureView } from './components/views/ArchitectureView';
 import { PortfolioView } from './components/views/PortfolioView';
 import { RetroKanbanView } from './components/views/RetroKanbanView';
 import { MyWorkView } from './components/views/MyWorkView';
+import { PricingView } from './components/views/PricingView';
+import { SubscriptionProvider } from './context/SubscriptionContext';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
 import { CommandPaletteModal } from './components/modals/CommandPaletteModal';
@@ -186,6 +188,8 @@ const MainLayout: React.FC = () => {
         return <PortfolioView />;
       case 'retro-kanban':
         return <RetroKanbanView />;
+      case 'pricing':
+        return <PricingView />;
       default:
         return <MyWorkView />;
     }
@@ -230,6 +234,18 @@ const MainLayout: React.FC = () => {
   );
 };
 
+
+// ─── Subscription-aware Provider (needs AetherContext) ───────────────────────
+
+const SubscriptionAwareProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { authUser } = useAether();
+  return (
+    <SubscriptionProvider userId={authUser?.id ?? null}>
+      {children}
+    </SubscriptionProvider>
+  );
+};
+
 // ─── Root App ───────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -237,11 +253,13 @@ export default function App() {
     <ToastProvider>
       <AuthGate>
         <AetherProvider>
-          <ModalProvider>
-            <ErrorBoundary fallbackTitle="Application crashed — please refresh">
-              <MainLayout />
-            </ErrorBoundary>
-          </ModalProvider>
+          <SubscriptionAwareProvider>
+            <ModalProvider>
+              <ErrorBoundary fallbackTitle="Application crashed — please refresh">
+                <MainLayout />
+              </ErrorBoundary>
+            </ModalProvider>
+          </SubscriptionAwareProvider>
         </AetherProvider>
       </AuthGate>
     </ToastProvider>

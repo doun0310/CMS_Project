@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
+import { useSubscription } from '../../context/SubscriptionContext';
+import { openCustomerPortal, getPlan } from '../../services/stripeService';
 import type { Language } from '../../i18n/translations';
 import { IconDownload, IconUpload, IconReset, IconCheck, IconSettings, IconFolder, IconGlobe, IconPalette, IconDatabase, IconSun, IconMoon, IconLogout, IconShield } from '../common/Icons';
 import { can } from '../../utils/permissions';
@@ -10,6 +12,7 @@ export const SettingsView: React.FC = () => {
   const {
     currentProject,
     currentUser,
+    authUser,
     exportDataJSON,
     importDataJSON,
     resetDemoData,
@@ -19,10 +22,16 @@ export const SettingsView: React.FC = () => {
     toggleTheme,
     accentColor,
     setAccentColor,
+    setViewMode,
     t
   } = useAether();
+
+  const { subscription, planId, isFree } = useSubscription();
+  const activePlan = getPlan(planId);
+
   const [importText, setImportText] = useState('');
   const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -286,6 +295,62 @@ export const SettingsView: React.FC = () => {
               현재 로컬 저장 모드로 실행 중입니다. 클라우드 연동을 위해 <code>.env</code> 파일에 Supabase 키를 설정하세요.
             </p>
           )}
+        </div>
+
+        {/* Card 5: Subscription & Billing */}
+        <div className="settings-card full-width-card">
+          <div className="settings-card-header">
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>💳 요금제 및 청구</h3>
+            <span className="card-badge" style={{ backgroundColor: isFree ? 'var(--bg-tertiary)' : '#6366f1', color: isFree ? 'var(--text-secondary)' : '#fff' }}>
+              {isFree ? 'FREE 플랜' : `${planId.toUpperCase()} (활성)`}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
+            <div>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                현재 플랜: {activePlan.name}
+              </div>
+              <p className="card-desc" style={{ marginTop: '4px', marginBottom: 0 }}>
+                {activePlan.description}
+                {subscription.currentPeriodEnd && (
+                  <span style={{ display: 'block', marginTop: '4px', fontSize: '0.76rem', color: 'var(--text-tertiary)' }}>
+                    다음 결제/만료일: {new Date(subscription.currentPeriodEnd).toLocaleDateString('ko-KR')}
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => setViewMode('pricing')}
+              >
+                플랜 변경 / 업그레이드
+              </button>
+              {!isFree && (
+                <button
+                  type="button"
+                  className="btn-danger-outline"
+                  disabled={portalLoading}
+                  onClick={async () => {
+                    setPortalLoading(true);
+                    try {
+                      const url = await openCustomerPortal(authUser?.id ?? currentUser.id);
+                      window.location.href = url;
+                    } catch (e) {
+                      setMsg({ text: (e as Error).message || 'Stripe 포털을 열 수 없습니다.', type: 'error' });
+                    } finally {
+                      setPortalLoading(false);
+                    }
+                  }}
+                >
+                  {portalLoading ? '로딩 중...' : '구독 관리 (Stripe Portal)'}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
