@@ -42,6 +42,12 @@ export const Sidebar: React.FC = () => {
 
   const navItems: NavItem[] = [
     {
+      id: 'pricing',
+      label: '요금제',
+      icon: <IconPricing size={18} />,
+      badge: isFree ? 'FREE' : planId.toUpperCase(),
+    },
+    {
       id: 'my-work',
       label: t('myWork'),
       icon: <IconMyWork size={18} />
@@ -98,12 +104,6 @@ export const Sidebar: React.FC = () => {
       id: 'settings',
       label: t('settings'),
       icon: <IconSettings size={18} />
-    },
-    {
-      id: 'pricing',
-      label: '요금제',
-      icon: <IconPricing size={18} />,
-      badge: isFree ? 'FREE' : planId.toUpperCase(),
     }
   ];
 
