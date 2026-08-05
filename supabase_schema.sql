@@ -220,7 +220,9 @@ CREATE POLICY "notifications_select" ON public.notifications FOR SELECT USING (r
 CREATE POLICY "notifications_insert" ON public.notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "notifications_update" ON public.notifications FOR UPDATE USING (recipient_id = auth.uid());
 CREATE POLICY "notifications_delete" ON public.notifications FOR DELETE USING (recipient_id = auth.uid());
-
+DROP POLICY IF EXISTS "notifications_update" ON public.notifications;
+CREATE POLICY "notifications_insert" ON public.notifications
+FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 -- ---- Epics ----
 CREATE POLICY "epics_select" ON public.epics FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.epics.project_id AND pm.user_id = auth.uid())

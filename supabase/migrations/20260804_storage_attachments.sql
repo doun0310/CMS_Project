@@ -13,6 +13,21 @@ CREATE TABLE IF NOT EXISTS issue_attachments (
 -- Enable RLS
 ALTER TABLE issue_attachments ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "members read attachemnts" ON issue_attachments FOR SELECT
+USING (public.has_project_role(
+  (SELECT project_id FROM issues WHERE id = issue_id),
+  ARRAY ['viewer', 'project_memeber', 'project_manager', 'project_owner']
+));
+
+CREATE POLICY "members insert attachments" ON issue_attachments FOR INSERT
+WITH CHECK (uploader_id = auth.uid() AND public.has_project_role(
+  (SELECT project_id FROM issues WHERE id = issue_id),
+  ARRAY ['viewer', 'project_memeber', 'project_manager', 'project_owner']
+)); 
+
+CREATE POLICY "members delete attachments" ON issue_attachments FOR DELETE
+USING (uploader_id = auth.uid());
+
 -- Storage Policies for 'issue-attachments' bucket
 INSERT INTO storage.buckets (id, name, public) VALUES ('issue-attachments', 'issue-attachments', true)
 ON CONFLICT (id) DO NOTHING;
