@@ -16,7 +16,8 @@
     "@supabase/supabase-js": "^2.111.0",
     "@tanstack/react-virtual": "^3.14.9",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-pulsable": "^1.0.22"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.0",
