@@ -132,30 +132,30 @@ BEGIN
 END $$;
 
 -- ────────────────────────────────────────────────────────────────
--- [5] epics — FOR ALL 정책 제거 후 역할별 세분화
+-- [5] initiatives — FOR ALL 정책 제거 후 역할별 세분화
 --     기존: viewer도 수정 가능 (FOR ALL + 멤버 여부만 확인)
 -- ────────────────────────────────────────────────────────────────
 
-DROP POLICY IF EXISTS "epics_modify" ON public.epics;
+DROP POLICY IF EXISTS "initiatives_modify" ON public.initiatives;
 
-CREATE POLICY "members modify epics"
-ON public.epics FOR INSERT
+CREATE POLICY "members modify initiatives"
+ON public.initiatives FOR INSERT
 TO authenticated
 WITH CHECK (
   public.has_project_role(project_id,
     ARRAY['project_member', 'project_manager', 'project_owner'])
 );
 
-CREATE POLICY "members update epics"
-ON public.epics FOR UPDATE
+CREATE POLICY "members update initiatives"
+ON public.initiatives FOR UPDATE
 TO authenticated
 USING (
   public.has_project_role(project_id,
     ARRAY['project_member', 'project_manager', 'project_owner'])
 );
 
-CREATE POLICY "managers delete epics"
-ON public.epics FOR DELETE
+CREATE POLICY "managers delete initiatives"
+ON public.initiatives FOR DELETE
 TO authenticated
 USING (
   public.has_project_role(project_id,
