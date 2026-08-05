@@ -1,14 +1,16 @@
 import Stripe from 'npm:stripe@14';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
+const getEnv = (key: string) => (globalThis as any).Deno?.env?.get(key) ?? '';
+
+const stripe = new Stripe(getEnv('STRIPE_SECRET_KEY'), {
   apiVersion: '2024-06-20',
 });
 
 const PRICE_IDS: Record<string, string> = {
-  pro_monthly: Deno.env.get('STRIPE_PRICE_PRO_MONTHLY') ?? '',
-  pro_yearly: Deno.env.get('STRIPE_PRICE_PRO_YEARLY') ?? '',
-  enterprise_monthly: Deno.env.get('STRIPE_PRICE_ENTERPRISE_MONTHLY') ?? '',
-  enterprise_yearly: Deno.env.get('STRIPE_PRICE_ENTERPRISE_YEARLY') ?? '',
+  pro_monthly: getEnv('STRIPE_PRICE_PRO_MONTHLY'),
+  pro_yearly: getEnv('STRIPE_PRICE_PRO_YEARLY'),
+  enterprise_monthly: getEnv('STRIPE_PRICE_ENTERPRISE_MONTHLY'),
+  enterprise_yearly: getEnv('STRIPE_PRICE_ENTERPRISE_YEARLY'),
 };
 
 const corsHeaders = {
