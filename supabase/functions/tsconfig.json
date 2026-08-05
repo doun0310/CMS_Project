@@ -1,7 +1,0 @@
-{
-    "compilerOptions": {
-        "target": "ESNEXT",
-        "lib": ["ESNEXT"],
-        "types": ["https://deno.land/x/types/index.d.ts"]
-    }
-}
