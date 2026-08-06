@@ -21,7 +21,8 @@ import {
   IconStory,
   IconChevronLeft,
   IconChevronRight,
-  IconXCircle
+  IconXCircle,
+  IconArrowRight
 } from '../common/Icons';
 import {
   fetchLeaveRequestsFromSupabase,
@@ -68,7 +69,7 @@ const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
 ];
 
 export const CapacityView: React.FC = () => {
-  const { users, sprints, issues, currentUser, addNotification } = useAether();
+  const { users, sprints, issues, currentUser, addNotification, updateIssue } = useAether();
 
   const isManager = currentUser ? canApproveLeave(currentUser) : true;
 
@@ -204,11 +205,16 @@ export const CapacityView: React.FC = () => {
     // Deep work cap ratio (5.5h / 8h = 68.75%)
     const maxRecommendedHours = Math.round(availableHours * 0.6875);
 
-    const assignedIssues = activeSprintIssues.filter((i) => i.assigneeId === user.id);
-    const assignedHours = assignedIssues.reduce((acc, i) => {
+    // Get issues for active sprint, fallback to all project issues if sprint issues are empty
+    const userProjectIssues = issues.filter((i) => i.assigneeId === user.id);
+    const assignedIssues = activeSprintIssues.length > 0 
+      ? activeSprintIssues.filter((i) => i.assigneeId === user.id)
+      : userProjectIssues;
+
+    const assignedHours = Math.round(assignedIssues.reduce((acc, i) => {
       const estimate = i.originalEstimate > 0 ? i.originalEstimate : (i.storyPoints ? i.storyPoints * 4 : 8);
       return acc + estimate;
-    }, 0);
+    }, 0) * 10) / 10;
     
     const isOverloaded = assignedHours > maxRecommendedHours;
     const loadPercentage = maxRecommendedHours > 0 ? Math.round((assignedHours / maxRecommendedHours) * 100) : 100;
@@ -290,13 +296,29 @@ export const CapacityView: React.FC = () => {
     );
   };
 
-  // AI Estimation State & Handler (Toggles per user)
+  // AI Estimation Engine: Multi-factor estimation logic (Story Points + Subtasks + Tech Complexity + PR/Commit History)
   const [activeAiUserId, setActiveAiUserId] = useState<string | null>(null);
   const [aiReportMap, setAiReportMap] = useState<Record<string, {
     userName: string;
     totalTasks: number;
     estimatedHours: number;
-    breakdown: { title: string; hours: number; confidence: string }[];
+    currentAssignedHours: number;
+    varianceHours: number;
+    breakdown: {
+      issueId: string;
+      issueKey: string;
+      title: string;
+      currentEstimate: number;
+      aiEstimatedHours: number;
+      confidence: '높음' | '중간' | '낮음(고위험)';
+      complexityFactors: string[];
+    }[];
+    rebalanceSuggestions: {
+      issueKey: string;
+      issueSummary: string;
+      recommendAssigneeName: string;
+      reason: string;
+    }[];
   }>>({});
 
   const handleAiEstimateForUser = (userId: string, userName: string, userIssues: typeof activeSprintIssues) => {
@@ -308,38 +330,163 @@ export const CapacityView: React.FC = () => {
     if (userIssues.length === 0) {
       addNotification({
         kind: 'system',
-        title: '🤖 AI 시간 추정',
+        title: '개발 시간 자동 추정',
         text: `${userName} 개발자에게 할당된 작업이 없어 추정할 작업이 없습니다.`
       });
       return;
     }
 
     const breakdown = userIssues.map((issue) => {
-      const titleLower = issue.summary.toLowerCase();
-      let baseHours = issue.storyPoints ? issue.storyPoints * 3.5 : 6;
-      if (titleLower.includes('auth') || titleLower.includes('security') || titleLower.includes('db')) {
-        baseHours *= 1.3;
+      const titleLower = (issue.summary + ' ' + (issue.description || '')).toLowerCase();
+      
+      // Factor 1: Base Hours derived from Story Points or Priority
+      let baseHours = issue.storyPoints ? issue.storyPoints * 3.5 : (issue.priority === 'highest' ? 12 : 6);
+      
+      // Factor 2: Subtask Granularity (+1.5h per subtask)
+      if (issue.subtasks && issue.subtasks.length > 0) {
+        baseHours += issue.subtasks.length * 1.5;
       }
-      const calculatedHours = Math.round(baseHours * 10) / 10;
+
+      // Factor 3: Domain Keyword Complexity Multipliers
+      const factors: string[] = [];
+      if (titleLower.includes('auth') || titleLower.includes('security') || titleLower.includes('oauth') || titleLower.includes('jwt')) {
+        baseHours *= 1.35;
+        factors.push('보안/인증');
+      }
+      if (titleLower.includes('db') || titleLower.includes('migration') || titleLower.includes('sql') || titleLower.includes('schema')) {
+        baseHours *= 1.25;
+        factors.push('DB/스키마');
+      }
+      if (titleLower.includes('api') || titleLower.includes('refactor') || titleLower.includes('sync')) {
+        baseHours *= 1.15;
+        factors.push('API/동기화');
+      }
+      if (issue.subtasks && issue.subtasks.length > 3) {
+        factors.push(`서브태스크 ${issue.subtasks.length}개`);
+      }
+
+      // Factor 4: Linked PRs/Commits history weight
+      if (issue.linkedPRs && issue.linkedPRs.length > 0) {
+        baseHours *= 1.1;
+        factors.push('연동 PR 포함');
+      }
+
+      const currentEst = issue.originalEstimate > 0 ? issue.originalEstimate : (issue.storyPoints ? issue.storyPoints * 4 : 8);
+      const aiEst = Math.round(baseHours * 10) / 10;
+      
+      let confidence: '높음' | '중간' | '낮음(고위험)' = '높음';
+      if (aiEst > 16 || factors.length >= 3) {
+        confidence = '낮음(고위험)';
+      } else if (aiEst > 10 || factors.length >= 1) {
+        confidence = '중간';
+      }
+
       return {
+        issueId: issue.id,
+        issueKey: issue.key,
         title: `${issue.key}: ${issue.summary}`,
-        hours: calculatedHours,
-        confidence: calculatedHours > 12 ? '중간(복잡성 높음)' : '높음'
+        currentEstimate: currentEst,
+        aiEstimatedHours: aiEst,
+        confidence,
+        complexityFactors: factors.length > 0 ? factors : ['표준 난이도']
       };
     });
 
-    const totalHours = Math.round(breakdown.reduce((acc, b) => acc + b.hours, 0));
+    const totalEstimated = Math.round(breakdown.reduce((acc, b) => acc + b.aiEstimatedHours, 0));
+    const currentAssigned = Math.round(breakdown.reduce((acc, b) => acc + b.currentEstimate, 0));
+    const varianceHours = Math.round((totalEstimated - currentAssigned) * 10) / 10;
+
+    // AI Workload Rebalancing Recommendations (If overload predicted)
+    const rebalanceSuggestions: {
+      issueKey: string;
+      issueSummary: string;
+      recommendAssigneeName: string;
+      reason: string;
+    }[] = [];
+
+    const targetUserCapacity = memberCapacities.find((m) => m.user.id === userId);
+    if (targetUserCapacity && totalEstimated > targetUserCapacity.maxRecommendedHours) {
+      // Find underutilized team members
+      const helper = memberCapacities.find(
+        (m) => m.user.id !== userId && !m.isOverloaded && m.assignedHours < m.maxRecommendedHours * 0.7
+      );
+
+      if (helper && breakdown.length > 0) {
+        const heaviestTask = breakdown.reduce((prev, curr) => (curr.aiEstimatedHours > prev.aiEstimatedHours ? curr : prev));
+        rebalanceSuggestions.push({
+          issueKey: heaviestTask.issueKey,
+          issueSummary: heaviestTask.title,
+          recommendAssigneeName: helper.user.name,
+          reason: `${userName} 개발자 예상 소요시간(${totalEstimated}h)이 수용량(${targetUserCapacity.maxRecommendedHours}h)을 초과함. ${helper.user.name}(여유시간 ${Math.round(helper.maxRecommendedHours - helper.assignedHours)}h)에게 재할당 추천`
+        });
+      }
+    }
 
     setAiReportMap((prev) => ({
       ...prev,
       [userId]: {
         userName,
         totalTasks: userIssues.length,
-        estimatedHours: totalHours,
-        breakdown
+        estimatedHours: totalEstimated,
+        currentAssignedHours: currentAssigned,
+        varianceHours,
+        breakdown,
+        rebalanceSuggestions
       }
     }));
     setActiveAiUserId(userId);
+  };
+
+  // 1-Click Single Task AI Estimate Apply Handler
+  const handleApplySingleAiEstimate = (issueId: string, issueKey: string, aiEstimatedHours: number) => {
+    updateIssue(issueId, {
+      originalEstimate: aiEstimatedHours
+    });
+
+    addNotification({
+      kind: 'issue',
+      title: '⚡ 개발 시간 추정 반영',
+      text: `${issueKey} 작업의 산출 소요시간이 ${aiEstimatedHours}시간으로 반영되었습니다.`
+    });
+  };
+
+  // 1-Click Workload Rebalance Auto Execution Handler
+  const handleExecuteRebalance = (issueKey: string, targetAssigneeName: string) => {
+    const targetIssue = issues.find((i) => i.key === issueKey);
+    const targetUser = users.find((u) => u.name === targetAssigneeName);
+    if (!targetIssue || !targetUser) return;
+
+    updateIssue(targetIssue.id, {
+      assigneeId: targetUser.id
+    });
+
+    addNotification({
+      kind: 'system',
+      title: '🔄 워크로드 재배치 완료',
+      text: `${issueKey} 작업이 ${targetUser.name} 개발자에게 실시간 재할당되었습니다.`
+    });
+
+    // Close open AI popover so UI refreshes with new workloads
+    setActiveAiUserId(null);
+  };
+
+  // 1-Click AI Estimation Batch Apply Handler
+  const handleApplyAllAiEstimates = (userId: string) => {
+    const report = aiReportMap[userId];
+    if (!report) return;
+
+    report.breakdown.forEach((item) => {
+      updateIssue(item.issueId, {
+        originalEstimate: item.aiEstimatedHours
+      });
+    });
+
+    addNotification({
+      kind: 'system',
+      title: '⚡ 개발 시간 일괄 적용 완료',
+      text: `${report.userName} 개발자의 작업 ${report.totalTasks}개에 추정 소요시간(${report.estimatedHours}h)이 실제 이슈 데이터에 실시간 반영되었습니다.`
+    });
+    setActiveAiUserId(null);
   };
 
   // CSV Export Handler
@@ -463,7 +610,6 @@ export const CapacityView: React.FC = () => {
         <div className="cap-content-section">
           <div className="section-header">
             <h3> 개발자 별 실질 개발 시간 (Capacity vs Commitment)</h3>
-            <span className="badge-info">Deep Work 권장 한계: 일 5.5시간 기준</span>
           </div>
 
           <div className="member-capacity-list">
@@ -498,32 +644,95 @@ export const CapacityView: React.FC = () => {
                       className="btn-ai-sparkle"
                       onClick={() => handleAiEstimateForUser(user.id, user.name, assignedIssues)}
                     >
-                      <IconAiSpark size={14} /> {activeAiUserId === user.id ? '리포트 닫기 ▲' : 'AI 소요시간 자동추정 ▼'}
+                      <IconAiSpark size={14} /> {activeAiUserId === user.id ? '리포트 닫기 ▲' : '개발 소요시간 자동추정 ▼'}
                     </button>
 
                     {/* Contextual Popover: AI Time Estimation Result */}
                     {activeAiUserId === user.id && aiReportMap[user.id] && (
                       <div className="ai-popover-card">
                         <div className="ai-popover-header">
-                          <h4><IconAiSpark size={16} color="#c084fc" /> {user.name} AI 추정 리포트</h4>
+                          <h4><IconAiSpark size={16} color="#c084fc" /> {user.name} 개발 소요시간 추정 & 분석 리포트</h4>
                           <button className="close-btn-sm" onClick={() => setActiveAiUserId(null)}>✕</button>
                         </div>
-                        <div className="ai-summary-banner-sm">
-                          <span>총 AI 추정 소요시간</span>
-                          <strong>약 {aiReportMap[user.id].estimatedHours}시간</strong>
+
+                        <div className="ai-metrics-banner">
+                          <div className="metric-box">
+                            <span className="metric-label">현재 할당시간</span>
+                            <strong className="metric-val">{aiReportMap[user.id].currentAssignedHours}h</strong>
+                          </div>
+                          <div className="metric-arrow"><IconArrowRight size={14} color="#818cf8" /></div>
+                          <div className="metric-box highlight">
+                            <span className="metric-label">개발 추정 소요시간</span>
+                            <strong className="metric-val ai">{aiReportMap[user.id].estimatedHours}h</strong>
+                          </div>
+                          <div className="metric-box">
+                            <span className="metric-label">추정 오차 (Variance)</span>
+                            <strong className={`metric-val ${aiReportMap[user.id].varianceHours > 0 ? 'text-red' : 'text-green'}`}>
+                              {aiReportMap[user.id].varianceHours > 0 ? `+${aiReportMap[user.id].varianceHours}h` : `${aiReportMap[user.id].varianceHours}h`}
+                            </strong>
+                          </div>
                         </div>
+
+                        {/* AI Workload Rebalance Suggestion Card */}
+                        {aiReportMap[user.id].rebalanceSuggestions.length > 0 && (
+                          <div className="ai-rebalance-card">
+                            <div className="rebalance-title">
+                              <IconAlertTriangle size={14} color="#f97316" /> 개발 워크로드 재배치 추천
+                            </div>
+                            {aiReportMap[user.id].rebalanceSuggestions.map((sug, sIdx) => (
+                              <div key={sIdx} className="rebalance-item">
+                                <div className="rebalance-item-header">
+                                  <span><strong>{sug.issueKey}</strong> <IconArrowRight size={12} color="#fb923c" /> {sug.recommendAssigneeName}에게 재할당 권장</span>
+                                  <button
+                                    className="btn-xs btn-rebalance-exec"
+                                    onClick={() => handleExecuteRebalance(sug.issueKey, sug.recommendAssigneeName)}
+                                  >
+                                    재할당 실행
+                                  </button>
+                                </div>
+                                <p>{sug.reason}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="ai-task-list-sm">
                           {aiReportMap[user.id].breakdown.map((item, idx) => (
                             <div key={idx} className="ai-task-item-sm">
-                              <span className="ai-task-title-sm">{item.title}</span>
+                              <div className="ai-task-main-info">
+                                <span className="ai-task-title-sm">{item.title}</span>
+                                <div className="ai-factor-tags">
+                                  {item.complexityFactors.map((fac, fIdx) => (
+                                    <span key={fIdx} className="factor-tag">{fac}</span>
+                                  ))}
+                                </div>
+                              </div>
                               <div className="ai-task-meta-sm">
-                                <strong>{item.hours}h</strong>
-                                <span className={`ai-confidence-badge ${item.confidence.includes('중간') ? 'medium' : 'high'}`}>
+                                <span className="est-compare font-mono">
+                                  {item.currentEstimate}h <IconArrowRight size={11} color="#94a3b8" /> <strong>{item.aiEstimatedHours}h</strong>
+                                </span>
+                                <span className={`ai-confidence-badge ${item.confidence === '높음' ? 'high' : item.confidence === '중간' ? 'medium' : 'low'}`}>
                                   {item.confidence}
                                 </span>
+                                <button
+                                  className="btn-xs btn-apply-single"
+                                  onClick={() => handleApplySingleAiEstimate(item.issueId, item.issueKey, item.aiEstimatedHours)}
+                                  title="이 작업만 추정 시간 반영"
+                                >
+                                  적용
+                                </button>
                               </div>
                             </div>
                           ))}
+                        </div>
+
+                        <div className="ai-popover-footer">
+                          <button
+                            className="btn btn-sm btn-primary btn-apply-ai"
+                            onClick={() => handleApplyAllAiEstimates(user.id)}
+                          >
+                            <IconAiSpark size={14} /> 개발 소요 시간 일괄 적용 ({aiReportMap[user.id].estimatedHours}h)
+                          </button>
                         </div>
                       </div>
                     )}

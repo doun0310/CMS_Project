@@ -2,7 +2,6 @@ import React from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { Issue } from '../../types/Aether';
 import { IconPlus } from '../common/Icons';
-import { can } from '../../utils/permissions';
 
 export const MyWorkView: React.FC = () => {
   const { currentUser, issues, sprints, setSelectedIssueId, setIsCreateModalOpen, setViewMode, t } = useAether();
@@ -53,7 +52,9 @@ export const MyWorkView: React.FC = () => {
         </div>
         <div className="my-work-actions">
           <button className="btn-ghost-sm" onClick={() => setViewMode('board')}>{t('openBoard')}</button>
-          {can(currentUser, 'issue:write') && <button className="btn-primary-sm" onClick={() => setIsCreateModalOpen(true)}><IconPlus size={14} /> {t('createIssue')}</button>}
+          <button className="btn-primary-sm" onClick={() => setIsCreateModalOpen(true)}>
+            <IconPlus size={14} /> {t('createIssue')}
+          </button>
         </div>
       </header>
 

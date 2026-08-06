@@ -49,6 +49,12 @@ export const Sidebar: React.FC = () => {
       badge: isFree ? 'FREE' : planId.toUpperCase(),
     },
     {
+      id: 'capacity',
+      label: '휴가 & 가동인원',
+      icon: <IconCalendar size={18} />,
+      badge: 'NEW'
+    },
+    {
       id: 'my-work',
       label: t('myWork'),
       icon: <IconMyWork size={18} />
@@ -100,12 +106,6 @@ export const Sidebar: React.FC = () => {
       id: 'retro-kanban',
       label: t('retroKanban'),
       icon: <IconRetroBoard size={18} />,
-    },
-    {
-      id: 'capacity',
-      label: '휴가 & 가동인원',
-      icon: <IconCalendar size={18} />,
-      badge: 'NEW'
     },
     {
       id: 'settings',

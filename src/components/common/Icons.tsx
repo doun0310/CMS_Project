@@ -132,6 +132,12 @@ export const IconChevronLeft: React.FC<IconProps> = ({ size = 16, color = 'curre
   </svg>
 );
 
+export const IconArrowRight: React.FC<IconProps> = ({ size = 14, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+);
+
 export const IconBoard: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect width="18" height="18" x="3" y="3" rx="3" fill={color} fillOpacity="0.08" />
