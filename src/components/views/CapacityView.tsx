@@ -67,6 +67,7 @@ export const CapacityView: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(INITIAL_LEAVE_REQUESTS);
   const [activeTab, setActiveTab] = useState<'overview' | 'requests' | 'calendar'>('overview');
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedLeaveForDetail, setSelectedLeaveForDetail] = useState<LeaveRequest | null>(null);
   const [filterType, setFilterType] = useState<string>('ALL');
 
   // Supabase Initial Fetch & Realtime WebSocket Subscription
@@ -556,7 +557,7 @@ export const CapacityView: React.FC = () => {
               {filteredRequests.map((req) => {
                 const user = users.find((u) => u.id === req.userId);
                 return (
-                  <tr key={req.id}>
+                  <tr key={req.id} className="clickable-row" onClick={() => setSelectedLeaveForDetail(req)}>
                     <td>
                       <div className="table-user">
                         <img src={user?.avatar} alt="" className="avatar-sm" />
@@ -574,7 +575,7 @@ export const CapacityView: React.FC = () => {
                       </span>
                     </td>
                     <td className="font-mono">{req.startDate} ~ {req.endDate}</td>
-                    <td>{req.reason}</td>
+                    <td className="reason-cell">{req.reason}</td>
                     <td>
                       <span className={`badge-status ${req.status}`}>
                         {req.status === 'APPROVED' && '승인됨'}
@@ -582,7 +583,7 @@ export const CapacityView: React.FC = () => {
                         {req.status === 'REJECTED' && '반려됨'}
                       </span>
                     </td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       {req.status === 'PENDING' && (
                         isManager ? (
                           <div className="action-buttons">
@@ -640,7 +641,12 @@ export const CapacityView: React.FC = () => {
                     {dayLeaves.map((leave) => {
                       const u = users.find((usr) => usr.id === leave.userId);
                       return (
-                        <div key={leave.id} className={`cal-leave-tag ${leave.leaveType}`}>
+                        <div
+                          key={leave.id}
+                          className={`cal-leave-tag ${leave.leaveType} clickable`}
+                          onClick={() => setSelectedLeaveForDetail(leave)}
+                          title="클릭하여 상세 정보 보기"
+                        >
                           {u?.name}: {leave.reason}
                         </div>
                       );
@@ -722,6 +728,117 @@ export const CapacityView: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal: Leave Request Details */}
+      {selectedLeaveForDetail && createPortal(
+        <div className="modal-overlay" onClick={() => setSelectedLeaveForDetail(null)}>
+          <div className="modal-content modal-content-lg leave-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                <IconCalendar size={20} color="#818cf8" /> 휴가 / 부재 상세 정보
+              </h2>
+              <button className="close-btn" onClick={() => setSelectedLeaveForDetail(null)}>✕</button>
+            </div>
+
+            <div className="modal-body leave-detail-body">
+              {(() => {
+                const targetUser = users.find((u) => u.id === selectedLeaveForDetail.userId);
+                const approverUser = selectedLeaveForDetail.approverId
+                  ? users.find((u) => u.id === selectedLeaveForDetail.approverId)
+                  : null;
+
+                return (
+                  <>
+                    <div className="detail-user-banner">
+                      <img src={targetUser?.avatar} alt="" className="detail-user-avatar" />
+                      <div>
+                        <div className="detail-user-name">{targetUser?.name || selectedLeaveForDetail.userId}</div>
+                        <div className="detail-user-role">{targetUser?.role} • {targetUser?.email}</div>
+                      </div>
+                      <span className={`badge-status ${selectedLeaveForDetail.status}`} style={{ marginLeft: 'auto' }}>
+                        {selectedLeaveForDetail.status === 'APPROVED' && '승인 완료'}
+                        {selectedLeaveForDetail.status === 'PENDING' && '승인 대기중'}
+                        {selectedLeaveForDetail.status === 'REJECTED' && '반려됨'}
+                      </span>
+                    </div>
+
+                    <div className="detail-grid">
+                      <div className="detail-item">
+                        <span className="detail-label">신청 유형</span>
+                        <div className="detail-value">
+                          <span className={`badge-type ${selectedLeaveForDetail.leaveType}`}>
+                            {selectedLeaveForDetail.leaveType === 'ANNUAL' && '🏖️ 연차 (전일 8h)'}
+                            {selectedLeaveForDetail.leaveType === 'HALF_AM' && '🌅 오전 반차 (4h)'}
+                            {selectedLeaveForDetail.leaveType === 'HALF_PM' && '🌇 오후 반차 (4h)'}
+                            {selectedLeaveForDetail.leaveType === 'OUTSIDE' && '💼 외근 (4h)'}
+                            {selectedLeaveForDetail.leaveType === 'SICK' && '🤒 병가 (전일 8h)'}
+                            {selectedLeaveForDetail.leaveType === 'OTHER' && '📋 기타'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="detail-label">기간 및 일시</span>
+                        <div className="detail-value font-mono">
+                          {selectedLeaveForDetail.startDate} ~ {selectedLeaveForDetail.endDate}
+                        </div>
+                      </div>
+
+                      <div className="detail-item full-width">
+                        <span className="detail-label">신청 사유</span>
+                        <div className="detail-value reason-box">
+                          {selectedLeaveForDetail.reason}
+                        </div>
+                      </div>
+
+                      {approverUser && (
+                        <div className="detail-item full-width">
+                          <span className="detail-label">결재자 정보</span>
+                          <div className="detail-value approver-info">
+                            <img src={approverUser.avatar} alt="" className="avatar-xs" />
+                            <span>{approverUser.name} ({approverUser.role})</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                {selectedLeaveForDetail.status === 'PENDING' && isManager && (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      className="btn btn-success"
+                      onClick={() => {
+                        handleApprove(selectedLeaveForDetail.id);
+                        setSelectedLeaveForDetail(null);
+                      }}
+                    >
+                      <IconCheckCircle size={15} /> 승인하기
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        handleReject(selectedLeaveForDetail.id);
+                        setSelectedLeaveForDetail(null);
+                      }}
+                    >
+                      <IconX size={15} /> 반려하기
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button className="btn btn-secondary" onClick={() => setSelectedLeaveForDetail(null)}>
+                닫기
+              </button>
+            </div>
           </div>
         </div>,
         document.body
