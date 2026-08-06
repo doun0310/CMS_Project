@@ -286,7 +286,7 @@ export interface BudgetSummary {
   targetSpendCurve: { day: string; planned: number; actual: number; projected?: number }[];
 }
 
-export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'capacity' | 'pricing' | 'budget';
+export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'capacity' | 'pricing' | 'budget' | 'daily-summary';
 
 
 

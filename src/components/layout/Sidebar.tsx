@@ -27,6 +27,13 @@ const IconPricing: React.FC<{ size?: number }> = ({ size = 18 }) => (
   </svg>
 );
 
+// Lightning icon for daily summary
+const IconDailySummary: React.FC<{ size?: number }> = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
+
 interface NavItem {
   id: ViewMode;
   label: string;
@@ -60,6 +67,12 @@ export const Sidebar: React.FC = () => {
       label: '휴가 & 가동인원',
       icon: <IconCalendar size={18} />,
       badge: 'NEW'
+    },
+    {
+      id: 'daily-summary',
+      label: '오늘의 개발 요약',
+      icon: <IconDailySummary size={18} />,
+      badge: 'AI'
     },
     {
       id: 'my-work',

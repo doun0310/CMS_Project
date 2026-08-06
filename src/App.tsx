@@ -22,6 +22,7 @@ const CapacityView = lazy(() => import('./components/views/CapacityView').then(m
 const MyWorkView = lazy(() => import('./components/views/MyWorkView').then(m => ({ default: m.MyWorkView })));
 const PricingView = lazy(() => import('./components/views/PricingView').then(m => ({ default: m.PricingView })));
 const BudgetView = lazy(() => import('./components/views/BudgetView').then(m => ({ default: m.BudgetView })));
+const DailySummaryView = lazy(() => import('./components/views/DailySummaryView').then(m => ({ default: m.DailySummaryView })));
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
@@ -198,6 +199,8 @@ const MainLayout: React.FC = () => {
         return <PricingView />;
       case 'budget':
         return <BudgetView />;
+      case 'daily-summary':
+        return <DailySummaryView />;
       default:
         return <MyWorkView />;
     }
