@@ -10,7 +10,9 @@ import {
   IconClock,
   IconAlertTriangle,
   IconPlus,
-  IconFilter
+  IconFilter,
+  IconDownload,
+  IconAiSpark
 } from '../common/Icons';
 import {
   fetchLeaveRequestsFromSupabase,
@@ -320,6 +322,38 @@ export const CapacityView: React.FC = () => {
     });
   };
 
+  // CSV Export Handler
+  const handleExportCsv = () => {
+    const headers = ['신청자', '유형', '시작일', '종료일', '사유', '상태', '생성일'];
+    const rows = leaveRequests.map((req) => {
+      const u = users.find((usr) => usr.id === req.userId);
+      return [
+        u?.name || req.userId,
+        req.leaveType,
+        req.startDate,
+        req.endDate,
+        `"${req.reason.replace(/"/g, '""')}"`,
+        req.status,
+        req.createdAt.split('T')[0]
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `team_leave_capacity_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    addNotification({
+      kind: 'system',
+      title: '📊 내보내기 완료',
+      text: '팀 가동률 및 휴가 내역 리포트가 CSV로 다운로드되었습니다.'
+    });
+  };
+
   const filteredRequests = leaveRequests.filter((req) => {
     if (filterType === 'ALL') return true;
     return req.status === filterType;
@@ -337,9 +371,14 @@ export const CapacityView: React.FC = () => {
             스프린트 가동 가능 시간을 자동 측정하고 Deep Work 한계 기반으로 과도한 업무(Burnout)를 예방합니다.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowApplyModal(true)}>
-          <IconPlus size={16} /> 휴가 / 외근 신청
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn-export-sparkle" onClick={handleExportCsv} title="가동률 및 휴가 리포트 다운로드">
+            <IconDownload size={15} /> 리포트 내보내기
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowApplyModal(true)}>
+            <IconPlus size={16} /> 휴가 / 외근 신청
+          </button>
+        </div>
       </div>
 
       {/* Metrics Cards */}
@@ -434,13 +473,12 @@ export const CapacityView: React.FC = () => {
                       style={{ width: `${Math.min(100, loadPercentage)}%` }}
                     />
                   </div>
-                  <div style={{ marginTop: '8px', textAlign: 'right' }}>
+                  <div style={{ marginTop: '10px', textAlign: 'right' }}>
                     <button
-                      className="btn-sm btn-secondary"
-                      style={{ fontSize: '0.75rem', padding: '2px 8px' }}
+                      className="btn-ai-sparkle"
                       onClick={() => handleAiEstimateForUser(user.name, assignedIssues)}
                     >
-                      🤖 AI 소요시간 자동추정
+                      <IconAiSpark size={14} /> AI 소요시간 자동추정
                     </button>
                   </div>
                 </div>
@@ -535,33 +573,47 @@ export const CapacityView: React.FC = () => {
       {activeTab === 'calendar' && (
         <div className="cap-content-section">
           <div className="section-header">
-            <h3>📅 8월 팀 휴가 & 부재 일정표</h3>
+            <h3>📅 스프린트 부재 일정 캘린더 ({activeSprint?.name || 'Active Sprint'})</h3>
           </div>
           <div className="calendar-grid-mock">
             {['월', '화', '수', '목', '금'].map((day) => (
               <div key={day} className="cal-header-cell">{day}요일</div>
             ))}
-            {Array.from({ length: 15 }).map((_, idx) => {
-              const dayNum = idx + 4;
-              const dateStr = `2026-08-${dayNum < 10 ? '0' + dayNum : dayNum}`;
-              const dayLeaves = leaveRequests.filter(
-                (r) => r.status === 'APPROVED' && r.startDate <= dateStr && r.endDate >= dateStr
-              );
+            {(() => {
+              // Generate days dynamically from activeSprint or current date range
+              const days = [];
+              const start = activeSprint?.startDate ? new Date(activeSprint.startDate) : new Date('2026-08-03T00:00:00');
+              const current = new Date(start);
 
-              return (
-                <div key={idx} className="cal-day-cell">
-                  <div className="cal-date-num">{dayNum}일</div>
-                  {dayLeaves.map((leave) => {
-                    const u = users.find((usr) => usr.id === leave.userId);
-                    return (
-                      <div key={leave.id} className={`cal-leave-tag ${leave.leaveType}`}>
-                        {u?.name}: {leave.reason}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
+              for (let i = 0; i < 15; i++) {
+                while (current.getDay() === 0 || current.getDay() === 6) {
+                  current.setDate(current.getDate() + 1);
+                }
+                const dateStr = current.toISOString().split('T')[0];
+                const dayNum = current.getDate();
+                const monthNum = current.getMonth() + 1;
+
+                const dayLeaves = leaveRequests.filter(
+                  (r) => r.status === 'APPROVED' && r.startDate <= dateStr && r.endDate >= dateStr
+                );
+
+                days.push(
+                  <div key={dateStr} className="cal-day-cell">
+                    <div className="cal-date-num">{monthNum}/{dayNum}</div>
+                    {dayLeaves.map((leave) => {
+                      const u = users.find((usr) => usr.id === leave.userId);
+                      return (
+                        <div key={leave.id} className={`cal-leave-tag ${leave.leaveType}`}>
+                          {u?.name}: {leave.reason}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+                current.setDate(current.getDate() + 1);
+              }
+              return days;
+            })()}
           </div>
         </div>
       )}
@@ -630,32 +682,36 @@ export const CapacityView: React.FC = () => {
       {/* Modal: AI Time Estimation Result */}
       {aiModalData && (
         <div className="modal-overlay" onClick={() => setAiModalData(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>🤖 AI 타스크 소요시간 자동 추정 리포트</h2>
+              <h2><IconAiSpark size={20} color="#c084fc" /> AI 타스크 소요시간 자동 추정 리포트</h2>
               <button className="close-btn" onClick={() => setAiModalData(null)}>✕</button>
             </div>
             <div className="modal-body" style={{ padding: '16px 0' }}>
-              <p style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '14px' }}>
-                개발자 <strong>{aiModalData.userName}</strong>님의 할당 작업 ({aiModalData.totalTasks}개)에 대한 LLM AI 소요시간 추정 결과입니다.
+              <p style={{ fontSize: '0.88rem', color: '#9ca3af', marginBottom: '16px' }}>
+                개발자 <strong>{aiModalData.userName}</strong>님의 할당 작업 ({aiModalData.totalTasks}개)에 대한 LLM AI 소요시간 분석 결과입니다.
               </p>
 
-              <div style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px' }}>
-                <span style={{ fontSize: '0.85rem', color: '#818cf8' }}>총 AI 추정 소요시간</span>
-                <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ffffff' }}>
+              <div className="ai-summary-banner">
+                <div className="ai-summary-label">
+                  <IconAiSpark size={16} /> 총 AI 추정 소요시간
+                </div>
+                <div className="ai-summary-hours">
                   약 {aiModalData.estimatedHours}시간
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="ai-task-list">
                 {aiModalData.breakdown.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(30, 41, 59, 0.6)', padding: '10px 12px', borderRadius: '6px', fontSize: '0.85rem' }}>
-                    <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '320px' }}>
+                  <div key={idx} className="ai-task-item">
+                    <span className="ai-task-title">
                       {item.title}
                     </span>
-                    <div style={{ textAlign: 'right' }}>
-                      <strong style={{ color: '#6366f1' }}>{item.hours}h</strong>
-                      <span style={{ display: 'block', fontSize: '0.72rem', color: '#9ca3af' }}>신뢰도: {item.confidence}</span>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                      <strong style={{ color: '#818cf8', fontSize: '0.92rem' }}>{item.hours}h</strong>
+                      <span className={`ai-confidence-badge ${item.confidence.includes('중간') ? 'medium' : 'high'}`}>
+                        신뢰도 {item.confidence}
+                      </span>
                     </div>
                   </div>
                 ))}
