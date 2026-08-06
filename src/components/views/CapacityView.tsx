@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import type { LeaveRequest, LeaveType } from '../../types/Aether';
-import { canApproveLeave } from '../../utils/permissions';
+import { canApproveLeave, getProjectRole } from '../../utils/permissions';
 import {
   IconCalendar,
   IconCheckCircle,
@@ -71,9 +71,41 @@ const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
 export const CapacityView: React.FC = () => {
   const { users, sprints, issues, currentUser, addNotification, updateIssue } = useAether();
 
+  const isViewer = currentUser ? getProjectRole(currentUser) === 'Viewer' : false;
   const isManager = currentUser ? canApproveLeave(currentUser) : true;
 
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(INITIAL_LEAVE_REQUESTS);
+  const notifyPermissionDenied = () => {
+    addNotification({
+      kind: 'system',
+      title: '권한 없음',
+      text: '현재 프로젝트 역할로는 작업을 변경할 수 없습니다.'
+    });
+  };
+
+  const LEAVE_STORAGE_KEY = 'AETHER_PULSE_LEAVE_REQUESTS_V1';
+
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(() => {
+    try {
+      const saved = localStorage.getItem(LEAVE_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn('Failed to parse leave requests from localStorage:', e);
+    }
+    return INITIAL_LEAVE_REQUESTS;
+  });
+
+  // LocalStorage Save Effect
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(LEAVE_STORAGE_KEY, JSON.stringify(leaveRequests));
+    } catch (e) {
+      console.warn('Failed to save leave requests to localStorage:', e);
+    }
+  }, [leaveRequests]);
+
   const [activeTab, setActiveTab] = useState<'overview' | 'requests' | 'calendar'>('overview');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedLeaveForDetail, setSelectedLeaveForDetail] = useState<LeaveRequest | null>(null);
@@ -86,7 +118,13 @@ export const CapacityView: React.FC = () => {
 
     fetchLeaveRequestsFromSupabase().then((data) => {
       if (data && data.length > 0) {
-        setLeaveRequests(data);
+        setLeaveRequests((prev) => {
+          // Merge remote Supabase data with local requests seamlessly (avoid overwriting unsynced local data)
+          const map = new Map<string, LeaveRequest>();
+          prev.forEach((req) => map.set(req.id, req));
+          data.forEach((req) => map.set(req.id, req));
+          return Array.from(map.values());
+        });
       }
     }).catch((err) => {
       console.warn('Failed to load leave requests from Supabase:', err);
@@ -243,7 +281,7 @@ export const CapacityView: React.FC = () => {
       const names = overloaded.map((m) => m.user.name).join(', ');
       addNotification({
         kind: 'system',
-        title: '⚠️ 팀원 업무 과부하(Burnout) 경고',
+        title: '팀원 업무 과부하(Burnout) 경고',
         text: `다음 팀원의 업무량이 개발 수용량을 초과했습니다: ${names}`
       });
     }
@@ -252,6 +290,12 @@ export const CapacityView: React.FC = () => {
   const handleApplyLeave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reason.trim()) return;
+
+    if (isViewer) {
+      notifyPermissionDenied();
+      setShowApplyModal(false);
+      return;
+    }
 
     const newRequest: LeaveRequest = {
       id: `leave-${Date.now()}`,
@@ -265,17 +309,26 @@ export const CapacityView: React.FC = () => {
     };
 
     setLeaveRequests([newRequest, ...leaveRequests]);
-    syncLeaveRequestToSupabase(newRequest);
+    syncLeaveRequestToSupabase(newRequest, (err: any) => {
+      console.warn('Supabase sync warning (data persisted locally):', err?.message);
+    });
     setShowApplyModal(false);
     setReason('');
   };
 
   const handleApprove = (id: string) => {
+    if (isViewer) {
+      notifyPermissionDenied();
+      return;
+    }
+
     setLeaveRequests((prev) =>
       prev.map((req) => {
         if (req.id === id) {
           const updated = { ...req, status: 'APPROVED' as const, approverId: currentUser?.id };
-          syncLeaveRequestToSupabase(updated);
+          syncLeaveRequestToSupabase(updated, (err: any) => {
+            console.warn('Supabase sync warning (data persisted locally):', err?.message);
+          });
           return updated;
         }
         return req;
@@ -284,6 +337,11 @@ export const CapacityView: React.FC = () => {
   };
 
   const handleReject = (id: string) => {
+    if (isViewer) {
+      notifyPermissionDenied();
+      return;
+    }
+
     setLeaveRequests((prev) =>
       prev.map((req) => {
         if (req.id === id) {
@@ -439,6 +497,11 @@ export const CapacityView: React.FC = () => {
 
   // 1-Click Single Task AI Estimate Apply Handler
   const handleApplySingleAiEstimate = (issueId: string, issueKey: string, aiEstimatedHours: number) => {
+    if (isViewer) {
+      notifyPermissionDenied();
+      return;
+    }
+
     updateIssue(issueId, {
       originalEstimate: aiEstimatedHours
     });
@@ -452,6 +515,11 @@ export const CapacityView: React.FC = () => {
 
   // 1-Click Workload Rebalance Auto Execution Handler
   const handleExecuteRebalance = (issueKey: string, targetAssigneeName: string) => {
+    if (isViewer) {
+      notifyPermissionDenied();
+      return;
+    }
+
     const targetIssue = issues.find((i) => i.key === issueKey);
     const targetUser = users.find((u) => u.name === targetAssigneeName);
     if (!targetIssue || !targetUser) return;
@@ -462,7 +530,7 @@ export const CapacityView: React.FC = () => {
 
     addNotification({
       kind: 'system',
-      title: '🔄 워크로드 재배치 완료',
+      title: '워크로드 재배치 완료',
       text: `${issueKey} 작업이 ${targetUser.name} 개발자에게 실시간 재할당되었습니다.`
     });
 
@@ -472,6 +540,11 @@ export const CapacityView: React.FC = () => {
 
   // 1-Click AI Estimation Batch Apply Handler
   const handleApplyAllAiEstimates = (userId: string) => {
+    if (isViewer) {
+      notifyPermissionDenied();
+      return;
+    }
+
     const report = aiReportMap[userId];
     if (!report) return;
 
@@ -483,7 +556,7 @@ export const CapacityView: React.FC = () => {
 
     addNotification({
       kind: 'system',
-      title: '⚡ 개발 시간 일괄 적용 완료',
+      title: '개발 시간 일괄 적용 완료',
       text: `${report.userName} 개발자의 작업 ${report.totalTasks}개에 추정 소요시간(${report.estimatedHours}h)이 실제 이슈 데이터에 실시간 반영되었습니다.`
     });
     setActiveAiUserId(null);

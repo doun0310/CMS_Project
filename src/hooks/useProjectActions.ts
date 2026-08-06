@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
 import { syncProjectToSupabase, addProjectMember, deleteProjectFromSupabase } from '../services/dbService';
 import { isSupabaseConfigured } from '../services/supabase';
+import { generateUUID } from '../utils/idUtils';
 
 interface UseProjectActionsParams {
   projects: Project[];
@@ -23,7 +24,7 @@ export function useProjectActions({
     if (!can(currentUser, 'team:manage')) return null;
     const createdProject: Project = {
       ...projectData,
-      id: `proj_${Date.now()}`,
+      id: generateUUID(),
       boardTitle: projectData.boardTitle?.trim() || `${projectData.name} (Active)`
     };
 

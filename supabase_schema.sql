@@ -63,19 +63,26 @@ CREATE TABLE IF NOT EXISTS public.issues (
   project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
   sprint_id UUID REFERENCES public.sprints(id) ON DELETE SET NULL,
   epic_id UUID REFERENCES public.epics(id) ON DELETE SET NULL,
-  assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-  reporter_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  assignee_id TEXT,
+  reporter_id TEXT,
   key TEXT NOT NULL,
   summary TEXT NOT NULL,
   description TEXT,
-  type TEXT NOT NULL DEFAULT 'task' CHECK (type IN ('feature', 'story', 'workitem', 'task', 'bug', 'initiative', 'epic', 'subtask')),
-  status TEXT NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'in_progress', 'in_review', 'done')),
-  priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('lowest', 'low', 'medium', 'high', 'highest')),
+  type TEXT NOT NULL DEFAULT 'task',
+  status TEXT NOT NULL DEFAULT 'todo',
+  priority TEXT NOT NULL DEFAULT 'medium',
   component TEXT DEFAULT 'Core Framework',
   story_points INT DEFAULT 1,
   original_estimate_hours NUMERIC DEFAULT 8,
   logged_hours NUMERIC DEFAULT 0,
   labels TEXT[] DEFAULT '{}',
+  due_date TEXT,
+  subtasks JSONB DEFAULT '[]'::jsonb,
+  comments JSONB DEFAULT '[]'::jsonb,
+  history JSONB DEFAULT '[]'::jsonb,
+  github_branch TEXT,
+  linked_prs JSONB DEFAULT '[]'::jsonb,
+  linked_commits JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -84,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.issues (
 CREATE TABLE IF NOT EXISTS public.comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   issue_id UUID REFERENCES public.issues(id) ON DELETE CASCADE,
-  author_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  author_id TEXT,
   content TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -94,49 +101,51 @@ CREATE TABLE IF NOT EXISTS public.retrospective_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
   sprint_id UUID REFERENCES public.sprints(id) ON DELETE CASCADE,
-  author_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-  category TEXT NOT NULL CHECK (category IN ('good', 'improve', 'action')),
+  author_id TEXT,
+  category TEXT NOT NULL,
   content TEXT NOT NULL,
   upvotes INT DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'in_progress', 'done')),
-  assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'planned',
+  assignee_id TEXT,
   comments JSONB NOT NULL DEFAULT '[]'::jsonb,
   voter_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE public.retrospective_items
-ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'in_progress', 'done')),
-ADD COLUMN IF NOT EXISTS assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-ADD COLUMN IF NOT EXISTS comments JSONB NOT NULL DEFAULT '[]'::jsonb,
-ADD COLUMN IF NOT EXISTS voter_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
-
--- 9. GitHub Integration & CI/CD Linkage Columns
-ALTER TABLE public.issues 
-ADD COLUMN IF NOT EXISTS github_branch TEXT,
-ADD COLUMN IF NOT EXISTS linked_prs JSONB DEFAULT '[]'::jsonb,
-ADD COLUMN IF NOT EXISTS linked_commits JSONB DEFAULT '[]'::jsonb;
-
--- 10. Real-time Notifications Table
+-- 9. Real-time Notifications Table
 CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  recipient_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  actor_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-  type TEXT NOT NULL CHECK (type IN ('mention', 'assigned', 'comment', 'status_change', 'github_event')),
+  recipient_id TEXT,
+  actor_id TEXT,
+  type TEXT NOT NULL,
   issue_id UUID REFERENCES public.issues(id) ON DELETE CASCADE,
   message TEXT NOT NULL,
   is_read BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. Workflow States Table
+-- 10. Workflow States Table
 CREATE TABLE IF NOT EXISTS public.workflow_states (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  category TEXT CHECK (category IN ('todo', 'in_progress', 'done')),
+  category TEXT,
   color TEXT DEFAULT '#6366F1',
   position INT DEFAULT 0
+);
+
+-- 11. Leave Requests Table
+CREATE TABLE IF NOT EXISTS public.leave_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  leave_type TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  approver_id TEXT,
+  reject_reason TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Enable Realtime for key tables
@@ -145,115 +154,37 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.sprints;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.retrospective_items;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.leave_requests;
 
 -- =============================================
 -- Row Level Security Policies (Production-Grade)
 -- =============================================
 
--- Enable RLS on remaining tables
+-- Enable RLS and add Permissive Policies for Web / Local Sync
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.epics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sprints ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.issues ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.retrospective_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workflow_states ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leave_requests ENABLE ROW LEVEL SECURITY;
 
--- ---- Profiles ----
--- Anyone can read profiles; users can only modify their own.
-CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "profiles_insert" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "profiles_update" ON public.profiles FOR UPDATE USING (auth.uid() = id);
-
--- ---- Projects ----
--- Members and owners can read; only owners can modify.
-CREATE POLICY "projects_select" ON public.projects FOR SELECT USING (
-  owner_id = auth.uid()
-  OR EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "projects_insert" ON public.projects FOR INSERT WITH CHECK (owner_id = auth.uid());
-CREATE POLICY "projects_update" ON public.projects FOR UPDATE USING (owner_id = auth.uid());
-CREATE POLICY "projects_delete" ON public.projects FOR DELETE USING (owner_id = auth.uid());
-
--- ---- Project Members ----
--- Members can read membership; owners manage membership.
-CREATE POLICY "project_members_select" ON public.project_members FOR SELECT USING (
-  user_id = auth.uid()
-  OR EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
-);
-CREATE POLICY "project_members_insert" ON public.project_members FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
-);
-CREATE POLICY "project_members_delete" ON public.project_members FOR DELETE USING (
-  EXISTS (SELECT 1 FROM public.projects p WHERE p.id = project_id AND p.owner_id = auth.uid())
-);
-
--- ---- Issues ----
--- Project members can CRUD issues within their projects.
-CREATE POLICY "issues_select" ON public.issues FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "issues_insert" ON public.issues FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "issues_update" ON public.issues FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "issues_delete" ON public.issues FOR DELETE USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.issues.project_id AND pm.user_id = auth.uid())
-);
-
--- ---- Comments ----
--- Project members can read; authors can write their own.
-CREATE POLICY "comments_select" ON public.comments FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM public.issues i
-    JOIN public.project_members pm ON pm.project_id = i.project_id
-    WHERE i.id = public.comments.issue_id AND pm.user_id = auth.uid()
-  )
-);
-CREATE POLICY "comments_insert" ON public.comments FOR INSERT WITH CHECK (author_id = auth.uid());
-CREATE POLICY "comments_update" ON public.comments FOR UPDATE USING (author_id = auth.uid());
-CREATE POLICY "comments_delete" ON public.comments FOR DELETE USING (author_id = auth.uid());
-
--- ---- Notifications ----
--- Users can only see and manage their own notifications.
-CREATE POLICY "notifications_select" ON public.notifications FOR SELECT USING (recipient_id = auth.uid());
-CREATE POLICY "notifications_insert" ON public.notifications FOR INSERT WITH CHECK (true);
-CREATE POLICY "notifications_update" ON public.notifications FOR UPDATE USING (recipient_id = auth.uid());
-CREATE POLICY "notifications_delete" ON public.notifications FOR DELETE USING (recipient_id = auth.uid());
-DROP POLICY IF EXISTS "notifications_update" ON public.notifications;
-CREATE POLICY "notifications_insert" ON public.notifications
-FOR INSERT WITH CHECK (auth.role() = 'authenticated');
--- ---- Epics ----
-CREATE POLICY "epics_select" ON public.epics FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.epics.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "epics_modify" ON public.epics FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.epics.project_id AND pm.user_id = auth.uid())
-);
-
--- ---- Sprints ----
-CREATE POLICY "sprints_select" ON public.sprints FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.sprints.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "sprints_modify" ON public.sprints FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.sprints.project_id AND pm.user_id = auth.uid())
-);
-
--- ---- Retrospective Items ----
-CREATE POLICY "retro_select" ON public.retrospective_items FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.retrospective_items.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "retro_modify" ON public.retrospective_items FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.retrospective_items.project_id AND pm.user_id = auth.uid())
-);
-
--- ---- Workflow States ----
-CREATE POLICY "workflow_states_select" ON public.workflow_states FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.workflow_states.project_id AND pm.user_id = auth.uid())
-);
-CREATE POLICY "workflow_states_modify" ON public.workflow_states FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.project_members pm WHERE pm.project_id = public.workflow_states.project_id AND pm.user_id = auth.uid())
-);
+-- Allow public / anon read and write access across tables (Development & App Sync)
+CREATE POLICY "profiles_anon_all" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "projects_anon_all" ON public.projects FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "project_members_anon_all" ON public.project_members FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "epics_anon_all" ON public.epics FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "sprints_anon_all" ON public.sprints FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "issues_anon_all" ON public.issues FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "comments_anon_all" ON public.comments FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "retro_anon_all" ON public.retrospective_items FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "notifications_anon_all" ON public.notifications FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "workflow_states_anon_all" ON public.workflow_states FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "leave_requests_anon_all" ON public.leave_requests FOR ALL USING (true) WITH CHECK (true);
 
 -- =============================================
 -- Auto-create profiles for OAuth users
@@ -289,28 +220,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
-
--- =============================================
--- 10. Leave Requests Table (휴가 및 가동 인원 관리)
--- =============================================
-CREATE TABLE IF NOT EXISTS public.leave_requests (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  leave_type TEXT NOT NULL CHECK (leave_type IN ('ANNUAL', 'HALF_AM', 'HALF_PM', 'OUTSIDE', 'SICK', 'OTHER')),
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
-  reason TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
-  approver_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-  reject_reason TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE public.leave_requests ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "leave_requests_select" ON public.leave_requests FOR SELECT USING (true);
-CREATE POLICY "leave_requests_insert" ON public.leave_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "leave_requests_update" ON public.leave_requests FOR UPDATE USING (true);
 
 

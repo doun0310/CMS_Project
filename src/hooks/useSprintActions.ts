@@ -4,6 +4,7 @@ import type { AppNotification } from '../types/Aether';
 import { can } from '../utils/permissions';
 import { syncSprintToSupabase, deleteSprintFromSupabase } from '../services/dbService';
 import { isSupabaseConfigured } from '../services/supabase';
+import { generateUUID } from '../utils/idUtils';
 
 interface UseSprintActionsParams {
   setSprints: Dispatch<SetStateAction<Sprint[]>>;
@@ -23,6 +24,8 @@ export function useSprintActions({
   notify,
 }: UseSprintActionsParams) {
   const deny = () => notify({ kind: 'system', title: '권한 없음', text: '스프린트는 Project Manager 이상만 변경할 수 있습니다.' });
+  const targetRemoteId = currentProject.remoteId || currentProject.id;
+
   const startSprint = (sprintId: string) => {
     if (!can(currentUser, 'project:manage')) return deny();
     const sprint = sprints.find(item => item.id === sprintId);
@@ -37,9 +40,9 @@ export function useSprintActions({
       })
     );
     if (sprint) {
-      if (isSupabaseConfigured && currentProject.remoteId) {
+      if (isSupabaseConfigured) {
         try {
-          syncSprintToSupabase({ ...sprint, status: 'active' }, currentProject.remoteId);
+          syncSprintToSupabase({ ...sprint, status: 'active' }, targetRemoteId);
         } catch (e) {
           console.error(e);
         }
@@ -61,9 +64,9 @@ export function useSprintActions({
       )
     );
     if (sprint) {
-      if (isSupabaseConfigured && currentProject.remoteId) {
+      if (isSupabaseConfigured) {
         try {
-          syncSprintToSupabase({ ...sprint, status: 'completed' }, currentProject.remoteId);
+          syncSprintToSupabase({ ...sprint, status: 'completed' }, targetRemoteId);
         } catch (e) {
           console.error(e);
         }
@@ -75,7 +78,7 @@ export function useSprintActions({
   const createSprint = (name: string, goal: string) => {
     if (!can(currentUser, 'project:manage')) return deny();
     const newSprint: Sprint = {
-      id: 'sprint_' + Date.now(),
+      id: generateUUID(),
       projectId: currentProject.id,
       name,
       goal,
@@ -84,9 +87,9 @@ export function useSprintActions({
       status: 'future'
     };
     setSprints(prev => [...prev, newSprint]);
-    if (isSupabaseConfigured && currentProject.remoteId) {
+    if (isSupabaseConfigured) {
       try {
-        syncSprintToSupabase(newSprint, currentProject.remoteId);
+        syncSprintToSupabase(newSprint, targetRemoteId);
       } catch (e) {
         console.error(e);
       }
@@ -101,9 +104,9 @@ export function useSprintActions({
       sprint.id === sprintId ? { ...sprint, ...updates } : sprint
     )));
     if (sprint) {
-      if (isSupabaseConfigured && currentProject.remoteId) {
+      if (isSupabaseConfigured) {
         try {
-          syncSprintToSupabase({ ...sprint, ...updates }, currentProject.remoteId);
+          syncSprintToSupabase({ ...sprint, ...updates }, targetRemoteId);
         } catch (e) {
           console.error(e);
         }
@@ -120,7 +123,7 @@ export function useSprintActions({
       issue.sprintId === sprintId ? { ...issue, sprintId: null } : issue
     )));
     if (sprint) {
-      if (isSupabaseConfigured && currentProject.remoteId) {
+      if (isSupabaseConfigured) {
         try {
           deleteSprintFromSupabase(sprintId);
         } catch (e) {

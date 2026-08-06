@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { Project, Sprint, Epic } from '../types/Aether';
+import { ensureUUID } from '../utils/idUtils';
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,7 @@ export async function syncProjectToSupabase(project: Project, ownerId: string): 
   if (!isSupabaseConfigured) return null;
   try {
     const row = {
-      id: project.remoteId ?? undefined, // undefined → DB generates new UUID
+      id: ensureUUID(project.remoteId || project.id),
       key: project.key,
       name: project.name,
       description: project.description,
@@ -44,7 +45,7 @@ export async function syncProjectToSupabase(project: Project, ownerId: string): 
 export async function deleteProjectFromSupabase(remoteId: string): Promise<void> {
   if (!isSupabaseConfigured) return;
   try {
-    const { error } = await supabase.from('projects').delete().eq('id', remoteId);
+    const { error } = await supabase.from('projects').delete().eq('id', ensureUUID(remoteId));
     if (error) console.error('[DB] Project delete error:', error.message);
   } catch (err) {
     console.error('[DB] Failed to delete project:', err);
@@ -71,7 +72,7 @@ export async function fetchSprintsFromSupabase(projectRemoteId: string): Promise
     const { data, error } = await supabase
       .from('sprints')
       .select('*')
-      .eq('project_id', projectRemoteId);
+      .eq('project_id', ensureUUID(projectRemoteId));
     if (error || !data) {
       console.warn('[DB] Sprints fetch error:', error?.message);
       return [];
@@ -87,8 +88,8 @@ export async function syncSprintToSupabase(sprint: Sprint, projectRemoteId: stri
   if (!isSupabaseConfigured) return;
   try {
     const row = {
-      id: sprint.id,
-      project_id: projectRemoteId,
+      id: ensureUUID(sprint.id),
+      project_id: ensureUUID(projectRemoteId),
       name: sprint.name,
       goal: sprint.goal,
       status: sprint.status === 'future' ? 'planned' : sprint.status,
@@ -105,7 +106,7 @@ export async function syncSprintToSupabase(sprint: Sprint, projectRemoteId: stri
 export async function deleteSprintFromSupabase(sprintId: string): Promise<void> {
   if (!isSupabaseConfigured) return;
   try {
-    const { error } = await supabase.from('sprints').delete().eq('id', sprintId);
+    const { error } = await supabase.from('sprints').delete().eq('id', ensureUUID(sprintId));
     if (error) console.error('[DB] Sprint delete error:', error.message);
   } catch (err) {
     console.error('[DB] Failed to delete sprint:', err);
@@ -137,7 +138,7 @@ export async function fetchEpicsFromSupabase(projectRemoteId: string): Promise<E
     const { data, error } = await supabase
       .from('epics')
       .select('*')
-      .eq('project_id', projectRemoteId);
+      .eq('project_id', ensureUUID(projectRemoteId));
     if (error || !data) {
       console.warn('[DB] Epics fetch error:', error?.message);
       return [];
@@ -153,8 +154,8 @@ export async function syncEpicToSupabase(epic: Epic, projectRemoteId: string): P
   if (!isSupabaseConfigured) return;
   try {
     const row = {
-      id: epic.id,
-      project_id: projectRemoteId,
+      id: ensureUUID(epic.id),
+      project_id: ensureUUID(projectRemoteId),
       name: epic.summary,
       summary: epic.description || '',
       color: epic.color,

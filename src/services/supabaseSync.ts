@@ -2,6 +2,8 @@ import { supabase, isSupabaseConfigured } from './supabase';
 import type { Issue, RetrospectiveItem, LeaveRequest } from '../types/Aether';
 import type { SupabaseIssueRow, SupabaseRetroRow, SupabaseLeaveRequestRow } from '../types/SupabaseTypes';
 
+import { ensureUUID } from '../utils/idUtils';
+
 /**
  * Maps a Supabase DB row to an AetherPulse Issue object
  */
@@ -40,10 +42,10 @@ export function mapDbToIssue(row: SupabaseIssueRow): Issue {
  */
 export function mapIssueToDb(issue: Issue, projectId: string): SupabaseIssueRow & { project_id: string } {
   return {
-    id: issue.id,
-    project_id: projectId,
-    sprint_id: issue.sprintId,
-    epic_id: issue.epicId,
+    id: ensureUUID(issue.id),
+    project_id: ensureUUID(projectId),
+    sprint_id: issue.sprintId ? ensureUUID(issue.sprintId) : null,
+    epic_id: issue.epicId ? ensureUUID(issue.epicId) : null,
     assignee_id: issue.assigneeId,
     reporter_id: issue.reporterId,
     key: issue.key,
@@ -57,6 +59,10 @@ export function mapIssueToDb(issue: Issue, projectId: string): SupabaseIssueRow 
     original_estimate_hours: issue.originalEstimate,
     logged_hours: issue.timeLogged,
     labels: issue.labels,
+    due_date: issue.dueDate,
+    subtasks: issue.subtasks || [],
+    comments: issue.comments || [],
+    history: issue.history || [],
     github_branch: issue.githubBranch || null,
     linked_prs: issue.linkedPRs || [],
     linked_commits: issue.linkedCommits || [],
@@ -179,9 +185,9 @@ export async function syncRetroToSupabase(item: RetrospectiveItem, projectId: st
   if (!isSupabaseConfigured) return;
   try {
     const dbRow = {
-      id: item.id,
-      project_id: projectId,
-      sprint_id: sprintId,
+      id: ensureUUID(item.id),
+      project_id: ensureUUID(projectId),
+      sprint_id: ensureUUID(sprintId),
       author_id: item.authorId,
       category: item.type === 'went_well' ? 'good' : item.type === 'to_improve' ? 'improve' : 'action',
       content: item.content,
@@ -236,11 +242,11 @@ export async function fetchLeaveRequestsFromSupabase(): Promise<LeaveRequest[]> 
 /**
  * Sync Leave Request object to Supabase DB
  */
-export async function syncLeaveRequestToSupabase(req: LeaveRequest) {
+export async function syncLeaveRequestToSupabase(req: LeaveRequest, onError?: (err: unknown) => void) {
   if (!isSupabaseConfigured) return;
   try {
     const dbRow = {
-      id: req.id,
+      id: ensureUUID(req.id),
       user_id: req.userId,
       leave_type: req.leaveType,
       start_date: req.startDate,
@@ -250,9 +256,29 @@ export async function syncLeaveRequestToSupabase(req: LeaveRequest) {
       approver_id: req.approverId || null,
       reject_reason: req.rejectReason || null,
     };
-    await supabase.from('leave_requests').upsert(dbRow);
+    const { error } = await supabase.from('leave_requests').upsert(dbRow);
+    if (error) {
+      console.warn('[AetherPulse] Supabase leave_requests sync error:', error.message);
+      if (onError) onError(error);
+    }
   } catch (err) {
     console.error('Failed to sync leave request to Supabase:', err);
+    if (onError) onError(err);
+  }
+}
+
+/**
+ * Delete Leave Request object from Supabase DB
+ */
+export async function deleteLeaveRequestFromSupabase(leaveId: string) {
+  if (!isSupabaseConfigured) return;
+  try {
+    const { error } = await supabase.from('leave_requests').delete().eq('id', leaveId);
+    if (error) {
+      console.warn('Supabase leave_requests delete error:', error.message);
+    }
+  } catch (err) {
+    console.error('Failed to delete leave request from Supabase:', err);
   }
 }
 

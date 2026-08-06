@@ -29,9 +29,15 @@ import {
   fetchIssuesFromSupabase,
   syncIssueToSupabase,
   fetchRetroFromSupabase,
+  syncRetroToSupabase,
   mapDbToIssue,
   mapDbToRetroItem
 } from '../services/supabaseSync';
+import {
+  syncProjectToSupabase,
+  syncSprintToSupabase,
+  syncEpicToSupabase
+} from '../services/dbService';
 
 // Domain-specific hooks — keep provider lean
 import { useIssueActions } from '../hooks/useIssueActions';
@@ -257,9 +263,26 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
   }));
 
   const [projects, setProjects] = useState<Project[]>(initialProjectList);
-  const [currentProject, setCurrentProject] = useState<Project>(
-    initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0]
-  );
+  const [currentProject, setCurrentProjectState] = useState<Project>(() => {
+    try {
+      const savedId = localStorage.getItem('AETHER_PULSE_ACTIVE_PROJECT_ID');
+      if (savedId) {
+        const found = initialProjectList.find(p => p.id === savedId);
+        if (found) return found;
+      }
+    } catch {}
+    return initialProjectList.find(project => project.id === persistedState.currentProjectId) ?? initialProjectList[0];
+  });
+
+  const setCurrentProject = (value: React.SetStateAction<Project>) => {
+    setCurrentProjectState(prev => {
+      const next = typeof value === 'function' ? value(prev) : value;
+      try {
+        localStorage.setItem('AETHER_PULSE_ACTIVE_PROJECT_ID', next.id);
+      } catch {}
+      return next;
+    });
+  };
   const [users, setUsers] = useState<User[]>(() => {
     const raw: User[] = persistedState.users ?? initialUsers;
     return raw.map(u => u.id === 'u1' ? { ...u, projectRole: 'Project Owner', role: 'Project Owner' } : u);
@@ -409,7 +432,6 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
       if (!isMounted) return;
       const nextAuthUser = session ? toWorkspaceUser(session.user) : null;
       setAuthUser(nextAuthUser);
-      setCurrentUser(nextAuthUser ?? initialUsers[2]);
       if (nextAuthUser) {
         setUsers(prev => {
           const exists = prev.some(u => u.id === nextAuthUser.id || u.email === nextAuthUser.email);
@@ -418,15 +440,25 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
           }
           return [...prev, nextAuthUser];
         });
+        // Respect locally saved active account ID if user explicitly switched
+        const savedId = localStorage.getItem('aether_active_account_id');
+        if (!savedId) {
+          setCurrentUser(nextAuthUser);
+        }
       }
       setIsAuthLoading(false);
     };
 
     supabase.auth.getSession()
-      .then(({ data: { session } }) => applySession(session))
-      .catch(() => applySession(null));
+      .then(({ data: { session } }) => {
+        if (session) applySession(session);
+        else setIsAuthLoading(false);
+      })
+      .catch(() => setIsAuthLoading(false));
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => applySession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) applySession(session);
+    });
     return () => {
       isMounted = false;
       subscription.unsubscribe();
@@ -616,26 +648,48 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
-    // Parallel data fetch (Promise.all) for optimized initial payload loading speed
-    Promise.all([
-      fetchIssuesFromSupabase(),
-      fetchRetroFromSupabase()
-    ]).then(([dbIssues, dbRetro]) => {
-      if (dbIssues.length > 0) {
-        setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
-      } else {
-        // If DB is empty, seed initial issues to Supabase
-        initialIssues
-          .filter(issue => issue.projectId === currentProject.id)
-          .forEach((issue) => syncIssueToSupabase(issue, currentProject.remoteId ?? currentProject.id));
-      }
+    async function initSupabaseData() {
+      try {
+        const [dbIssues, dbRetro] = await Promise.all([
+          fetchIssuesFromSupabase(),
+          fetchRetroFromSupabase()
+        ]);
 
-      if (dbRetro.length > 0) {
-        setRetrospectiveItems(dbRetro);
+        if (dbIssues.length > 0) {
+          setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
+        } else {
+          // Sequential FK-safe seeding when database is fresh
+          for (const proj of initialProjects) {
+            await syncProjectToSupabase(proj, authenticatedUserId || 'u1');
+          }
+          for (const sprint of initialSprints) {
+            const pRemoteId = initialProjects.find(p => p.id === sprint.projectId)?.remoteId || sprint.projectId;
+            await syncSprintToSupabase(sprint, pRemoteId);
+          }
+          for (const epic of initialEpics) {
+            const pRemoteId = initialProjects.find(p => p.id === epic.projectId)?.remoteId || epic.projectId;
+            await syncEpicToSupabase(epic, pRemoteId);
+          }
+          for (const issue of initialIssues) {
+            const pRemoteId = initialProjects.find(p => p.id === issue.projectId)?.remoteId || issue.projectId;
+            syncIssueToSupabase(issue, pRemoteId);
+          }
+        }
+
+        if (dbRetro.length > 0) {
+          setRetrospectiveItems(dbRetro);
+        } else {
+          for (const retro of initialRetrospectiveItems) {
+            const pRemoteId = initialProjects.find(p => p.id === retro.projectId)?.remoteId || retro.projectId;
+            syncRetroToSupabase(retro, pRemoteId, 'sprint-24');
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase initial fetch/seed warning:', err);
       }
-    }).catch(err => {
-      console.warn('Parallel Supabase fetch error:', err);
-    });
+    }
+
+    void initSupabaseData();
 
     // Real-time WebSockets Subscriptions
     const unsubscribeIssues = subscribeToTable('issues', (payload) => {

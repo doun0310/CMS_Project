@@ -2,6 +2,7 @@ import type { RetrospectiveItem, Sprint, User, Project } from '../types/Aether';
 import { syncRetroToSupabase } from '../services/supabaseSync';
 import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
+import { generateUUID } from '../utils/idUtils';
 
 interface UseRetroActionsParams {
   setRetrospectiveItems: Dispatch<SetStateAction<RetrospectiveItem[]>>;
@@ -22,7 +23,7 @@ export function useRetroActions({
     if (!can(currentUser, 'issue:write')) return;
     const activeSprint = getActiveSprint();
     const newItem: RetrospectiveItem = {
-      id: `retro-${Date.now()}`,
+      id: generateUUID(),
       projectId: currentProject.id,
       type,
       content,
@@ -76,7 +77,7 @@ export function useRetroActions({
         ...item,
         comments: [
           ...(item.comments || []),
-          { id: `retro-comment-${Date.now()}`, authorId: currentUser.id, text: cleanText, createdAt: new Date().toISOString() }
+          { id: generateUUID(), authorId: currentUser.id, text: cleanText, createdAt: new Date().toISOString() }
         ]
       };
       syncRetroToSupabase(updated, currentProject.remoteId ?? currentProject.id, activeSprint?.id || 'sprint-1');

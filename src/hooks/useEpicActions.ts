@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
 import { syncEpicToSupabase, deleteEpicFromSupabase } from '../services/dbService';
 import { isSupabaseConfigured } from '../services/supabase';
+import { generateUUID } from '../utils/idUtils';
 
 interface UseEpicActionsParams {
   epics: Epic[];
@@ -20,12 +21,13 @@ export function useEpicActions({
   currentUser,
 }: UseEpicActionsParams) {
   const filteredEpics = epics.filter(epic => epic.projectId === currentProject.id);
+  const targetRemoteId = currentProject.remoteId || currentProject.id;
 
   const createEpic = (summary: string) => {
     if (!can(currentUser, 'project:manage')) return null;
     const nextNumber = filteredEpics.reduce((max, epic) => Math.max(max, Number(epic.key.split('E')[1]) || 0), 0) + 1;
     const newEpic: Epic = {
-      id: `epic_${Date.now()}`,
+      id: generateUUID(),
       projectId: currentProject.id,
       key: `${currentProject.key}-E${nextNumber}`,
       summary,
@@ -33,9 +35,9 @@ export function useEpicActions({
     };
     setEpics(previousEpics => [...previousEpics, newEpic]);
     
-    if (isSupabaseConfigured && currentProject.remoteId) {
+    if (isSupabaseConfigured) {
       try {
-        syncEpicToSupabase(newEpic, currentProject.remoteId);
+        syncEpicToSupabase(newEpic, targetRemoteId);
       } catch (err) {
         console.error('Failed to sync epic:', err);
       }
@@ -48,9 +50,9 @@ export function useEpicActions({
     const targetEpic = epics.find(e => e.id === epicId);
     setEpics(previousEpics => previousEpics.map(epic => epic.id === epicId ? { ...epic, ...updates } : epic));
     
-    if (targetEpic && isSupabaseConfigured && currentProject.remoteId) {
+    if (targetEpic && isSupabaseConfigured) {
       try {
-        syncEpicToSupabase({ ...targetEpic, ...updates }, currentProject.remoteId);
+        syncEpicToSupabase({ ...targetEpic, ...updates }, targetRemoteId);
       } catch (err) {
         console.error('Failed to update epic:', err);
       }
@@ -62,7 +64,7 @@ export function useEpicActions({
     setEpics(previousEpics => previousEpics.filter(epic => epic.id !== epicId));
     setIssues(previousIssues => previousIssues.map(issue => issue.epicId === epicId ? { ...issue, epicId: null } : issue));
     
-    if (isSupabaseConfigured && currentProject.remoteId) {
+    if (isSupabaseConfigured) {
       try {
         deleteEpicFromSupabase(epicId);
       } catch (err) {

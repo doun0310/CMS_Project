@@ -1,7 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
 
-const supabaseUrl = 'https://otukklnhcdlbqhrknqyk.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90dWtrbG5oY2RsYnFocmtucXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTI5MTMsImV4cCI6MjEwMDM2ODkxM30.44CPG-Lsme4y17cqF-oorDFAgDrZw2uPLVnhGg2V6F4';
+const envPath = path.resolve(process.cwd(), '.env');
+let supabaseUrl = '';
+let supabaseKey = '';
+
+try {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+    if (match) {
+      if (match[1] === 'VITE_SUPABASE_URL') supabaseUrl = match[2].trim();
+      if (match[1] === 'VITE_SUPABASE_ANON_KEY') supabaseKey = match[2].trim();
+    }
+  });
+} catch (e) {
+  console.warn('Could not load .env file:', e.message);
+}
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Supabase credentials missing in .env file!');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -10,9 +31,12 @@ async function checkConnection() {
   try {
     const { data, error } = await supabase.from('issues').select('*').limit(5);
     if (error) {
-      console.error('❌ Connection failed with error:', error.message);
+      console.error('❌ Query failed:', error.message);
+      if (error.code === 'PGRST205') {
+        console.error('💡 Hint: Database tables are not created yet. Please execute supabase_schema.sql in your Supabase SQL Editor!');
+      }
     } else {
-      console.log('✅ Connection SUCCESSFUL!');
+      console.log('✅ Connection & Schema Query SUCCESSFUL!');
       console.log(`📊 Found ${data.length} rows in "issues" table.`);
     }
   } catch (err) {

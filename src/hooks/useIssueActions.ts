@@ -2,6 +2,7 @@ import type { AppNotification, Issue, IssueStatus, SubTask, Sprint, User, Projec
 import { syncIssueToSupabase, deleteIssueFromSupabase } from '../services/supabaseSync';
 import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
+import { generateUUID } from '../utils/idUtils';
 
 interface UseIssueActionsParams {
   allIssues: Issue[];
@@ -80,7 +81,7 @@ export function useIssueActions({
     const now = new Date().toISOString();
 
     const newIssue: Issue = {
-      id: 'issue_' + Date.now(),
+      id: generateUUID(),
       projectId: currentProject.id,
       key,
       summary: issueData.summary ?? 'New Issue',
