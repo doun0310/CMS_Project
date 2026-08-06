@@ -16,6 +16,7 @@ import { RetrospectiveView } from './components/views/RetrospectiveView';
 import { ArchitectureView } from './components/views/ArchitectureView';
 import { PortfolioView } from './components/views/PortfolioView';
 import { RetroKanbanView } from './components/views/RetroKanbanView';
+import { CapacityView } from './components/views/CapacityView';
 import { MyWorkView } from './components/views/MyWorkView';
 import { PricingView } from './components/views/PricingView';
 import { SubscriptionProvider } from './context/SubscriptionContext';
@@ -188,6 +189,8 @@ const MainLayout: React.FC = () => {
         return <PortfolioView />;
       case 'retro-kanban':
         return <RetroKanbanView />;
+      case 'capacity':
+        return <CapacityView />;
       case 'pricing':
         return <PricingView />;
       default:

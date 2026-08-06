@@ -220,5 +220,22 @@ export interface AutomationAuditLog {
   status: 'SUCCESS' | 'WARNING' | 'FAILED';
 }
 
-export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'pricing';
+export type LeaveType = 'ANNUAL' | 'HALF_AM' | 'HALF_PM' | 'OUTSIDE' | 'SICK' | 'OTHER';
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface LeaveRequest {
+  id: string;
+  userId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: LeaveStatus;
+  approverId?: string | null;
+  rejectReason?: string;
+  createdAt: string;
+}
+
+export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'capacity' | 'pricing';
+
 

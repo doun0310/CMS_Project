@@ -72,7 +72,12 @@ describe('aiCopilot service', () => {
       const health = analyzeSprintHealth(mockSprint, []);
       expect(health.healthScore).toBe(100);
       expect(health.blockersCount).toBe(0);
-      expect(health.risks).toContain('No issues currently assigned to this sprint.');
+      expect(health.risks).toEqual([
+        {
+          key: 'aiRiskEmpty',
+          rawText: 'No issues currently assigned to this sprint.'
+        }
+      ]);
     });
 
     it('calculates blockers and risks for unassigned highest priority issues', () => {

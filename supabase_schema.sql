@@ -290,3 +290,27 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+
+-- =============================================
+-- 10. Leave Requests Table (휴가 및 가동 인원 관리)
+-- =============================================
+CREATE TABLE IF NOT EXISTS public.leave_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  leave_type TEXT NOT NULL CHECK (leave_type IN ('ANNUAL', 'HALF_AM', 'HALF_PM', 'OUTSIDE', 'SICK', 'OTHER')),
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+  approver_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  reject_reason TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.leave_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "leave_requests_select" ON public.leave_requests FOR SELECT USING (true);
+CREATE POLICY "leave_requests_insert" ON public.leave_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "leave_requests_update" ON public.leave_requests FOR UPDATE USING (true);
+
+

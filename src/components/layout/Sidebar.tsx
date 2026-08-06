@@ -14,7 +14,8 @@ import {
   IconMyWork,
   IconArchitecture,
   IconPortfolio,
-  IconRetroBoard
+  IconRetroBoard,
+  IconCalendar
 } from '../common/Icons';
 
 // Simple credit card icon for pricing
@@ -99,6 +100,12 @@ export const Sidebar: React.FC = () => {
       id: 'retro-kanban',
       label: t('retroKanban'),
       icon: <IconRetroBoard size={18} />,
+    },
+    {
+      id: 'capacity',
+      label: '휴가 & 가동인원',
+      icon: <IconCalendar size={18} />,
+      badge: 'NEW'
     },
     {
       id: 'settings',
