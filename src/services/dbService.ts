@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { Project, Sprint, Epic } from '../types/Aether';
-import { ensureUUID } from '../utils/idUtils';
+import { ensureUUID, mapUUIDToLocalID } from '../utils/idUtils';
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
@@ -53,8 +53,9 @@ export async function deleteProjectFromSupabase(remoteId: string): Promise<void>
 }
 
 function mapDbToProject(row: Record<string, unknown>): Project {
+  const localId = mapUUIDToLocalID(row.id as string) || (row.id as string);
   return {
-    id: row.id as string,
+    id: localId,
     remoteId: row.id as string,
     key: (row.key as string) || 'PROJ',
     name: (row.name as string) || 'Unnamed Project',
@@ -120,8 +121,8 @@ function mapDbToSprint(row: Record<string, unknown>): Sprint {
     dbStatus === 'completed' ? 'completed' : 'future';
 
   return {
-    id: row.id as string,
-    projectId: row.project_id as string,
+    id: mapUUIDToLocalID(row.id as string) || (row.id as string),
+    projectId: mapUUIDToLocalID(row.project_id as string) || (row.project_id as string) || 'p1',
     name: (row.name as string) || 'Sprint',
     goal: (row.goal as string) || '',
     startDate: (row.start_date as string) || new Date().toISOString().split('T')[0],
@@ -179,8 +180,8 @@ export async function deleteEpicFromSupabase(epicId: string): Promise<void> {
 
 function mapDbToEpic(row: Record<string, unknown>): Epic {
   return {
-    id: row.id as string,
-    projectId: row.project_id as string,
+    id: mapUUIDToLocalID(row.id as string) || (row.id as string),
+    projectId: mapUUIDToLocalID(row.project_id as string) || (row.project_id as string) || 'p1',
     key: `EPIC-${(row.id as string).slice(0, 6).toUpperCase()}`,
     summary: (row.name as string) || 'Epic',
     description: (row.summary as string) || '',

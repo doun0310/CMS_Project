@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { can } from '../utils/permissions';
 import { syncProjectToSupabase, addProjectMember, deleteProjectFromSupabase } from '../services/dbService';
 import { isSupabaseConfigured } from '../services/supabase';
-import { generateUUID } from '../utils/idUtils';
+import { generateUUID, registerMapping } from '../utils/idUtils';
 
 interface UseProjectActionsParams {
   projects: Project[];
@@ -34,6 +34,7 @@ export function useProjectActions({
     if (isSupabaseConfigured && authUserId) {
       syncProjectToSupabase(createdProject, authUserId).then(remoteId => {
         if (remoteId) {
+          registerMapping(createdProject.id, remoteId);
           setProjects(prev => prev.map(p => p.id === createdProject.id ? { ...p, remoteId } : p));
           setCurrentProject(prev => prev.id === createdProject.id ? { ...prev, remoteId } : prev);
           addProjectMember(remoteId, authUserId, 'project_owner');

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- 2. Projects Table
 CREATE TABLE IF NOT EXISTS public.projects (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
   key TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,

@@ -29,7 +29,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function checkConnection() {
   console.log('🔄 Testing connection to Supabase:', supabaseUrl);
   try {
-    const { data, error } = await supabase.from('issues').select('*').limit(5);
+    const { data, error } = await supabase.from('issues').select('*');
     if (error) {
       console.error('❌ Query failed:', error.message);
       if (error.code === 'PGRST205') {

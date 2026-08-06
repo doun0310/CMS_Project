@@ -508,7 +508,7 @@ export const CapacityView: React.FC = () => {
 
     addNotification({
       kind: 'issue',
-      title: '⚡ 개발 시간 추정 반영',
+      title: ' 개발 시간 추정 반영',
       text: `${issueKey} 작업의 산출 소요시간이 ${aiEstimatedHours}시간으로 반영되었습니다.`
     });
   };
@@ -693,7 +693,7 @@ export const CapacityView: React.FC = () => {
                   <div>
                     <div className="user-name">
                       {user.name} <span className="user-role">({user.role})</span>
-                      {isOverloaded && <span className="badge-overload">🔴 업무 과부하!</span>}
+                      {isOverloaded && <span className="badge-overload"> 업무 과부하!</span>}
                     </div>
                     <div className="user-stats">
                       승인된 휴가: <strong className="text-orange">{leaveHours}h</strong> | 개발 가능: <strong>{availableHours}h</strong> (권장 최대: {maxRecommendedHours}h)

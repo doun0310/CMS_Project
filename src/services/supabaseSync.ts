@@ -1,15 +1,15 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { Issue, RetrospectiveItem, LeaveRequest } from '../types/Aether';
 import type { SupabaseIssueRow, SupabaseRetroRow, SupabaseLeaveRequestRow } from '../types/SupabaseTypes';
-
-import { ensureUUID } from '../utils/idUtils';
+import { ensureUUID, mapUUIDToLocalID } from '../utils/idUtils';
 
 /**
  * Maps a Supabase DB row to an AetherPulse Issue object
  */
 export function mapDbToIssue(row: SupabaseIssueRow): Issue {
   return {
-    id: row.id,
+    id: mapUUIDToLocalID(row.id) || row.id,
+    projectId: mapUUIDToLocalID(row.project_id) || row.project_id || 'p1',
     key: row.key || 'TASK-1',
     summary: row.summary || '',
     description: row.description || '',
@@ -18,8 +18,8 @@ export function mapDbToIssue(row: SupabaseIssueRow): Issue {
     priority: row.priority as Issue['priority'] || 'medium',
     assigneeId: row.assignee_id || null,
     reporterId: row.reporter_id || 'usr_1',
-    epicId: row.epic_id || null,
-    sprintId: row.sprint_id || null,
+    epicId: mapUUIDToLocalID(row.epic_id),
+    sprintId: mapUUIDToLocalID(row.sprint_id),
     storyPoints: row.story_points ?? 1,
     subtasks: (row.subtasks || []) as Issue['subtasks'],
     comments: (row.comments || []) as Issue['comments'],
@@ -73,7 +73,7 @@ export function mapIssueToDb(issue: Issue, projectId: string): SupabaseIssueRow 
 /**
  * Explicit columns for fetching issues — optimizes network payload size
  */
-const ISSUE_SELECT_COLUMNS = 'id, key, summary, description, type, status, priority, assignee_id, reporter_id, epic_id, sprint_id, story_points, subtasks, comments, history, labels, component, due_date, original_estimate_hours, logged_hours, created_at, updated_at, github_branch, linked_prs, linked_commits';
+const ISSUE_SELECT_COLUMNS = 'id, project_id, key, summary, description, type, status, priority, assignee_id, reporter_id, epic_id, sprint_id, story_points, subtasks, comments, history, labels, component, due_date, original_estimate_hours, logged_hours, created_at, updated_at, github_branch, linked_prs, linked_commits';
 
 /**
  * Fetch all issues from Supabase DB with selective columns
@@ -164,8 +164,8 @@ export async function fetchRetroFromSupabase(): Promise<RetrospectiveItem[]> {
 
 export function mapDbToRetroItem(row: SupabaseRetroRow): RetrospectiveItem {
   return {
-    id: row.id,
-    projectId: row.project_id,
+    id: mapUUIDToLocalID(row.id) || row.id,
+    projectId: mapUUIDToLocalID(row.project_id) || row.project_id || 'p1',
     type: row.category === 'good' ? 'went_well' : row.category === 'improve' ? 'to_improve' : 'action_item',
     content: row.content || '',
     authorId: row.author_id || 'usr_1',

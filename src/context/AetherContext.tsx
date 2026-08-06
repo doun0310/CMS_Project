@@ -36,8 +36,10 @@ import {
 import {
   syncProjectToSupabase,
   syncSprintToSupabase,
-  syncEpicToSupabase
+  syncEpicToSupabase,
+  fetchProjectsFromSupabase
 } from '../services/dbService';
+import { registerMapping } from '../utils/idUtils';
 
 // Domain-specific hooks — keep provider lean
 import { useIssueActions } from '../hooks/useIssueActions';
@@ -504,12 +506,18 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
       return { ...sprint, projectId: sprint.projectId || defaultProject };
     });
   });
-  const epics = useMemo(() => allEpics.filter(epic => !epic.projectId || epic.projectId === currentProject.id), [allEpics, currentProject.id]);
-  const sprints = useMemo(() => allSprints.filter(sprint => sprint.projectId === currentProject.id), [allSprints, currentProject.id]);
+  const epics = useMemo(
+    () => allEpics.filter(epic => !epic.projectId || epic.projectId === currentProject.id || (currentProject.remoteId && epic.projectId === currentProject.remoteId)),
+    [allEpics, currentProject.id, currentProject.remoteId]
+  );
+  const sprints = useMemo(
+    () => allSprints.filter(sprint => sprint.projectId === currentProject.id || (currentProject.remoteId && sprint.projectId === currentProject.remoteId)),
+    [allSprints, currentProject.id, currentProject.remoteId]
+  );
   const [allIssues, setIssues] = useState<Issue[]>(initialIssueList);
   const issues = useMemo(
-    () => allIssues.filter(issue => issue.projectId === currentProject.id),
-    [allIssues, currentProject.id],
+    () => allIssues.filter(issue => issue.projectId === currentProject.id || (currentProject.remoteId && issue.projectId === currentProject.remoteId)),
+    [allIssues, currentProject.id, currentProject.remoteId],
   );
   const [automationRules, setAutomationRules] = useState(
     persistedState.automationRules ?? initialAutomationRules
@@ -543,8 +551,8 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
   });
 
   const retrospectiveItems = useMemo(
-    () => allRetrospectiveItems.filter(item => item.projectId === currentProject.id),
-    [allRetrospectiveItems, currentProject.id]
+    () => allRetrospectiveItems.filter(item => item.projectId === currentProject.id || (currentProject.remoteId && item.projectId === currentProject.remoteId)),
+    [allRetrospectiveItems, currentProject.id, currentProject.remoteId]
   );
 
   // UI State is now delegated to UIProvider via useUIState()
@@ -638,6 +646,15 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
     setCurrentProject(projects[0] ?? initialProjects[0]);
   }, [projects, currentProject.id]);
 
+  // Register two-way mapping for all present and future workspaces
+  useEffect(() => {
+    projects.forEach(project => {
+      if (project.remoteId) {
+        registerMapping(project.id, project.remoteId);
+      }
+    });
+  }, [projects]);
+
   // Apply Theme attribute to body
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -650,28 +667,66 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
 
     async function initSupabaseData() {
       try {
-        const [dbIssues, dbRetro] = await Promise.all([
+        const [dbProjects, dbIssues, dbRetro] = await Promise.all([
+          fetchProjectsFromSupabase(),
           fetchIssuesFromSupabase(),
           fetchRetroFromSupabase()
         ]);
 
+        if (dbProjects.length > 0) {
+          dbProjects.forEach(p => {
+            if (p.remoteId) registerMapping(p.id, p.remoteId);
+          });
+          setProjects(prev => {
+            const map = new Map(prev.map(p => [p.id, p]));
+            dbProjects.forEach(p => {
+              const existing = map.get(p.id) || map.get(p.remoteId!);
+              if (!existing) {
+                map.set(p.id, p);
+              } else {
+                map.set(existing.id, { ...existing, remoteId: p.remoteId });
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+
         if (dbIssues.length > 0) {
-          setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
+          setIssues(prev => {
+            const map = new Map(prev.map(i => [i.id, i]));
+            dbIssues.forEach(dbIssue => {
+              const localIssue = map.get(dbIssue.id);
+              // Preserve local updates if local updated_at is newer or item is newly added locally
+              if (!localIssue) {
+                map.set(dbIssue.id, { ...dbIssue, projectId: dbIssue.projectId || currentProject.id });
+              } else {
+                const dbTime = new Date(dbIssue.updatedAt || 0).getTime();
+                const localTime = new Date(localIssue.updatedAt || 0).getTime();
+                if (dbTime >= localTime) {
+                  map.set(dbIssue.id, { ...dbIssue, projectId: dbIssue.projectId || currentProject.id });
+                }
+              }
+            });
+            return Array.from(map.values());
+          });
         } else {
           // Sequential FK-safe seeding when database is fresh
           for (const proj of initialProjects) {
             await syncProjectToSupabase(proj, authenticatedUserId || 'u1');
           }
           for (const sprint of initialSprints) {
-            const pRemoteId = initialProjects.find(p => p.id === sprint.projectId)?.remoteId || sprint.projectId;
+            const projMatch = initialProjects.find(p => p.id === sprint.projectId);
+            const pRemoteId = projMatch?.remoteId || projMatch?.id || sprint.projectId || 'p1';
             await syncSprintToSupabase(sprint, pRemoteId);
           }
           for (const epic of initialEpics) {
-            const pRemoteId = initialProjects.find(p => p.id === epic.projectId)?.remoteId || epic.projectId;
+            const projMatch = initialProjects.find(p => p.id === epic.projectId);
+            const pRemoteId = projMatch?.remoteId || projMatch?.id || epic.projectId || 'p1';
             await syncEpicToSupabase(epic, pRemoteId);
           }
           for (const issue of initialIssues) {
-            const pRemoteId = initialProjects.find(p => p.id === issue.projectId)?.remoteId || issue.projectId;
+            const projMatch = initialProjects.find(p => p.id === issue.projectId);
+            const pRemoteId = projMatch?.remoteId || projMatch?.id || issue.projectId || 'p1';
             syncIssueToSupabase(issue, pRemoteId);
           }
         }
@@ -680,7 +735,8 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
           setRetrospectiveItems(dbRetro);
         } else {
           for (const retro of initialRetrospectiveItems) {
-            const pRemoteId = initialProjects.find(p => p.id === retro.projectId)?.remoteId || retro.projectId;
+            const projMatch = initialProjects.find(p => p.id === retro.projectId);
+            const pRemoteId = projMatch?.remoteId || projMatch?.id || retro.projectId || 'p1';
             syncRetroToSupabase(retro, pRemoteId, 'sprint-24');
           }
         }
@@ -782,8 +838,8 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
   };
 
   const importDataJSON = (jsonStr: string): boolean => {
-    if (!can(currentUser, 'team:manage')) {
-      addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 데이터 복원은 Project Owner만 실행할 수 있습니다.' });
+    if (!can(currentUser, 'project:manage') && currentUser.role !== 'Project Owner' && currentUser.projectRole !== 'Project Owner') {
+      addNotification({ kind: 'system', title: '권한 없음', text: '프로젝트 데이터 복원은 Project Owner 또는 Project Manager 권한이 필요합니다.' });
       return false;
     }
     try {
@@ -805,21 +861,85 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
         setIssues(normalizedIssues);
         importedSectionCount += 1;
       }
+
       if (Array.isArray(data.sprints)) {
-        setSprints((data.sprints as Sprint[]).map(sprint => ({ ...sprint, projectId: sprint.projectId || initialProjectList[0].id })));
+        const loadedSprints = (data.sprints as Sprint[]).map(sprint => ({
+          ...sprint,
+          projectId: sprint.projectId || initialProjectList[0].id
+        }));
+        setSprints(loadedSprints);
         importedSectionCount += 1;
       }
+
+      if (Array.isArray(data.epics)) {
+        const loadedEpics = (data.epics as Epic[]).map(epic => ({
+          ...epic,
+          projectId: epic.projectId || initialProjectList[0].id
+        }));
+        setEpics(loadedEpics);
+        importedSectionCount += 1;
+      }
+
       if (Array.isArray(data.retrospectiveItems)) {
-        setRetrospectiveItems((data.retrospectiveItems as RetrospectiveItem[]).map(item => ({ ...item, projectId: item.projectId || initialProjectList[0].id })));
+        const loadedRetro = (data.retrospectiveItems as RetrospectiveItem[]).map(item => ({
+          ...item,
+          projectId: item.projectId || initialProjectList[0].id
+        }));
+        setRetrospectiveItems(loadedRetro);
         importedSectionCount += 1;
       }
+
       if (Array.isArray(data.automationRules)) {
         setAutomationRules(data.automationRules as AutomationRule[]);
         importedSectionCount += 1;
       }
+
       if (Array.isArray(data.automationAuditLogs)) {
         setAutomationAuditLogs(data.automationAuditLogs as AutomationAuditLog[]);
         importedSectionCount += 1;
+      }
+
+      // Automatically sync restored backup dataset to Supabase DB so DB matches restored state 100%
+      if (isSupabaseConfigured) {
+        void (async () => {
+          try {
+            if (normalizedProjects) {
+              for (const proj of normalizedProjects) {
+                await syncProjectToSupabase(proj, authenticatedUserId || 'u1');
+              }
+            }
+            if (Array.isArray(data.sprints)) {
+              for (const sprint of data.sprints as Sprint[]) {
+                const projMatch = normalizedProjects?.find(p => p.id === sprint.projectId);
+                const pRemoteId = projMatch?.remoteId || projMatch?.id || sprint.projectId || 'p1';
+                await syncSprintToSupabase(sprint, pRemoteId);
+              }
+            }
+            if (Array.isArray(data.epics)) {
+              for (const epic of data.epics as Epic[]) {
+                const projMatch = normalizedProjects?.find(p => p.id === epic.projectId);
+                const pRemoteId = projMatch?.remoteId || projMatch?.id || epic.projectId || 'p1';
+                await syncEpicToSupabase(epic, pRemoteId);
+              }
+            }
+            if (normalizedIssues) {
+              for (const issue of normalizedIssues) {
+                const projMatch = normalizedProjects?.find(p => p.id === issue.projectId);
+                const pRemoteId = projMatch?.remoteId || projMatch?.id || issue.projectId || 'p1';
+                syncIssueToSupabase(issue, pRemoteId);
+              }
+            }
+            if (Array.isArray(data.retrospectiveItems)) {
+              for (const retro of data.retrospectiveItems as RetrospectiveItem[]) {
+                const projMatch = normalizedProjects?.find(p => p.id === retro.projectId);
+                const pRemoteId = projMatch?.remoteId || projMatch?.id || retro.projectId || 'p1';
+                syncRetroToSupabase(retro, pRemoteId, 'sprint-24');
+              }
+            }
+          } catch (syncErr) {
+            console.error('Failed to sync restored backup payload to Supabase:', syncErr);
+          }
+        })();
       }
 
       return importedSectionCount > 0;
