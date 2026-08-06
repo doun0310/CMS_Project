@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAether } from '../../context/AetherContextValue';
 import type { LeaveRequest, LeaveType } from '../../types/Aether';
 import { canApproveLeave } from '../../utils/permissions';
@@ -279,15 +280,21 @@ export const CapacityView: React.FC = () => {
     );
   };
 
-  // AI Estimation State & Handler
-  const [aiModalData, setAiModalData] = useState<{
+  // AI Estimation State & Handler (Toggles per user)
+  const [activeAiUserId, setActiveAiUserId] = useState<string | null>(null);
+  const [aiReportMap, setAiReportMap] = useState<Record<string, {
     userName: string;
     totalTasks: number;
     estimatedHours: number;
     breakdown: { title: string; hours: number; confidence: string }[];
-  } | null>(null);
+  }>>({});
 
-  const handleAiEstimateForUser = (userName: string, userIssues: typeof activeSprintIssues) => {
+  const handleAiEstimateForUser = (userId: string, userName: string, userIssues: typeof activeSprintIssues) => {
+    if (activeAiUserId === userId) {
+      setActiveAiUserId(null);
+      return;
+    }
+
     if (userIssues.length === 0) {
       addNotification({
         kind: 'system',
@@ -298,7 +305,6 @@ export const CapacityView: React.FC = () => {
     }
 
     const breakdown = userIssues.map((issue) => {
-      // AI LLM Estimation Simulation based on StoryPoints and complexity keywords
       const titleLower = issue.summary.toLowerCase();
       let baseHours = issue.storyPoints ? issue.storyPoints * 3.5 : 6;
       if (titleLower.includes('auth') || titleLower.includes('security') || titleLower.includes('db')) {
@@ -314,12 +320,16 @@ export const CapacityView: React.FC = () => {
 
     const totalHours = Math.round(breakdown.reduce((acc, b) => acc + b.hours, 0));
 
-    setAiModalData({
-      userName,
-      totalTasks: userIssues.length,
-      estimatedHours: totalHours,
-      breakdown
-    });
+    setAiReportMap((prev) => ({
+      ...prev,
+      [userId]: {
+        userName,
+        totalTasks: userIssues.length,
+        estimatedHours: totalHours,
+        breakdown
+      }
+    }));
+    setActiveAiUserId(userId);
   };
 
   // CSV Export Handler
@@ -473,13 +483,40 @@ export const CapacityView: React.FC = () => {
                       style={{ width: `${Math.min(100, loadPercentage)}%` }}
                     />
                   </div>
-                  <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                  <div style={{ marginTop: '10px', textAlign: 'right', position: 'relative' }}>
                     <button
                       className="btn-ai-sparkle"
-                      onClick={() => handleAiEstimateForUser(user.name, assignedIssues)}
+                      onClick={() => handleAiEstimateForUser(user.id, user.name, assignedIssues)}
                     >
-                      <IconAiSpark size={14} /> AI 소요시간 자동추정
+                      <IconAiSpark size={14} /> {activeAiUserId === user.id ? '리포트 닫기 ▲' : 'AI 소요시간 자동추정 ▼'}
                     </button>
+
+                    {/* Contextual Popover: AI Time Estimation Result */}
+                    {activeAiUserId === user.id && aiReportMap[user.id] && (
+                      <div className="ai-popover-card">
+                        <div className="ai-popover-header">
+                          <h4><IconAiSpark size={16} color="#c084fc" /> {user.name} AI 추정 리포트</h4>
+                          <button className="close-btn-sm" onClick={() => setActiveAiUserId(null)}>✕</button>
+                        </div>
+                        <div className="ai-summary-banner-sm">
+                          <span>총 AI 추정 소요시간</span>
+                          <strong>약 {aiReportMap[user.id].estimatedHours}시간</strong>
+                        </div>
+                        <div className="ai-task-list-sm">
+                          {aiReportMap[user.id].breakdown.map((item, idx) => (
+                            <div key={idx} className="ai-task-item-sm">
+                              <span className="ai-task-title-sm">{item.title}</span>
+                              <div className="ai-task-meta-sm">
+                                <strong>{item.hours}h</strong>
+                                <span className={`ai-confidence-badge ${item.confidence.includes('중간') ? 'medium' : 'high'}`}>
+                                  {item.confidence}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -618,110 +655,76 @@ export const CapacityView: React.FC = () => {
         </div>
       )}
 
-      {/* Modal: Apply Leave */}
-      {showApplyModal && (
+      {/* Modal: Apply Leave (Rendered via Portal to blur full viewport seamlessly) */}
+      {showApplyModal && createPortal(
         <div className="modal-overlay" onClick={() => setShowApplyModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content modal-content-lg" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>🌴 휴가 / 외근 신청</h2>
+              <h2><IconCalendar size={20} color="#818cf8" /> 휴가 및 외근 신청</h2>
               <button className="close-btn" onClick={() => setShowApplyModal(false)}>✕</button>
             </div>
             <form onSubmit={handleApplyLeave} className="leave-form">
               <div className="form-group">
-                <label>신청 대상 개발자</label>
-                <select value={applicantUserId} onChange={(e) => setApplicantUserId(e.target.value)}>
+                <label className="form-label">
+                  <IconUser size={14} /> 신청 대상 개발자
+                </label>
+                <select className="form-input" value={applicantUserId} onChange={(e) => setApplicantUserId(e.target.value)}>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} ({u.role})
+                      {u.name} — {u.role}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="form-group">
-                <label>신청 유형</label>
-                <select value={leaveType} onChange={(e) => setLeaveType(e.target.value as LeaveType)}>
-                  <option value="ANNUAL">🏖️ 연차 (전일)</option>
-                  <option value="HALF_AM">🌅 오전 반차</option>
-                  <option value="HALF_PM">🌇 오후 반차</option>
-                  <option value="OUTSIDE">💼 외근</option>
-                  <option value="SICK">🤒 병가</option>
+                <label className="form-label">
+                  <IconClock size={14} /> 신청 유형
+                </label>
+                <select className="form-input" value={leaveType} onChange={(e) => setLeaveType(e.target.value as LeaveType)}>
+                  <option value="ANNUAL">🏖️ 연차 (전일 8시간)</option>
+                  <option value="HALF_AM">🌅 오전 반차 (4시간)</option>
+                  <option value="HALF_PM">🌇 오후 반차 (4시간)</option>
+                  <option value="OUTSIDE">💼 외근 (4시간)</option>
+                  <option value="SICK">🤒 병가 (전일 8시간)</option>
                 </select>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>시작일</label>
-                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+                  <label className="form-label">시작일</label>
+                  <input className="form-input" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label>종료일</label>
-                  <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+                  <label className="form-label">종료일</label>
+                  <input className="form-input" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>신청 사유</label>
+                <label className="form-label">신청 사유 및 목적</label>
                 <textarea
-                  placeholder="휴가 사유 또는 외근 목적을 입력하세요..."
+                  className="form-input textarea"
+                  placeholder="휴가 사유 또는 외근 세부 목적을 입력하세요..."
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
+                  rows={3}
                   required
                 />
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowApplyModal(false)}>취소</button>
-                <button type="submit" className="btn btn-primary">신청하기</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowApplyModal(false)}>
+                  취소
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <IconPlus size={16} /> 신청 완료
+                </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Modal: AI Time Estimation Result */}
-      {aiModalData && (
-        <div className="modal-overlay" onClick={() => setAiModalData(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2><IconAiSpark size={20} color="#c084fc" /> AI 타스크 소요시간 자동 추정 리포트</h2>
-              <button className="close-btn" onClick={() => setAiModalData(null)}>✕</button>
-            </div>
-            <div className="modal-body" style={{ padding: '16px 0' }}>
-              <p style={{ fontSize: '0.88rem', color: '#9ca3af', marginBottom: '16px' }}>
-                개발자 <strong>{aiModalData.userName}</strong>님의 할당 작업 ({aiModalData.totalTasks}개)에 대한 LLM AI 소요시간 분석 결과입니다.
-              </p>
-
-              <div className="ai-summary-banner">
-                <div className="ai-summary-label">
-                  <IconAiSpark size={16} /> 총 AI 추정 소요시간
-                </div>
-                <div className="ai-summary-hours">
-                  약 {aiModalData.estimatedHours}시간
-                </div>
-              </div>
-
-              <div className="ai-task-list">
-                {aiModalData.breakdown.map((item, idx) => (
-                  <div key={idx} className="ai-task-item">
-                    <span className="ai-task-title">
-                      {item.title}
-                    </span>
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                      <strong style={{ color: '#818cf8', fontSize: '0.92rem' }}>{item.hours}h</strong>
-                      <span className={`ai-confidence-badge ${item.confidence.includes('중간') ? 'medium' : 'high'}`}>
-                        신뢰도 {item.confidence}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-primary" onClick={() => setAiModalData(null)}>확인 및 닫기</button>
-            </div>
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

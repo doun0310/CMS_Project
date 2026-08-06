@@ -296,9 +296,13 @@ export const KanbanBoard: React.FC = () => {
     return null;
   };
 
+  // Fast O(1) Map lookups for renderCard performance
+  const userMap = React.useMemo(() => new Map(users.map(u => [u.id, u])), [users]);
+  const epicMap = React.useMemo(() => new Map(epics.map(e => [e.id, e])), [epics]);
+
   const renderCard = (issue: Issue) => {
-    const assignee = users.find(u => u.id === issue.assigneeId);
-    const epic = epics.find(e => e.id === issue.epicId);
+    const assignee = issue.assigneeId ? userMap.get(issue.assigneeId) : undefined;
+    const epic = issue.epicId ? epicMap.get(issue.epicId) : undefined;
 
     return (
       <KanbanCard

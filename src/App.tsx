@@ -1,4 +1,4 @@
-import React, { useEffect, useEffectEvent, useState } from 'react';
+import React, { useEffect, useEffectEvent, useState, lazy, Suspense } from 'react';
 import { AetherProvider } from './context/AetherContext';
 import { useAether } from './context/AetherContextValue';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -6,19 +6,21 @@ import { ModalProvider } from './hooks/ModalProvider';
 import { ModalManager } from './components/common/ModalManager';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { KanbanBoard } from './components/views/KanbanBoard';
-import { BacklogView } from './components/views/BacklogView';
-import { RoadmapView } from './components/views/RoadmapView';
-import { ReportsView } from './components/views/ReportsView';
-import { AutomationView } from './components/views/AutomationView';
-import { SettingsView } from './components/views/SettingsView';
-import { RetrospectiveView } from './components/views/RetrospectiveView';
-import { ArchitectureView } from './components/views/ArchitectureView';
-import { PortfolioView } from './components/views/PortfolioView';
-import { RetroKanbanView } from './components/views/RetroKanbanView';
-import { CapacityView } from './components/views/CapacityView';
-import { MyWorkView } from './components/views/MyWorkView';
-import { PricingView } from './components/views/PricingView';
+
+// Lazy-loaded Views for Code Splitting & Performance Optimization
+const KanbanBoard = lazy(() => import('./components/views/KanbanBoard').then(m => ({ default: m.KanbanBoard })));
+const BacklogView = lazy(() => import('./components/views/BacklogView').then(m => ({ default: m.BacklogView })));
+const RoadmapView = lazy(() => import('./components/views/RoadmapView').then(m => ({ default: m.RoadmapView })));
+const ReportsView = lazy(() => import('./components/views/ReportsView').then(m => ({ default: m.ReportsView })));
+const AutomationView = lazy(() => import('./components/views/AutomationView').then(m => ({ default: m.AutomationView })));
+const SettingsView = lazy(() => import('./components/views/SettingsView').then(m => ({ default: m.SettingsView })));
+const RetrospectiveView = lazy(() => import('./components/views/RetrospectiveView').then(m => ({ default: m.RetrospectiveView })));
+const ArchitectureView = lazy(() => import('./components/views/ArchitectureView').then(m => ({ default: m.ArchitectureView })));
+const PortfolioView = lazy(() => import('./components/views/PortfolioView').then(m => ({ default: m.PortfolioView })));
+const RetroKanbanView = lazy(() => import('./components/views/RetroKanbanView').then(m => ({ default: m.RetroKanbanView })));
+const CapacityView = lazy(() => import('./components/views/CapacityView').then(m => ({ default: m.CapacityView })));
+const MyWorkView = lazy(() => import('./components/views/MyWorkView').then(m => ({ default: m.MyWorkView })));
+const PricingView = lazy(() => import('./components/views/PricingView').then(m => ({ default: m.PricingView })));
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import { IssueDetailModal } from './components/modals/IssueDetailModal';
 import { CreateIssueModal } from './components/modals/CreateIssueModal';
@@ -214,7 +216,14 @@ const MainLayout: React.FC = () => {
         {/* Dynamic Main Workspace Content View */}
         <main className="app-content-area animate-fade-in">
           <ErrorBoundary fallbackTitle="This view encountered an error">
-            {renderCurrentView()}
+            <Suspense fallback={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', gap: '12px', color: '#64748b' }}>
+                <div className="auth-spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
+                <span>로딩 중...</span>
+              </div>
+            }>
+              {renderCurrentView()}
+            </Suspense>
           </ErrorBoundary>
         </main>
       </div>

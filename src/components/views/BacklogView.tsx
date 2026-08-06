@@ -265,9 +265,13 @@ export const BacklogView: React.FC = () => {
     setAddingToSprintId(null);
   };
 
+  // Fast O(1) Map lookups for renderIssueRow performance
+  const userMap = React.useMemo(() => new Map(users.map((u: User) => [u.id, u])), [users]);
+  const epicMap = React.useMemo(() => new Map(epics.map((e: Epic) => [e.id, e])), [epics]);
+
   const renderIssueRow = (issue: Issue, isBacklog = false) => {
-    const epic = epics.find((e: Epic) => e.id === issue.epicId);
-    const assignee = users.find((u: User) => u.id === issue.assigneeId);
+    const epic = issue.epicId ? epicMap.get(issue.epicId) : undefined;
+    const assignee = issue.assigneeId ? userMap.get(issue.assigneeId) : undefined;
 
     return (
       <BacklogIssueRow
