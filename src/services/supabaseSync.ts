@@ -65,12 +65,17 @@ export function mapIssueToDb(issue: Issue, projectId: string): SupabaseIssueRow 
 }
 
 /**
- * Fetch all issues from Supabase DB
+ * Explicit columns for fetching issues — optimizes network payload size
+ */
+const ISSUE_SELECT_COLUMNS = 'id, key, summary, description, type, status, priority, assignee_id, reporter_id, epic_id, sprint_id, story_points, subtasks, comments, history, labels, component, due_date, original_estimate_hours, logged_hours, created_at, updated_at, github_branch, linked_prs, linked_commits';
+
+/**
+ * Fetch all issues from Supabase DB with selective columns
  */
 export async function fetchIssuesFromSupabase(): Promise<Issue[]> {
   if (!isSupabaseConfigured) return [];
   try {
-    const { data, error } = await supabase.from('issues').select('*');
+    const { data, error } = await supabase.from('issues').select(ISSUE_SELECT_COLUMNS);
     if (error || !data) {
       console.warn('Supabase fetch error:', error?.message);
       return [];
@@ -85,30 +90,33 @@ export async function fetchIssuesFromSupabase(): Promise<Issue[]> {
 const ISSUE_SYNC_DEBOUNCE_MS = 400;
 const pendingIssueSyncs = new Map<string, ReturnType<typeof setTimeout>>();
 
-const syncIssueImmediately = async (issue: Issue, projectId: string) => {
+const syncIssueImmediately = async (issue: Issue, projectId: string, onError?: (err: unknown) => void) => {
   if (!isSupabaseConfigured) return;
   try {
     const dbRow = mapIssueToDb(issue, projectId);
     const { error } = await supabase.from('issues').upsert(dbRow);
     if (error) {
-    console.error('Supabase issue sync error:', error.message);
+      console.error('Supabase issue sync error:', error.message);
+      if (onError) onError(error);
     }
   } catch (err) {
     console.error('Failed to sync issue to Supabase:', err);
+    if (onError) onError(err);
   }
 };
 
 /**
  * Coalesce successive local changes for the same issue. Dragging a card or
  * editing several fields therefore produces a single server write after 400ms.
+ * Supports optional onError callback for Optimistic UI Rollback.
  */
-export function syncIssueToSupabase(issue: Issue, projectId: string) {
+export function syncIssueToSupabase(issue: Issue, projectId: string, onError?: (err: unknown) => void) {
   const pending = pendingIssueSyncs.get(issue.id);
   if (pending) clearTimeout(pending);
 
   const timer = setTimeout(() => {
     pendingIssueSyncs.delete(issue.id);
-    void syncIssueImmediately(issue, projectId);
+    void syncIssueImmediately(issue, projectId, onError);
   }, ISSUE_SYNC_DEBOUNCE_MS);
   pendingIssueSyncs.set(issue.id, timer);
 }

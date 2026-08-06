@@ -616,8 +616,11 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
-    // Fetch initial issues & retro items from Supabase
-    fetchIssuesFromSupabase().then((dbIssues) => {
+    // Parallel data fetch (Promise.all) for optimized initial payload loading speed
+    Promise.all([
+      fetchIssuesFromSupabase(),
+      fetchRetroFromSupabase()
+    ]).then(([dbIssues, dbRetro]) => {
       if (dbIssues.length > 0) {
         setIssues(dbIssues.map(issue => ({ ...issue, projectId: issue.projectId || currentProject.id })));
       } else {
@@ -626,12 +629,12 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
           .filter(issue => issue.projectId === currentProject.id)
           .forEach((issue) => syncIssueToSupabase(issue, currentProject.remoteId ?? currentProject.id));
       }
-    });
 
-    fetchRetroFromSupabase().then((dbRetro) => {
       if (dbRetro.length > 0) {
         setRetrospectiveItems(dbRetro);
       }
+    }).catch(err => {
+      console.warn('Parallel Supabase fetch error:', err);
     });
 
     // Real-time WebSockets Subscriptions

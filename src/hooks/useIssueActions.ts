@@ -34,6 +34,7 @@ export function useIssueActions({
     const issue = issues.find(item => item.id === issueId);
     if (!issue || issue.status === newStatus) return;
 
+    const previousIssue = { ...issue };
     const now = new Date().toISOString();
     const updatedIssue = {
       ...issue,
@@ -41,13 +42,27 @@ export function useIssueActions({
       updatedAt: now
     };
 
+    // Optimistic UI update: Immediate 0ms local state change
     setIssues(prev =>
       prev.map(item =>
         item.id === issueId ? updatedIssue : item
       )
     );
 
-    syncIssueToSupabase(updatedIssue, currentProject.remoteId ?? currentProject.id);
+    // Sync to backend; rollback on network/server error
+    syncIssueToSupabase(updatedIssue, currentProject.remoteId ?? currentProject.id, (_err) => {
+      setIssues(prev =>
+        prev.map(item =>
+          item.id === issueId ? previousIssue : item
+        )
+      );
+      notify({
+        kind: 'system',
+        title: '동기화 실패',
+        text: `${issue.key} 상태 변경이 서버에 저장되지 않아 이전 상태로 복구되었습니다.`,
+      });
+    });
+
     notify({
       kind: 'issue',
       title: '작업 상태 변경',
@@ -101,17 +116,28 @@ export function useIssueActions({
   const updateIssue = (id: string, updates: Partial<Issue>) => {
     if (!can(currentUser, 'issue:write')) return deny();
     const issue = issues.find(item => item.id === id);
+    if (!issue) return;
+
+    const previousIssue = { ...issue };
+    const updated = { ...issue, ...updates, updatedAt: new Date().toISOString() };
+
+    // Optimistic UI update
     setIssues(prev =>
-      prev.map(item => {
-        if (item.id === id) {
-          const updated = { ...item, ...updates, updatedAt: new Date().toISOString() };
-          syncIssueToSupabase(updated, currentProject.remoteId ?? currentProject.id);
-          return updated;
-        }
-        return item;
-      })
+      prev.map(item => (item.id === id ? updated : item))
     );
-    if (issue) notify({ kind: 'issue', title: '작업 변경', text: `${issue.key} · ${issue.summary} 작업의 정보가 변경되었습니다.`, issueId: id });
+
+    syncIssueToSupabase(updated, currentProject.remoteId ?? currentProject.id, (_err) => {
+      setIssues(prev =>
+        prev.map(item => (item.id === id ? previousIssue : item))
+      );
+      notify({
+        kind: 'system',
+        title: '동기화 실패',
+        text: `${issue.key} 변경사항이 서버에 저장되지 않아 이전 정보로 복구되었습니다.`,
+      });
+    });
+
+    notify({ kind: 'issue', title: '작업 변경', text: `${issue.key} · ${issue.summary} 작업의 정보가 변경되었습니다.`, issueId: id });
   };
 
   const deleteIssue = (id: string) => {
