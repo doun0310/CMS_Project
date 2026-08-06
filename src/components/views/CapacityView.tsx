@@ -57,7 +57,7 @@ const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
 ];
 
 export const CapacityView: React.FC = () => {
-  const { users, sprints, issues, currentUser } = useAether();
+  const { users, sprints, issues, currentUser, addNotification } = useAether();
 
   const isManager = currentUser ? canApproveLeave(currentUser) : true;
 
@@ -181,23 +181,28 @@ export const CapacityView: React.FC = () => {
     return totalHours;
   };
 
-  const SPRINT_BASE_HOURS = 80;
-  const DEEP_WORK_CAP_HOURS = 55;
-
   const memberCapacities = users.map((user) => {
+    // User custom weekly capacity (default 40h/week -> 80h per 2-week sprint)
+    const baseWeeklyCap = user.weeklyCapacityHours || 40;
+    const sprintBaseHours = baseWeeklyCap * 2;
+    const leaveHours = getUserLeaveHours(user.id);
+    const availableHours = Math.max(0, sprintBaseHours - leaveHours);
+    
+    // Deep work cap ratio (5.5h / 8h = 68.75%)
+    const maxRecommendedHours = Math.round(availableHours * 0.6875);
+
     const assignedIssues = activeSprintIssues.filter((i) => i.assigneeId === user.id);
     const assignedHours = assignedIssues.reduce((acc, i) => {
       const estimate = i.originalEstimate > 0 ? i.originalEstimate : (i.storyPoints ? i.storyPoints * 4 : 8);
       return acc + estimate;
     }, 0);
-    const leaveHours = getUserLeaveHours(user.id);
-    const availableHours = Math.max(0, SPRINT_BASE_HOURS - leaveHours);
-    const maxRecommendedHours = Math.round(availableHours * (DEEP_WORK_CAP_HOURS / SPRINT_BASE_HOURS));
+    
     const isOverloaded = assignedHours > maxRecommendedHours;
     const loadPercentage = maxRecommendedHours > 0 ? Math.round((assignedHours / maxRecommendedHours) * 100) : 100;
 
     return {
       user,
+      sprintBaseHours,
       assignedIssues,
       assignedHours,
       leaveHours,
@@ -211,6 +216,19 @@ export const CapacityView: React.FC = () => {
   const totalTeamAvailableHours = memberCapacities.reduce((acc, m) => acc + m.availableHours, 0);
   const totalTeamAssignedHours = memberCapacities.reduce((acc, m) => acc + m.assignedHours, 0);
   const overloadedMembersCount = memberCapacities.filter((m) => m.isOverloaded).length;
+
+  // Trigger Overload System Notification if any member exceeds capacity
+  React.useEffect(() => {
+    const overloaded = memberCapacities.filter((m) => m.isOverloaded);
+    if (overloaded.length > 0) {
+      const names = overloaded.map((m) => m.user.name).join(', ');
+      addNotification({
+        kind: 'system',
+        title: '⚠️ 팀원 업무 과부하(Burnout) 경고',
+        text: `다음 팀원의 업무량이 가동 수용량을 초과했습니다: ${names}`
+      });
+    }
+  }, [overloadedMembersCount]);
 
   const handleApplyLeave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,6 +275,49 @@ export const CapacityView: React.FC = () => {
         return req;
       })
     );
+  };
+
+  // AI Estimation State & Handler
+  const [aiModalData, setAiModalData] = useState<{
+    userName: string;
+    totalTasks: number;
+    estimatedHours: number;
+    breakdown: { title: string; hours: number; confidence: string }[];
+  } | null>(null);
+
+  const handleAiEstimateForUser = (userName: string, userIssues: typeof activeSprintIssues) => {
+    if (userIssues.length === 0) {
+      addNotification({
+        kind: 'system',
+        title: '🤖 AI 시간 추정',
+        text: `${userName} 개발자에게 할당된 작업이 없어 추정할 작업이 없습니다.`
+      });
+      return;
+    }
+
+    const breakdown = userIssues.map((issue) => {
+      // AI LLM Estimation Simulation based on StoryPoints and complexity keywords
+      const titleLower = issue.summary.toLowerCase();
+      let baseHours = issue.storyPoints ? issue.storyPoints * 3.5 : 6;
+      if (titleLower.includes('auth') || titleLower.includes('security') || titleLower.includes('db')) {
+        baseHours *= 1.3;
+      }
+      const calculatedHours = Math.round(baseHours * 10) / 10;
+      return {
+        title: `${issue.key}: ${issue.summary}`,
+        hours: calculatedHours,
+        confidence: calculatedHours > 12 ? '중간(복잡성 높음)' : '높음'
+      };
+    });
+
+    const totalHours = Math.round(breakdown.reduce((acc, b) => acc + b.hours, 0));
+
+    setAiModalData({
+      userName,
+      totalTasks: userIssues.length,
+      estimatedHours: totalHours,
+      breakdown
+    });
   };
 
   const filteredRequests = leaveRequests.filter((req) => {
@@ -347,7 +408,7 @@ export const CapacityView: React.FC = () => {
           </div>
 
           <div className="member-capacity-list">
-            {memberCapacities.map(({ user, assignedHours, leaveHours, availableHours, maxRecommendedHours, isOverloaded, loadPercentage }) => (
+            {memberCapacities.map(({ user, assignedIssues, assignedHours, leaveHours, availableHours, maxRecommendedHours, isOverloaded, loadPercentage }) => (
               <div key={user.id} className={`member-capacity-card ${isOverloaded ? 'overloaded' : ''}`}>
                 <div className="member-info">
                   <img src={user.avatar} alt={user.name} className="user-avatar" />
@@ -372,6 +433,15 @@ export const CapacityView: React.FC = () => {
                       className={`cap-bar-fill ${isOverloaded ? 'bg-red' : loadPercentage > 85 ? 'bg-orange' : 'bg-green'}`}
                       style={{ width: `${Math.min(100, loadPercentage)}%` }}
                     />
+                  </div>
+                  <div style={{ marginTop: '8px', textAlign: 'right' }}>
+                    <button
+                      className="btn-sm btn-secondary"
+                      style={{ fontSize: '0.75rem', padding: '2px 8px' }}
+                      onClick={() => handleAiEstimateForUser(user.name, assignedIssues)}
+                    >
+                      🤖 AI 소요시간 자동추정
+                    </button>
                   </div>
                 </div>
               </div>
@@ -553,6 +623,47 @@ export const CapacityView: React.FC = () => {
                 <button type="submit" className="btn btn-primary">신청하기</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: AI Time Estimation Result */}
+      {aiModalData && (
+        <div className="modal-overlay" onClick={() => setAiModalData(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+            <div className="modal-header">
+              <h2>🤖 AI 타스크 소요시간 자동 추정 리포트</h2>
+              <button className="close-btn" onClick={() => setAiModalData(null)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ padding: '16px 0' }}>
+              <p style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '14px' }}>
+                개발자 <strong>{aiModalData.userName}</strong>님의 할당 작업 ({aiModalData.totalTasks}개)에 대한 LLM AI 소요시간 추정 결과입니다.
+              </p>
+
+              <div style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#818cf8' }}>총 AI 추정 소요시간</span>
+                <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ffffff' }}>
+                  약 {aiModalData.estimatedHours}시간
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {aiModalData.breakdown.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(30, 41, 59, 0.6)', padding: '10px 12px', borderRadius: '6px', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '320px' }}>
+                      {item.title}
+                    </span>
+                    <div style={{ textAlign: 'right' }}>
+                      <strong style={{ color: '#6366f1' }}>{item.hours}h</strong>
+                      <span style={{ display: 'block', fontSize: '0.72rem', color: '#9ca3af' }}>신뢰도: {item.confidence}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setAiModalData(null)}>확인 및 닫기</button>
+            </div>
           </div>
         </div>
       )}

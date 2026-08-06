@@ -15,6 +15,8 @@ export interface User {
   /** Project permission, kept separate from the person's job title. */
   projectRole?: ProjectRole;
   role: string;
+  /** Optional custom weekly committed capacity in hours (default 40h). */
+  weeklyCapacityHours?: number;
 }
 
 export type NotificationKind = 'sprint' | 'issue' | 'comment' | 'system';
