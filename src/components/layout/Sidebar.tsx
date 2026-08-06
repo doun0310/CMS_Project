@@ -15,7 +15,8 @@ import {
   IconArchitecture,
   IconPortfolio,
   IconRetroBoard,
-  IconCalendar
+  IconCalendar,
+  IconBudget
 } from '../common/Icons';
 
 // Simple credit card icon for pricing
@@ -47,6 +48,12 @@ export const Sidebar: React.FC = () => {
       label: t('pricing'),
       icon: <IconPricing size={18} />,
       badge: isFree ? 'FREE' : planId.toUpperCase(),
+    },
+    {
+      id: 'budget',
+      label: '예산 & 소요금액',
+      icon: <IconBudget size={18} />,
+      badge: 'PRO'
     },
     {
       id: 'capacity',

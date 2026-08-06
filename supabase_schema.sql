@@ -144,7 +144,45 @@ CREATE TABLE IF NOT EXISTS public.leave_requests (
   reason TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'PENDING',
   approver_id TEXT,
-  reject_reason TEXT,
+  rejectReason TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 12. Project Budgets Table
+CREATE TABLE IF NOT EXISTS public.project_budgets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID UNIQUE REFERENCES public.projects(id) ON DELETE CASCADE,
+  total_budget NUMERIC NOT NULL DEFAULT 0,
+  currency TEXT DEFAULT 'KRW',
+  start_date DATE,
+  end_date DATE,
+  alert_threshold_percent INT DEFAULT 10,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 13. Member Hourly Rates Table
+CREATE TABLE IF NOT EXISTS public.member_hourly_rates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL,
+  hourly_rate NUMERIC NOT NULL DEFAULT 0,
+  currency TEXT DEFAULT 'KRW',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(project_id, user_id)
+);
+
+-- 14. Project Expenses Table
+CREATE TABLE IF NOT EXISTS public.project_expenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('infrastructure', 'software', 'outsourcing', 'other')),
+  amount NUMERIC NOT NULL DEFAULT 0,
+  recurring_type TEXT DEFAULT 'one_time' CHECK (recurring_type IN ('one_time', 'monthly')),
+  expense_date DATE NOT NULL,
+  description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -155,6 +193,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.sprints;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.retrospective_items;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.leave_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.project_budgets;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.member_hourly_rates;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.project_expenses;
 
 -- =============================================
 -- Row Level Security Policies (Production-Grade)
@@ -172,6 +213,9 @@ ALTER TABLE public.retrospective_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workflow_states ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.leave_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_budgets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.member_hourly_rates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_expenses ENABLE ROW LEVEL SECURITY;
 
 -- Allow public / anon read and write access across tables (Development & App Sync)
 CREATE POLICY "profiles_anon_all" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
@@ -185,6 +229,9 @@ CREATE POLICY "retro_anon_all" ON public.retrospective_items FOR ALL USING (true
 CREATE POLICY "notifications_anon_all" ON public.notifications FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "workflow_states_anon_all" ON public.workflow_states FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "leave_requests_anon_all" ON public.leave_requests FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "project_budgets_anon_all" ON public.project_budgets FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "member_hourly_rates_anon_all" ON public.member_hourly_rates FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "project_expenses_anon_all" ON public.project_expenses FOR ALL USING (true) WITH CHECK (true);
 
 -- =============================================
 -- Auto-create profiles for OAuth users

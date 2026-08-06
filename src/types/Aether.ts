@@ -238,6 +238,55 @@ export interface LeaveRequest {
   createdAt: string;
 }
 
-export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'capacity' | 'pricing';
+// ─── Budget Management Types ──────────────────────────────────────────────────
+
+export interface ProjectBudget {
+  id: string;
+  projectId: string;
+  totalBudget: number;
+  currency: string;
+  startDate: string;
+  endDate: string;
+  alertThresholdPercent: number;
+}
+
+export interface MemberHourlyRate {
+  id: string;
+  projectId: string;
+  userId: string;
+  hourlyRate: number;
+  currency: string;
+}
+
+export type ExpenseCategory = 'infrastructure' | 'software' | 'outsourcing' | 'other';
+export type RecurringType = 'one_time' | 'monthly';
+
+export interface ProjectExpense {
+  id: string;
+  projectId: string;
+  title: string;
+  category: ExpenseCategory;
+  amount: number;
+  recurringType: RecurringType;
+  expenseDate: string;
+  description?: string;
+}
+
+export interface BudgetSummary {
+  totalBudget: number;
+  currency: string;
+  laborSpend: number;
+  operationalSpend: number;
+  totalSpend: number;
+  remainingBudget: number;
+  burnRatePercent: number;
+  projectedTotalSpend: number;
+  riskLevel: 'safe' | 'warning' | 'danger';
+  riskMessage?: string;
+  targetSpendCurve: { day: string; planned: number; actual: number; projected?: number }[];
+}
+
+export type ViewMode = 'my-work' | 'board' | 'backlog' | 'roadmap' | 'reports' | 'automation' | 'settings' | 'retrospective' | 'architecture' | 'portfolio' | 'retro-kanban' | 'capacity' | 'pricing' | 'budget';
+
 
 

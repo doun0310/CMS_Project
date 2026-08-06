@@ -503,4 +503,13 @@ export const IconCreditCard: React.FC<IconProps> = ({ size = 18, color = 'curren
 
 export const IconPricing = IconCreditCard;
 
+export const IconBudget: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="6" width="20" height="13" rx="3" fill={color} fillOpacity="0.12" />
+    <path d="M16 12a2 2 0 1 0 0 .01" strokeWidth="2.5" />
+    <path d="M6 12h5M2 10h20" strokeWidth="1.5" />
+  </svg>
+);
+
+
 

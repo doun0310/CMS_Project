@@ -514,18 +514,24 @@
   color: #ffffff;
 }
 
+.calendar-title-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .calendar-legend-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.76rem;
+  gap: 16px;
+  font-size: 0.78rem;
   color: #9ca3af;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
 }
 
 .calendar-grid-clean {
@@ -641,6 +647,7 @@
 .chip-icon-wrapper {
   display: flex;
   align-items: center;
+  margin-left: 6px;
 }
 
 /* Modal Form & Controls Cohesive Styling */
