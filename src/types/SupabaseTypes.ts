@@ -47,6 +47,19 @@ export interface SupabaseRetroRow {
   created_at?: string;
 }
 
+export interface SupabaseLeaveRequestRow {
+  id: string;
+  user_id: string;
+  leave_type: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  approver_id?: string | null;
+  reject_reason?: string | null;
+  created_at?: string;
+}
+
 /**
  * Supabase Realtime payload structure.
  * Replaces `any` in the subscription callbacks.
@@ -59,3 +72,4 @@ export interface RealtimePayload<T = Record<string, unknown>> {
   table: string;
   commit_timestamp: string;
 }
+

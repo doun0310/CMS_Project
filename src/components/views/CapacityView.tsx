@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAether } from '../../context/AetherContextValue';
 import type { LeaveRequest, LeaveType } from '../../types/Aether';
+import { canApproveLeave } from '../../utils/permissions';
 import {
   IconCalendar,
   IconCheckCircle,
@@ -11,6 +12,13 @@ import {
   IconPlus,
   IconFilter
 } from '../common/Icons';
+import {
+  fetchLeaveRequestsFromSupabase,
+  syncLeaveRequestToSupabase,
+  mapDbToLeaveRequest
+} from '../../services/supabaseSync';
+import { isSupabaseConfigured, subscribeToTable } from '../../services/supabase';
+import type { SupabaseLeaveRequestRow } from '../../types/SupabaseTypes';
 import '../../styles/capacityView.css';
 
 const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
@@ -51,24 +59,106 @@ const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
 export const CapacityView: React.FC = () => {
   const { users, sprints, issues, currentUser } = useAether();
 
+  const isManager = currentUser ? canApproveLeave(currentUser) : true;
+
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(INITIAL_LEAVE_REQUESTS);
   const [activeTab, setActiveTab] = useState<'overview' | 'requests' | 'calendar'>('overview');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [filterType, setFilterType] = useState<string>('ALL');
+
+  // Supabase Initial Fetch & Realtime WebSocket Subscription
+  React.useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    fetchLeaveRequestsFromSupabase().then((data) => {
+      if (data && data.length > 0) {
+        setLeaveRequests(data);
+      }
+    }).catch((err) => {
+      console.warn('Failed to load leave requests from Supabase:', err);
+    });
+
+    // Realtime WebSocket Subscription
+    const unsubscribe = subscribeToTable('leave_requests', (payload) => {
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updated = mapDbToLeaveRequest(payload.new as SupabaseLeaveRequestRow);
+        setLeaveRequests((prev) => {
+          const idx = prev.findIndex((r) => r.id === updated.id);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = updated;
+            return next;
+          }
+          return [updated, ...prev];
+        });
+      } else if (payload.eventType === 'DELETE') {
+        const deletedId = payload.old?.id;
+        if (deletedId) {
+          setLeaveRequests((prev) => prev.filter((r) => r.id !== deletedId));
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // Active Sprint calculation
   const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
   const activeSprintIssues = issues.filter((i) => i.sprintId === activeSprint?.id);
 
   // Form State
+  const [applicantUserId, setApplicantUserId] = useState<string>(currentUser?.id || users[0]?.id || 'u1');
   const [leaveType, setLeaveType] = useState<LeaveType>('ANNUAL');
   const [startDate, setStartDate] = useState('2026-08-15');
   const [endDate, setEndDate] = useState('2026-08-15');
   const [reason, setReason] = useState('');
 
-  // ─── Calculations Engine ─────────────────────────────────────────────
+  // ─── Working Days & Holiday Calculation Helpers ─────────────────────────────
+  
+  // 2026년 대한민국/글로벌 주요 공휴일 목록 (YYYY-MM-DD)
+  const HOLIDAYS_2026 = new Set([
+    '2026-01-01', // 신정
+    '2026-02-16', '2026-02-17', '2026-02-18', // 설날 연휴
+    '2026-03-01', '2026-03-02', // 삼일절 및 대체공휴일
+    '2026-05-05', // 어린이날
+    '2026-05-24', // 부처님오신날
+    '2026-06-06', // 현충일
+    '2026-08-15', '2026-08-17', // 광복절 및 대체공휴일
+    '2026-09-24', '2026-09-25', '2026-09-26', // 추석 연휴
+    '2026-10-03', // 개천절
+    '2026-10-09', // 한글날
+    '2026-12-25'  // 성탄절
+  ]);
 
-  // Calculate leave deduction hours for a user
+  const isWorkingDay = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+    if (HOLIDAYS_2026.has(dateStr)) return false;
+    return true;
+  };
+
+  const calculateWorkingDays = (startDateStr: string, endDateStr: string) => {
+    let count = 0;
+    const cur = new Date(startDateStr + 'T00:00:00');
+    const last = new Date(endDateStr + 'T00:00:00');
+
+    while (cur <= last) {
+      const year = cur.getFullYear();
+      const month = String(cur.getMonth() + 1).padStart(2, '0');
+      const day = String(cur.getDate()).padStart(2, '0');
+      const dateKey = `${year}-${month}-${day}`;
+
+      if (isWorkingDay(dateKey)) {
+        count++;
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    return count;
+  };
+
   const getUserLeaveHours = (userId: string) => {
     const userLeaves = leaveRequests.filter(
       (r) => r.userId === userId && r.status === 'APPROVED'
@@ -76,14 +166,16 @@ export const CapacityView: React.FC = () => {
     let totalHours = 0;
     userLeaves.forEach((leave) => {
       if (leave.leaveType === 'HALF_AM' || leave.leaveType === 'HALF_PM') {
-        totalHours += 4;
+        if (isWorkingDay(leave.startDate)) {
+          totalHours += 4;
+        }
       } else if (leave.leaveType === 'ANNUAL' || leave.leaveType === 'SICK' || leave.leaveType === 'OTHER') {
-        const start = new Date(leave.startDate);
-        const end = new Date(leave.endDate);
-        const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 3600 * 24)) + 1);
-        totalHours += days * 8;
+        const workingDays = calculateWorkingDays(leave.startDate, leave.endDate);
+        totalHours += workingDays * 8;
       } else if (leave.leaveType === 'OUTSIDE') {
-        totalHours += 4;
+        if (isWorkingDay(leave.startDate)) {
+          totalHours += 4;
+        }
       }
     });
     return totalHours;
@@ -94,7 +186,10 @@ export const CapacityView: React.FC = () => {
 
   const memberCapacities = users.map((user) => {
     const assignedIssues = activeSprintIssues.filter((i) => i.assigneeId === user.id);
-    const assignedHours = assignedIssues.reduce((acc, i) => acc + (i.originalEstimate || (i.storyPoints * 4) || 8), 0);
+    const assignedHours = assignedIssues.reduce((acc, i) => {
+      const estimate = i.originalEstimate > 0 ? i.originalEstimate : (i.storyPoints ? i.storyPoints * 4 : 8);
+      return acc + estimate;
+    }, 0);
     const leaveHours = getUserLeaveHours(user.id);
     const availableHours = Math.max(0, SPRINT_BASE_HOURS - leaveHours);
     const maxRecommendedHours = Math.round(availableHours * (DEEP_WORK_CAP_HOURS / SPRINT_BASE_HOURS));
@@ -123,7 +218,7 @@ export const CapacityView: React.FC = () => {
 
     const newRequest: LeaveRequest = {
       id: `leave-${Date.now()}`,
-      userId: currentUser?.id || users[0].id,
+      userId: applicantUserId,
       leaveType,
       startDate,
       endDate,
@@ -133,27 +228,34 @@ export const CapacityView: React.FC = () => {
     };
 
     setLeaveRequests([newRequest, ...leaveRequests]);
+    syncLeaveRequestToSupabase(newRequest);
     setShowApplyModal(false);
     setReason('');
   };
 
   const handleApprove = (id: string) => {
     setLeaveRequests((prev) =>
-      prev.map((req) =>
-        req.id === id
-          ? { ...req, status: 'APPROVED', approverId: currentUser?.id }
-          : req
-      )
+      prev.map((req) => {
+        if (req.id === id) {
+          const updated = { ...req, status: 'APPROVED' as const, approverId: currentUser?.id };
+          syncLeaveRequestToSupabase(updated);
+          return updated;
+        }
+        return req;
+      })
     );
   };
 
   const handleReject = (id: string) => {
     setLeaveRequests((prev) =>
-      prev.map((req) =>
-        req.id === id
-          ? { ...req, status: 'REJECTED', approverId: currentUser?.id }
-          : req
-      )
+      prev.map((req) => {
+        if (req.id === id) {
+          const updated = { ...req, status: 'REJECTED' as const, approverId: currentUser?.id };
+          syncLeaveRequestToSupabase(updated);
+          return updated;
+        }
+        return req;
+      })
     );
   };
 
@@ -337,14 +439,18 @@ export const CapacityView: React.FC = () => {
                     </td>
                     <td>
                       {req.status === 'PENDING' && (
-                        <div className="action-buttons">
-                          <button className="btn-sm btn-success" onClick={() => handleApprove(req.id)}>
-                            <IconCheckCircle size={14} /> 승인
-                          </button>
-                          <button className="btn-sm btn-danger" onClick={() => handleReject(req.id)}>
-                            <IconX size={14} /> 반려
-                          </button>
-                        </div>
+                        isManager ? (
+                          <div className="action-buttons">
+                            <button className="btn-sm btn-success" onClick={() => handleApprove(req.id)}>
+                              <IconCheckCircle size={14} /> 승인
+                            </button>
+                            <button className="btn-sm btn-danger" onClick={() => handleReject(req.id)}>
+                              <IconX size={14} /> 반려
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-muted" style={{ fontSize: '0.8rem', color: '#9ca3af' }}>매니저 승인 대기중</span>
+                        )
                       )}
                     </td>
                   </tr>
@@ -399,6 +505,17 @@ export const CapacityView: React.FC = () => {
               <button className="close-btn" onClick={() => setShowApplyModal(false)}>✕</button>
             </div>
             <form onSubmit={handleApplyLeave} className="leave-form">
+              <div className="form-group">
+                <label>신청 대상 개발자</label>
+                <select value={applicantUserId} onChange={(e) => setApplicantUserId(e.target.value)}>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.role})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="form-group">
                 <label>신청 유형</label>
                 <select value={leaveType} onChange={(e) => setLeaveType(e.target.value as LeaveType)}>

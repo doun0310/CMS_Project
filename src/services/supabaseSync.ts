@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import type { Issue, RetrospectiveItem } from '../types/Aether';
-import type { SupabaseIssueRow, SupabaseRetroRow } from '../types/SupabaseTypes';
+import type { Issue, RetrospectiveItem, LeaveRequest } from '../types/Aether';
+import type { SupabaseIssueRow, SupabaseRetroRow, SupabaseLeaveRequestRow } from '../types/SupabaseTypes';
 
 /**
  * Maps a Supabase DB row to an AetherPulse Issue object
@@ -188,3 +188,63 @@ export async function syncRetroToSupabase(item: RetrospectiveItem, projectId: st
     console.error('Failed to sync retro item to Supabase:', err);
   }
 }
+
+/**
+ * Maps a Supabase DB leave_requests row to an AetherPulse LeaveRequest object
+ */
+export function mapDbToLeaveRequest(row: SupabaseLeaveRequestRow): LeaveRequest {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    leaveType: row.leave_type as LeaveRequest['leaveType'],
+    startDate: row.start_date,
+    endDate: row.end_date,
+    reason: row.reason,
+    status: row.status as LeaveRequest['status'],
+    approverId: row.approver_id || null,
+    rejectReason: row.reject_reason || undefined,
+    createdAt: row.created_at || new Date().toISOString(),
+  };
+}
+
+/**
+ * Fetch all leave requests from Supabase DB
+ */
+export async function fetchLeaveRequestsFromSupabase(): Promise<LeaveRequest[]> {
+  if (!isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase.from('leave_requests').select('*').order('created_at', { ascending: false });
+    if (error || !data) {
+      console.warn('Supabase leave_requests fetch error:', error?.message);
+      return [];
+    }
+    return (data as SupabaseLeaveRequestRow[]).map(mapDbToLeaveRequest);
+  } catch (err) {
+    console.error('Failed to fetch leave requests from Supabase:', err);
+    return [];
+  }
+}
+
+/**
+ * Sync Leave Request object to Supabase DB
+ */
+export async function syncLeaveRequestToSupabase(req: LeaveRequest) {
+  if (!isSupabaseConfigured) return;
+  try {
+    const dbRow = {
+      id: req.id,
+      user_id: req.userId,
+      leave_type: req.leaveType,
+      start_date: req.startDate,
+      end_date: req.endDate,
+      reason: req.reason,
+      status: req.status,
+      approver_id: req.approverId || null,
+      reject_reason: req.rejectReason || null,
+    };
+    await supabase.from('leave_requests').upsert(dbRow);
+  } catch (err) {
+    console.error('Failed to sync leave request to Supabase:', err);
+  }
+}
+

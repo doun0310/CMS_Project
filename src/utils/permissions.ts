@@ -1,6 +1,6 @@
 import type { ProjectRole, User } from '../types/Aether';
 
-export type WorkspacePermission = 'issue:write' | 'issue:delete' | 'project:manage' | 'team:manage';
+export type WorkspacePermission = 'issue:write' | 'issue:delete' | 'project:manage' | 'team:manage' | 'leave:approve';
 
 /** Converts legacy values before every access decision. Never use job titles for authorization. */
 export const getProjectRole = (user: User): ProjectRole => {
@@ -17,3 +17,5 @@ export const can = (user: User, permission: WorkspacePermission): boolean => {
 };
 
 export const canWrite = (user: User) => can(user, 'issue:write');
+export const canApproveLeave = (user: User) => can(user, 'leave:approve');
+
