@@ -11,9 +11,17 @@ import {
   IconClock,
   IconAlertTriangle,
   IconPlus,
-  IconFilter,
   IconDownload,
-  IconAiSpark
+  IconAiSpark,
+  IconPalmtree,
+  IconSun,
+  IconMoon,
+  IconBriefcase,
+  IconStethoscope,
+  IconStory,
+  IconChevronLeft,
+  IconChevronRight,
+  IconXCircle
 } from '../common/Icons';
 import {
   fetchLeaveRequestsFromSupabase,
@@ -69,6 +77,7 @@ export const CapacityView: React.FC = () => {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedLeaveForDetail, setSelectedLeaveForDetail] = useState<LeaveRequest | null>(null);
   const [filterType, setFilterType] = useState<string>('ALL');
+  const [calendarMonthOffset, setCalendarMonthOffset] = useState<number>(0);
 
   // Supabase Initial Fetch & Realtime WebSocket Subscription
   React.useEffect(() => {
@@ -229,7 +238,7 @@ export const CapacityView: React.FC = () => {
       addNotification({
         kind: 'system',
         title: '⚠️ 팀원 업무 과부하(Burnout) 경고',
-        text: `다음 팀원의 업무량이 가동 수용량을 초과했습니다: ${names}`
+        text: `다음 팀원의 업무량이 개발 수용량을 초과했습니다: ${names}`
       });
     }
   }, [overloadedMembersCount]);
@@ -376,10 +385,10 @@ export const CapacityView: React.FC = () => {
       <div className="cap-header">
         <div>
           <h1 className="cap-title">
-            <IconCalendar size={24} /> 휴가 및 가동 인원 관리
+            <IconCalendar size={24} /> 휴가 및 개발 인원 관리
           </h1>
           <p className="cap-subtitle">
-            스프린트 가동 가능 시간을 자동 측정하고 Deep Work 한계 기반으로 과도한 업무(Burnout)를 예방합니다.
+            스프린트 개발 가능 시간을 자동 측정하고 Deep Work 한계를 기반으로 하여 과도한 업무(Burnout)를 예방합니다.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -397,7 +406,7 @@ export const CapacityView: React.FC = () => {
         <div className="cap-metric-card">
           <span className="metric-icon blue"><IconClock size={20} /></span>
           <div>
-            <div className="metric-label">팀 총 순수 가동시간</div>
+            <div className="metric-label">총 팀원 순수 개발 시간</div>
             <div className="metric-value">{totalTeamAvailableHours} 시간 <span className="sub-val">({activeSprint?.name || 'Active Sprint'})</span></div>
           </div>
         </div>
@@ -445,7 +454,7 @@ export const CapacityView: React.FC = () => {
           className={`cap-tab ${activeTab === 'calendar' ? 'active' : ''}`}
           onClick={() => setActiveTab('calendar')}
         >
-          휴가 캘린더 View
+          휴가 캘린더
         </button>
       </div>
 
@@ -453,7 +462,7 @@ export const CapacityView: React.FC = () => {
       {activeTab === 'overview' && (
         <div className="cap-content-section">
           <div className="section-header">
-            <h3>👨‍💻 개발자별 실질 가동 시간 (Capacity vs Commitment)</h3>
+            <h3> 개발자 별 실질 개발 시간 (Capacity vs Commitment)</h3>
             <span className="badge-info">Deep Work 권장 한계: 일 5.5시간 기준</span>
           </div>
 
@@ -468,7 +477,7 @@ export const CapacityView: React.FC = () => {
                       {isOverloaded && <span className="badge-overload">🔴 업무 과부하!</span>}
                     </div>
                     <div className="user-stats">
-                      승인된 휴가: <strong className="text-orange">{leaveHours}h</strong> | 가동 가능: <strong>{availableHours}h</strong> (권장 최대: {maxRecommendedHours}h)
+                      승인된 휴가: <strong className="text-orange">{leaveHours}h</strong> | 개발 가능: <strong>{availableHours}h</strong> (권장 최대: {maxRecommendedHours}h)
                     </div>
                   </div>
                 </div>
@@ -529,16 +538,25 @@ export const CapacityView: React.FC = () => {
       {/* Tab 2: Requests */}
       {activeTab === 'requests' && (
         <div className="cap-content-section">
-          <div className="section-header">
-            <h3>📑 휴가 및 외근 신청 내역</h3>
-            <div className="filter-group">
-              <IconFilter size={16} />
-              <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                <option value="ALL">전체 상태</option>
-                <option value="PENDING">승인 대기중</option>
-                <option value="APPROVED">승인 완료</option>
-                <option value="REJECTED">반려됨</option>
-              </select>
+          <div className="section-header requests-header-bar">
+            <h3><IconCalendar size={18} color="#818cf8" /> 휴가 및 외근 신청 내역</h3>
+            <div className="filter-pill-group">
+              {[
+                { type: 'ALL', label: '전체', count: leaveRequests.length, icon: null },
+                { type: 'PENDING', label: '승인 대기', count: leaveRequests.filter(r => r.status === 'PENDING').length, icon: <IconClock size={12} color="#eab308" /> },
+                { type: 'APPROVED', label: '승인 완료', count: leaveRequests.filter(r => r.status === 'APPROVED').length, icon: <IconCheckCircle size={12} color="#22c55e" /> },
+                { type: 'REJECTED', label: '반려됨', count: leaveRequests.filter(r => r.status === 'REJECTED').length, icon: <IconXCircle size={12} color="#ef4444" /> },
+              ].map((item) => (
+                <button
+                  key={item.type}
+                  className={`filter-pill-btn ${filterType === item.type ? 'active' : ''}`}
+                  onClick={() => setFilterType(item.type)}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                  <span className="pill-count">{item.count}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -566,21 +584,21 @@ export const CapacityView: React.FC = () => {
                     </td>
                     <td>
                       <span className={`badge-type ${req.leaveType}`}>
-                        {req.leaveType === 'ANNUAL' && '🏖️ 연차'}
-                        {req.leaveType === 'HALF_AM' && '🌅 오전반차'}
-                        {req.leaveType === 'HALF_PM' && '🌇 오후반차'}
-                        {req.leaveType === 'OUTSIDE' && '💼 외근'}
-                        {req.leaveType === 'SICK' && '🤒 병가'}
-                        {req.leaveType === 'OTHER' && '📋 기타'}
+                        {req.leaveType === 'ANNUAL' && <><IconPalmtree size={13} color="#34d399" /> 연차</>}
+                        {req.leaveType === 'HALF_AM' && <><IconSun size={13} color="#fbbf24" /> 오전반차</>}
+                        {req.leaveType === 'HALF_PM' && <><IconMoon size={13} color="#c084fc" /> 오후반차</>}
+                        {req.leaveType === 'OUTSIDE' && <><IconBriefcase size={13} color="#60a5fa" /> 외근</>}
+                        {req.leaveType === 'SICK' && <><IconStethoscope size={13} color="#f87171" /> 병가</>}
+                        {req.leaveType === 'OTHER' && <><IconStory size={13} color="#9ca3af" /> 기타</>}
                       </span>
                     </td>
                     <td className="font-mono">{req.startDate} ~ {req.endDate}</td>
                     <td className="reason-cell">{req.reason}</td>
                     <td>
                       <span className={`badge-status ${req.status}`}>
-                        {req.status === 'APPROVED' && '승인됨'}
-                        {req.status === 'PENDING' && '대기중'}
-                        {req.status === 'REJECTED' && '반려됨'}
+                        {req.status === 'APPROVED' && <><IconCheckCircle size={13} color="#22c55e" /> 승인 완료</>}
+                        {req.status === 'PENDING' && <><IconClock size={13} color="#eab308" /> 승인 대기중</>}
+                        {req.status === 'REJECTED' && <><IconXCircle size={13} color="#ef4444" /> 반려됨</>}
                       </span>
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>
@@ -610,54 +628,138 @@ export const CapacityView: React.FC = () => {
       {/* Tab 3: Calendar View */}
       {activeTab === 'calendar' && (
         <div className="cap-content-section">
-          <div className="section-header">
-            <h3>📅 스프린트 부재 일정 캘린더 ({activeSprint?.name || 'Active Sprint'})</h3>
-          </div>
-          <div className="calendar-grid-mock">
-            {['월', '화', '수', '목', '금'].map((day) => (
-              <div key={day} className="cal-header-cell">{day}요일</div>
-            ))}
-            {(() => {
-              // Generate days dynamically from activeSprint or current date range
-              const days = [];
-              const start = activeSprint?.startDate ? new Date(activeSprint.startDate) : new Date('2026-08-03T00:00:00');
-              const current = new Date(start);
+          {(() => {
+            const baseDate = new Date();
+            baseDate.setDate(1);
+            baseDate.setMonth(baseDate.getMonth() + calendarMonthOffset);
+            const currentYear = baseDate.getFullYear();
+            const currentMonth = baseDate.getMonth() + 1;
 
-              for (let i = 0; i < 15; i++) {
-                while (current.getDay() === 0 || current.getDay() === 6) {
-                  current.setDate(current.getDate() + 1);
-                }
-                const dateStr = current.toISOString().split('T')[0];
-                const dayNum = current.getDate();
-                const monthNum = current.getMonth() + 1;
-
-                const dayLeaves = leaveRequests.filter(
-                  (r) => r.status === 'APPROVED' && r.startDate <= dateStr && r.endDate >= dateStr
-                );
-
-                days.push(
-                  <div key={dateStr} className="cal-day-cell">
-                    <div className="cal-date-num">{monthNum}/{dayNum}</div>
-                    {dayLeaves.map((leave) => {
-                      const u = users.find((usr) => usr.id === leave.userId);
-                      return (
-                        <div
-                          key={leave.id}
-                          className={`cal-leave-tag ${leave.leaveType} clickable`}
-                          onClick={() => setSelectedLeaveForDetail(leave)}
-                          title="클릭하여 상세 정보 보기"
+            return (
+              <>
+                <div className="section-header calendar-nav-header">
+                  <div className="calendar-title-group">
+                    <h3><IconCalendar size={18} color="#818cf8" /> 휴가 캘린더</h3>
+                    <div className="month-navigator">
+                      <button
+                        className="btn-icon month-nav-btn"
+                        onClick={() => setCalendarMonthOffset((prev) => prev - 1)}
+                        title="이전 달"
+                      >
+                        <IconChevronLeft size={16} />
+                      </button>
+                      <span className="current-month-display">{currentYear}년 {currentMonth}월</span>
+                      <button
+                        className="btn-icon month-nav-btn"
+                        onClick={() => setCalendarMonthOffset((prev) => prev + 1)}
+                        title="다음 달"
+                      >
+                        <IconChevronRight size={16} />
+                      </button>
+                      {calendarMonthOffset !== 0 && (
+                        <button
+                          className="btn-sm btn-today-reset"
+                          onClick={() => setCalendarMonthOffset(0)}
                         >
-                          {u?.name}: {leave.reason}
+                          이번 달로 이동
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="calendar-legend-bar">
+                    <span className="legend-item"><IconPalmtree size={12} color="#34d399" /> 연차</span>
+                    <span className="legend-item"><IconSun size={12} color="#fbbf24" /> 오전반차</span>
+                    <span className="legend-item"><IconMoon size={12} color="#c084fc" /> 오후반차</span>
+                    <span className="legend-item"><IconBriefcase size={12} color="#60a5fa" /> 외근</span>
+                    <span className="legend-item"><IconStethoscope size={12} color="#f87171" /> 병가</span>
+                  </div>
+                </div>
+
+                <div className="calendar-grid-clean">
+                  {['월', '화', '수', '목', '금'].map((day) => (
+                    <div key={day} className="cal-header-cell">{day}</div>
+                  ))}
+                  {(() => {
+                    const days = [];
+                    const todayStr = new Date().toISOString().split('T')[0];
+
+                    // First working day of target month
+                    const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1);
+                    const current = new Date(firstDayOfMonth);
+
+                    // Render up to 20 working days for the full month view
+                    for (let i = 0; i < 20; i++) {
+                      while (current.getDay() === 0 || current.getDay() === 6) {
+                        current.setDate(current.getDate() + 1);
+                      }
+                      // Break if moved into next month after rendering 3 weeks
+                      if (current.getMonth() !== currentMonth - 1 && i >= 15) break;
+
+                      const yyyy = current.getFullYear();
+                      const mm = String(current.getMonth() + 1).padStart(2, '0');
+                      const dd = String(current.getDate()).padStart(2, '0');
+                      const dateStr = `${yyyy}-${mm}-${dd}`;
+
+                      const dayNum = current.getDate();
+                      const monthNum = current.getMonth() + 1;
+                      const isToday = dateStr === todayStr;
+                      const isDifferentMonth = current.getMonth() !== currentMonth - 1;
+
+                      const dayLeaves = leaveRequests.filter(
+                        (r) => r.status === 'APPROVED' && r.startDate <= dateStr && r.endDate >= dateStr
+                      );
+
+                      days.push(
+                        <div
+                          key={dateStr}
+                          className={`cal-day-card ${isToday ? 'is-today' : ''} ${dayLeaves.length > 0 ? 'has-leaves' : ''} ${isDifferentMonth ? 'diff-month' : ''}`}
+                        >
+                          <div className="cal-date-header">
+                            <span className="cal-date-text">
+                              {isDifferentMonth || monthNum !== currentMonth ? `${monthNum}/${dayNum}` : `${dayNum}일`}
+                            </span>
+                            {isToday && <span className="today-badge">오늘</span>}
+                          </div>
+
+                          <div className="cal-leaves-container">
+                            {dayLeaves.length === 0 ? (
+                              <div className="cal-empty-state">부재 없음</div>
+                            ) : (
+                              dayLeaves.map((leave) => {
+                                const u = users.find((usr) => usr.id === leave.userId);
+                                return (
+                                  <div
+                                    key={leave.id}
+                                    className={`cal-compact-chip type-${leave.leaveType}`}
+                                    onClick={() => setSelectedLeaveForDetail(leave)}
+                                    title={`${u?.name} (${leave.leaveType}): ${leave.reason} [${leave.startDate}~${leave.endDate}]`}
+                                  >
+                                    <img src={u?.avatar} alt="" className="chip-user-avatar" />
+                                    <span className="chip-user-name">{u?.name}</span>
+                                    <span className="chip-icon-wrapper">
+                                      {leave.leaveType === 'ANNUAL' && <IconPalmtree size={12} color="#34d399" />}
+                                      {leave.leaveType === 'HALF_AM' && <IconSun size={12} color="#fbbf24" />}
+                                      {leave.leaveType === 'HALF_PM' && <IconMoon size={12} color="#c084fc" />}
+                                      {leave.leaveType === 'OUTSIDE' && <IconBriefcase size={12} color="#60a5fa" />}
+                                      {leave.leaveType === 'SICK' && <IconStethoscope size={12} color="#f87171" />}
+                                      {leave.leaveType === 'OTHER' && <IconStory size={12} color="#9ca3af" />}
+                                    </span>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
                         </div>
                       );
-                    })}
-                  </div>
-                );
-                current.setDate(current.getDate() + 1);
-              }
-              return days;
-            })()}
-          </div>
+                      current.setDate(current.getDate() + 1);
+                    }
+                    return days;
+                  })()}
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -685,15 +787,30 @@ export const CapacityView: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">
-                  <IconClock size={14} /> 신청 유형
+                  <IconClock size={14} /> 신청 유형 선택
                 </label>
-                <select className="form-input" value={leaveType} onChange={(e) => setLeaveType(e.target.value as LeaveType)}>
-                  <option value="ANNUAL">🏖️ 연차 (전일 8시간)</option>
-                  <option value="HALF_AM">🌅 오전 반차 (4시간)</option>
-                  <option value="HALF_PM">🌇 오후 반차 (4시간)</option>
-                  <option value="OUTSIDE">💼 외근 (4시간)</option>
-                  <option value="SICK">🤒 병가 (전일 8시간)</option>
-                </select>
+                <div className="leave-type-tile-grid">
+                  {[
+                    { type: 'ANNUAL', label: '연차 (8h)', icon: <IconPalmtree size={18} color="#34d399" />, desc: '전일 휴가' },
+                    { type: 'HALF_AM', label: '오전 반차 (4h)', icon: <IconSun size={18} color="#fbbf24" />, desc: '오전 부재' },
+                    { type: 'HALF_PM', label: '오후 반차 (4h)', icon: <IconMoon size={18} color="#c084fc" />, desc: '오후 부재' },
+                    { type: 'OUTSIDE', label: '외근 (4h)', icon: <IconBriefcase size={18} color="#60a5fa" />, desc: '외부 업무' },
+                    { type: 'SICK', label: '병가 (8h)', icon: <IconStethoscope size={18} color="#f87171" />, desc: '질병/치료' },
+                  ].map((item) => (
+                    <button
+                      key={item.type}
+                      type="button"
+                      className={`leave-type-tile ${leaveType === item.type ? 'active' : ''}`}
+                      onClick={() => setLeaveType(item.type as LeaveType)}
+                    >
+                      <div className="tile-icon-box">{item.icon}</div>
+                      <div className="tile-info">
+                        <span className="tile-label">{item.label}</span>
+                        <span className="tile-desc">{item.desc}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="form-row">
@@ -760,9 +877,9 @@ export const CapacityView: React.FC = () => {
                         <div className="detail-user-role">{targetUser?.role} • {targetUser?.email}</div>
                       </div>
                       <span className={`badge-status ${selectedLeaveForDetail.status}`} style={{ marginLeft: 'auto' }}>
-                        {selectedLeaveForDetail.status === 'APPROVED' && '승인 완료'}
-                        {selectedLeaveForDetail.status === 'PENDING' && '승인 대기중'}
-                        {selectedLeaveForDetail.status === 'REJECTED' && '반려됨'}
+                        {selectedLeaveForDetail.status === 'APPROVED' && <><IconCheckCircle size={14} color="#22c55e" /> 승인 완료</>}
+                        {selectedLeaveForDetail.status === 'PENDING' && <><IconClock size={14} color="#eab308" /> 승인 대기중</>}
+                        {selectedLeaveForDetail.status === 'REJECTED' && <><IconXCircle size={14} color="#ef4444" /> 반려됨</>}
                       </span>
                     </div>
 
@@ -771,12 +888,12 @@ export const CapacityView: React.FC = () => {
                         <span className="detail-label">신청 유형</span>
                         <div className="detail-value">
                           <span className={`badge-type ${selectedLeaveForDetail.leaveType}`}>
-                            {selectedLeaveForDetail.leaveType === 'ANNUAL' && '🏖️ 연차 (전일 8h)'}
-                            {selectedLeaveForDetail.leaveType === 'HALF_AM' && '🌅 오전 반차 (4h)'}
-                            {selectedLeaveForDetail.leaveType === 'HALF_PM' && '🌇 오후 반차 (4h)'}
-                            {selectedLeaveForDetail.leaveType === 'OUTSIDE' && '💼 외근 (4h)'}
-                            {selectedLeaveForDetail.leaveType === 'SICK' && '🤒 병가 (전일 8h)'}
-                            {selectedLeaveForDetail.leaveType === 'OTHER' && '📋 기타'}
+                            {selectedLeaveForDetail.leaveType === 'ANNUAL' && <><IconPalmtree size={14} color="#34d399" /> 연차 (전일 8h)</>}
+                            {selectedLeaveForDetail.leaveType === 'HALF_AM' && <><IconSun size={14} color="#fbbf24" /> 오전 반차 (4h)</>}
+                            {selectedLeaveForDetail.leaveType === 'HALF_PM' && <><IconMoon size={14} color="#c084fc" /> 오후 반차 (4h)</>}
+                            {selectedLeaveForDetail.leaveType === 'OUTSIDE' && <><IconBriefcase size={14} color="#60a5fa" /> 외근 (4h)</>}
+                            {selectedLeaveForDetail.leaveType === 'SICK' && <><IconStethoscope size={14} color="#f87171" /> 병가 (전일 8h)</>}
+                            {selectedLeaveForDetail.leaveType === 'OTHER' && <><IconStory size={14} color="#9ca3af" /> 기타</>}
                           </span>
                         </div>
                       </div>

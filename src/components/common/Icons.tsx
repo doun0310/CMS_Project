@@ -126,6 +126,12 @@ export const IconChevronRight: React.FC<IconProps> = ({ size = 16, color = 'curr
   </svg>
 );
 
+export const IconChevronLeft: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="m15 18-6-6 6-6" />
+  </svg>
+);
+
 export const IconBoard: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect width="18" height="18" x="3" y="3" rx="3" fill={color} fillOpacity="0.08" />
@@ -273,6 +279,13 @@ export const IconAlertTriangle: React.FC<IconProps> = ({ size = 16, color = 'cur
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="m10.3 3.3-8 14A2 2 0 0 0 4 20.3h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0Z" fill={color} fillOpacity="0.15" />
     <path d="M12 9v4M12 17h.01" strokeWidth="2.5" />
+  </svg>
+);
+
+export const IconXCircle: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="12" r="10" fill={color} fillOpacity="0.1" />
+    <path d="m15 9-6 6M9 9l6 6" strokeWidth="2.5" />
   </svg>
 );
 
@@ -448,6 +461,29 @@ export const IconLogout: React.FC<IconProps> = ({ size = 18, color = 'currentCol
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <polyline points="16 17 21 12 16 7" />
     <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
+export const IconPalmtree: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h11z" fill={color} fillOpacity="0.15" />
+    <path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-9" fill={color} fillOpacity="0.15" />
+    <path d="M12 22V8" strokeWidth="2.5" />
+  </svg>
+);
+
+export const IconBriefcase: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect width="20" height="14" x="2" y="7" rx="3" fill={color} fillOpacity="0.15" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
+export const IconStethoscope: React.FC<IconProps> = ({ size = 16, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.3.3 0 1 0 .2.3" />
+    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+    <circle cx="20" cy="10" r="2" fill={color} fillOpacity="0.2" />
   </svg>
 );
 

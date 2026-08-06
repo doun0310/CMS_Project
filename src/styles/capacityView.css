@@ -172,6 +172,59 @@
   color: #ffffff;
 }
 
+/* Modern Segmented Pill Filter Controls */
+.filter-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.filter-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.filter-pill-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.filter-pill-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+.pill-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.filter-pill-btn.active .pill-count {
+  background: rgba(99, 102, 241, 0.4);
+  color: #ffffff;
+}
+
 .badge-info {
   font-size: 0.8rem;
   background: rgba(99, 102, 241, 0.18);
@@ -311,13 +364,19 @@
   padding: 3px 8px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .badge-status {
   font-size: 0.78rem;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .badge-status.APPROVED { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
@@ -345,8 +404,88 @@
 .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 .btn-danger:hover { background: rgba(239, 68, 68, 0.35); }
 
-/* Mock Calendar */
-.calendar-grid-mock {
+/* Streamlined Calendar View */
+.calendar-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.calendar-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.month-navigator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.month-nav-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.month-nav-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.current-month-display {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 95px;
+  text-align: center;
+}
+
+.btn-today-reset {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-today-reset:hover {
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+}
+
+.calendar-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: #9ca3af;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.calendar-grid-clean {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
@@ -354,35 +493,111 @@
 
 .cal-header-cell {
   text-align: center;
-  font-weight: 600;
-  padding: 8px;
-  color: #9ca3af;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.cal-day-cell {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.cal-day-card {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  min-height: 85px;
+  min-height: 80px;
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.cal-day-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.cal-day-card.is-today {
+  border-color: rgba(129, 140, 248, 0.5);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.cal-day-card.has-leaves {
+  background: rgba(30, 41, 59, 0.55);
+}
+
+.cal-date-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal-date-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.today-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #818cf8;
+  color: #ffffff;
+}
+
+.cal-leaves-container {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.cal-date-num {
-  font-size: 0.78rem;
-  color: #9ca3af;
-  margin-bottom: 4px;
+.cal-empty-state {
+  font-size: 0.72rem;
+  color: #475569;
+  font-style: italic;
+  padding-top: 4px;
 }
 
-.cal-leave-tag {
-  font-size: 0.72rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(99, 102, 241, 0.25);
-  color: #c7d2fe;
+/* Compact Chip Pills for Clean Visual Alignment */
+.cal-compact-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cal-compact-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.chip-user-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.chip-user-name {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-icon-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 /* Modal Form & Controls Cohesive Styling */
@@ -410,6 +625,75 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Custom SVG Icon Tile Radio Group for Leave Types */
+.leave-type-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.leave-type-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.leave-type-tile:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(30, 41, 59, 0.7);
+  transform: translateY(-1px);
+}
+
+.leave-type-tile.active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #818cf8;
+  box-shadow: 0 0 0 1px #818cf8, 0 4px 14px rgba(99, 102, 241, 0.2);
+}
+
+.tile-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.leave-type-tile.active .tile-icon-box {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.tile-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tile-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
 }
 
 .form-input {
