@@ -202,9 +202,10 @@ export const calculateWorkloadRebalance = (users: User[], issues: Issue[]): Work
 
   const suggestions: WorkloadSuggestion[] = [];
 
-  // 1. Assign unassigned issues to lowest load user
+  // 1. Assign unassigned issues across available team members organically (round-robin / least-loaded dynamic update)
   unassignedIssues.forEach(issue => {
-    let minUser = Array.from(userLoads.values()).sort((a, b) => a.points - b.points)[0];
+    // Pick the user with the minimum current load
+    const minUser = Array.from(userLoads.values()).sort((a, b) => a.points - b.points)[0];
     if (minUser) {
       suggestions.push({
         issueId: issue.id,
@@ -221,36 +222,58 @@ export const calculateWorkloadRebalance = (users: User[], issues: Issue[]): Work
     }
   });
 
-  // 2. Rebalance from overloaded user (>12 points) to underloaded user (<5 points)
-  const sortedUsers = Array.from(userLoads.values()).sort((a, b) => b.points - a.points);
-  const highest = sortedUsers[0];
-  const lowest = sortedUsers[sortedUsers.length - 1];
+  // 2. Multi-step organic rebalance from overloaded members to multiple lighter members
+  // Iteratively rebalance tasks until max point gap is under threshold or no eligible moves left
+  let maxLoop = 5; // Guard clause against infinite loops
+  while (maxLoop > 0) {
+    maxLoop--;
+    const sortedUsers = Array.from(userLoads.values()).sort((a, b) => b.points - a.points);
+    const highest = sortedUsers[0];
+    const lowest = sortedUsers[sortedUsers.length - 1];
 
-  if (highest && lowest && highest.points - lowest.points >= 7) {
-    const highestUserIssues = activeIssues.filter(i => i.assigneeId === highest.user.id && i.status === 'todo');
-    if (highestUserIssues.length > 0) {
-      const candidate = highestUserIssues[0];
-      suggestions.push({
-        issueId: candidate.id,
-        issueKey: candidate.key,
-        issueSummary: candidate.summary,
-        fromUserId: highest.user.id,
-        toUserId: lowest.user.id,
-        reason: `Rebalancing ${candidate.key} from ${highest.user.name} (${highest.points} pts) to ${lowest.user.name} (${lowest.points} pts)`,
-        reasonKey: 'aiRebalanceReasonOverloaded',
-        reasonParams: {
-          key: candidate.key,
-          fromName: highest.user.name,
-          fromPoints: highest.points,
-          toName: lowest.user.name,
-          toPoints: lowest.points
-        }
-      });
+    if (!highest || !lowest || highest.points - lowest.points < 5) {
+      break;
     }
+
+    // Find candidate tasks from overloaded user
+    const candidateTask = activeIssues.find(
+      i => i.assigneeId === highest.user.id && 
+           i.status === 'todo' && 
+           !suggestions.some(s => s.issueId === i.id)
+    );
+
+    if (!candidateTask) {
+      break;
+    }
+
+    const taskPts = candidateTask.storyPoints || 1;
+    suggestions.push({
+      issueId: candidateTask.id,
+      issueKey: candidateTask.key,
+      issueSummary: candidateSummaryText(candidateTask),
+      fromUserId: highest.user.id,
+      toUserId: lowest.user.id,
+      reason: `Rebalancing ${candidateTask.key} from ${highest.user.name} (${highest.points} pts) to ${lowest.user.name} (${lowest.points} pts)`,
+      reasonKey: 'aiRebalanceReasonOverloaded',
+      reasonParams: {
+        key: candidateTask.key,
+        fromName: highest.user.name,
+        fromPoints: highest.points,
+        toName: lowest.user.name,
+        toPoints: lowest.points
+      }
+    });
+
+    highest.points -= taskPts;
+    highest.count -= 1;
+    lowest.points += taskPts;
+    lowest.count += 1;
   }
 
   return suggestions;
 };
+
+const candidateSummaryText = (issue: Issue) => issue.summary;
 
 export const generateDailyStandupDigest = (issues: Issue[]): DailyStandupDigest => {
   const doneRecently = issues.filter(i => i.status === 'done').map(i => `[${i.key}] ${i.summary}`);

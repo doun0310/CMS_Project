@@ -464,10 +464,12 @@ export const CapacityView: React.FC = () => {
 
     const targetUserCapacity = memberCapacities.find((m) => m.user.id === userId);
     if (targetUserCapacity && totalEstimated > targetUserCapacity.maxRecommendedHours) {
-      // Find underutilized team members
-      const helper = memberCapacities.find(
-        (m) => m.user.id !== userId && !m.isOverloaded && m.assignedHours < m.maxRecommendedHours * 0.7
-      );
+      // Find underutilized team members sorted by current assigned workload ratio (lowest first)
+      const helpers = memberCapacities
+        .filter((m) => m.user.id !== userId && !m.isOverloaded && m.assignedHours < m.maxRecommendedHours)
+        .sort((a, b) => (a.assignedHours / a.maxRecommendedHours) - (b.assignedHours / b.maxRecommendedHours));
+
+      const helper = helpers[0];
 
       if (helper && breakdown.length > 0) {
         const heaviestTask = breakdown.reduce((prev, curr) => (curr.aiEstimatedHours > prev.aiEstimatedHours ? curr : prev));
@@ -475,7 +477,7 @@ export const CapacityView: React.FC = () => {
           issueKey: heaviestTask.issueKey,
           issueSummary: heaviestTask.title,
           recommendAssigneeName: helper.user.name,
-          reason: `${userName} 개발자 예상 소요시간(${totalEstimated}h)이 수용량(${targetUserCapacity.maxRecommendedHours}h)을 초과함. ${helper.user.name}(여유시간 ${Math.round(helper.maxRecommendedHours - helper.assignedHours)}h)에게 재할당 추천`
+          reason: `${userName} 개발자 예상 소요시간(${totalEstimated}h)이 수용량(${targetUserCapacity.maxRecommendedHours}h)을 초과함. 가장 여유 있는 ${helper.user.name}(여유시간 ${Math.round(helper.maxRecommendedHours - helper.assignedHours)}h)에게 재할당 추천`
         });
       }
     }

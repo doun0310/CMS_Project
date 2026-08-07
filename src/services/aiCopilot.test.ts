@@ -128,6 +128,27 @@ describe('aiCopilot service', () => {
       expect(suggestions[0].fromUserId).toBe('Unassigned');
       expect(['user-1', 'user-2']).toContain(suggestions[0].toUserId);
     });
+
+    it('organically redistributes multiple unassigned/overloaded tasks across all underloaded members', () => {
+      const threeUsers: User[] = [
+        { id: 'user-1', name: 'Alice', email: 'alice@test.com', avatar: '', role: 'Dev', projectRole: 'Project Member' },
+        { id: 'user-2', name: 'Bob', email: 'bob@test.com', avatar: '', role: 'Dev', projectRole: 'Project Member' },
+        { id: 'user-3', name: 'Charlie', email: 'charlie@test.com', avatar: '', role: 'Dev', projectRole: 'Project Member' },
+      ];
+
+      const issues: Issue[] = [
+        createMockIssue({ id: 'i-1', key: 'AETH-1', summary: 'U1', assigneeId: null, status: 'todo', storyPoints: 2 }),
+        createMockIssue({ id: 'i-2', key: 'AETH-2', summary: 'U2', assigneeId: null, status: 'todo', storyPoints: 2 }),
+        createMockIssue({ id: 'i-3', key: 'AETH-3', summary: 'U3', assigneeId: null, status: 'todo', storyPoints: 2 }),
+      ];
+
+      const suggestions = calculateWorkloadRebalance(threeUsers, issues);
+      const assignedTo = suggestions.map(s => s.toUserId);
+      
+      // Check that tasks are distributed organically across multiple members instead of just 1 person
+      const uniqueAssignees = new Set(assignedTo);
+      expect(uniqueAssignees.size).toBeGreaterThan(1);
+    });
   });
 
   describe('generateDailyStandupDigest', () => {

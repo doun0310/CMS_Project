@@ -50,7 +50,8 @@ export const TeamHealthPulseCard: React.FC = () => {
 
   const handle1ClickRedistribute = () => {
     if (overloadedMembers.length === 0 || lightMembers.length === 0) return;
-    const targetMember = lightMembers[0];
+    // Pick the light member with the lowest currently assigned points
+    const targetMember = [...lightMembers].sort((a, b) => a.assignedPts - b.assignedPts)[0];
     const overloaded = overloadedMembers[0];
     const taskToMove = overloaded.uIssues.find(i => i.status === 'todo');
 
