@@ -139,7 +139,6 @@ export const PricingView: React.FC = () => {
       <div className="pricing-header">
         <div className="pricing-header-badge">{t('pricingBadge')}</div>
         <h1 className="pricing-title">{t('pricingTitle')}</h1>
-        <p className="pricing-subtitle">{t('pricingSubtitle')}</p>
 
         {/* Billing interval toggle */}
         <div className="pricing-interval-toggle">

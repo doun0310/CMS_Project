@@ -92,7 +92,6 @@ ${actionItems.map((item) => `- [ ] **[+${item.votes} votes]** ${item.content}`).
             <span className="release-icon"><IconReports size={20} /></span>
             <div>
               <h2 className="modal-title">{t('retroReportTitle')}</h2>
-              <p className="modal-subtitle">{t('retroReportSubtitle')}</p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

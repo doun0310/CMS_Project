@@ -153,7 +153,7 @@ export const RetroKanbanView: React.FC = () => {
         <div className="header-info">
           <div className="flex-align-gap">
             <span className="retro-k-icon"><IconRetroBoard size={22} /></span>
-            <div><h2>{t('retroKanbanTitle')}</h2><p>{t('retroKanbanSubtitle')}</p></div>
+            <div><h2>{t('retroKanbanTitle')}</h2></div>
           </div>
         </div>
         <div className="retro-k-metrics flex-align-gap">

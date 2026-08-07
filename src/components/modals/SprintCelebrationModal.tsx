@@ -52,9 +52,6 @@ export const SprintCelebrationModal: React.FC<SprintCelebrationModalProps> = ({
         </div>
 
         <h2 className="celebration-title">Sprint Completed!</h2>
-        <p className="celebration-subtitle">
-          Great job team! <strong>{sprint.name}</strong> has been successfully finished.
-        </p>
 
         <div className="celebration-goal-card">
           <span className="goal-label">Sprint Goal Achieved:</span>

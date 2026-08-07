@@ -283,7 +283,6 @@ export const ReportsView: React.FC = () => {
           <div className="chart-title-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h3>{chartView === 'burndown' ? t('burndownChart') : t('cumulativeFlow')}</h3>
-              <span className="chart-subtitle">{activeSprint?.name}</span>
             </div>
             <div className="chart-view-toggle">
               <button
@@ -415,7 +414,6 @@ export const ReportsView: React.FC = () => {
         <div className="chart-box">
           <div className="chart-title-group">
             <h3>{t('teamWorkload')}</h3>
-            <span className="chart-subtitle">{t('workloadDistribution')}</span>
           </div>
 
           <div className="workload-list">
@@ -451,7 +449,6 @@ export const ReportsView: React.FC = () => {
       <div className="manager-matrix-section animate-fade-in">
         <div className="section-title-group">
           <h3>{t('teamCapacity')}</h3>
-          <span className="section-subtitle">{t('teamCapacitySubtitle')}</span>
         </div>
 
         <div className="matrix-table-wrap">
@@ -492,7 +489,6 @@ export const ReportsView: React.FC = () => {
       <section className="report-insights-section">
         <div>
           <h3>{t('advancedInsights')}</h3>
-          <p>{t('advancedInsightsSubtitle')}</p>
         </div>
         <button
           className="btn-ghost-sm report-insights-toggle"

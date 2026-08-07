@@ -133,11 +133,6 @@ const AuthPage: React.FC<AuthPageProps> = () => {
             {mode === 'signup' && '새 계정 만들기'}
             {mode === 'reset' && '비밀번호 재설정'}
           </h2>
-          <p className="auth-subtitle">
-            {mode === 'signin' && '계속하려면 계정에 로그인하세요'}
-            {mode === 'signup' && '무료로 시작하세요. 신용카드 불필요'}
-            {mode === 'reset' && '가입한 이메일 주소를 입력하세요'}
-          </p>
         </div>
 
         {/* Offline Warning */}

@@ -8,9 +8,7 @@ interface MonteCarloSimulatorModalProps {
 }
 
 export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, sprints, t } = useAether();
-
-  const activeSprint = sprints.find((s) => s.status === 'active') || sprints[0];
+  const { t } = useAether();
   const [simulationCount] = useState(1000);
   const [syncedSuccess, setSyncedSuccess] = useState(false);
 
@@ -40,9 +38,6 @@ export const MonteCarloSimulatorModal: React.FC<MonteCarloSimulatorModalProps> =
             <span className="release-icon"><IconAnalytics size={20} /></span>
             <div>
               <h2 className="modal-title">{t('monteCarloModalTitle')}</h2>
-              <p className="modal-subtitle">
-                1,000 statistical trial simulation based on historical velocity for [{currentProject.key}] {activeSprint?.name}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

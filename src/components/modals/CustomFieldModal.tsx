@@ -9,7 +9,7 @@ interface CustomFieldModalProps {
 }
 
 export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, issues, updateIssue, t } = useAether();
+  const { issues, updateIssue, t } = useAether();
 
   // Default pre-loaded custom fields
   const [fields, setFields] = useState<CustomFieldDef[]>([
@@ -105,9 +105,6 @@ export const CustomFieldModal: React.FC<CustomFieldModalProps> = ({ isOpen, onCl
             <span className="release-icon"><IconSettings size={20} /></span>
             <div>
               <h2 className="modal-title">{t('customFieldWorkbenchTitle')}</h2>
-              <p className="modal-subtitle">
-                {t('customFieldWorkbenchSubtitle')} [{currentProject.key}] {currentProject.name}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

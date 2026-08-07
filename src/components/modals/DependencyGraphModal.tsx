@@ -64,9 +64,6 @@ export const DependencyGraphModal: React.FC<DependencyGraphModalProps> = ({ isOp
             <span className="release-icon"><IconArchitecture size={20} /></span>
             <div>
               <h2 className="modal-title">{t('dependencyGraphModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Subsystem coupling visualizer & downstream risk analysis for [{targetIssue?.key}]
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

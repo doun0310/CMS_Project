@@ -69,7 +69,6 @@ export const VelocitySimulatorModal: React.FC<VelocitySimulatorModalProps> = ({
             <span className="release-icon"><IconAnalytics size={20} /></span>
             <div>
               <h2 className="modal-title">{t('velocityTitle')}</h2>
-              <p className="modal-subtitle">{t('velocitySubtitle')}</p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

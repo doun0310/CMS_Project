@@ -52,9 +52,6 @@ ${complianceStandards.map(s => `- **[${s.name}]** ${s.domain} ➔ ${s.status} (S
             <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
               <h2 className="modal-title">{t('complianceMatrixModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Automated SOC2, GDPR, ISO 27001 & HIPAA compliance audit signoff for [{currentProject.key}]
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

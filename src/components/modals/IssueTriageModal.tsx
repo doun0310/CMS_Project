@@ -48,9 +48,6 @@ export const IssueTriageModal: React.FC<IssueTriageModalProps> = ({ isOpen, onCl
             <span className="release-icon"><IconAiSpark size={20} /></span>
             <div>
               <h2 className="modal-title">{t('autoTriageModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Automated priority scoring, subsystem tagging & story point estimation for untriaged backlog
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

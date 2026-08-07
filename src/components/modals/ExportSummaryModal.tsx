@@ -57,8 +57,8 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '36px',
-              height: '36px',
+              width: '38px',
+              height: '38px',
               borderRadius: '10px',
               backgroundColor: 'rgba(59, 130, 246, 0.15)',
               color: '#3b82f6',
@@ -69,9 +69,9 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
               <IconDownload size={20} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600 }}>일일 요약 복사 및 내보내기</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '13px', color: 'var(--text-secondary, #94a3b8)' }}>
-                {summary.summaryDate} 개발자 보고서 포맷 선택
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600 }}>일일 보고서 1-Click 내보내기</h3>
+              <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary, #94a3b8)' }}>
+                {summary.summaryDate} 개발자 보고서 포맷을 선택하고 클립보드에 복사하세요.
               </p>
             </div>
           </div>
@@ -88,6 +88,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
               alignItems: 'center',
               justifyContent: 'center'
             }}
+            title="닫기"
           >
             <IconX size={18} />
           </button>
@@ -113,11 +114,10 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
                 fontWeight: format === fmt ? 600 : 400,
                 fontSize: '13px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                textTransform: 'uppercase'
+                transition: 'all 0.2s ease'
               }}
             >
-              {fmt === 'slack' ? '💬 Slack' : fmt === 'notion' ? '📝 Notion' : fmt === 'markdown' ? '📄 Markdown' : 'TXT 일반'}
+              {fmt === 'slack' ? '💬 Slack 전송용' : fmt === 'notion' ? '📝 Notion 마크다운' : fmt === 'markdown' ? '📄 표준 Markdown' : '📋 일반 텍스트'}
             </button>
           ))}
         </div>
@@ -165,7 +165,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
               cursor: 'pointer'
             }}
           >
-            닫기
+            취소
           </button>
           <button
             onClick={handleCopy}
@@ -185,7 +185,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
             }}
           >
             {copied ? <IconCheckCircle size={16} /> : <IconDownload size={16} />}
-            <span>{copied ? '복사 완료!' : '클립보드 복사'}</span>
+            <span>{copied ? '복사 완료!' : '클립보드에 복사'}</span>
           </button>
         </div>
       </div>

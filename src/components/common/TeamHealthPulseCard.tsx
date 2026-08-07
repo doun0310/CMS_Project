@@ -70,7 +70,6 @@ export const TeamHealthPulseCard: React.FC = () => {
           </span>
           <div>
             <h3>{t('teamHealthTitle')}</h3>
-            <p>{t('teamHealthSubtitle')}</p>
           </div>
         </div>
 

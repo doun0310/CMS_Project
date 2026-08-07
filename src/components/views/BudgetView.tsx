@@ -181,9 +181,6 @@ export const BudgetView: React.FC = () => {
                 EXECUTIVE / PO ONLY
               </span>
             </div>
-            <p className="view-subtitle" style={{ fontSize: 12, margin: '2px 0 0' }}>
-              {currentProject.name} 수주 예산, 실시간 인건비(시급) 및 고정 운영 지출을 추적하고 소진 곡선을 모니터링합니다.
-            </p>
           </div>
         </div>
 
@@ -239,7 +236,7 @@ export const BudgetView: React.FC = () => {
           </div>
           <div className="budget-card-sub" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
             <IconCalendar size={13} color="var(--text-tertiary)" />
-            <span>계획 기간: {budget.startDate} ~ {budget.endDate}</span>
+            <span>{budget.startDate} ~ {budget.endDate}</span>
           </div>
         </div>
 
@@ -264,10 +261,10 @@ export const BudgetView: React.FC = () => {
           </div>
           <div className="budget-card-sub" style={{ gap: 12 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <IconUser size={13} color="#6366f1" /> 인건비: <strong>{formatCurrency(summary.laborSpend, summary.currency)}</strong>
+              <IconUser size={13} color="#6366f1" /><strong>{formatCurrency(summary.laborSpend, summary.currency)}</strong>
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <IconBriefcase size={13} color="#f59e0b" /> 고정비: <strong>{formatCurrency(summary.operationalSpend, summary.currency)}</strong>
+              <IconBriefcase size={13} color="#f59e0b" /><strong>{formatCurrency(summary.operationalSpend, summary.currency)}</strong>
             </span>
           </div>
         </div>

@@ -161,9 +161,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <span className="release-icon">🔐</span>
             <div>
               <h2 className="modal-title">Sign In & Multi-Account Switcher</h2>
-              <p className="modal-subtitle">
-                {t('addAnotherAccount')}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>
@@ -271,7 +268,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <section className="account-role-section" aria-label={t('accountProjectRoles')}>
                 <div className="account-role-heading">
                   <strong>{t('accountProjectRoles')}</strong>
-                  <p>{t('accountProjectRolesSubtitle')}</p>
                 </div>
                 <div className="account-role-list">
                   {signedInAccounts.map((account) => (

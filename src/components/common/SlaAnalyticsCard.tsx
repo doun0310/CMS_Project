@@ -89,7 +89,6 @@ export const SlaAnalyticsCard: React.FC = () => {
           <IconClock size={22} color="#3b82f6" />
           <div>
             <h3 className="card-title">{t('slaTitle')}</h3>
-            <p className="card-subtitle">{t('slaSubtitle')}</p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

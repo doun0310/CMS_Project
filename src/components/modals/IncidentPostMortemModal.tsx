@@ -79,9 +79,6 @@ ${actionItems.map(a => `- [ ] **[${a.key}]** ${a.summary} (@${a.assignee})`).joi
             <span className="release-icon"><IconAlertTriangle size={20} /></span>
             <div>
               <h2 className="modal-title">{t('postMortemModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Structured 5-Whys diagnosis & preventive action item generator for [{currentProject.key}]
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

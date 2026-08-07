@@ -52,9 +52,6 @@ ${blockedIssues.map(i => `  • [${i.key}] ${i.summary} - ${t('waitingOnBlockers
             </span>
             <div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{t('standupTitle')}</h3>
-              <span className="subtitle-text" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                {t('standupSubtitle')} • <strong>{activeSprint.name}</strong>
-              </span>
             </div>
           </div>
           <button className="btn-icon-close" onClick={onClose}>

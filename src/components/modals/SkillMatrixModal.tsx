@@ -59,9 +59,6 @@ export const SkillMatrixModal: React.FC<SkillMatrixModalProps> = ({ isOpen, onCl
             <span className="release-icon"><IconUsers size={20} /></span>
             <div>
               <h2 className="modal-title">{t('skillMatrixModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Skill proficiency mapping & automated best-engineer task matching for [{targetIssue?.key}]
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

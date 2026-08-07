@@ -71,6 +71,10 @@ export const DailySummaryView: React.FC = () => {
     setSelectedDate(d.toISOString().slice(0, 10));
   };
 
+  const handleJumpToToday = () => {
+    setSelectedDate(new Date().toISOString().slice(0, 10));
+  };
+
   const handleAddItem = (category: 'doneToday' | 'planTomorrow' | 'blockers') => {
     if (!summary) return;
     const title = prompt('추가할 업무 또는 이슈 내용을 입력하세요:');
@@ -117,9 +121,6 @@ export const DailySummaryView: React.FC = () => {
           </div>
           <div>
             <h1 className="daily-summary-header-title">오늘의 개발 요약</h1>
-            <p className="daily-summary-header-subtitle">
-              일일 변경 이벤트 및 태스크 상태를 자동 분석하여 데일리 스탠드업 보고서를 생성합니다.
-            </p>
           </div>
         </div>
 
@@ -139,6 +140,9 @@ export const DailySummaryView: React.FC = () => {
             <button className="daily-summary-date-btn" onClick={() => handleDateChange(1)} title="다음 날짜">
               <IconChevronRight size={16} />
             </button>
+            <button className="daily-summary-date-today-btn" onClick={handleJumpToToday}>
+              오늘
+            </button>
           </div>
 
           {/* Engine Toggle Button */}
@@ -151,7 +155,7 @@ export const DailySummaryView: React.FC = () => {
             }}
           >
             <IconAiSpark size={16} />
-            <span>{useAI ? 'Gemini AI 엔진' : '템플릿 규칙 엔진'}</span>
+            <span>{useAI ? '🤖 Gemini AI 분석' : '⚙️ 템플릿 규칙'}</span>
           </button>
 
           {/* Refresh Button */}
@@ -161,7 +165,7 @@ export const DailySummaryView: React.FC = () => {
             disabled={isGenerating}
           >
             <IconRefresh size={16} className={isGenerating ? 'animate-spin' : ''} />
-            <span>{isGenerating ? '분석 중...' : '새로고침'}</span>
+            <span>{isGenerating ? '분석 중...' : '이벤트 재수집'}</span>
           </button>
 
           {/* Export Button */}
@@ -171,7 +175,7 @@ export const DailySummaryView: React.FC = () => {
             disabled={!summary}
           >
             <IconDownload size={16} />
-            <span>보고서 내보내기</span>
+            <span>보고서 1-Click 내보내기</span>
           </button>
         </div>
       </div>
@@ -183,11 +187,12 @@ export const DailySummaryView: React.FC = () => {
             <IconCheckCircle size={22} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">오늘 완료 (Done)</div>
+            <div className="daily-summary-kpi-label">오늘 완료한 업무</div>
             <div className="daily-summary-kpi-value" style={{ color: '#10b981' }}>
               {summary ? summary.doneToday.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
+            <div className="daily-summary-kpi-subtext">스프린트 상태 반영</div>
           </div>
         </div>
 
@@ -196,11 +201,12 @@ export const DailySummaryView: React.FC = () => {
             <IconClock size={22} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">내일 목표 (Plan)</div>
+            <div className="daily-summary-kpi-label">내일 진행할 업무</div>
             <div className="daily-summary-kpi-value" style={{ color: '#3b82f6' }}>
               {summary ? summary.planTomorrow.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
+            <div className="daily-summary-kpi-subtext">우선순위 상위 항목</div>
           </div>
         </div>
 
@@ -209,11 +215,12 @@ export const DailySummaryView: React.FC = () => {
             <IconAlertTriangle size={22} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">주의 & 블로커</div>
+            <div className="daily-summary-kpi-label">주의 & 차단 요소</div>
             <div className="daily-summary-kpi-value" style={{ color: '#ef4444' }}>
               {summary ? summary.blockers.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
+            <div className="daily-summary-kpi-subtext">즉시 조치 필요</div>
           </div>
         </div>
 
@@ -222,11 +229,12 @@ export const DailySummaryView: React.FC = () => {
             <IconCalendar size={22} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">총 수집 항목</div>
+            <div className="daily-summary-kpi-label">수집된 개발 이벤트</div>
             <div className="daily-summary-kpi-value" style={{ color: '#a855f7' }}>
               {totalEventsCount}
               <span className="daily-summary-kpi-unit">개</span>
             </div>
+            <div className="daily-summary-kpi-subtext">자동 파이프라인 수집</div>
           </div>
         </div>
       </div>
@@ -258,11 +266,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header done">
             <h3 className="daily-summary-column-title done">
               <IconCheckCircle size={18} />
-              <span>1. 오늘 한 일 (Done Today)</span>
+              <span>1. 오늘 완료한 업무 (Done Today)</span>
             </h3>
             <button className="daily-summary-add-btn done" onClick={() => handleAddItem('doneToday')}>
               <IconPlus size={14} />
-              <span>추가</span>
+              <span>항목 추가</span>
             </button>
           </div>
 
@@ -280,7 +288,7 @@ export const DailySummaryView: React.FC = () => {
                   <button
                     className="daily-summary-remove-btn"
                     onClick={() => handleRemoveItem('doneToday', item.id)}
-                    title="삭제"
+                    title="항목 삭제"
                   >
                     <IconX size={14} />
                   </button>
@@ -295,11 +303,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header plan">
             <h3 className="daily-summary-column-title plan">
               <IconClock size={18} />
-              <span>2. 내일 할 일 (Plan for Tomorrow)</span>
+              <span>2. 내일 진행할 업무 (Plan for Tomorrow)</span>
             </h3>
             <button className="daily-summary-add-btn plan" onClick={() => handleAddItem('planTomorrow')}>
               <IconPlus size={14} />
-              <span>추가</span>
+              <span>항목 추가</span>
             </button>
           </div>
 
@@ -317,7 +325,7 @@ export const DailySummaryView: React.FC = () => {
                   <button
                     className="daily-summary-remove-btn"
                     onClick={() => handleRemoveItem('planTomorrow', item.id)}
-                    title="삭제"
+                    title="항목 삭제"
                   >
                     <IconX size={14} />
                   </button>
@@ -332,11 +340,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header blocker">
             <h3 className="daily-summary-column-title blocker">
               <IconAlertTriangle size={18} />
-              <span>3. 주의 사항 & 블로커</span>
+              <span>3. 주의 사항 및 이슈 (Risks & Blockers)</span>
             </h3>
             <button className="daily-summary-add-btn blocker" onClick={() => handleAddItem('blockers')}>
               <IconPlus size={14} />
-              <span>추가</span>
+              <span>항목 추가</span>
             </button>
           </div>
 
@@ -354,7 +362,7 @@ export const DailySummaryView: React.FC = () => {
                   <button
                     className="daily-summary-remove-btn"
                     onClick={() => handleRemoveItem('blockers', item.id)}
-                    title="삭제"
+                    title="항목 삭제"
                   >
                     <IconX size={14} />
                   </button>

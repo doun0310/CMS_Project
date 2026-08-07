@@ -607,9 +607,6 @@ export const CapacityView: React.FC = () => {
           <h1 className="cap-title">
             <IconCalendar size={24} /> 휴가 및 개발 인원 관리
           </h1>
-          <p className="cap-subtitle">
-            스프린트 개발 가능 시간을 자동 측정하고 Deep Work 한계를 기반으로 하여 과도한 업무(Burnout)를 예방합니다.
-          </p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button className="btn-export-sparkle" onClick={handleExportCsv} title="가동률 및 휴가 리포트 다운로드">

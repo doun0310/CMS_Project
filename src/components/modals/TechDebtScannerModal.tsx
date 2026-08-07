@@ -8,7 +8,7 @@ interface TechDebtScannerModalProps {
 }
 
 export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOpen, onClose }) => {
-  const { currentProject, createIssue, t } = useAether();
+  const { createIssue, t } = useAether();
 
   const [convertedDebt, setConvertedDebt] = useState<Record<string, boolean>>({});
 
@@ -45,9 +45,6 @@ export const TechDebtScannerModal: React.FC<TechDebtScannerModalProps> = ({ isOp
             <span className="release-icon"><IconSettings size={20} /></span>
             <div>
               <h2 className="modal-title">{t('techDebtModalTitle')}</h2>
-              <p className="modal-subtitle">
-                Static analysis & automated refactoring task generator for [{currentProject.key}] {currentProject.name}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

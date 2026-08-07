@@ -69,9 +69,6 @@ ${includeRollbackPlan ? rollbackPlanText : ''}
             </span>
             <div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{t('releaseNotesTitle')} & AI Deployment Advisor</h3>
-              <span className="subtitle-text" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                {t('releaseNotesSubtitle')} • <strong>{activeSprint.name}</strong>
-              </span>
             </div>
           </div>
           <button className="btn-icon-close" onClick={onClose}>

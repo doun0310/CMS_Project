@@ -98,9 +98,6 @@ ${impactAnalysis.prReadinessChecklist.map(c => `- [${c.passed ? 'x' : ' '}] ${c.
             <span className="release-icon"><IconArchitecture size={20} /></span>
             <div>
               <h2 className="modal-title">{t('codeImpactModalTitle')}</h2>
-              <p className="modal-subtitle">
-                {t('codeImpactModalSubtitle')}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

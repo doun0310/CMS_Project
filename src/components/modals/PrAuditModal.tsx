@@ -63,9 +63,6 @@ export const PrAuditModal: React.FC<PrAuditModalProps> = ({ isOpen, onClose }) =
             <span className="release-icon"><IconCheckCircle size={20} /></span>
             <div>
               <h2 className="modal-title">{t('prAuditModalTitle')}</h2>
-              <p className="modal-subtitle">
-                {t('prAuditModalSubtitle')} [{targetIssue?.key}]
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

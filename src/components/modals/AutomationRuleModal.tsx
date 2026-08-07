@@ -64,9 +64,6 @@ export const AutomationRuleModal: React.FC<AutomationRuleModalProps> = ({ isOpen
             <span className="release-icon"><IconAutomation size={20} /></span>
             <div>
               <h2 className="modal-title">{t('automationRuleModalTitle')}</h2>
-              <p className="modal-subtitle">
-                {t('automationRuleModalSubtitle')}
-              </p>
             </div>
           </div>
           <button className="btn-icon close-btn" onClick={onClose}>

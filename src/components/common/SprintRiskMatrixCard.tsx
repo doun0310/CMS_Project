@@ -59,7 +59,6 @@ export const SprintRiskMatrixCard: React.FC = () => {
           </span>
           <div>
             <h3>{t('sprintRiskTitle')}</h3>
-            <p>{t('sprintRiskSubtitle')}</p>
           </div>
         </div>
 

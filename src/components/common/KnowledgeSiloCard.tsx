@@ -80,7 +80,6 @@ export const KnowledgeSiloCard: React.FC = () => {
           <IconBrain size={22} color="#8b5cf6" />
           <div>
             <h3 className="card-title">{t('knowledgeSiloTitle')}</h3>
-            <p className="card-subtitle">{t('knowledgeSiloSubtitle')}</p>
           </div>
         </div>
         <div className="bus-factor-badge">

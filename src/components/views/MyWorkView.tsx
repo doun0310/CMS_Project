@@ -29,12 +29,11 @@ export const MyWorkView: React.FC = () => {
     </button>
   );
 
-  const renderSection = (title: string, subtitle: string, items: Issue[], empty: string) => (
+  const renderSection = (title: string, items: Issue[], empty: string) => (
     <section className="my-work-section">
       <div className="my-work-section-heading">
         <div>
           <h2>{title}</h2>
-          <p>{subtitle}</p>
         </div>
         <span>{items.length}</span>
       </div>
@@ -48,7 +47,6 @@ export const MyWorkView: React.FC = () => {
         <div>
           <p className="eyebrow">{activeSprint ? activeSprint.name : t('backlogLabel')}</p>
           <h1>{t('myWorkGreeting')}, {currentUser.name.split(' ')[0]}</h1>
-          <p>{t('myWorkSubtitle')}</p>
         </div>
         <div className="my-work-actions">
           <button className="btn-ghost-sm" onClick={() => setViewMode('board')}>{t('openBoard')}</button>
@@ -65,10 +63,10 @@ export const MyWorkView: React.FC = () => {
       </div>
 
       <div className="my-work-grid">
-        {renderSection(t('workingNow'), t('workingNowHint'), inProgress, t('workingNowEmpty'))}
-        {renderSection(t('upNext'), t('upNextHint'), readyNext, t('upNextEmpty'))}
+        {renderSection(t('workingNow'), inProgress, t('workingNowEmpty'))}
+        {renderSection(t('upNext'), readyNext, t('upNextEmpty'))}
       </div>
-      {blocked.length > 0 && renderSection(t('needsAttention'), t('needsAttentionHint'), blocked, t('needsAttentionEmpty'))}
+      {blocked.length > 0 && renderSection(t('needsAttention'), blocked, t('needsAttentionEmpty'))}
     </div>
   );
 };
