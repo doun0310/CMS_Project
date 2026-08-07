@@ -102,7 +102,7 @@ describe('dailySummaryService Unit Tests', () => {
     expect(slackText).toContain('`TEST-1` Task completed');
 
     const notionText = formatExportText(summary, 'notion');
-    expect(notionText).toContain('# 📅 오늘의 개발 요약');
+    expect(notionText).toContain('# 오늘의 개발 요약');
     expect(notionText).toContain('**[TEST-1]** Task completed');
   });
 });

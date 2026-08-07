@@ -117,7 +117,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
                 transition: 'all 0.2s ease'
               }}
             >
-              {fmt === 'slack' ? '💬 Slack 전송용' : fmt === 'notion' ? '📝 Notion 마크다운' : fmt === 'markdown' ? '📄 표준 Markdown' : '📋 일반 텍스트'}
+              {fmt === 'slack' ? 'Slack 전송용' : fmt === 'notion' ? 'Notion 마크다운' : fmt === 'markdown' ? '표준 Markdown' : '일반 텍스트'}
             </button>
           ))}
         </div>

@@ -560,6 +560,16 @@ export const IconRefresh: React.FC<IconProps> = ({ size = 16, color = 'currentCo
   </svg>
 );
 
+export const IconDailySummary: React.FC<IconProps> = ({ size = 18, color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" fill={color} fillOpacity="0.12" />
+    <rect x="8" y="2" width="8" height="4" rx="1" fill={color} fillOpacity="0.25" />
+    <path d="M8 10h8M8 14h5" strokeWidth="2" />
+    <path d="m14 19 2.5-4h-2.5l1.5-3" stroke={color} strokeWidth="2" />
+  </svg>
+);
+
+
 
 
 

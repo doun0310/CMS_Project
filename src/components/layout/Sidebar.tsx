@@ -16,7 +16,8 @@ import {
   IconPortfolio,
   IconRetroBoard,
   IconCalendar,
-  IconBudget
+  IconBudget,
+  IconDailySummary
 } from '../common/Icons';
 
 // Simple credit card icon for pricing
@@ -24,13 +25,6 @@ const IconPricing: React.FC<{ size?: number }> = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="1" y="4" width="22" height="16" rx="3" fill="currentColor" fillOpacity="0.1" />
     <path d="M1 10h22" />
-  </svg>
-);
-
-// Lightning icon for daily summary
-const IconDailySummary: React.FC<{ size?: number }> = ({ size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 );
 

@@ -166,7 +166,7 @@ export function generateRuleBasedSummary(dateStr: string, events: DailyEvent[], 
     doneToday: doneToday.length > 0 ? doneToday : [{ id: 'd1', title: '당일 완료된 주요 태스크 및 코드 리뷰 진행' }],
     planTomorrow: planTomorrow.length > 0 ? planTomorrow : [{ id: 'p1', title: '잔여 백로그 작업 및 단위 테스트 작성' }],
     blockers: blockers.length > 0 ? blockers : [{ id: 'b1', title: '특이 사항 없음 (정상 진행 중)' }],
-    aiInsights: '💡 [Rule Engine] 템플릿 엔진이 이벤트를 카테고리별로 자동 분류하였습니다. AI 키 설정 시 자연어 분석 인사이트가 추가됩니다.',
+    aiInsights: '[Rule Engine] 템플릿 엔진이 이벤트를 카테고리별로 자동 분류하였습니다. AI 키 설정 시 자연어 분석 인사이트가 추가됩니다.',
     engineUsed: 'TEMPLATE',
     createdAt: new Date().toISOString(),
   };
@@ -219,7 +219,7 @@ ${JSON.stringify(events, null, 2)}
       doneToday: Array.isArray(parsed.doneToday) && parsed.doneToday.length > 0 ? parsed.doneToday : fallbackSummary.doneToday,
       planTomorrow: Array.isArray(parsed.planTomorrow) && parsed.planTomorrow.length > 0 ? parsed.planTomorrow : fallbackSummary.planTomorrow,
       blockers: Array.isArray(parsed.blockers) && parsed.blockers.length > 0 ? parsed.blockers : fallbackSummary.blockers,
-      aiInsights: parsed.aiInsights || '✨ 오늘 높은 생산성을 유지하며 핵심 기능이 정상 개발되었습니다.',
+      aiInsights: parsed.aiInsights || '오늘 높은 생산성을 유지하며 핵심 기능이 정상 개발되었습니다.',
       engineUsed: 'AI',
       createdAt: new Date().toISOString(),
     };
@@ -227,7 +227,7 @@ ${JSON.stringify(events, null, 2)}
     console.warn('Gemini AI Summary call failed, falling back to Rule Engine:', error);
     return {
       ...fallbackSummary,
-      aiInsights: '⚠️ AI 엔진 호출 중 오류가 발생하여 템플릿 규칙 엔진 모드로 자동 전환되었습니다.',
+      aiInsights: 'AI 엔진 호출 중 오류가 발생하여 템플릿 규칙 엔진 모드로 자동 전환되었습니다.',
     };
   }
 }
@@ -259,26 +259,26 @@ export function formatExportText(summary: DailySummary, format: ExportFormat): s
   const date = summary.summaryDate;
 
   if (format === 'slack') {
-    return `*📅 [일일 개발 요약] ${date}*\n\n` +
-      `*✅ [오늘 한 일]*\n` +
+    return `*[일일 개발 요약] ${date}*\n\n` +
+      `*[오늘 한 일]*\n` +
       summary.doneToday.map((item) => `• ${item.issueKey ? `\`${item.issueKey}\` ` : ''}${item.title}${item.detail ? ` _(${item.detail})_` : ''}`).join('\n') +
-      `\n\n*🚀 [내일 할 일]*\n` +
+      `\n\n*[내일 할 일]*\n` +
       summary.planTomorrow.map((item) => `• ${item.issueKey ? `\`${item.issueKey}\` ` : ''}${item.title}`).join('\n') +
-      `\n\n*🚨 [주의 사항 & 블로커]*\n` +
+      `\n\n*[주의 사항 & 블로커]*\n` +
       summary.blockers.map((item) => `• ${item.title}`).join('\n') +
-      (summary.aiInsights ? `\n\n💡 *AI 인사이트*: ${summary.aiInsights}` : '');
+      (summary.aiInsights ? `\n\n *AI 인사이트*: ${summary.aiInsights}` : '');
   }
 
   if (format === 'notion' || format === 'markdown') {
     return `# 📅 오늘의 개발 요약 (${date})\n\n` +
-      `> **생성 엔진**: ${summary.engineUsed === 'AI' ? '🤖 Gemini AI Engine' : '⚙️ Template Rule Engine'}\n\n` +
+      `> **생성 엔진**: ${summary.engineUsed === 'AI' ? 'Gemini AI Engine' : 'Template Rule Engine'}\n\n` +
       `## ✅ 오늘 한 일 (Done Today)\n` +
       summary.doneToday.map((item) => `- ${item.issueKey ? `**[${item.issueKey}]** ` : ''}${item.title}${item.detail ? `\n  - *${item.detail}*` : ''}`).join('\n') +
       `\n\n## 🚀 내일 할 일 (Plan for Tomorrow)\n` +
       summary.planTomorrow.map((item) => `- ${item.issueKey ? `**[${item.issueKey}]** ` : ''}${item.title}`).join('\n') +
       `\n\n## 🚨 주의 사항 및 이슈 (Risks & Blockers)\n` +
       summary.blockers.map((item) => `- ${item.title}`).join('\n') +
-      (summary.aiInsights ? `\n\n--- \n### 💡 AI 총평 & 제언\n${summary.aiInsights}` : '');
+      (summary.aiInsights ? `\n\n--- \n### AI 총평 & 제언\n${summary.aiInsights}` : '');
   }
 
   // Plain Text

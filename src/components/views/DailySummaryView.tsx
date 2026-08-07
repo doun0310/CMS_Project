@@ -11,7 +11,6 @@ import {
 import { isGeminiConfigured } from '../../services/geminiService';
 import { ExportSummaryModal } from '../modals/ExportSummaryModal';
 import {
-  IconZap,
   IconAiSpark,
   IconCheckCircle,
   IconAlertTriangle,
@@ -22,7 +21,8 @@ import {
   IconChevronRight,
   IconDownload,
   IconCalendar,
-  IconRefresh
+  IconRefresh,
+  IconDailySummary
 } from '../common/Icons';
 import '../../styles/dailySummaryView.css';
 
@@ -117,10 +117,13 @@ export const DailySummaryView: React.FC = () => {
       <div className="daily-summary-header-card">
         <div className="daily-summary-header-title-group">
           <div className="daily-summary-header-icon">
-            <IconZap size={24} />
+            <IconDailySummary size={24} />
           </div>
           <div>
             <h1 className="daily-summary-header-title">오늘의 개발 요약</h1>
+            <p className="daily-summary-header-subtitle">
+              일일 변경 이벤트 및 태스크 상태를 자동 분석하여 데일리 스탠드업 보고서를 생성합니다.
+            </p>
           </div>
         </div>
 
@@ -155,7 +158,7 @@ export const DailySummaryView: React.FC = () => {
             }}
           >
             <IconAiSpark size={16} />
-            <span>{useAI ? '🤖 Gemini AI 분석' : '⚙️ 템플릿 규칙'}</span>
+            <span>{useAI ? 'Gemini AI 분석' : '템플릿 규칙 엔진'}</span>
           </button>
 
           {/* Refresh Button */}
