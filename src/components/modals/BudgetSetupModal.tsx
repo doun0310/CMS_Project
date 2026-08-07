@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { ProjectBudget } from '../../types/Aether';
-import { IconX, IconCheck } from '../common/Icons';
+import { IconX, IconCheck, IconCreditCard } from '../common/Icons';
 import '../../styles/budgetView.css';
 
 interface BudgetSetupModalProps {
@@ -39,14 +39,24 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
 
   return (
     <div className="modal-backdrop animate-fade-in" style={{ zIndex: 1100 }}>
-      <div className="modal-content" style={{ maxWidth: 520 }}>
+      <div className="modal-content" style={{ maxWidth: 520, borderRadius: 16 }}>
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#6366f11a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
-              💰
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'rgba(99, 102, 241, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#6366f1',
+              border: '1px solid rgba(99, 102, 241, 0.25)'
+            }}>
+              <IconCreditCard size={18} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>프로젝트 예산 설정</h3>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>프로젝트 수주 예산 설정</h3>
               <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>수주 예산 금액 및 프로젝트 운영 기한을 지정합니다.</p>
             </div>
           </div>
@@ -105,10 +115,10 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
             </div>
           </div>
 
-          <div className="budget-form-group">
-            <label className="budget-form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="budget-form-group" style={{ background: 'var(--bg-tertiary)', padding: 14, borderRadius: 10, border: '1px solid var(--border-color)' }}>
+            <label className="budget-form-label" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span>목표 곡선 대비 경고 임계치 (%)</span>
-              <span style={{ color: '#6366f1' }}>{alertThresholdPercent}%</span>
+              <span style={{ color: '#6366f1', fontWeight: 700 }}>+{alertThresholdPercent}%</span>
             </label>
             <input
               type="range"
@@ -117,10 +127,10 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
               step="5"
               value={alertThresholdPercent}
               onChange={e => setAlertThresholdPercent(Number(e.target.value))}
-              style={{ width: '100%' }}
+              style={{ width: '100%', accentColor: '#6366f1' }}
             />
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              이상적 소진 곡선보다 실 집행액이 {alertThresholdPercent}% 이상 초과할 시 '예산 초과 위험' 경고를 발송합니다.
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginTop: 6, lineHeight: 1.4 }}>
+              이상적 소진 곡선보다 실 집행액이 {alertThresholdPercent}% 이상 초과할 시 위험 경고 배너를 발송합니다.
             </span>
           </div>
 
@@ -138,4 +148,3 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
     </div>
   );
 };
-

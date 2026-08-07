@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { DailySummary, ExportFormat } from '../../types/dailySummary';
 import { formatExportText } from '../../services/dailySummaryService';
+import { IconDownload, IconCheckCircle, IconX } from '../common/Icons';
 
 interface ExportSummaryModalProps {
   isOpen: boolean;
@@ -35,12 +36,12 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
       padding: '16px'
     }}>
       <div style={{
-        backgroundColor: '#1e293b',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'var(--card-bg, #1e293b)',
+        border: '1px solid var(--border-color, rgba(255, 255, 255, 0.12))',
         borderRadius: '16px',
         width: '100%',
         maxWidth: '650px',
-        color: '#f8fafc',
+        color: 'var(--text-primary, #f8fafc)',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         display: 'flex',
         flexDirection: 'column',
@@ -49,16 +50,29 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
         {/* Header */}
         <div style={{
           padding: '20px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>📋</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(59, 130, 246, 0.15)',
+              color: '#3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <IconDownload size={20} />
+            </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>일일 요약 복사 및 내보내기</h3>
-              <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>{summary.summaryDate} 개발자 보고서 포맷 선택</p>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600 }}>일일 요약 복사 및 내보내기</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '13px', color: 'var(--text-secondary, #94a3b8)' }}>
+                {summary.summaryDate} 개발자 보고서 포맷 선택
+              </p>
             </div>
           </div>
           <button
@@ -66,22 +80,25 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
             style={{
               background: 'none',
               border: 'none',
-              color: '#94a3b8',
-              fontSize: '20px',
+              color: 'var(--text-secondary, #94a3b8)',
               cursor: 'pointer',
-              padding: '4px'
+              padding: '6px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            ✕
+            <IconX size={18} />
           </button>
         </div>
 
-        {/* Format selector tabs */}
+        {/* Format Selector Tabs */}
         <div style={{
           padding: '16px 24px 0',
           display: 'flex',
           gap: '8px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)'
+          borderBottom: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))'
         }}>
           {(['slack', 'notion', 'markdown', 'text'] as ExportFormat[]).map((fmt) => (
             <button
@@ -92,7 +109,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
                 borderRadius: '8px 8px 0 0',
                 border: 'none',
                 backgroundColor: format === fmt ? '#3b82f6' : 'transparent',
-                color: format === fmt ? '#ffffff' : '#94a3b8',
+                color: format === fmt ? '#ffffff' : 'var(--text-secondary, #94a3b8)',
                 fontWeight: format === fmt ? 600 : 400,
                 fontSize: '13px',
                 cursor: 'pointer',
@@ -113,10 +130,10 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
             style={{
               width: '100%',
               height: '240px',
-              backgroundColor: '#0f172a',
+              backgroundColor: 'var(--bg-secondary, #0f172a)',
               color: '#38bdf8',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
+              border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+              borderRadius: '10px',
               padding: '14px',
               fontFamily: 'monospace',
               fontSize: '13px',
@@ -130,8 +147,8 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
         {/* Footer Actions */}
         <div style={{
           padding: '16px 24px',
-          backgroundColor: '#0f172a',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          backgroundColor: 'var(--bg-secondary, #0f172a)',
+          borderTop: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
           display: 'flex',
           justifyContent: 'flex-end',
           gap: '12px'
@@ -141,9 +158,9 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
             style={{
               padding: '8px 16px',
               borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
               backgroundColor: 'transparent',
-              color: '#94a3b8',
+              color: 'var(--text-secondary, #94a3b8)',
               fontSize: '14px',
               cursor: 'pointer'
             }}
@@ -167,7 +184,8 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
               transition: 'background-color 0.2s'
             }}
           >
-            {copied ? '✓ 복사 완료!' : '📋 클립보드 복사'}
+            {copied ? <IconCheckCircle size={16} /> : <IconDownload size={16} />}
+            <span>{copied ? '복사 완료!' : '클립보드 복사'}</span>
           </button>
         </div>
       </div>

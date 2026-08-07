@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { ExpenseCategory, RecurringType, ProjectExpense } from '../../types/Aether';
-import { IconX, IconCheck } from '../common/Icons';
+import { IconX, IconCheck, IconBriefcase } from '../common/Icons';
 import '../../styles/budgetView.css';
 
 interface ExpenseModalProps {
@@ -46,14 +46,24 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   return (
     <div className="modal-backdrop animate-fade-in" style={{ zIndex: 1100 }}>
-      <div className="modal-content" style={{ maxWidth: 500 }}>
+      <div className="modal-content" style={{ maxWidth: 500, borderRadius: 16 }}>
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f59e0b1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>
-              🧾
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'rgba(245, 158, 11, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#f59e0b',
+              border: '1px solid rgba(245, 158, 11, 0.25)'
+            }}>
+              <IconBriefcase size={18} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>운영비 및 고정 지출 추가</h3>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>운영비 및 고정 지출 추가</h3>
               <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>서버, 툴 구독료, 외주 비용 항목을 등록합니다.</p>
             </div>
           </div>
@@ -83,10 +93,10 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 value={category}
                 onChange={e => setCategory(e.target.value as ExpenseCategory)}
               >
-                <option value="infrastructure">☁️ 서버 및 인프라</option>
-                <option value="software">💻 소프트웨어 툴 / SaaS</option>
-                <option value="outsourcing">🤝 외주 및 전문 용역</option>
-                <option value="other">📦 기타 지출</option>
+                <option value="infrastructure">서버 및 인프라</option>
+                <option value="software">소프트웨어 툴 / SaaS</option>
+                <option value="outsourcing">외주 및 전문 용역</option>
+                <option value="other">기타 지출</option>
               </select>
             </div>
 
@@ -97,8 +107,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 value={recurringType}
                 onChange={e => setRecurringType(e.target.value as RecurringType)}
               >
-                <option value="monthly">🔄 매월 정기 지출</option>
-                <option value="one_time">⚡ 1회성 지출</option>
+                <option value="monthly">매월 정기 지출</option>
+                <option value="one_time">1회성 지출</option>
               </select>
             </div>
           </div>
@@ -154,4 +164,3 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     </div>
   );
 };
-
