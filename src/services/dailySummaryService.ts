@@ -270,13 +270,13 @@ export function formatExportText(summary: DailySummary, format: ExportFormat): s
   }
 
   if (format === 'notion' || format === 'markdown') {
-    return `# 📅 오늘의 개발 요약 (${date})\n\n` +
+    return `# 오늘의 개발 요약 (${date})\n\n` +
       `> **생성 엔진**: ${summary.engineUsed === 'AI' ? 'Gemini AI Engine' : 'Template Rule Engine'}\n\n` +
-      `## ✅ 오늘 한 일 (Done Today)\n` +
+      `## 오늘 한 일 (Done Today)\n` +
       summary.doneToday.map((item) => `- ${item.issueKey ? `**[${item.issueKey}]** ` : ''}${item.title}${item.detail ? `\n  - *${item.detail}*` : ''}`).join('\n') +
-      `\n\n## 🚀 내일 할 일 (Plan for Tomorrow)\n` +
+      `\n\n## 내일 할 일 (Plan for Tomorrow)\n` +
       summary.planTomorrow.map((item) => `- ${item.issueKey ? `**[${item.issueKey}]** ` : ''}${item.title}`).join('\n') +
-      `\n\n## 🚨 주의 사항 및 이슈 (Risks & Blockers)\n` +
+      `\n\n## 주의 사항 및 이슈 (Risks & Blockers)\n` +
       summary.blockers.map((item) => `- ${item.title}`).join('\n') +
       (summary.aiInsights ? `\n\n--- \n### AI 총평 & 제언\n${summary.aiInsights}` : '');
   }

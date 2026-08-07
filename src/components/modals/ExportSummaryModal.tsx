@@ -70,9 +70,6 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({ isOpen, 
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600 }}>일일 보고서 1-Click 내보내기</h3>
-              <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary, #94a3b8)' }}>
-                {summary.summaryDate} 개발자 보고서 포맷을 선택하고 클립보드에 복사하세요.
-              </p>
             </div>
           </div>
           <button

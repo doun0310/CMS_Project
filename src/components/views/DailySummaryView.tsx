@@ -121,9 +121,6 @@ export const DailySummaryView: React.FC = () => {
           </div>
           <div>
             <h1 className="daily-summary-header-title">오늘의 개발 요약</h1>
-            <p className="daily-summary-header-subtitle">
-              일일 변경 이벤트 및 태스크 상태를 자동 분석하여 데일리 스탠드업 보고서를 생성합니다.
-            </p>
           </div>
         </div>
 
@@ -195,7 +192,6 @@ export const DailySummaryView: React.FC = () => {
               {summary ? summary.doneToday.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
-            <div className="daily-summary-kpi-subtext">스프린트 상태 반영</div>
           </div>
         </div>
 
@@ -209,7 +205,6 @@ export const DailySummaryView: React.FC = () => {
               {summary ? summary.planTomorrow.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
-            <div className="daily-summary-kpi-subtext">우선순위 상위 항목</div>
           </div>
         </div>
 
@@ -223,7 +218,6 @@ export const DailySummaryView: React.FC = () => {
               {summary ? summary.blockers.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
             </div>
-            <div className="daily-summary-kpi-subtext">즉시 조치 필요</div>
           </div>
         </div>
 
@@ -237,7 +231,6 @@ export const DailySummaryView: React.FC = () => {
               {totalEventsCount}
               <span className="daily-summary-kpi-unit">개</span>
             </div>
-            <div className="daily-summary-kpi-subtext">자동 파이프라인 수집</div>
           </div>
         </div>
       </div>
