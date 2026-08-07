@@ -56,11 +56,18 @@
 
 /* Budget Cards */
 .budget-card {
-  padding: 20px;
-  border-radius: 12px;
+  padding: 22px;
+  border-radius: 14px;
   border: 1px solid var(--border-color);
   background: var(--card-bg, var(--bg-secondary));
   box-shadow: var(--card-shadow);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.budget-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
 }
 
 .budget-card-title {
