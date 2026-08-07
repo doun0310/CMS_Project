@@ -38,9 +38,9 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
   };
 
   return (
-    <div className="modal-backdrop animate-fade-in" style={{ zIndex: 1100 }}>
-      <div className="modal-content" style={{ maxWidth: 520, borderRadius: 16 }}>
-        <div className="modal-header">
+    <div className="budget-drawer-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="budget-drawer-content">
+        <div className="modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 36,
@@ -57,7 +57,7 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>프로젝트 수주 예산 설정</h3>
-              <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>수주 예산 금액 및 프로젝트 운영 기한을 지정합니다.</p>
+              <p style={{ margin: '2px 0 0', fontSize: 12.5, color: 'var(--text-secondary)' }}>수주 예산 금액 및 프로젝트 운영 기한을 지정합니다.</p>
             </div>
           </div>
           <button className="icon-button" onClick={onClose} aria-label="Close modal">
@@ -65,7 +65,7 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20, flex: 1 }}>
           <div className="budget-form-group">
             <label className="budget-form-label">총 수주 / 할당 예산</label>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -134,7 +134,7 @@ export const BudgetSetupModal: React.FC<BudgetSetupModalProps> = ({
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               취소
             </button>

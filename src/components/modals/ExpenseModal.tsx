@@ -45,9 +45,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   };
 
   return (
-    <div className="modal-backdrop animate-fade-in" style={{ zIndex: 1100 }}>
-      <div className="modal-content" style={{ maxWidth: 500, borderRadius: 16 }}>
-        <div className="modal-header">
+    <div className="budget-drawer-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="budget-drawer-content">
+        <div className="modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 36,
@@ -64,7 +64,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>운영비 및 고정 지출 추가</h3>
-              <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>서버, 툴 구독료, 외주 비용 항목을 등록합니다.</p>
+              <p style={{ margin: '2px 0 0', fontSize: 12.5, color: 'var(--text-secondary)' }}>서버, 툴 구독료, 외주 비용 항목을 등록합니다.</p>
             </div>
           </div>
           <button className="icon-button" onClick={onClose} aria-label="Close modal">
@@ -72,7 +72,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20, flex: 1 }}>
           <div className="budget-form-group">
             <label className="budget-form-label">지출 항목명</label>
             <input
@@ -143,14 +143,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             <label className="budget-form-label">상세 설명 (선택)</label>
             <textarea
               className="budget-textarea"
-              rows={2}
+              rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="관련 계약서, 용지 및 비용 목적 메모"
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               취소
             </button>
