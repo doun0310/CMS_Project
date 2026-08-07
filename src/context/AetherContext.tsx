@@ -696,7 +696,6 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
             const map = new Map(prev.map(i => [i.id, i]));
             dbIssues.forEach(dbIssue => {
               const localIssue = map.get(dbIssue.id);
-              // Preserve local updates if local updated_at is newer or item is newly added locally
               if (!localIssue) {
                 map.set(dbIssue.id, { ...dbIssue, projectId: dbIssue.projectId || currentProject.id });
               } else {
@@ -710,35 +709,45 @@ const AetherProviderContent: React.FC<{ children: ReactNode; persistedState: Per
             return Array.from(map.values());
           });
         } else {
-          // Sequential FK-safe seeding when database is fresh
-          for (const proj of initialProjects) {
-            await syncProjectToSupabase(proj, authenticatedUserId || 'u1');
-          }
-          for (const sprint of initialSprints) {
-            const projMatch = initialProjects.find(p => p.id === sprint.projectId);
-            const pRemoteId = projMatch?.remoteId || projMatch?.id || sprint.projectId || 'p1';
-            await syncSprintToSupabase(sprint, pRemoteId);
-          }
-          for (const epic of initialEpics) {
-            const projMatch = initialProjects.find(p => p.id === epic.projectId);
-            const pRemoteId = projMatch?.remoteId || projMatch?.id || epic.projectId || 'p1';
-            await syncEpicToSupabase(epic, pRemoteId);
-          }
-          for (const issue of initialIssues) {
-            const projMatch = initialProjects.find(p => p.id === issue.projectId);
-            const pRemoteId = projMatch?.remoteId || projMatch?.id || issue.projectId || 'p1';
-            syncIssueToSupabase(issue, pRemoteId);
-          }
+          // Asynchronous non-blocking background seeding
+          setTimeout(() => {
+            (async () => {
+              try {
+                for (const proj of initialProjects) {
+                  await syncProjectToSupabase(proj, authenticatedUserId || 'u1');
+                }
+                for (const sprint of initialSprints) {
+                  const projMatch = initialProjects.find(p => p.id === sprint.projectId);
+                  const pRemoteId = projMatch?.remoteId || projMatch?.id || sprint.projectId || 'p1';
+                  await syncSprintToSupabase(sprint, pRemoteId);
+                }
+                for (const epic of initialEpics) {
+                  const projMatch = initialProjects.find(p => p.id === epic.projectId);
+                  const pRemoteId = projMatch?.remoteId || projMatch?.id || epic.projectId || 'p1';
+                  await syncEpicToSupabase(epic, pRemoteId);
+                }
+                for (const issue of initialIssues) {
+                  const projMatch = initialProjects.find(p => p.id === issue.projectId);
+                  const pRemoteId = projMatch?.remoteId || projMatch?.id || issue.projectId || 'p1';
+                  syncIssueToSupabase(issue, pRemoteId);
+                }
+              } catch (e) {
+                console.warn('Background seed error:', e);
+              }
+            })();
+          }, 1000);
         }
 
         if (dbRetro.length > 0) {
           setRetrospectiveItems(dbRetro);
         } else {
-          for (const retro of initialRetrospectiveItems) {
-            const projMatch = initialProjects.find(p => p.id === retro.projectId);
-            const pRemoteId = projMatch?.remoteId || projMatch?.id || retro.projectId || 'p1';
-            syncRetroToSupabase(retro, pRemoteId, 'sprint-24');
-          }
+          setTimeout(() => {
+            for (const retro of initialRetrospectiveItems) {
+              const projMatch = initialProjects.find(p => p.id === retro.projectId);
+              const pRemoteId = projMatch?.remoteId || projMatch?.id || retro.projectId || 'p1';
+              syncRetroToSupabase(retro, pRemoteId, 'sprint-24');
+            }
+          }, 1500);
         }
       } catch (err) {
         console.warn('Supabase initial fetch/seed warning:', err);

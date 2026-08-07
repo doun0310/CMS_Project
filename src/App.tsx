@@ -46,9 +46,14 @@ import './styles/auth.css';
  * - When Supabase IS configured → require a valid session before showing the workspace
  */
 const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<'loading' | 'authenticated' | 'unauthenticated'>(
-    isSupabaseConfigured ? 'loading' : 'authenticated'
-  );
+  const [session, setSession] = useState<'loading' | 'authenticated' | 'unauthenticated'>(() => {
+    if (!isSupabaseConfigured) return 'authenticated';
+    try {
+      const cached = localStorage.getItem('aether_session_hint');
+      if (cached === 'authenticated') return 'authenticated';
+    } catch {}
+    return 'loading';
+  });
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -58,12 +63,25 @@ const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     // Check existing session immediately
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session ? 'authenticated' : 'unauthenticated');
-    }).catch(() => setSession('unauthenticated'));
+      const isAuth = !!data.session;
+      setSession(isAuth ? 'authenticated' : 'unauthenticated');
+      try {
+        localStorage.setItem('aether_session_hint', isAuth ? 'authenticated' : 'unauthenticated');
+      } catch {}
+    }).catch(() => {
+      setSession('unauthenticated');
+      try {
+        localStorage.setItem('aether_session_hint', 'unauthenticated');
+      } catch {}
+    });
 
     // Listen for subsequent auth state changes (login / logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s ? 'authenticated' : 'unauthenticated');
+      const isAuth = !!s;
+      setSession(isAuth ? 'authenticated' : 'unauthenticated');
+      try {
+        localStorage.setItem('aether_session_hint', isAuth ? 'authenticated' : 'unauthenticated');
+      } catch {}
     });
 
     return () => subscription.unsubscribe();
