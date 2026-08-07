@@ -90,24 +90,23 @@ export const BudgetView: React.FC = () => {
 
   if (!isAuthorized) {
     return (
-      <div className="budget-view-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 380 }}>
+      <div className="budget-view-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 360 }}>
         <div style={{
-          width: 56,
-          height: 56,
-          borderRadius: 18,
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(220, 38, 38, 0.08) 100%)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
+          width: 52,
+          height: 52,
+          borderRadius: 16,
+          background: 'rgba(239, 68, 68, 0.12)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: '#ef4444',
-          marginBottom: 14,
-          boxShadow: '0 6px 18px rgba(239, 68, 68, 0.12)'
+          marginBottom: 12
         }}>
-          <IconShield size={28} />
+          <IconShield size={26} />
         </div>
-        <h2 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 6px', color: 'var(--text-primary)' }}>접근 권한 제한 (Secured View)</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 13, maxWidth: 440, textAlign: 'center', margin: 0, lineHeight: 1.5 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px', color: 'var(--text-primary)' }}>접근 권한 제한 (Secured View)</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 13, maxWidth: 420, textAlign: 'center', margin: 0, lineHeight: 1.5 }}>
           프로젝트 예산 및 시급 관리 화면은 보안 관리를 위해 <strong>Project Owner</strong> 및 <strong>Project Manager</strong> 권한 보유자에게만 제공됩니다.
         </p>
       </div>
@@ -116,9 +115,9 @@ export const BudgetView: React.FC = () => {
 
   if (loading || !budget) {
     return (
-      <div className="budget-view-container animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 280, gap: 10, color: 'var(--text-secondary)' }}>
-        <div className="auth-spinner" style={{ width: 22, height: 22, borderWidth: 2.5 }} />
-        <span style={{ fontWeight: 600, fontSize: 13.5 }}>예산 지표 데이터 불러오는 중...</span>
+      <div className="budget-view-container animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260, gap: 10, color: 'var(--text-secondary)' }}>
+        <div className="auth-spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
+        <span style={{ fontWeight: 600, fontSize: 13 }}>예산 데이터 불러오는 중...</span>
       </div>
     );
   }
@@ -154,30 +153,29 @@ export const BudgetView: React.FC = () => {
 
   return (
     <div className="budget-view-container animate-fade-in">
-      {/* Compact View Header Bar */}
+      {/* View Header Bar */}
       <div className="board-header budget-header-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
             width: 36,
             height: 36,
             borderRadius: 10,
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%)',
+            background: 'rgba(99, 102, 241, 0.12)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#6366f1',
-            border: '1px solid rgba(99, 102, 241, 0.35)',
-            boxShadow: '0 3px 12px rgba(99, 102, 241, 0.15)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
             flexShrink: 0
           }}>
             <IconBudget size={20} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h1 className="view-title" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+              <h1 className="view-title" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
                 프로젝트 예산 및 소요 금액 관리
               </h1>
-              <span className="link-badge" style={{ fontSize: 10.5, background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '2px 7px' }}>
+              <span className="link-badge" style={{ fontSize: 10.5, background: 'rgba(99, 102, 241, 0.12)', color: '#6366f1', border: '1px solid rgba(99, 102, 241, 0.25)', padding: '2px 7px' }}>
                 EXECUTIVE / PO ONLY
               </span>
             </div>
@@ -185,15 +183,15 @@ export const BudgetView: React.FC = () => {
         </div>
 
         <div className="board-controls" style={{ gap: 8 }}>
-          <button className="btn btn-secondary" onClick={() => setIsBudgetModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 8, fontSize: 12.5 }}>
+          <button className="btn btn-secondary" onClick={() => setIsBudgetModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 12.5 }}>
             <IconSettings size={14} color="#6366f1" />
             예산 설정
           </button>
-          <button className="btn btn-secondary" onClick={() => setIsRateModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 8, fontSize: 12.5 }}>
+          <button className="btn btn-secondary" onClick={() => setIsRateModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 12.5 }}>
             <IconUser size={14} color="#6366f1" />
             시급 설정
           </button>
-          <button className="btn btn-primary" onClick={() => setIsExpenseModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 15px', borderRadius: 8, fontSize: 12.5 }}>
+          <button className="btn btn-primary" onClick={() => setIsExpenseModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, fontSize: 12.5 }}>
             <IconPlus size={14} />
             지출 항목 추가
           </button>
@@ -203,7 +201,7 @@ export const BudgetView: React.FC = () => {
       {/* Risk Alert Banner */}
       {summary.riskMessage && (
         <div className={`budget-risk-banner ${summary.riskLevel}`}>
-          <IconAlertTriangle size={20} color={summary.riskLevel === 'danger' ? '#ef4444' : '#f59e0b'} />
+          <IconAlertTriangle size={18} color={summary.riskLevel === 'danger' ? '#ef4444' : '#f59e0b'} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 1 }}>
               {summary.riskLevel === 'danger' ? '예산 초과 위험 경고 (Budget Overrun Warning)' : '예산 빠른 소진 주의'}
@@ -221,7 +219,7 @@ export const BudgetView: React.FC = () => {
         </div>
       )}
 
-      {/* Compact KPI Summary Cards */}
+      {/* KPI Summary Cards Grid */}
       <div className="budget-kpi-grid">
         {/* Total Budget Card */}
         <div className="budget-card">
@@ -249,9 +247,9 @@ export const BudgetView: React.FC = () => {
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: 999,
-              background: summary.burnRatePercent > 100 ? 'rgba(239, 68, 68, 0.16)' : 'rgba(99, 102, 241, 0.16)',
+              background: summary.burnRatePercent > 100 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(99, 102, 241, 0.12)',
               color: summary.burnRatePercent > 100 ? '#ef4444' : '#6366f1',
-              border: summary.burnRatePercent > 100 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(99, 102, 241, 0.3)'
+              border: summary.burnRatePercent > 100 ? '1px solid rgba(239, 68, 68, 0.25)' : '1px solid rgba(99, 102, 241, 0.25)'
             }}>
               소진율 {summary.burnRatePercent}%
             </span>
@@ -285,7 +283,7 @@ export const BudgetView: React.FC = () => {
               style={{
                 width: `${Math.min(100, Math.max(0, summary.burnRatePercent))}%`,
                 height: '100%',
-                background: summary.burnRatePercent > 90 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : summary.burnRatePercent > 70 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #10b981, #059669)',
+                background: summary.burnRatePercent > 90 ? '#ef4444' : summary.burnRatePercent > 70 ? '#f59e0b' : '#10b981',
                 transition: 'width 0.4s ease'
               }}
             />
@@ -320,7 +318,7 @@ export const BudgetView: React.FC = () => {
       </div>
 
       {/* Spend Curve Chart & Category Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 20 }}>
         {/* Planned vs Actual Spend Curve Chart */}
         <div className="budget-section-card" style={{ marginBottom: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -346,12 +344,12 @@ export const BudgetView: React.FC = () => {
             </div>
           </div>
 
-          {/* Compact SVG Line Chart */}
-          <div style={{ width: '100%', height: 170, position: 'relative' }}>
-            <svg width="100%" height="100%" viewBox="0 0 500 150" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+          {/* SVG Line Chart */}
+          <div style={{ width: '100%', height: 165, position: 'relative' }}>
+            <svg width="100%" height="100%" viewBox="0 0 500 145" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
               <defs>
-                <linearGradient id="spendGradientCompact" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.22" />
+                <linearGradient id="spendGradientClean" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.18" />
                   <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
@@ -360,19 +358,19 @@ export const BudgetView: React.FC = () => {
               <line x1="0" y1="15" x2="500" y2="15" stroke="var(--border-color)" strokeWidth="1" strokeDasharray="3,3" />
               <line x1="0" y1="55" x2="500" y2="55" stroke="var(--border-color)" strokeWidth="1" strokeDasharray="3,3" />
               <line x1="0" y1="95" x2="500" y2="95" stroke="var(--border-color)" strokeWidth="1" strokeDasharray="3,3" />
-              <line x1="0" y1="135" x2="500" y2="135" stroke="var(--border-color)" strokeWidth="1" />
+              <line x1="0" y1="130" x2="500" y2="130" stroke="var(--border-color)" strokeWidth="1" />
 
               {/* Area Fill under Curve */}
               <polygon
-                fill="url(#spendGradientCompact)"
-                points={`0,135 ${summary.targetSpendCurve
+                fill="url(#spendGradientClean)"
+                points={`0,130 ${summary.targetSpendCurve
                   .map((p, idx) => {
                     const x = (idx / (summary.targetSpendCurve.length - 1)) * 500;
                     const val = p.projected !== undefined ? p.projected : p.actual;
-                    const y = 135 - (val / (budget.totalBudget || 1)) * 115;
+                    const y = 130 - (val / (budget.totalBudget || 1)) * 110;
                     return `${x},${Math.max(10, y)}`;
                   })
-                  .join(' ')} 500,135`}
+                  .join(' ')} 500,130`}
               />
 
               {/* Planned Line (Dashed) */}
@@ -384,7 +382,7 @@ export const BudgetView: React.FC = () => {
                 points={summary.targetSpendCurve
                   .map((p, idx) => {
                     const x = (idx / (summary.targetSpendCurve.length - 1)) * 500;
-                    const y = 135 - (p.planned / (budget.totalBudget || 1)) * 115;
+                    const y = 130 - (p.planned / (budget.totalBudget || 1)) * 110;
                     return `${x},${Math.max(10, y)}`;
                   })
                   .join(' ')}
@@ -394,14 +392,14 @@ export const BudgetView: React.FC = () => {
               <polyline
                 fill="none"
                 stroke="#6366f1"
-                strokeWidth="3"
+                strokeWidth="2.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 points={summary.targetSpendCurve
                   .map((p, idx) => {
                     const x = (idx / (summary.targetSpendCurve.length - 1)) * 500;
                     const val = p.projected !== undefined ? p.projected : p.actual;
-                    const y = 135 - (val / (budget.totalBudget || 1)) * 115;
+                    const y = 130 - (val / (budget.totalBudget || 1)) * 110;
                     return `${x},${Math.max(10, y)}`;
                   })
                   .join(' ')}
@@ -411,14 +409,14 @@ export const BudgetView: React.FC = () => {
               {summary.targetSpendCurve.map((p, idx) => {
                 const x = (idx / (summary.targetSpendCurve.length - 1)) * 500;
                 const val = p.projected !== undefined ? p.projected : p.actual;
-                const y = Math.max(10, 135 - (val / (budget.totalBudget || 1)) * 115);
+                const y = Math.max(10, 130 - (val / (budget.totalBudget || 1)) * 110);
                 const isProjected = p.projected !== undefined;
                 return (
                   <circle
                     key={idx}
                     cx={x}
                     cy={y}
-                    r="4"
+                    r="3.5"
                     fill={isProjected ? '#ef4444' : '#6366f1'}
                     stroke="var(--card-bg, #ffffff)"
                     strokeWidth="2"
@@ -454,7 +452,7 @@ export const BudgetView: React.FC = () => {
                 <span style={{ fontWeight: 700, color: '#6366f1' }}>{formatCurrency(summary.laborSpend, summary.currency)}</span>
               </div>
               <div style={{ height: 6, background: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{ width: `${summary.totalSpend > 0 ? (summary.laborSpend / summary.totalSpend) * 100 : 0}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1, #818cf8)', borderRadius: 4 }} />
+                <div style={{ width: `${summary.totalSpend > 0 ? (summary.laborSpend / summary.totalSpend) * 100 : 0}%`, height: '100%', background: '#6366f1', borderRadius: 4 }} />
               </div>
             </div>
 
@@ -527,7 +525,7 @@ export const BudgetView: React.FC = () => {
                       {u.avatar ? (
                         <img src={u.avatar} alt={u.name} style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
                       ) : (
-                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 11.5 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(99, 102, 241, 0.12)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 11.5 }}>
                           {u.name.charAt(0)}
                         </div>
                       )}
@@ -598,7 +596,7 @@ export const BudgetView: React.FC = () => {
                         {exp.description && <div style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginTop: 1 }}>{exp.description}</div>}
                       </td>
                       <td>
-                        <span className="budget-category-badge" style={{ background: `${catInfo.color}15`, color: catInfo.color, border: `1px solid ${catInfo.color}30` }}>
+                        <span className="budget-category-badge" style={{ background: `${catInfo.color}12`, color: catInfo.color, border: `1px solid ${catInfo.color}25` }}>
                           {catInfo.icon} {catInfo.label}
                         </span>
                       </td>

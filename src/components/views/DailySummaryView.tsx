@@ -184,10 +184,10 @@ export const DailySummaryView: React.FC = () => {
       <div className="daily-summary-kpi-grid">
         <div className="daily-summary-kpi-card">
           <div className="daily-summary-kpi-icon done">
-            <IconCheckCircle size={22} />
+            <IconCheckCircle size={20} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">오늘 완료한 업무</div>
+            <div className="daily-summary-kpi-label">오늘 완료</div>
             <div className="daily-summary-kpi-value" style={{ color: '#10b981' }}>
               {summary ? summary.doneToday.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
@@ -197,10 +197,10 @@ export const DailySummaryView: React.FC = () => {
 
         <div className="daily-summary-kpi-card">
           <div className="daily-summary-kpi-icon plan">
-            <IconClock size={22} />
+            <IconClock size={20} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">내일 진행할 업무</div>
+            <div className="daily-summary-kpi-label">내일 진행</div>
             <div className="daily-summary-kpi-value" style={{ color: '#3b82f6' }}>
               {summary ? summary.planTomorrow.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
@@ -210,10 +210,10 @@ export const DailySummaryView: React.FC = () => {
 
         <div className="daily-summary-kpi-card">
           <div className="daily-summary-kpi-icon blocker">
-            <IconAlertTriangle size={22} />
+            <IconAlertTriangle size={20} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">주의 & 차단 요소</div>
+            <div className="daily-summary-kpi-label">주의 & 블로커</div>
             <div className="daily-summary-kpi-value" style={{ color: '#ef4444' }}>
               {summary ? summary.blockers.length : 0}
               <span className="daily-summary-kpi-unit">건</span>
@@ -223,10 +223,10 @@ export const DailySummaryView: React.FC = () => {
 
         <div className="daily-summary-kpi-card">
           <div className="daily-summary-kpi-icon total">
-            <IconCalendar size={22} />
+            <IconCalendar size={20} />
           </div>
           <div>
-            <div className="daily-summary-kpi-label">수집된 개발 이벤트</div>
+            <div className="daily-summary-kpi-label">수집 이벤트</div>
             <div className="daily-summary-kpi-value" style={{ color: '#a855f7' }}>
               {totalEventsCount}
               <span className="daily-summary-kpi-unit">개</span>
@@ -262,11 +262,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header done">
             <h3 className="daily-summary-column-title done">
               <IconCheckCircle size={18} />
-              <span>1. 오늘 완료한 업무 (Done Today)</span>
+              <span>오늘 완료한 업무</span>
             </h3>
             <button className="daily-summary-add-btn done" onClick={() => handleAddItem('doneToday')}>
               <IconPlus size={14} />
-              <span>항목 추가</span>
+              <span>추가</span>
             </button>
           </div>
 
@@ -299,11 +299,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header plan">
             <h3 className="daily-summary-column-title plan">
               <IconClock size={18} />
-              <span>2. 내일 진행할 업무 (Plan for Tomorrow)</span>
+              <span>내일 진행할 업무</span>
             </h3>
             <button className="daily-summary-add-btn plan" onClick={() => handleAddItem('planTomorrow')}>
               <IconPlus size={14} />
-              <span>항목 추가</span>
+              <span>추가</span>
             </button>
           </div>
 
@@ -336,11 +336,11 @@ export const DailySummaryView: React.FC = () => {
           <div className="daily-summary-column-header blocker">
             <h3 className="daily-summary-column-title blocker">
               <IconAlertTriangle size={18} />
-              <span>3. 주의 사항 및 이슈 (Risks & Blockers)</span>
+              <span>주의 사항 & 이슈</span>
             </h3>
             <button className="daily-summary-add-btn blocker" onClick={() => handleAddItem('blockers')}>
               <IconPlus size={14} />
-              <span>항목 추가</span>
+              <span>추가</span>
             </button>
           </div>
 
